@@ -16,7 +16,7 @@ Git-first development active on `dev`.
 - Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
 - Verified small 12V bundle path: ROGERELE REP1000-12
 - Affiliate map: stored in WordPress option with admin settings UI; no deeplinks in public GitHub
-- Managed content manifest: 31 items (money pages, transparency pages and legacy rewrites)
+- Managed content manifest: 32 items (money pages, transparency pages and legacy rewrites)
 - Repository guardrails: catalog parity, offer/merchant integrity, no public affiliate deeplinks, manifest target validation
 - Obsolete duplicate bootstrap theme: removed
 - Product comparison: compares complete bundles on battery, continuous/surge inverter power, PV and MPPT fit
@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.2`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.3`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -72,6 +72,7 @@ Git-first development active on `dev`.
 - Heating decision near-win: `tepelne-cerpadlo-nebo-elektrokotel` rebuilt around annual heat demand, seasonal efficiency and FVE interaction; stale universal claims removed
 - Heat-pump shortlist near-win: stale UK Top-10 replaced with 2026 use-case shortlist using current Daikin/Vaillant/NIBE/Viessmann/LG R290 families and explicit methodology
 - LG review refresh: legacy 2023 R32/Split article replaced with 2026 THERMA V R290 buyer guide and current manufacturer-backed specs
+- Daikin review refresh: legacy 2023 UK/air-to-air mix replaced with a 2026 Czech buyer guide covering Altherma 4 H R290, Altherma 3 R MT/3 H HT, high-temperature retrofit fit and official current documentation
 - Viessmann review refresh: legacy multi-generation/RHI article replaced with 2026 Vitocal 250-A / 252-A buyer guide and current Czech manufacturer-backed specs
 - Legacy frontend quarantine: old Notification Bar, Ninja Popups, Simple Author Box and SEO Automated Link Building are removed from public rendering without deleting or deactivating plugins
 - Ground-mounted PV intent fix: new managed `/fotovoltaika-na-pozemku/` decision guide targets the GSC query currently leaking to an unrelated heat-pump boundary page; current 2026 permitting caveats included
