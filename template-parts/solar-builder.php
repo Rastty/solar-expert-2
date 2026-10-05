@@ -43,6 +43,13 @@
       <div class="se-result"><small>Měnič</small><strong>≥ <span x-text="result?.inverterW"></span> W</strong></div>
     </div>
 
+    <div class="se-note" x-show="catalogLoading" style="margin-top:14px">
+      Načítám ověřený produktový katalog…
+    </div>
+    <div class="se-note se-note-error" x-show="catalogError" style="margin-top:14px">
+      Technický sizing je spočítaný, ale produktový katalog se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
+    </div>
+
     <div class="se-bundles">
       <template x-for="b in completeBundles" :key="b.tier">
         <div class="se-bundle" :class="b.tier==='best'?'best':''">
