@@ -338,3 +338,16 @@ assert(builderTemplate.includes('x-for="b in completeBundles"'),'Builder must re
 assert(builderTemplate.includes('Neúplné cenové úrovně nezobrazujeme'),'Builder must explain why incomplete tiers are hidden');
 assert(!builderTemplate.includes('zatím neúplná varianta'),'Builder must not present incomplete tier cards as user-facing recommendations');
 assert(builderTemplate.includes('Raději nezobrazíme neověřenou kombinaci'),'Zero-result state must prefer no recommendation over weak technical evidence');
+
+
+assert(contentSyncCore.includes("function solar_expert_content_sync_state()"),'Managed content sync must expose deterministic drift state');
+assert(contentSyncCore.includes("add_action('init', 'solar_expert_schedule_content_sync'"),'Git deploys must schedule a bounded managed-content sync');
+assert(contentSyncCore.includes("wp_next_scheduled('solar_expert_async_content_sync')"),'Async content sync must not be scheduled repeatedly');
+assert(contentSyncCore.includes("wp_schedule_single_event(time() + 60, 'solar_expert_async_content_sync')"),'Async content sync must use a one-shot delayed event');
+assert(contentSyncCore.includes("get_transient('solar_expert_content_sync_lock')"),'Async content sync must use a concurrency lock');
+assert(contentSyncCore.includes("delete_transient('solar_expert_content_sync_lock')"),'Async content sync lock must be released');
+assert(contentSyncCore.includes("'content_sync_status'"),'Public health payload must expose content sync status');
+assert(contentSyncCore.includes("'content_sync_required'"),'Public health payload must expose whether managed content is stale');
+assert(contentSyncCore.includes("'content_sync_errors'"),'Public health payload must expose managed-content sync errors');
+assert(settingsCore.includes('Managed content: CURRENT'),'Admin diagnostics must show a current managed-content state');
+assert(settingsCore.includes('Automatický sync je naplánovaný'),'Admin diagnostics must explain pending automatic sync');
