@@ -75,3 +75,7 @@ Other fresh signal: `/velikost-rozmery-a-hmotnost-solarnich-panelu/` has 42 impr
 
 The fresh refresh supersedes the historical snapshot for prioritization; the historical section remains useful for trend/context.
 
+### Combined FVE + heat-pump decision page
+
+Fresh 90-day GSC evidence for `/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/`: **18 impressions, average position 14.22, 0 clicks**. Query mix includes `fotovoltaika s tepelným čerpadlem`, `kolik stojí fotovoltaika` and `kolik stojí solární panel`. Decision: preserve the existing URL, rewrite it as a combined-system cost/sizing page, route users to Builder + Quote Checker, and use the bounded `eon-heat-pump` lead CTA.
+
