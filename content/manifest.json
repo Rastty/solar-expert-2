@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.2.0",
+  "schemaVersion": "2.3.0",
   "items": [
     {
       "type": "page",
@@ -221,6 +221,14 @@
       "title": "Tepelné čerpadlo nebo elektrokotel: spotřeba, náklady a FVE",
       "preserve_status": true,
       "file": "content/rewrites/tepelne-cerpadlo-nebo-elektrokotel.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu",
+      "title": "Nejlepší tepelná čerpadla vzduch–voda 2026: výběr podle domu",
+      "preserve_status": true,
+      "file": "content/rewrites/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu.html",
       "create_if_missing": false
     }
   ]
