@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.3.0",
+  "schemaVersion": "2.4.0",
   "items": [
     {
       "type": "page",
@@ -237,6 +237,14 @@
       "title": "LG tepelné čerpadlo: recenze a technický přehled 2026",
       "preserve_status": true,
       "file": "content/rewrites/tepelne-cerpadla-lg-vyhody-nevyhody-ceny.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady",
+      "title": "Viessmann tepelné čerpadlo: recenze a technický přehled 2026",
+      "preserve_status": true,
+      "file": "content/rewrites/recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady.html",
       "create_if_missing": false
     }
   ]
