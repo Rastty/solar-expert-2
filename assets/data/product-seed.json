@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.8.0",
+  "schemaVersion": "0.9.0",
   "mode": "verified-public-seed; affiliate URLs added separately",
   "verifiedAt": "2026-10-05",
   "products": [
@@ -585,6 +585,40 @@
       "price_mode": "snapshot",
       "availability": "in_stock",
       "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/"
+    }
+  ],
+  "bundle_deals": [
+    {
+      "id": "deal-battery-pusung-growatt6000",
+      "merchant": "battery-cz",
+      "sku": "E9019",
+      "label": "SEPLOS PUSUNG-S + Growatt SPF 6000 ES Plus",
+      "components": [
+        "battery-seplos-pusung-48",
+        "inverter-growatt-48-6000"
+      ],
+      "price_czk": 32990,
+      "availability": "in_stock",
+      "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-pusung-s--5kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+      "verified_price_source_url": "https://www.battery.cz/baterie-menic/",
+      "verified_at": "2026-10-05",
+      "price_mode": "snapshot"
+    },
+    {
+      "id": "deal-battery-polo-w-growatt6000",
+      "merchant": "battery-cz",
+      "sku": "E9021",
+      "label": "SEPLOS POLO-W + Growatt SPF 6000 ES Plus",
+      "components": [
+        "battery-seplos-polo-w-48",
+        "inverter-growatt-48-6000"
+      ],
+      "price_czk": 32990,
+      "availability": "in_stock",
+      "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-polo-w--5-12kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+      "verified_price_source_url": "https://www.battery.cz/baterie-menic/",
+      "verified_at": "2026-10-05",
+      "price_mode": "snapshot"
     }
   ]
 }
