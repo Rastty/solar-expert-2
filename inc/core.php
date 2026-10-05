@@ -221,10 +221,37 @@ function solar_expert_sanitize_affiliate_map($input) {
   return $clean;
 }
 
+function solar_expert_sanitize_affiliate_bases($input) {
+  $existing = get_option('solar_expert_affiliate_bases', array());
+  if ( is_string($input) ) {
+    $decoded = json_decode(wp_unslash($input), true);
+    if ( ! is_array($decoded) ) {
+      add_settings_error('solar_expert_affiliate_bases','invalid_bases_json','Affiliate base odkazy nebyly uloženy: JSON není platný.','error');
+      return is_array($existing) ? $existing : array();
+    }
+    $input = $decoded;
+  }
+  if ( ! is_array($input) ) { return array(); }
+
+  $clean = array();
+  foreach ( $input as $merchant => $url ) {
+    $merchant_id = sanitize_key($merchant);
+    $safe = esc_url_raw($url, array('http','https'));
+    if ( $merchant_id && $safe ) {
+      $clean[$merchant_id] = $safe;
+    }
+  }
+  return $clean;
+}
+
 function solar_expert_register_settings() {
   register_setting('solar_expert_settings','solar_expert_affiliate_map',array(
     'sanitize_callback'=>'solar_expert_sanitize_affiliate_map',
     'default'=>array('products'=>array(),'leads'=>array()),
+  ));
+  register_setting('solar_expert_settings','solar_expert_affiliate_bases',array(
+    'sanitize_callback'=>'solar_expert_sanitize_affiliate_bases',
+    'default'=>array(),
   ));
 }
 add_action('admin_init','solar_expert_register_settings');
@@ -243,7 +270,12 @@ function solar_expert_settings_page() {
   if ( ! is_array($map) ) {
     $map = array('products'=>array(),'leads'=>array());
   }
+  $bases = get_option('solar_expert_affiliate_bases', array());
+  if ( ! is_array($bases) ) { $bases = array(); }
   $json = wp_json_encode($map, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  $bases = get_option('solar_expert_affiliate_bases', array());
+  if ( ! is_array($bases) ) { $bases = array(); }
+  $bases_json = wp_json_encode($bases, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
@@ -251,8 +283,12 @@ function solar_expert_settings_page() {
     <?php settings_errors('solar_expert_affiliate_map'); ?>
     <form method="post" action="options.php">
       <?php settings_fields('solar_expert_settings'); ?>
+      <h2>Affiliate base odkazy</h2>
+      <p>Sem stačí uložit defaultní partnerský odkaz obchodníka. Pro konkrétní produkt se automaticky doplní <code>desturl</code>. Produktová mapa níže slouží jako přesnější override.</p>
+      <textarea name="solar_expert_affiliate_bases" rows="8" class="large-text code"><?php echo esc_textarea($bases_json); ?></textarea>
+
       <h2>Affiliate mapa</h2>
-      <p>Klíč v <code>products</code> může být buď ID produktu (např. <code>mppt-victron-100-50</code>), nebo přesná kombinace produktu a obchodu (např. <code>mppt-victron-100-50@battery-cz</code>). Varianta s obchodem má přednost. <code>leads</code> je určené pro lead-gen odkazy.</p>
+      <p>Klíč v <code>products</code> může být buď ID produktu (např. <code>mppt-victron-100-50</code>), nebo přesná kombinace produktu a obchodu (např. <code>mppt-victron-100-50@battery-cz</code>). Varianta s obchodem má přednost před automatickým deeplinkem. <code>leads</code> je určené pro lead-gen odkazy.</p>
       <textarea name="solar_expert_affiliate_map" rows="22" class="large-text code"><?php echo esc_textarea($json); ?></textarea>
       <?php submit_button('Uložit affiliate mapu'); ?>
     </form>
@@ -279,7 +315,7 @@ function solar_expert_settings_page() {
         $legacy_key = $product['id'] ?? '';
         $mapped = isset($product_map[$exact_key]) || (
           ($product['merchant'] ?? '') === $merchant && isset($product_map[$legacy_key])
-        );
+        ) || isset($bases[$merchant]);
         if ( $mapped ) { $mapped_count++; }
 
         $coverage_rows[] = array(
@@ -359,6 +395,7 @@ function solar_expert_health_payload() {
     'manifest_schema_version' => (string) ($manifest['schemaVersion'] ?? '0'),
     'managed_content_items' => isset($manifest['items']) && is_array($manifest['items']) ? count($manifest['items']) : 0,
     'affiliate_product_mappings' => isset($map['products']) && is_array($map['products']) ? count($map['products']) : 0,
+    'affiliate_merchant_bases' => count($bases),
     'affiliate_lead_mappings' => isset($map['leads']) && is_array($map['leads']) ? count($map['leads']) : 0,
     'last_content_sync_utc' => isset($last_sync['time']) ? (string) $last_sync['time'] : null,
   );
