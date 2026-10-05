@@ -1,7 +1,42 @@
-<p class="se-lead">Nejrychlejší cesta k funkční ostrovní sestavě není začít produktem, ale spotřebou. Vyberte spotřebiče, dobu provozu a sezónu. Builder spočítá potřebný výkon panelů, baterii, systémové napětí, měnič a MPPT.</p>
+<p class="se-lead">Solární sestava na chatu dává smysl jen tehdy, když je navržená podle skutečné spotřeby. Začněte spotřebiči, dobou provozu a rozběhovými špičkami. Builder z toho odhadne potřebný výkon panelů, baterii, systémové napětí, měnič a MPPT a nabídne jen varianty, které projdou základní technickou kontrolou.</p>
+
 [solar_expert_builder]
-<h2>Co výpočet hlídá</h2>
-<ul><li>denní spotřebu energie,</li><li>rozběhové špičky motorových spotřebičů,</li><li>rezervu baterie,</li><li>12 / 24 / 48V systémové napětí,</li><li>výkon měniče a limity MPPT.</li></ul>
-<h2>Jak vzniká doporučení</h2>
-<p>Nejdřív technický filtr, potom dostupnost a cena. Affiliate provize není vstupem do technického pořadí.</p>
-<div class="se-note">Výpočet je orientační sizing. Finální instalace musí ověřit konkrétní datasheety, ochrany, kabeláž a teplotní Voc.</div>
+
+<h2>Co Builder počítá</h2>
+<p>Nejprve sečte denní spotřebu všech vybraných spotřebičů v Wh. Z ní odvodí orientační velikost FV pole podle sezóny, nominální kapacitu LiFePO₄ baterie podle požadované autonomie a vhodné systémové napětí 12, 24 nebo 48 V. Měnič se posuzuje zvlášť pro trvalou zátěž a pro krátkodobou rozběhovou špičku.</p>
+
+<h2>Typická chata: kde vznikají chyby</h2>
+<p>Nejčastější omyl je navrhnout systém podle jediného čísla „kolik wattů mají panely“. Ve skutečnosti musí fungovat celý řetězec: panely → MPPT → baterie → měnič → spotřebiče. Lednice nebo čerpadlo mohou mít relativně malou denní spotřebu, ale při startu krátce potřebují několikanásobně vyšší výkon než při běžném chodu.</p>
+
+<ul>
+<li><strong>Příliš malá baterie:</strong> kapacita v Ah bez přepočtu na kWh a systémové napětí může být zavádějící.</li>
+<li><strong>Slabý měnič:</strong> trvalý výkon může stačit, ale motorový spotřebič ho při rozběhu shodí.</li>
+<li><strong>Špatný string panelů:</strong> součet Voc může za chladu překročit limit MPPT, nebo naopak Vmp nemusí stačit k jeho startu.</li>
+<li><strong>Příliš mnoho očekávání od zimy:</strong> celoroční ostrovní provoz vyžaduje výrazně větší rezervu než letní chata.</li>
+</ul>
+
+<h2>Jak číst tři navržené varianty</h2>
+<p><strong>Budget</strong> hledá nejlevnější ověřenou cestu, která ještě projde technickými pravidly. <strong>Best Value</strong> je výchozí volba s dobrým poměrem rezervy, ceny a dostupnosti. <strong>Premium</strong> dává smysl jen tehdy, když máme dost ověřených parametrů a reálně dostupné produkty. Pokud některou variantu nezobrazíme, znamená to, že v katalogu nemáme dost dat pro bezpečné doporučení.</p>
+
+<h2>Co je ještě potřeba před nákupem</h2>
+<p>Builder záměrně nedopočítává falešně přesné jištění nebo průřez kabelu bez délky vedení a konkrétní instalace. U výsledku proto vidíte seznam dalších položek: DC jištění a odpojovač, kabely a oka, konstrukci panelů, přepěťovou ochranu, uzemnění a případnou komunikaci BMS s měničem.</p>
+
+<h2>Další krok podle toho, co právě řešíte</h2>
+<ul>
+<li>Nejste si jistí baterií? Použijte <a href="/vyber-baterii/">Battery Selector</a>.</li>
+<li>Řešíte string panelů a regulátor? Otevřete <a href="/mppt-kalkulacka/">MPPT kalkulačku</a>.</li>
+<li>Potřebujete ověřit trvalý výkon a surge měniče? Použijte <a href="/vyber-menice/">Inverter Selector</a>.</li>
+<li>Už máte nabídku od dodavatele? Zkontrolujte ji přes <a href="/quote-checker/">Quote Checker</a>.</li>
+</ul>
+
+<h2>FAQ</h2>
+<h3>Kolik panelů potřebuji na chatu?</h3>
+<p>Záleží hlavně na denní spotřebě a sezóně. Stejná chata může v létě fungovat s výrazně menším polem než při požadavku na jaro–podzim nebo celoroční provoz.</p>
+
+<h3>Je lepší 12 V, 24 V nebo 48 V?</h3>
+<p>Pro malé systémy může být vhodných 12 V, se stoupajícím výkonem dává smysl 24 V a u vyšších výkonů zpravidla 48 V. Vyšší systémové napětí snižuje proud na DC straně, ale volbu musí respektovat všechny komponenty.</p>
+
+<h3>Stačí znát watty měniče?</h3>
+<p>Ne. Důležitý je trvalý výkon, krátkodobý špičkový výkon a systémové DC napětí. U motorových spotřebičů je surge jeden z hlavních parametrů.</p>
+
+<div class="se-note"><strong>Metodika:</strong> technická kompatibilita má přednost před cenou i affiliate provizí. Podrobněji vysvětlujeme postup na stránce <a href="/jak-doporucujeme/">Jak doporučujeme produkty</a>. Výsledek je orientační sizing; pevnou instalaci, ochrany a revizi musí posoudit kvalifikovaný odborník.</div>
