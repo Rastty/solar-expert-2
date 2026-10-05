@@ -28,4 +28,5 @@ This matrix is a regression baseline for the current verified public catalog. A 
 Do not fill an incomplete tier with discontinued or weakly evidenced products merely to make all three tier cards complete. Technical evidence and availability take priority over visual symmetry.
 
 - Battery Selector shares the same parallel-bank engine as the Builder, so high-capacity standalone battery sizing no longer falsely reports “no match” when a verified multi-module bank is available.
+- A multi-module bank may use one verified battery+inverter set when it is cheaper; only one battery is covered by the set and all extra modules are added at verified unit price.
 
