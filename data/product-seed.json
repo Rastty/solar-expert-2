@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.5.0",
+  "schemaVersion": "0.6.0",
   "mode": "verified-public-seed; affiliate URLs added separately",
   "verifiedAt": "2026-10-05",
   "products": [
@@ -410,6 +410,23 @@
       },
       "lifepo4_charge_supported": true,
       "source_url": "https://www.solar-import.cz/kosun-menic-napeti-s-nabijeckou-a-mppt-regulatorem-dc12v-ac230v--1000w/"
+    },
+    {
+      "id": "inverter-rogerele-rep1000-12",
+      "type": "inverter",
+      "merchant": "solar-import-cz",
+      "sku": "E7927",
+      "tier": "budget",
+      "name": "ROGERELE REP1000-12 12V 1000W",
+      "dc_voltage": 12,
+      "continuous_w": 1000,
+      "peak_w": 2000,
+      "waveform": "pure_sine",
+      "price_czk_snapshot": 2890,
+      "price_czk": 2890,
+      "price_mode": "snapshot",
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/"
     },
     {
       "id": "inverter-rogerele-rep1500-24",
