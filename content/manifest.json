@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "3.5.0",
+  "schemaVersion": "3.6.0",
   "items": [
     {
       "type": "page",
@@ -358,6 +358,14 @@
       "title": "Monokrystalické vs. polykrystalické panely: co dává smysl v roce 2026",
       "preserve_status": true,
       "file": "content/rewrites/monokrystalicke-vs-polykrystalicke-solarni-panely.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "tepelna-cerpadla-mitsubishi-vyhody-nevyhody-ceny-vlastnosti",
+      "title": "Tepelná čerpadla Mitsubishi – výhody, nevýhody, ceny, vlastnosti",
+      "preserve_status": true,
+      "file": "content/rewrites/tepelna-cerpadla-mitsubishi-vyhody-nevyhody-ceny-vlastnosti.html",
       "create_if_missing": false
     }
   ]
