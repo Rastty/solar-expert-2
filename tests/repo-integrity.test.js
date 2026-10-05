@@ -702,3 +702,15 @@ assert(seoCore.includes("Allow: /wp-admin/admin-ajax.php"),'robots.txt must allo
 assert(seoCore.includes("Sitemap: "), 'robots.txt must expose a valid sitemap directive');
 assert(seoCore.includes("home_url('/sitemap_index.xml')"),'robots.txt must point at the Yoast sitemap index');
 
+const mitsubishiSlug='tepelna-cerpadla-mitsubishi-vyhody-nevyhody-ceny-vlastnosti';
+const mitsubishiItem=manifest.items.find(x=>x.slug===mitsubishiSlug);
+assert(mitsubishiItem&&mitsubishiItem.preserve_status===true,'Mitsubishi Ecodan guide must remain managed and preserve status');
+assert(mitsubishiItem.file&&fs.existsSync(path.join(__dirname,'..',mitsubishiItem.file)),'Mitsubishi Ecodan rewrite file missing');
+assert(seoCore.includes("'tepelna-cerpadla-mitsubishi-vyhody-nevyhody-ceny-vlastnosti' => array("),'Mitsubishi Ecodan ranking-protection metadata must remain present');
+const mitsubishiHtml=fs.readFileSync(path.join(__dirname,'..',mitsubishiItem.file),'utf8');
+assert(mitsubishiHtml.includes('Ecodan Ultra Quiet'),'Mitsubishi guide must retain Ultra Quiet ranking intent');
+assert(mitsubishiHtml.includes('PUZ-WZ'),'Mitsubishi guide must cover current R290 PUZ-WZ platform');
+assert(mitsubishiHtml.includes('75 °C'),'Mitsubishi guide must retain current high-temperature operating context');
+assert(!mitsubishiHtml.includes('dolar'),'Mitsubishi guide must not retain translated dollar-price guidance');
+assert(!mitsubishiHtml.includes('MCS020'),'Mitsubishi guide must not retain UK-specific legacy certification guidance');
+
