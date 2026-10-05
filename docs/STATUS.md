@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.5`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.6`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -44,9 +44,10 @@ Git-first development active on `dev`.
 - Crawl discovery: all five money/tool pages linked sitewide from footer
 - Heat-pump legacy monetization: bounded E.ON lead CTA on 12 fresh-GSC-proven legacy articles; public fallback if affiliate lead mapping is absent
 - Lead analytics: `lead_click` dataLayer event + `solar-expert-lead-click` browser event
+- Quote Checker conversion step: completed results now offer an owned Builder path plus a separately tracked monetized E.ON FVE comparison CTA (`quote_checker_result`)
 - WordPress diagnostics: `eon-heat-pump` lead mapping status visible in Solar Expert settings
 - Combined FVE + heat-pump decision page: fresh-GSC near-win rewritten with October 2026 price benchmark, Builder + Quote Checker routing and E.ON lead CTA
-- E.ON solar lead lane: bounded CTA on 4 GSC-backed installation/planning articles using optional `leads.eon-solar`, with public fallback
+- E.ON solar lead lane: bounded CTA on 7 GSC-backed installation/planning articles using the active shared `eon-cz` base, with public fallback
 - Heat-pump boundary near-win: fresh-GSC P1 rewrite using MMR April 2026 methodology; no fake universal setback distance
 - Shading CTR protection: top-5 page gets title/meta refinement only, body untouched
 - Tracker CTR protection: `/nataceni-solarnich-panelu-za-sluncem/` is a fresh top-10 / recent top-5 near-win; title/meta refined while body remains untouched
