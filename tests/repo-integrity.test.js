@@ -244,3 +244,8 @@ assert(cleaningItem.file&&fs.existsSync(path.join(__dirname,'..',cleaningItem.fi
 assert(seoCore.includes("'"+cleaningSlug+"' => array("),'Canonical cleaning guide must have dedicated SEO metadata');
 assert(seoCore.includes("'jak-vycistit-solarni-panely-pruvodce-cistenim-solaru' => 'cisteni-solarnich-panelu-proc-kdy-jak'"),'Solar-panel cleaning duplicate redirect must be registered');
 assert('jak-vycistit-solarni-panely-pruvodce-cistenim-solaru'!==cleaningSlug,'Cleaning redirect must not loop');
+
+
+assert(leadCore.includes("home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/')"),'Heat-pump legacy CTA must route through owned combined-system page before outbound lead');
+assert(affiliateAdapter.includes("id && id.startsWith('eon-') ? 'eon-cz' : null"),'E.ON lead ids must resolve through the shared eon-cz merchant base');
+assert(leadCore.includes("! empty($bases['eon-cz'])"),'WordPress lead diagnostics must recognize one shared E.ON merchant base');
