@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "3.1.0",
+  "schemaVersion": "3.2.0",
   "items": [
     {
       "type": "page",
@@ -318,6 +318,14 @@
       "title": "PVT panely: fotovoltaika a teplo v jednom hybridním kolektoru",
       "preserve_status": true,
       "file": "content/rewrites/vysvetleni-solarnich-panelu-pv-t.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih",
+      "title": "Fotovoltaika v zimě: výkon, sníh a správný sklon panelů",
+      "preserve_status": true,
+      "file": "content/rewrites/vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih.html",
       "create_if_missing": false
     }
   ]
