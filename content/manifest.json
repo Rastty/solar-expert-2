@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.4.0",
+  "schemaVersion": "1.5.0",
   "items": [
     {
       "type": "page",
@@ -149,6 +149,22 @@
       "title": "Rozměry a hmotnost solárních panelů: jak ovlivní návrh FVE",
       "preserve_status": true,
       "file": "content/rewrites/velikost-rozmery-a-hmotnost-solarnich-panelu.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "kolik-panelu-je-potreba-na-jeden-string",
+      "title": "Kolik panelů je potřeba na jeden string: Voc, Vmp a MPPT limity",
+      "preserve_status": true,
+      "file": "content/rewrites/kolik-panelu-je-potreba-na-jeden-string.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "fotovoltaika-na-eternitovou-strechu",
+      "title": "Fotovoltaika na eternitovou střechu: co ověřit před montáží",
+      "preserve_status": true,
+      "file": "content/rewrites/fotovoltaika-na-eternitovou-strechu.html",
       "create_if_missing": false
     }
   ]
