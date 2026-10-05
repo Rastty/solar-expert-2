@@ -10,7 +10,7 @@ Git-first development active on `dev`.
 - Compatibility and bundle engine: implemented
 - Battery sizing: nominal target is enforced once; no double 0.85 reduction
 - Quote Checker MVP: implemented
-- Verified public product seed: 21 products
+- Verified public product seed: 23 products
 - Multi-merchant offer layer: active for 5 verified products
 - Merchant-specific affiliate keys: `product-id@merchant-id`
 - Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.5.8`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.5.9`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -32,13 +32,15 @@ Git-first development active on `dev`.
 - Merchant-level affiliate bases: automatic eHub deeplinks via `desturl`; product map remains override-only
 - Dedicated Solar Expert settings save handler: posts to `admin-post.php`, not `options.php`
 - Explicit managed-content sync: admin button forces manifest → WordPress publish/update and reports created/updated/errors
+- Focused SEO titles/meta descriptions: homepage + 7 managed tool/transparency pages
+- Product coverage: added verified GOOWEI 12V/200Ah and KOSUN 48V/3000W products
 - Production deploy: active RC with manual Git pull/update
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
 
 Next:
-1. connect/verify Deployer for Git against `Rastty/solar-expert-2` branch `dev` as a theme rooted at the repository root,
-2. run `docs/PREPROD_QA.md` on staging/preview,
-3. populate real merchant-specific affiliate deeplinks in WordPress settings,
-4. fix only QA findings that block release,
-5. after stable deployment, use GSC query/page data for the next rewrite batch.
+1. deploy current `dev` RC via Deployer for Git,
+2. verify live build/health and active affiliate coverage,
+3. use GSC query/page data for the next rewrite batch,
+4. expand only verified product gaps that unlock real scenarios,
+5. optimize CTR/internal links from pages already receiving impressions.
