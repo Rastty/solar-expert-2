@@ -281,3 +281,9 @@ assert(categoryPhp.includes("solar_expert_public_url('vyber-baterii')"),'Battery
 assert(seoCore.includes("is_category('baterie')"),'Battery category must have dedicated SEO metadata');
 assert(seoCore.includes("'@type' => 'CollectionPage'"),'Category archives must expose CollectionPage structured data');
 assert(footerPhp.includes("/category/baterie/"),'Battery knowledge hub must receive a sitewide internal link');
+
+
+const singlePhp=fs.readFileSync(path.join(__dirname,'..','single.php'),'utf8');
+assert(singlePhp.includes("Aktualizováno"),'Single posts must expose visible freshness');
+assert(singlePhp.includes("get_the_modified_date"),'Single posts must use WordPress modified date');
+assert(singlePhp.includes("solar_expert_public_url('solarni-sestava-na-chatu'"),'Single post CTA must route to the dedicated Builder page when published');
