@@ -521,13 +521,25 @@ function solar_expert_seo_meta() {
       'title' => 'Affiliate transparentnost | Solar Expert',
       'description' => 'Jak Solar Expert používá affiliate odkazy a proč provize neovlivňuje technickou kompatibilitu ani pořadí doporučení.'
     ),
+    'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu' => array(
+      'title' => 'Degradace solárních panelů: záruka a pokles výkonu | Solar Expert',
+      'description' => 'Jak číst degradaci a výkonovou záruku solárního panelu. Co porovnat kromě Wp a proč degradace není jediný parametr.'
+    ),
+    'kotveni-fotovoltaickych-panelu-na-ploche-strese' => array(
+      'title' => 'Fotovoltaika na ploché střeše: kotvení, balast a sklon | Solar Expert',
+      'description' => 'Jak řešit panely na ploché střeše: balast nebo kotvení, sklon, rozteč řad, statiku, odvodnění a servisní přístup.'
+    ),
+    'velikost-rozmery-a-hmotnost-solarnich-panelu' => array(
+      'title' => 'Rozměry a hmotnost solárních panelů: praktický návrh | Solar Expert',
+      'description' => 'Jak rozměry, hmotnost a Wp solárních panelů ovlivní počet kusů, využití střechy, statiku a návrh MPPT stringu.'
+    ),
   );
 
   if ( is_front_page() ) {
     return $map['front'];
   }
 
-  if ( is_singular('page') ) {
+  if ( is_singular(array('page','post')) ) {
     $post = get_queried_object();
     if ( $post && isset($map[$post->post_name]) ) {
       return $map[$post->post_name];
@@ -553,3 +565,26 @@ function solar_expert_meta_description() {
   }
 }
 add_action('wp_head', 'solar_expert_meta_description', 1);
+
+
+function solar_expert_legacy_redirects() {
+  if ( ! is_singular('post') ) {
+    return;
+  }
+
+  $post = get_queried_object();
+  if ( ! $post || empty($post->post_name) ) {
+    return;
+  }
+
+  $redirects = array(
+    'veda-o-ztrate-ucinnosti-solarnich-panelu-v-prubehu-casu' => 'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu',
+    'jak-funguji-solarni-panely-na-plochych-strechach' => 'kotveni-fotovoltaickych-panelu-na-ploche-strese',
+  );
+
+  if ( isset($redirects[$post->post_name]) ) {
+    wp_safe_redirect(home_url('/' . $redirects[$post->post_name] . '/'), 301);
+    exit;
+  }
+}
+add_action('template_redirect', 'solar_expert_legacy_redirects', 1);
