@@ -256,6 +256,7 @@ assert(boundaryHtml.includes('data-se-lead-id="eon-heat-pump"'),'Heat-pump bound
 assert(boundaryHtml.includes('neexistuje jedno univerzální pravidlo'),'Heat-pump boundary guide must reject a fake universal setback');
 assert(!boundaryHtml.includes('musí být minimálně 2 metry'),'Heat-pump boundary guide must not invent a universal two-metre setback');
 assert(seoCore.includes("'castecne-zastineni-a-solarni-panely' => array("),'Fresh top-5 shading page should get CTR-focused metadata without content rewrite');
+assert(seoCore.includes("'nataceni-solarnich-panelu-za-sluncem' => array("),'Tracker near-win must get CTR-focused metadata without content rewrite');
 
 
 const cleaningSlug='cisteni-solarnich-panelu-proc-kdy-jak';
