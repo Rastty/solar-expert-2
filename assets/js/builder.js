@@ -1,5 +1,5 @@
 window.solarExpertBuilder=function(){return{
-  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],catalogReady:false,bundles:[],result:null,
+  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,bundles:[],result:null,
   appliances:[
     {id:'fridge',name:'Lednice',watts:70,surge:700,hours:10,qty:1,selected:false},
     {id:'lights',name:'LED osvětlení',watts:40,surge:40,hours:5,qty:1,selected:false},
@@ -10,7 +10,7 @@ window.solarExpertBuilder=function(){return{
     {id:'kettle',name:'Rychlovarná konvice',watts:2000,surge:2000,hours:.12,qty:1,selected:false},
     {id:'tools',name:'Elektrické nářadí',watts:1000,surge:1800,hours:.5,qty:1,selected:false}
   ],
-  async init(){try{const r=await fetch(window.SolarExpertConfig.catalogUrl,{credentials:'same-origin'}),d=await r.json();this.catalog=d.products||[];this.catalogReady=true;}catch(_){}},
+  async init(){try{const r=await fetch(window.SolarExpertConfig.catalogUrl,{credentials:'same-origin'}),d=await r.json();this.catalog=d.products||[];this.bundleDeals=d.bundle_deals||[];this.catalogReady=true;}catch(_){}},
   get selectedAppliances(){return this.appliances.filter(a=>a.selected);},
   get dailyWh(){return Math.round(this.selectedAppliances.reduce((s,a)=>s+a.watts*a.hours*a.qty,0));},
   get runningWatts(){return Math.round(this.selectedAppliances.reduce((s,a)=>s+a.watts*a.qty,0));},
@@ -75,7 +75,7 @@ window.solarExpertBuilder=function(){return{
     if(peak>inverterW*1.8)riskFlags.push('Výrazná rozběhová špička: ověřte surge dobu konkrétního měniče a spotřebiče.');
     if(this.selectedAppliances.some(a=>a.id==='pump'))riskFlags.push('U čerpadla ověřte skutečný rozběhový proud podle konkrétního modelu.');
     this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,batteryKwh,inverterW,mpptA,psh,riskFlags};
-    this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result);
+    this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result,this.bundleDeals);
     this.step=4;
     if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'solar_builder_complete',scenario:this.scenario,voltage,panelWp,batteryKwh,inverterW,peak});
   },
