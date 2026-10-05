@@ -183,7 +183,11 @@ assert(high48Best.battery.id==='battery-seplos-pusung-48','High-power Best Value
 assert(high48Best.batteryQuantity===2,'High-power Best Value bank should use the minimum verified quantity of two PUSUNG-S modules');
 assert(high48Best.batteryBank.totalEnergyWh===10240,'Two PUSUNG-S modules should expose 10.24kWh nominal energy');
 assert(high48Best.batteryBank.dischargePowerW>=high48Sizing.inverterW,'Parallel battery bank must cover requested continuous inverter power');
-assert(high48Best.bundleDeal===null,'Single-battery + inverter deal must not attach to a two-battery bank');
+assert(high48Best.bundleDeal&&high48Best.bundleDeal.id==='deal-battery-pusung-growatt6000','Two-battery PUSUNG bank should use the verified one-battery + inverter set once');
+assert(high48Best.bundleDeal.extraBatteryUnits===1,'Two-battery bank should require exactly one extra PUSUNG module outside the set');
+assert(high48Best.bundleDeal.bankSavingsCzk===1490,'Set + extra battery should preserve the verified 1490 CZK saving');
+const high48WithoutDeal=B.compose(catalog.products,high48Sizing,[]).find(b=>b.tier==='best');
+assert(high48Best.totalPrice===high48WithoutDeal.totalPrice-1490,'Multi-battery set optimization must lower total only by the verified set saving');
 
 const high48Premium=high48Bundles.find(b=>b.tier==='premium');
 assert(high48Premium&&high48Premium.complete,'Premium high-power 48V scenario should also be complete');
