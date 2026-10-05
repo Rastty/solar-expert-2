@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.9.1`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.9.2`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -63,6 +63,7 @@ Git-first development active on `dev`.
 - Parallel battery-bank engine: verified PUSUNG-S and Pylontech modules can scale to the minimum required quantity; 48V high-power coverage is now complete
 - Catalog coverage baseline: `docs/CATALOG_COVERAGE.md` records representative 12/24/48V scenarios and remaining evidence gaps
 - Complete-only bundle UX: Builder hides incomplete Budget/Premium cards and explains why; zero-result state refuses weak recommendations
+- Git-deploy content auto-sync: manifest drift schedules one locked WordPress cron sync; health/admin expose CURRENT / SYNC_REQUIRED / ERROR
 - Production deploy: active RC with manual Git pull/update
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
