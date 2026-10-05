@@ -41,7 +41,8 @@ window.SolarExpertAffiliate = {
           price_czk: product.price_czk,
           availability: product.availability,
           source_url: product.source_url,
-          affiliate_url: product.affiliate_url
+          affiliate_url: product.affiliate_url,
+          verified_at: product.verified_at
         }];
 
     return offers
@@ -68,14 +69,21 @@ window.SolarExpertAffiliate = {
     const target = offer.source_url || product.source_url || null;
     const generated = this.merchantDeepLink(offer.merchant, target);
     const href = mapped || offer.affiliate_url || generated || target || '#';
+    const verifiedAt = offer.verified_at || product.verified_at || null;
+    const freshness = window.SolarExpertProductMatcher
+      ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
+      : 'unknown';
+    const rawPrice = Number(offer.price_czk || 0) || null;
 
     return {
       href,
       monetized: Boolean(mapped || offer.affiliate_url || generated),
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant,
-      price_czk: Number(offer.price_czk || 0) || null,
+      price_czk: freshness === 'stale' ? null : rawPrice,
       availability: offer.availability || product.availability || null,
+      verified_at: verifiedAt,
+      price_freshness: freshness,
       raw: offer
     };
   },
@@ -91,12 +99,17 @@ window.SolarExpertAffiliate = {
   resolveBundleDeal(deal) {
     if (!deal) return {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null};
     const generated = this.merchantDeepLink(deal.merchant, deal.source_url);
+    const freshness = window.SolarExpertProductMatcher
+      ? window.SolarExpertProductMatcher.verificationState(deal.verified_at)
+      : 'unknown';
     return {
       href: generated || deal.source_url || '#',
       monetized: Boolean(generated),
       merchant: this.merchants[deal.merchant] || {label:deal.merchant, approved:false},
       merchantId: deal.merchant || null,
-      price_czk: Number(deal.price_czk || 0) || null,
+      price_czk: freshness === 'stale' ? null : (Number(deal.price_czk || 0) || null),
+      verified_at: deal.verified_at || null,
+      price_freshness: freshness,
       savings_czk: Number(deal.savings_czk || 0) || null,
       bank_savings_czk: Number(deal.bankSavingsCzk || deal.savings_czk || 0) || null,
       extra_battery_units: Number(deal.extraBatteryUnits || 0),
