@@ -135,3 +135,27 @@ assert(contentSyncCore.includes("wp_nonce_field('solar_expert_sync_content')"),'
 const seoCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
 assert(seoCore.includes("Solární kalkulačka: panely, baterie a měnič | Solar Expert"),'Homepage SEO title must be explicit and decision-engine focused');
 assert(seoCore.includes('meta name="description"'),'Managed SEO pages must expose a meta description when no SEO plugin owns it');
+
+
+const rescueRedirects={
+  'veda-o-ztrate-ucinnosti-solarnich-panelu-v-prubehu-casu':'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu',
+  'jak-funguji-solarni-panely-na-plochych-strechach':'kotveni-fotovoltaickych-panelu-na-ploche-strese'
+};
+const allManagedSlugs=new Set(manifest.items.map(x=>x.slug));
+for(const [source,target] of Object.entries(rescueRedirects)){
+  assert(source!==target,'SEO rescue redirect must not loop: '+source);
+  assert(allManagedSlugs.has(target),'SEO rescue redirect target must be managed: '+target);
+}
+const rescueRequired=[
+  'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu',
+  'kotveni-fotovoltaickych-panelu-na-ploche-strese',
+  'velikost-rozmery-a-hmotnost-solarnich-panelu'
+];
+for(const slug of rescueRequired){
+  const item=manifest.items.find(x=>x.slug===slug);
+  assert(item&&item.preserve_status===true,'SEO rescue rewrite must preserve existing post status: '+slug);
+  assert(item.file&&fs.existsSync(path.join(__dirname,'..',item.file)),'SEO rescue rewrite file missing: '+slug);
+}
+assert(seoCore.includes("veda-o-ztrate-ucinnosti-solarnich-panelu-v-prubehu-casu"),'Degradation duplicate redirect must be registered');
+assert(seoCore.includes("jak-funguji-solarni-panely-na-plochych-strechach"),'Flat-roof duplicate redirect must be registered');
+assert(seoCore.includes("is_singular(array('page','post'))"),'SEO metadata must support managed posts as well as pages');
