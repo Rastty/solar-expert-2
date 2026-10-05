@@ -58,7 +58,7 @@
           <div x-show="b.complete" style="margin-top:12px;font-size:14px">
             <div><strong>Panely:</strong> <span x-text="b.panel?.count"></span>× <span x-text="b.panel?.product?.name"></span> · <strong x-text="b.panel?.topology"></strong></div>
             <div class="se-muted"><span x-text="b.panel?.totalWp"></span> Wp · string Vmp <span x-text="b.panel?.stringVmp"></span> V · cold Voc <span x-text="b.panel?.coldStringVoc"></span> V</div>
-            <div><strong>Baterie:</strong> <span x-text="b.battery?.name"></span></div>
+            <div><strong>Baterie:</strong> <span x-text="(b.batteryQuantity||1)+'× '+b.battery?.name"></span> <span class="se-muted" x-show="b.batteryBank">· <span x-text="(b.batteryBank?.totalEnergyWh/1000).toFixed(2)"></span> kWh celkem</span></div>
             <div><strong>Měnič:</strong> <span x-text="b.inverter?.name"></span></div>
             <div><strong>MPPT:</strong> <span x-text="b.integratedMppt?'integrovaný v měniči':b.mppt?.name"></span></div>
 
@@ -78,13 +78,13 @@
 
             <div class="se-offer-groups">
               <div class="se-offer-group">
-                <small>Baterie · kde koupit</small>
+                <small x-text="(b.batteryQuantity||1)>1 ? 'Baterie · '+b.batteryQuantity+' ks' : 'Baterie · kde koupit'"></small>
                 <div class="se-offer-links">
                   <template x-for="o in SolarExpertAffiliate.offers(b.battery).slice(0,2)" :key="b.battery?.id+'-'+o.merchantId">
                     <a class="se-offer" target="_blank" :href="o.href"
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.battery,o.raw,'builder-battery-'+b.tier)">
-                      <span x-text="o.merchant?.label"></span><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                      <span x-text="o.merchant?.label"></span><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'+((b.batteryQuantity||1)>1?' / ks':'')"></strong>
                     </a>
                   </template>
                 </div>
