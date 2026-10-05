@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.12</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.13</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.12',
+    'build_marker' => 'dev-rc-0.11.13',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -751,6 +751,14 @@ function solar_expert_seo_meta() {
       'title' => 'Reálný výkon solárních panelů: Wp vs. výkon na střeše | Solar Expert',
       'description' => 'Proč panel 450 Wp běžně nevyrábí 450 W. STC, ozáření, teplota článku, stín, MPPT, clipping a systémové ztráty vysvětlené prakticky.'
     ),
+    'minimalni-a-maximalni-teploty-tepelneho-cerpadla' => array(
+      'title' => 'Tepelné čerpadlo v mrazu: minimum a max. teplota vody | Solar Expert',
+      'description' => 'Do jaké teploty funguje tepelné čerpadlo, kolik výkonu má v mrazu a jak číst maximální teplotu vody, COP a bivalentní bod.'
+    ),
+    'kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely' => array(
+      'title' => 'Fotovoltaika na plechové střeše: kotvení bez zatékání | Solar Expert',
+      'description' => 'Jak kotvit FVE na falc, trapézový plech a plechovou tašku. Prostupy, EPDM, statika, vítr, sníh, koroze a co požadovat v nabídce.'
+    ),
     'castecne-zastineni-a-solarni-panely' => array(
       'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
       'description' => 'Jak částečné zastínění ovlivní výkon fotovoltaických panelů a stringu, kdy pomůže MPPT nebo optimizér a co ověřit v návrhu.'
@@ -853,6 +861,7 @@ function solar_expert_heat_pump_lead_slugs() {
     'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
     'jak-funguje-tepelne-cerpadlo',
     'jak-dlouho-vydrzi-tepelna-cerpadla',
+    'minimalni-a-maximalni-teploty-tepelneho-cerpadla',
     'umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda',
     'tepelne-cerpadlo-nebo-elektrokotel',
     'tepelna-cerpadla-mitsubishi-vyhody-nevyhody-ceny-vlastnosti',
@@ -952,6 +961,7 @@ function solar_expert_solar_lead_slugs() {
     'kolik-vyrobi-fotovoltaika-za-rok',
     'fotovoltaika-na-pozemku',
     'jak-vybrat-solarni-panely-pro-vas-domov',
+    'kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely',
   );
 }
 
