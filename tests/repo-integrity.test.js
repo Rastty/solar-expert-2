@@ -160,7 +160,8 @@ assert(seoCore.includes('meta name="description"'),'Managed SEO pages must expos
 
 const rescueRedirects={
   'veda-o-ztrate-ucinnosti-solarnich-panelu-v-prubehu-casu':'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu',
-  'jak-funguji-solarni-panely-na-plochych-strechach':'kotveni-fotovoltaickych-panelu-na-ploche-strese'
+  'jak-funguji-solarni-panely-na-plochych-strechach':'kotveni-fotovoltaickych-panelu-na-ploche-strese',
+  'kotveni-fotovoltaickych-panelu-na-ploche-strese-2':'kotveni-fotovoltaickych-panelu-na-ploche-strese'
 };
 const allManagedSlugs=new Set(manifest.items.map(x=>x.slug));
 for(const [source,target] of Object.entries(rescueRedirects)){
@@ -179,6 +180,7 @@ for(const slug of rescueRequired){
 }
 assert(seoCore.includes("veda-o-ztrate-ucinnosti-solarnich-panelu-v-prubehu-casu"),'Degradation duplicate redirect must be registered');
 assert(seoCore.includes("jak-funguji-solarni-panely-na-plochych-strechach"),'Flat-roof duplicate redirect must be registered');
+assert(seoCore.includes("'kotveni-fotovoltaickych-panelu-na-ploche-strese-2' => 'kotveni-fotovoltaickych-panelu-na-ploche-strese'"),'Duplicate flat-roof -2 URL must redirect to canonical guide');
 assert(seoCore.includes("is_singular(array('page','post'))"),'SEO metadata must support managed posts as well as pages');
 
 
