@@ -1,0 +1,47 @@
+<p>Nejlepší solární panel není automaticky ten s nejvyšším výkonem nebo účinností. Správný výběr začíná tím, <strong>kolik energie potřebujete, kdy ji potřebujete a k jakému MPPT nebo měniči budou panely připojené</strong>.</p>
+
+<p>Pro ostrovní systém nebo chatu můžete přeskočit obecné tabulky a použít <a href="/solarni-sestava-na-chatu/">Solar Setup Builder</a>. Níže vysvětlujeme, co přesně při výběru kontrolovat.</p>
+
+<h2>Wp není totéž co kWh</h2>
+<p>Wp (watt-peak) je jmenovitý výkon panelu za standardizovaných podmínek. kWh je množství energie. Panel 500 Wp tedy nevyrábí „500 W celý den“. Skutečná výroba závisí na lokalitě, roční době, orientaci, sklonu, teplotě, zastínění a ztrátách systému.</p>
+
+<p>Pro první sizing lze pracovat s denní spotřebou a sezónním odhadem ekvivalentních hodin plného slunce, ale pro celoroční nebo kritický ostrovní provoz je nutný lokalitní výpočet.</p>
+
+<h2>1. Nejdřív spotřeba, potom počet panelů</h2>
+<p>Sepište spotřebiče, jejich příkon a dobu provozu. Z toho vznikne denní spotřeba v Wh nebo kWh. Teprve pak má smysl počítat potřebný PV výkon. Jiný systém potřebuje víkendová chata v létě a jiný dům, který má fungovat i v prosinci.</p>
+
+<h2>2. Plocha střechy a účinnost</h2>
+<p>Vyšší účinnost pomáhá hlavně tam, kde máte omezenou plochu. Pokud místa máte dost, není účinnost sama o sobě důvodem platit výrazně více. Porovnávejte celý návrh: výkon na dostupné ploše, cenu, záruky, elektrické parametry a kompatibilitu s ostatními komponenty.</p>
+
+<h2>3. Voc a Vmp: parametry, které rozhodují o kompatibilitě</h2>
+<p><strong>Voc</strong> je napětí naprázdno a <strong>Vmp</strong> napětí v bodě maximálního výkonu. Při sériovém zapojení se napětí panelů sčítá. Regulátor nebo hybridní měnič má přitom maximální povolené PV napětí a provozní MPPT okno.</p>
+
+<p>Je nutné zkontrolovat i <strong>Voc za nízké teploty</strong>, protože napětí panelu v chladu roste. Náš bundle engine proto u ověřených produktů počítá konfiguraci série/paralela a používá bezpečnostní rezervu proti maximálnímu Voc regulátoru.</p>
+
+<h2>4. Série vs. paralelní zapojení</h2>
+<p>Více panelů v sérii zvyšuje napětí stringu, paralelní větve zvyšují proud. Správná topologie musí současně:</p>
+<ul>
+<li>dosáhnout minimálního MPPT napětí,</li>
+<li>nepřekročit maximální Voc ani za chladu,</li>
+<li>nepřekročit povolený PV výkon a vstupní proud regulátoru,</li>
+<li>dávat smysl vzhledem k počtu a orientaci panelů.</li>
+</ul>
+
+<h2>5. Stínování a různé orientace</h2>
+<p>Částečný stín může ovlivnit celý string. Pokud máte panely na různých světových stranách nebo části střechy se zásadně odlišným osvitem, může být vhodné rozdělit je na samostatné MPPT vstupy. Toto je důležitější než honit několik procent laboratorní účinnosti.</p>
+
+<h2>6. Kdy vybírat 190 Wp a kdy 500+ Wp panel</h2>
+<p>Menší panely mohou být praktičtější na členité střeše, karavanu nebo malé chatě a umožní jemnější sizing. Velkoformátové panely dávají dobrý výkon na kus a často nižší cenu za Wp, ale jejich vyšší Voc a rozměry mohou omezit možné stringy nebo fyzické rozmístění.</p>
+
+<h2>Kontrolní seznam před objednávkou</h2>
+<ul>
+<li>potřebný celkový výkon panelů podle spotřeby a sezóny,</li>
+<li>rozměry a skutečně použitelná plocha,</li>
+<li>Voc, Vmp, Isc a teplotní koeficient Voc,</li>
+<li>MPPT minimum/maximum a maximální PV výkon,</li>
+<li>plán série/paralela,</li>
+<li>stínování, orientace a sklon,</li>
+<li>jištění, kabeláž a konektory.</li>
+</ul>
+
+<p>Pokud už máte nabídku s konkrétním počtem Wp, baterií a měničem, porovnejte ji v <a href="/quote-checker/">Quote Checkeru</a>.</p>
