@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.8</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.9</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.8',
+    'build_marker' => 'dev-rc-0.11.9',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -727,6 +727,10 @@ function solar_expert_seo_meta() {
       'title' => 'Jak funguje tepelné čerpadlo: princip krok za krokem | Solar Expert',
       'description' => 'Výparník, kompresor, kondenzátor a expanzní ventil. Jak tepelné čerpadlo přesouvá teplo, proč funguje i v zimě a co znamená COP.'
     ),
+    'jak-dlouho-vydrzi-tepelna-cerpadla' => array(
+      'title' => 'Životnost tepelného čerpadla: 15–20+ let? | Solar Expert',
+      'description' => 'Jak dlouho vydrží tepelné čerpadlo, co zkracuje životnost kompresoru, proč vadí krátké cyklování a kdy dává smysl oprava nebo výměna.'
+    ),
     'castecne-zastineni-a-solarni-panely' => array(
       'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
       'description' => 'Jak částečné zastínění ovlivní výkon fotovoltaických panelů a stringu, kdy pomůže MPPT nebo optimizér a co ověřit v návrhu.'
@@ -828,6 +832,7 @@ function solar_expert_heat_pump_lead_slugs() {
     'prehled-vzduchovych-tepelnych-cerpadel-daikin',
     'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
     'jak-funguje-tepelne-cerpadlo',
+    'jak-dlouho-vydrzi-tepelna-cerpadla',
     'umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda',
     'tepelne-cerpadlo-nebo-elektrokotel',
     'tepelna-cerpadla-mitsubishi-vyhody-nevyhody-ceny-vlastnosti',
