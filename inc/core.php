@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.1</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.2</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.1',
+    'build_marker' => 'dev-rc-0.11.2',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -711,6 +711,10 @@ function solar_expert_seo_meta() {
       'title' => 'Tepelné čerpadlo u souseda: vzdálenost, hluk a pravidla 2026 | Solar Expert',
       'description' => 'Jak umístit venkovní jednotku tepelného čerpadla vůči hranici pozemku a sousedovi. Hluk, povolení a praktické chyby.'
     ),
+    'prumerna-spotreba-tepelneho-cerpadla' => array(
+      'title' => 'Spotřeba tepelného čerpadla: kWh za den a rok | Solar Expert',
+      'description' => 'Jak odhadnout spotřebu tepelného čerpadla z potřeby tepla a SCOP. Příklady kWh za den a rok, TUV, elektrokotel, mráz a FVE.'
+    ),
     'castecne-zastineni-a-solarni-panely' => array(
       'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
       'description' => 'Jak částečné zastínění ovlivní výkon fotovoltaických panelů a stringu, kdy pomůže MPPT nebo optimizér a co ověřit v návrhu.'
@@ -805,7 +809,6 @@ function solar_expert_heat_pump_lead_slugs() {
     'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady',
     'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu',
     'recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady',
-    'spotreba-tepelneho-cerpadla-v-kwh',
     'prehled-vzduchovych-tepelnych-cerpadel-daikin',
     'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
     'jak-funguje-tepelne-cerpadlo',
@@ -901,6 +904,7 @@ function solar_expert_legacy_redirects() {
     'jak-funguji-solarni-panely-na-plochych-strechach' => 'kotveni-fotovoltaickych-panelu-na-ploche-strese',
     'jak-vycistit-solarni-panely-pruvodce-cistenim-solaru' => 'cisteni-solarnich-panelu-proc-kdy-jak',
     'kompletni-pruvodce-velikosti-solarnich-panelu' => 'velikost-rozmery-a-hmotnost-solarnich-panelu',
+    'spotreba-tepelneho-cerpadla-v-kwh' => 'prumerna-spotreba-tepelneho-cerpadla',
   );
 
   if ( isset($redirects[$post->post_name]) ) {
