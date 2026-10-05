@@ -382,6 +382,10 @@ function solar_expert_health_payload() {
   if ( ! is_array($map) ) {
     $map = array('products'=>array(),'leads'=>array());
   }
+  $bases = get_option('solar_expert_affiliate_bases', array());
+  if ( ! is_array($bases) ) {
+    $bases = array();
+  }
 
   $theme = wp_get_theme();
   $last_sync = get_option('solar_expert_last_content_sync', array());
