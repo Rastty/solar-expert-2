@@ -3,7 +3,7 @@ window.SolarExpertProductMatcher={
     const reasons=[];let pass=true;
     if(product.type==='battery'){
       if(product.system_voltage_class!==sizing.voltage){pass=false;reasons.push('wrong_system_voltage');}
-      if((product.energy_wh||0)<sizing.batteryKwh*1000*0.85){pass=false;reasons.push('insufficient_energy');}
+      if((product.energy_wh||0)<sizing.batteryKwh*1000){pass=false;reasons.push('insufficient_energy');}
       if(!product.max_discharge_a){pass=false;reasons.push('missing_discharge_current_evidence');}
       else if(product.system_voltage_class*product.max_discharge_a<sizing.inverterW){pass=false;reasons.push('insufficient_discharge_power');}
     }
