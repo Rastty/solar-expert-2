@@ -6,6 +6,48 @@ window.SolarExpertBundleComposer = {
     return [];
   },
 
+  batteryBankCandidates(products, sizing, tier) {
+    const matcher = window.SolarExpertProductMatcher;
+    const all = [];
+
+    for (const product of products) {
+      if (!product || product.type !== 'battery') continue;
+      if (Number(product.system_voltage_class) !== Number(sizing.voltage)) continue;
+      if (!product.max_discharge_a || !product.energy_wh) continue;
+      if (matcher && matcher.availabilityRank(product) <= 0) continue;
+
+      const maxUnits = Math.max(1, Number(product.parallel_max_units || 1));
+      const unitPrice = matcher ? matcher.effectivePrice(product) : Number(product.price_czk || Number.MAX_SAFE_INTEGER);
+
+      for (let quantity = 1; quantity <= maxUnits; quantity++) {
+        const totalEnergyWh = Number(product.energy_wh) * quantity;
+        const totalDischargeA = Number(product.max_discharge_a) * quantity;
+        const dischargePowerW = Number(product.system_voltage_class) * totalDischargeA;
+
+        if (totalEnergyWh < Number(sizing.batteryKwh) * 1000) continue;
+        if (dischargePowerW < Number(sizing.inverterW)) continue;
+
+        all.push({
+          product,
+          quantity,
+          totalEnergyWh,
+          totalDischargeA,
+          dischargePowerW,
+          unitPrice,
+          totalPrice: unitPrice * quantity
+        });
+        break;
+      }
+    }
+
+    const exact = all.filter(x => x.product.tier === tier);
+    const pool = exact.length ? exact : (tier === 'best' ? all : []);
+    return pool.sort((a,b) => {
+      if (a.totalPrice !== b.totalPrice) return a.totalPrice - b.totalPrice;
+      return a.quantity - b.quantity;
+    });
+  },
+
   controllerLimits(controller, sizing, integrated) {
     if (integrated) {
       const i = controller.integrated_mppt || {};
@@ -124,14 +166,14 @@ window.SolarExpertBundleComposer = {
     const matcher = window.SolarExpertProductMatcher;
     if (!matcher) return [];
 
-    const batteries = matcher.rank(catalog.filter(p => p.type === 'battery'), sizing);
+    const batteryProducts = catalog.filter(p => p.type === 'battery');
     const inverters = matcher.rank(catalog.filter(p => p.type === 'inverter' || p.type === 'inverter_hybrid'), sizing);
     const mppts = matcher.rank(catalog.filter(p => p.type === 'mppt'), sizing);
     const panels = catalog.filter(p => p.type === 'panel');
     const labels = { budget: 'Budget', best: 'Best Value', premium: 'Premium' };
 
     return ['budget', 'best', 'premium'].map(tier => {
-      const batteryCandidates = this.tierProducts(batteries, tier);
+      const batteryCandidates = this.batteryBankCandidates(batteryProducts, sizing, tier);
       const inverterCandidates = this.tierProducts(inverters, tier);
 
       if (!batteryCandidates.length || !inverterCandidates.length) {
@@ -146,7 +188,8 @@ window.SolarExpertBundleComposer = {
         };
       }
 
-      for (const battery of batteryCandidates) {
+      for (const batteryBank of batteryCandidates) {
+        const battery = batteryBank.product;
         for (const inverter of inverterCandidates) {
           const integrated = inverter.type === 'inverter_hybrid' && Boolean(inverter.integrated_mppt);
 
@@ -154,13 +197,13 @@ window.SolarExpertBundleComposer = {
             const panelPlan = this.findPanelPlan(panels, sizing, inverter, true, tier);
             if (!panelPlan) continue;
 
-            const batteryPrice = matcher.effectivePrice(battery);
+            const batteryPrice = batteryBank.totalPrice;
             const inverterPrice = matcher.effectivePrice(inverter);
             const panelPrice = matcher.effectivePrice(panelPlan.product);
             const priceParts = [batteryPrice, inverterPrice, panelPrice];
             const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0 && Number(v) < Number.MAX_SAFE_INTEGER);
             const separateCorePrice = batteryPrice + inverterPrice;
-            const bundleDeal = priceComplete
+            const bundleDeal = priceComplete && batteryBank.quantity === 1
               ? this.findBundleDeal(bundleDeals, [battery.id, inverter.id], separateCorePrice)
               : null;
             const effectiveCorePrice = bundleDeal ? Number(bundleDeal.price_czk) : separateCorePrice;
@@ -174,6 +217,8 @@ window.SolarExpertBundleComposer = {
               complete: true,
               status: 'preliminarily_compatible',
               battery,
+              batteryQuantity: batteryBank.quantity,
+              batteryBank,
               inverter,
               mppt: null,
               integratedMppt: true,
@@ -185,6 +230,7 @@ window.SolarExpertBundleComposer = {
                 'kabeláž a jištění',
                 'přesný teplotní koeficient Voc pro lokalitu',
                 'BMS ↔ měnič komunikace',
+                ...(batteryBank.quantity > 1 ? ['paralelní bateriové propojení / sběrnice a jištění každé větve'] : []),
                 'aktuální dostupnost a affiliate URL'
               ]
             };
@@ -195,14 +241,14 @@ window.SolarExpertBundleComposer = {
             const panelPlan = this.findPanelPlan(panels, sizing, mppt, false, tier);
             if (!panelPlan) continue;
 
-            const batteryPrice = matcher.effectivePrice(battery);
+            const batteryPrice = batteryBank.totalPrice;
             const inverterPrice = matcher.effectivePrice(inverter);
             const mpptPrice = matcher.effectivePrice(mppt);
             const panelPrice = matcher.effectivePrice(panelPlan.product);
             const priceParts = [batteryPrice, inverterPrice, mpptPrice, panelPrice];
             const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0 && Number(v) < Number.MAX_SAFE_INTEGER);
             const separateCorePrice = batteryPrice + inverterPrice;
-            const bundleDeal = priceComplete
+            const bundleDeal = priceComplete && batteryBank.quantity === 1
               ? this.findBundleDeal(bundleDeals, [battery.id, inverter.id], separateCorePrice)
               : null;
             const effectiveCorePrice = bundleDeal ? Number(bundleDeal.price_czk) : separateCorePrice;
@@ -216,6 +262,8 @@ window.SolarExpertBundleComposer = {
               complete: true,
               status: 'preliminarily_compatible',
               battery,
+              batteryQuantity: batteryBank.quantity,
+              batteryBank,
               inverter,
               mppt,
               integratedMppt: false,
@@ -227,6 +275,7 @@ window.SolarExpertBundleComposer = {
                 'kabeláž a jištění',
                 'přesný teplotní koeficient Voc pro lokalitu',
                 'BMS ↔ měnič komunikace',
+                ...(batteryBank.quantity > 1 ? ['paralelní bateriové propojení / sběrnice a jištění každé větve'] : []),
                 'aktuální dostupnost a affiliate URL'
               ]
             };
