@@ -172,10 +172,10 @@
       "rated_wp": 190,
       "voc_v": 25.5,
       "vmp_v": 21.8,
-      "price_czk_snapshot": 2496,
+      "price_czk_snapshot": 2251,
       "availability": "in_stock",
       "source_url": "https://www.solar-import.cz/ramove-male/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
-      "price_czk": 2496,
+      "price_czk": 2251,
       "price_mode": "snapshot",
       "cold_voc_factor": 1.12
     },
@@ -190,9 +190,14 @@
       "vmp_v": 63.2,
       "isc_a": 9.37,
       "imp_a": 8.78,
-      "availability": "in_stock",
+      "availability": "discontinued",
       "source_url": "https://www.solar-import.cz/solarni-panely/dah-solar-solarni-panel-dhm-t72x10-fs-bw-555w/",
-      "cold_voc_factor": 1.12
+      "cold_voc_factor": 1.12,
+      "sku": "E8126",
+      "price_czk_snapshot": 5280,
+      "price_czk": 5280,
+      "price_mode": "historical_snapshot",
+      "availability_note": "Prodej ukončen u ověřeného zdroje 2026-10-05"
     },
     {
       "id": "mppt-victron-100-20",
