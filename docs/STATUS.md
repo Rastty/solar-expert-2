@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.10.4`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.1`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -49,6 +49,7 @@ Git-first development active on `dev`.
 - Heat-pump boundary near-win: fresh-GSC P1 rewrite using MMR April 2026 methodology; no fake universal setback distance
 - Shading CTR protection: top-5 page gets title/meta refinement only, body untouched
 - Tracker CTR protection: `/nataceni-solarnich-panelu-za-sluncem/` is a fresh top-10 / recent top-5 near-win; title/meta refined while body remains untouched
+- Mitsubishi Ecodan CTR protection: GSC query `mitsubishi ecodan ultra quiet` is already near the top (16 impressions / avg. position 4.88); title/meta refined while the legacy body remains untouched pending broader intent evidence
 - Hourly FVE output near-win: rewritten around kW vs kWh, 1/5/10 kWp examples and Builder routing
 - Cleaning cannibalization cleanup: two competing cleaning URLs consolidated into one managed guide with 301 redirect
 - Owned-first heat-pump funnel: legacy traffic is internally routed to the FVE + heat-pump decision page before the outbound E.ON CTA
