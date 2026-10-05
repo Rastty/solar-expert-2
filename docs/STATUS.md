@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.9.9`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.10.0`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -72,6 +72,7 @@ Git-first development active on `dev`.
 - Viessmann review refresh: legacy multi-generation/RHI article replaced with 2026 Vitocal 250-A / 252-A buyer guide and current Czech manufacturer-backed specs
 - Legacy frontend quarantine: old Notification Bar, Ninja Popups, Simple Author Box and SEO Automated Link Building are removed from public rendering without deleting or deactivating plugins
 - Ground-mounted PV intent fix: new managed `/fotovoltaika-na-pozemku/` decision guide targets the GSC query currently leaking to an unrelated heat-pump boundary page; current 2026 permitting caveats included
+- 12V wiring intent: `jak-zapojit-solarni-panely` now includes safe 2S/2P conceptual schematics and explicit MPPT routing for the observed `schéma zapojení solárních panelů 12v` query
 - Production deploy: active RC with manual Git pull/update
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
