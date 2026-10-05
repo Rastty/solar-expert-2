@@ -26,3 +26,6 @@ This matrix is a regression baseline for the current verified public catalog. A 
 ## Product strategy
 
 Do not fill an incomplete tier with discontinued or weakly evidenced products merely to make all three tier cards complete. Technical evidence and availability take priority over visual symmetry.
+
+- Battery Selector shares the same parallel-bank engine as the Builder, so high-capacity standalone battery sizing no longer falsely reports “no match” when a verified multi-module bank is available.
+
