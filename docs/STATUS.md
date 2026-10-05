@@ -16,7 +16,7 @@ Git-first development active on `dev`.
 - Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
 - Verified small 12V bundle path: ROGERELE REP1000-12
 - Affiliate map: stored in WordPress option with admin settings UI; no deeplinks in public GitHub
-- Managed content manifest: 35 items (money pages, transparency pages and legacy rewrites)
+- Managed content manifest: 38 items (money pages, transparency pages and legacy rewrites)
 - Repository guardrails: catalog parity, offer/merchant integrity, no public affiliate deeplinks, manifest target validation
 - Obsolete duplicate bootstrap theme: removed
 - Product comparison: compares complete bundles on battery, continuous/surge inverter power, PV and MPPT fit
@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.8`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.10`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -60,6 +60,9 @@ Git-first development active on `dev`.
 - Heat-pump topical cluster: all bounded TČ legacy pages receive contextual internal links to the 2026 comparison hub, consumption guide and FVE + TČ decision page, excluding self-links
 - COP/SCOP consolidation: canonical COP guide rebuilt around comparable operating points and seasonal efficiency; overlapping generic efficiency URL now 301s into it
 - Heat-pump principle refresh: `/jak-funguje-tepelne-cerpadlo/` (99 fresh-GSC impressions) rebuilt as a clean four-stage thermodynamic explainer with COP and buyer-guide routing; stale UK grant/translation content removed
+- PVT intent separation: `vysvetleni-solarnich-panelu-pv-t` remains a distinct hybrid electricity+heat guide; obsolete UK incentive and unsupported legacy efficiency claims removed
+- Solar principle refresh: `solarni-panel-definice-a-fakta` rebuilt as the owner of `jak funguje solární panel`, replacing copied/legacy encyclopedia-style content with an original PV-effect explainer
+- Heat-pump lifespan refresh: 43 disclosed GSC query impressions now map to a managed guide covering compressor starts, cycling, service and replace-vs-repair; the page joins the bounded E.ON/related-links funnel
 - Air-water TČ consolidation: 153-impression legacy buyer page rebuilt for 2026; overlapping `vzduch-vzduch-vs-vzduch-voda` URL now 301s into the canonical air-water guide
 - Shared E.ON base: one optional `eon-cz` eHub base automatically monetizes both `eon-solar` and `eon-heat-pump`; explicit lead mappings remain overrides
 - E.ON lead monetization due diligence: E.ON is confirmed approved for Solar Expert; current public eHUB campaign pays 300 Kč per valid lead for electricity/gas/FVE/heat pumps. Shared `eon-cz` base can monetize both solar and heat-pump CTAs.
