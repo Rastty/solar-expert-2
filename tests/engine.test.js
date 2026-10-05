@@ -77,6 +77,21 @@ batterySelectorReserve.run();
 assert(batterySelectorReserve.matches.some(x=>x.product.id==='battery-goowei-24-100'),'24V 2.56kWh battery should cover 1.5kWh/day with reserve');
 assert(!batterySelectorReserve.matches.some(x=>x.product.id==='battery-goowei-24-50'),'24V 1.28kWh battery must not pass a larger nominal sizing target');
 
+const batterySelectorBank=global.window.solarExpertBatterySelector();
+batterySelectorBank.catalog=catalog.products;
+batterySelectorBank.voltage=48;
+batterySelectorBank.dailyKwh=8;
+batterySelectorBank.autonomy=1;
+batterySelectorBank.inverterW=5000;
+batterySelectorBank.run();
+const pusungBank=batterySelectorBank.matches.find(x=>x.product.id==='battery-seplos-pusung-48');
+assert(pusungBank,'High-capacity Battery Selector should find a verified parallel bank');
+assert(pusungBank.quantity===2,'48V high-capacity selector should use the minimum two PUSUNG-S modules');
+assert(pusungBank.totalEnergyWh===10240,'Battery Selector should expose 10.24kWh for two PUSUNG-S modules');
+assert(pusungBank.totalDischargeA===Number(pusungBank.product.max_discharge_a)*2,'Battery Selector should sum verified parallel BMS discharge current');
+assert(batterySelectorBank.matches.every(x=>x.totalEnergyWh>=9500),'Battery Selector must not return an undersized bank');
+
+
 const mpptSelectorStart=global.window.solarExpertMpptSelector();
 mpptSelectorStart.catalog=catalog.products;
 mpptSelectorStart.voltage=24;
