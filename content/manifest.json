@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "2.1.0",
   "items": [
     {
       "type": "page",
@@ -205,6 +205,14 @@
       "title": "Samsung tepelné čerpadlo: recenze a technický přehled 2026",
       "preserve_status": true,
       "file": "content/rewrites/recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "kolik-vyrobi-fotovoltaika-za-rok",
+      "title": "Kolik vyrobí fotovoltaika za rok: kWp, kWh a lokalitní výpočet",
+      "preserve_status": true,
+      "file": "content/rewrites/kolik-vyrobi-fotovoltaika-za-rok.html",
       "create_if_missing": false
     }
   ]
