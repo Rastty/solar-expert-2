@@ -207,10 +207,19 @@ window.SolarExpertBundleComposer = {
             const priceParts = [batteryPrice, inverterPrice, panelPrice];
             const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0 && Number(v) < Number.MAX_SAFE_INTEGER);
             const separateCorePrice = batteryPrice + inverterPrice;
-            const bundleDeal = priceComplete && batteryBank.quantity === 1
-              ? this.findBundleDeal(bundleDeals, [battery.id, inverter.id], separateCorePrice)
+            const bundleDeal = priceComplete
+              ? this.findBundleDeal(bundleDeals, [battery.id, inverter.id], batteryBank.unitPrice + inverterPrice)
               : null;
-            const effectiveCorePrice = bundleDeal ? Number(bundleDeal.price_czk) : separateCorePrice;
+            if (bundleDeal) {
+              bundleDeal.extraBatteryUnits = Math.max(0, batteryBank.quantity - 1);
+              bundleDeal.bankSavingsCzk = Math.max(
+                0,
+                Math.round(separateCorePrice - (Number(bundleDeal.price_czk) + batteryBank.unitPrice * bundleDeal.extraBatteryUnits))
+              );
+            }
+            const effectiveCorePrice = bundleDeal
+              ? Number(bundleDeal.price_czk) + batteryBank.unitPrice * bundleDeal.extraBatteryUnits
+              : separateCorePrice;
             const totalPrice = priceComplete
               ? effectiveCorePrice + panelPrice * panelPlan.count
               : null;
@@ -252,10 +261,19 @@ window.SolarExpertBundleComposer = {
             const priceParts = [batteryPrice, inverterPrice, mpptPrice, panelPrice];
             const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0 && Number(v) < Number.MAX_SAFE_INTEGER);
             const separateCorePrice = batteryPrice + inverterPrice;
-            const bundleDeal = priceComplete && batteryBank.quantity === 1
-              ? this.findBundleDeal(bundleDeals, [battery.id, inverter.id], separateCorePrice)
+            const bundleDeal = priceComplete
+              ? this.findBundleDeal(bundleDeals, [battery.id, inverter.id], batteryBank.unitPrice + inverterPrice)
               : null;
-            const effectiveCorePrice = bundleDeal ? Number(bundleDeal.price_czk) : separateCorePrice;
+            if (bundleDeal) {
+              bundleDeal.extraBatteryUnits = Math.max(0, batteryBank.quantity - 1);
+              bundleDeal.bankSavingsCzk = Math.max(
+                0,
+                Math.round(separateCorePrice - (Number(bundleDeal.price_czk) + batteryBank.unitPrice * bundleDeal.extraBatteryUnits))
+              );
+            }
+            const effectiveCorePrice = bundleDeal
+              ? Number(bundleDeal.price_czk) + batteryBank.unitPrice * bundleDeal.extraBatteryUnits
+              : separateCorePrice;
             const totalPrice = priceComplete
               ? effectiveCorePrice + mpptPrice + panelPrice * panelPlan.count
               : null;
