@@ -79,3 +79,19 @@ If the new release fails:
 4. require green CI + Playground again before retrying.
 
 Never repair production by making untracked manual code edits.
+
+## Git deploy managed-content sync
+
+Deployer for Git updates theme files directly and does not reliably trigger WordPress `upgrader_process_complete`.
+
+Solar Expert therefore compares the managed-content fingerprint on normal WordPress `init`. When the repository manifest/content differs from the last successful WordPress sync, it schedules one bounded `solar_expert_async_content_sync` event approximately 60 seconds later.
+
+Guardrails:
+- only one pending event at a time;
+- a five-minute transient lock prevents concurrent sync runs;
+- the sync remains idempotent through the manifest fingerprint;
+- the existing admin **Synchronizovat obsah teď** button remains the manual fallback;
+- the public health endpoint reports `content_sync_status`, `content_sync_required` and `content_sync_errors`.
+
+This keeps Git deployments autonomous without relying on a WordPress upgrader hook.
+
