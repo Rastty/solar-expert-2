@@ -448,8 +448,8 @@ assert(!legacyCleanupCore.includes("remove_all_filters('the_content'"),'Legacy c
 
 const groundPvSlug='fotovoltaika-na-pozemku';
 const groundPvItem=manifest.items.find(x=>x.slug===groundPvSlug);
-assert(groundPvItem&&groundPvItem.create_if_missing===true,'Ground-mounted PV guide must be publish-ready managed content');
-assert(groundPvItem.status_if_new==='publish'&&groundPvItem.publish_ready===true,'Ground-mounted PV guide must publish only through explicit manifest readiness');
+assert(groundPvItem&&groundPvItem.create_if_missing===true,'Ground-mounted PV guide must be managed and creatable');
+assert(groundPvItem.type==='post'&&groundPvItem.status_if_new==='publish','Ground-mounted PV guide must publish explicitly as a managed post');
 assert(groundPvItem.file&&fs.existsSync(path.join(__dirname,'..',groundPvItem.file)),'Ground-mounted PV guide file missing');
 assert(seoCore.includes("'"+groundPvSlug+"' => array("),'Ground-mounted PV guide must have dedicated SEO metadata');
 const groundPvHtml=fs.readFileSync(path.join(__dirname,'..',groundPvItem.file),'utf8');
