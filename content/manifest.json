@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "3.4.0",
+  "schemaVersion": "3.5.0",
   "items": [
     {
       "type": "page",
@@ -350,6 +350,14 @@
       "title": "Fotovoltaika na plechové střeše: kotvení, těsnění a statika",
       "preserve_status": true,
       "file": "content/rewrites/kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "monokrystalicke-vs-polykrystalicke-solarni-panely",
+      "title": "Monokrystalické vs. polykrystalické panely: co dává smysl v roce 2026",
+      "preserve_status": true,
+      "file": "content/rewrites/monokrystalicke-vs-polykrystalicke-solarni-panely.html",
       "create_if_missing": false
     }
   ]
