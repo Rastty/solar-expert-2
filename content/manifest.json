@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.6.0",
+  "schemaVersion": "1.7.0",
   "items": [
     {
       "type": "page",
@@ -173,6 +173,14 @@
       "title": "Kolik stojí fotovoltaika s tepelným čerpadlem: ceny a návrh 2026",
       "preserve_status": true,
       "file": "content/rewrites/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda",
+      "title": "Umístění tepelného čerpadla od hranice pozemku a souseda",
+      "preserve_status": true,
+      "file": "content/rewrites/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda.html",
       "create_if_missing": false
     }
   ]
