@@ -650,9 +650,11 @@ function solar_expert_append_heat_pump_lead_cta($content) {
   }
 
   $fallback = 'https://www.eon.cz/domacnosti/usporne-technologie/tepelne-cerpadlo/';
+  $combo_url = home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/');
   $cta = '<aside class="se-note se-lead-cta">'
     . '<strong>Řešíte nové tepelné čerpadlo?</strong> '
-    . 'Nechte si připravit nezávaznou nabídku od E.ON a porovnejte ji s dalšími variantami pro svůj dům.'
+    . 'Nejdřív si můžete projít náš <a href="' . esc_url($combo_url) . '">cenový a sizing průvodce FVE + tepelné čerpadlo</a>. '
+    . 'Potom si nechte připravit nezávaznou nabídku od E.ON a porovnejte ji s dalšími variantami pro svůj dům.'
     . '<p><a class="se-btn se-btn-primary" href="' . esc_url($fallback) . '" '
     . 'data-se-lead-id="eon-heat-pump" data-se-placement="heat_pump_legacy_article" '
     . 'data-se-fallback="' . esc_attr($fallback) . '" rel="nofollow noopener">Nezávazně poptat tepelné čerpadlo →</a></p>'
