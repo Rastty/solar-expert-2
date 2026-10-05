@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "items": [
     {
       "type": "page",
@@ -88,6 +88,30 @@
       "status_if_new": "draft",
       "create_if_missing": true,
       "file": "content/pages/affiliate-transparentnost.html"
+    },
+    {
+      "type": "post",
+      "slug": "jak-funguji-solarni-baterie-pruvodce-skladovanim-energie",
+      "title": "Jak fungují solární baterie: kapacita, BMS, 12/24/48 V a správný výběr",
+      "preserve_status": true,
+      "file": "content/rewrites/jak-funguji-solarni-baterie-pruvodce-skladovanim-energie.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "jak-vybrat-solarni-panely-pro-vas-domov",
+      "title": "Jak vybrat solární panely: výkon, Voc, MPPT a správné zapojení",
+      "preserve_status": true,
+      "file": "content/rewrites/jak-vybrat-solarni-panely-pro-vas-domov.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "sady-pro-solarni-napajeni-kompletni-pruvodce",
+      "title": "Solární sady: jak vybrat kompatibilní panely, baterii, měnič a MPPT",
+      "preserve_status": true,
+      "file": "content/rewrites/sady-pro-solarni-napajeni-kompletni-pruvodce.html",
+      "create_if_missing": false
     }
   ]
 }
