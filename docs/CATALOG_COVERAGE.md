@@ -40,3 +40,11 @@ Current approved-merchant evidence confirms that the remaining 12V/24V Premium g
 
 Decision: do not create a Premium tier merely for visual symmetry. A tier may be shown as complete only when every required product is technically evidenced and currently recommendable.
 
+## Price freshness policy
+
+- Verified price snapshots use a 30-day freshness window.
+- A known stale merchant price may not drive cheapest-price ranking or a bundle/set discount.
+- The merchant link can remain available, but the stale price is hidden until re-verified.
+- Legacy snapshots without a verification date are reported as `verification_unknown`; they are not silently relabeled with a current date.
+- Health/admin diagnostics expose fresh, stale and unknown counts so the remaining legacy snapshots can be migrated without inventing evidence.
+
