@@ -201,6 +201,21 @@ const pylonParallel=catalog.products.find(p=>p.id==='battery-pylontech-us5000');
 assert(pusungParallel.parallel_max_units===16,'PUSUNG-S parallel limit should match verified evidence');
 assert(pylonParallel.parallel_max_units===16,'Pylontech US5000 parallel limit should match verified evidence');
 
+const onRequestPremium={
+  id:'battery-test-premium-24',
+  name:'Test premium 24V',
+  type:'battery',
+  tier:'premium',
+  system_voltage_class:24,
+  energy_wh:2560,
+  max_discharge_a:100,
+  availability:'on_request',
+  price_czk:28000
+};
+const onRequestCandidates=B.batteryBankCandidatesAll([...catalog.products,onRequestPremium],{voltage:24,batteryKwh:2,inverterW:1500});
+assert(!onRequestCandidates.some(x=>x.product.id===onRequestPremium.id),'On-request battery must not unlock a complete premium bank');
+
+
 const discontinuedOnly=B.findPanelPlan(
   catalog.products.filter(p=>p.id==='panel-dah-555'),
   {voltage:48,panelWp:1000},
