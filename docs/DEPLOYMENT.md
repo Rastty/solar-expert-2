@@ -40,6 +40,21 @@ Merchant-specific keys use:
 
 The merchant-specific key takes priority. Affiliate URLs are stored in the WordPress database, not committed to GitHub. They are not secrets once rendered as outbound links, but they stay out of the public repository for maintainability.
 
+## Deployment health check
+
+After the theme is deployed, open:
+
+`/wp-json/solar-expert/v1/health`
+
+Expected MVP values include:
+- `status: ok`
+- current theme version,
+- 21 catalog products,
+- current managed-content item count,
+- affiliate mapping counts.
+
+The endpoint intentionally exposes counts and versions only. It never returns affiliate URLs or account credentials.
+
 ## Pre-production gate
 
 Before production activation, complete `docs/PREPROD_QA.md`.
