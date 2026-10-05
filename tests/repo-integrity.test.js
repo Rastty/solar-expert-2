@@ -727,3 +727,15 @@ assert(!apartmentPvHtml.includes('7 a 15 lety'),'Apartment-building PV ROI guide
 assert(!apartmentPvHtml.includes('2 až 3 kWh'),'Apartment-building PV ROI guide must not retain fixed battery-per-kWp sizing');
 assert(!apartmentPvHtml.includes('výnosu kolem 20%'),'Apartment-building PV ROI guide must not retain unsupported investment-return claims');
 
+const overheatingSlug='proc-se-solarni-panely-neprehrivaji';
+const overheatingItem=manifest.items.find(x=>x.slug===overheatingSlug);
+assert(overheatingItem&&overheatingItem.preserve_status===true,'Overheating explainer must remain managed and preserve status');
+assert(overheatingItem.file&&fs.existsSync(path.join(__dirname,'..',overheatingItem.file)),'Overheating explainer rewrite file missing');
+assert(seoCore.includes("'proc-se-solarni-panely-neprehrivaji' => array("),'Overheating top-ranking SEO metadata must remain present');
+const overheatingHtml=fs.readFileSync(path.join(__dirname,'..',overheatingItem.file),'utf8');
+assert(overheatingHtml.includes('teplotní koeficient Pmax'),'Overheating explainer must teach temperature coefficient');
+assert(overheatingHtml.includes('/realny-vykon-solarnich-panelu/'),'Overheating explainer must route to real-world performance guide');
+assert(overheatingHtml.includes('/chlazeni-fotovoltaickych-panelu/'),'Overheating explainer must keep cooling-method intent separate');
+assert(!overheatingHtml.includes('termálních izolátorů'),'Overheating explainer must not retain unsupported legacy cooling advice');
+assert(!overheatingHtml.includes('panely umístěné ve stínu mají nižší teplotu'),'Overheating explainer must not recommend shading panels as thermal management');
+
