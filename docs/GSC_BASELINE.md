@@ -145,3 +145,14 @@ Fresh query-level evidence for `/recenze-tepelneho-cerpadla-viessman-klady-zapor
 
 The legacy article mixed several older model generations, obsolete UK RHI guidance and an undated 120–350k CZK price range. Decision: preserve the indexed URL but replace the body with a 2026 Vitocal 250-A / 252-A buyer guide based on current Viessmann Czech documentation, explicit A/W condition caveats and bounded comparison monetization.
 
+### Ground-mounted PV intent gap
+
+Fresh page-query evidence shows `fotovoltaika na pozemku` at **5 impressions / avg. position 12.2**, but Google currently maps it to the unrelated heat-pump boundary article because no dedicated solar URL exists.
+
+Decision:
+- create a dedicated managed `/fotovoltaika-na-pozemku/` guide;
+- publish it explicitly through the manifest;
+- cover siting, shading, row spacing, foundations, cable route, MPPT/string design and current Czech permitting caveats;
+- link it from the roof-sizing and flat-roof mounting guides;
+- do not claim that every installation under 100 kW is permit-free.
+
