@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.7.0",
+  "schemaVersion": "2.8.0",
   "items": [
     {
       "type": "page",
@@ -270,6 +270,22 @@
       "title": "Daikin tepelné čerpadlo: recenze Altherma 4 H a 3 R MT 2026",
       "preserve_status": true,
       "file": "content/rewrites/prehled-vzduchovych-tepelnych-cerpadel-daikin.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji",
+      "title": "Tepelné čerpadlo vzduch–voda: jak funguje, cena a výběr 2026",
+      "preserve_status": true,
+      "file": "content/rewrites/tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla",
+      "title": "COP a SCOP tepelného čerpadla: účinnost vysvětlená prakticky",
+      "preserve_status": true,
+      "file": "content/rewrites/cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla.html",
       "create_if_missing": false
     }
   ]
