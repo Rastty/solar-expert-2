@@ -1,4 +1,5 @@
-global.window = {};
+global.window = {SolarExpertConfig:{affiliateMap:{products:{}}}};
+require('../assets/js/affiliate-adapter.js');
 require('../assets/js/product-matcher.js');
 require('../assets/js/bundle-composer.js');
 require('../assets/js/builder.js');
@@ -11,6 +12,19 @@ const assert = (condition, message) => {
 const catalog = require('../assets/data/product-seed.json');
 const M = global.window.SolarExpertProductMatcher;
 const B = global.window.SolarExpertBundleComposer;
+const A = global.window.SolarExpertAffiliate;
+
+const multiProduct=catalog.products.find(p=>p.id==='mppt-victron-100-50');
+const multiOffers=A.offers(multiProduct);
+assert(multiOffers.length===2,'MPPT 100/50 should expose two merchant offers');
+assert(multiOffers[0].merchantId==='solar-import-cz','Cheapest in-stock offer should be first');
+assert(multiOffers[0].price_czk===3899,'Primary offer price should match verified snapshot');
+window.SolarExpertConfig.affiliateMap.products['mppt-victron-100-50@battery-cz']='https://example.com/battery-affiliate';
+const batteryOffer=A.offers(multiProduct).find(o=>o.merchantId==='battery-cz');
+const solarOffer=A.offers(multiProduct).find(o=>o.merchantId==='solar-import-cz');
+assert(batteryOffer.monetized&&batteryOffer.href==='https://example.com/battery-affiliate','Merchant-specific affiliate URL must resolve for matching merchant');
+assert(!solarOffer.monetized,'Merchant-specific affiliate URL must not leak to another merchant');
+
 
 const battery24Sizing = { voltage:24, batteryKwh:1.5, inverterW:1000 };
 const batteries = M.rank(catalog.products.filter(p=>p.type==='battery'), battery24Sizing);
