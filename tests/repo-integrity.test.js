@@ -696,3 +696,9 @@ for(const id of ['se-quote-daily-kwh','se-quote-season','se-quote-autonomy','se-
   assert(quoteCheckerTplUx.includes('id="'+id+'"'),'Quote Checker control id missing: '+id);
 }
 
+assert(seoCore.includes("add_filter('robots_txt', 'solar_expert_robots_txt', 99, 2)"),'robots.txt must be normalized by the theme');
+assert(seoCore.includes("Disallow: /wp-admin/"),'robots.txt must protect wp-admin');
+assert(seoCore.includes("Allow: /wp-admin/admin-ajax.php"),'robots.txt must allow admin-ajax');
+assert(seoCore.includes("Sitemap: "), 'robots.txt must expose a valid sitemap directive');
+assert(seoCore.includes("home_url('/sitemap_index.xml')"),'robots.txt must point at the Yoast sitemap index');
+
