@@ -40,8 +40,11 @@ window.SolarExpertBundleComposer = {
 
     const candidates = [];
 
+    const matcher = window.SolarExpertProductMatcher;
+
     for (const panel of panels) {
       if (!panel.rated_wp || !panel.voc_v || !panel.vmp_v) continue;
+      if (matcher && matcher.availabilityRank(panel) <= 0) continue;
 
       const coldFactor = Number(panel.cold_voc_factor || 1.12);
       const coldVocPerPanel = Number(panel.voc_v) * coldFactor;
