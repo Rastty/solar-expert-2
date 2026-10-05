@@ -580,6 +580,10 @@ function solar_expert_seo_meta() {
       'title' => 'Kolik vyrobí fotovoltaika za hodinu? kW vs. kWh | Solar Expert',
       'description' => 'Kolik energie vyrobí 1, 5 nebo 10 kWp fotovoltaika za hodinu, rozdíl kW a kWh a proč se skutečný výkon během dne mění.'
     ),
+    'cisteni-solarnich-panelu-proc-kdy-jak' => array(
+      'title' => 'Čištění solárních panelů: jak často, čím a bezpečně | Solar Expert',
+      'description' => 'Kdy čistit fotovoltaické panely, čemu se vyhnout, jak bezpečně odstranit prach a ptačí trus a kdy je lepší profesionální servis.'
+    ),
   );
 
   if ( is_front_page() ) {
@@ -711,6 +715,7 @@ function solar_expert_legacy_redirects() {
   $redirects = array(
     'veda-o-ztrate-ucinnosti-solarnich-panelu-v-prubehu-casu' => 'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu',
     'jak-funguji-solarni-panely-na-plochych-strechach' => 'kotveni-fotovoltaickych-panelu-na-ploche-strese',
+    'jak-vycistit-solarni-panely-pruvodce-cistenim-solaru' => 'cisteni-solarnich-panelu-proc-kdy-jak',
   );
 
   if ( isset($redirects[$post->post_name]) ) {
