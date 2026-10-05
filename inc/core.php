@@ -26,6 +26,18 @@ function solar_expert_public_page_exists($slug) {
   return (bool) ($post && $post->post_status === 'publish');
 }
 
+function solar_expert_load_catalog() {
+  $path = trailingslashit(get_template_directory()) . 'assets/data/product-seed.json';
+  if ( ! file_exists($path) ) {
+    return array('schemaVersion'=>'0','products'=>array());
+  }
+  $decoded = json_decode(file_get_contents($path), true);
+  if ( ! is_array($decoded) || ! isset($decoded['products']) || ! is_array($decoded['products']) ) {
+    return array('schemaVersion'=>'0','products'=>array());
+  }
+  return $decoded;
+}
+
 function solar_expert_content_root() {
   return trailingslashit(get_template_directory()) . 'content/';
 }
@@ -244,21 +256,90 @@ function solar_expert_settings_page() {
       <textarea name="solar_expert_affiliate_map" rows="22" class="large-text code"><?php echo esc_textarea($json); ?></textarea>
       <?php submit_button('Uložit affiliate mapu'); ?>
     </form>
+
+    <?php
+    $catalog = solar_expert_load_catalog();
+    $product_map = isset($map['products']) && is_array($map['products']) ? $map['products'] : array();
+    $coverage_rows = array();
+    $mapped_count = 0;
+
+    foreach ( $catalog['products'] as $product ) {
+      $offers = ! empty($product['offers']) && is_array($product['offers'])
+        ? $product['offers']
+        : array(array(
+            'merchant' => $product['merchant'] ?? '',
+            'price_czk' => $product['price_czk'] ?? null,
+            'availability' => $product['availability'] ?? null,
+          ));
+
+      foreach ( $offers as $offer ) {
+        $merchant = sanitize_key($offer['merchant'] ?? '');
+        if ( ! $merchant ) { continue; }
+        $exact_key = ($product['id'] ?? '') . '@' . $merchant;
+        $legacy_key = $product['id'] ?? '';
+        $mapped = isset($product_map[$exact_key]) || (
+          ($product['merchant'] ?? '') === $merchant && isset($product_map[$legacy_key])
+        );
+        if ( $mapped ) { $mapped_count++; }
+
+        $coverage_rows[] = array(
+          'product' => $product['name'] ?? $product['id'],
+          'merchant' => $merchant,
+          'key' => $exact_key,
+          'availability' => $offer['availability'] ?? $product['availability'] ?? '',
+          'price' => $offer['price_czk'] ?? $product['price_czk'] ?? null,
+          'mapped' => $mapped,
+        );
+      }
+    }
+    $coverage_total = count($coverage_rows);
+    ?>
+    <hr>
+    <h2>Affiliate coverage</h2>
+    <p><strong><?php echo esc_html($mapped_count); ?> / <?php echo esc_html($coverage_total); ?></strong> produktových nabídek má affiliate mapování. Nezmapované nabídky bezpečně používají ověřený zdrojový odkaz.</p>
+    <table class="widefat striped">
+      <thead><tr><th>Produkt</th><th>Obchod</th><th>Klíč</th><th>Dostupnost</th><th>Cena</th><th>Affiliate</th></tr></thead>
+      <tbody>
+      <?php foreach ( $coverage_rows as $row ) : ?>
+        <tr>
+          <td><?php echo esc_html($row['product']); ?></td>
+          <td><code><?php echo esc_html($row['merchant']); ?></code></td>
+          <td><code><?php echo esc_html($row['key']); ?></code></td>
+          <td><?php echo esc_html($row['availability']); ?></td>
+          <td><?php echo $row['price'] ? esc_html(number_format_i18n((float)$row['price'], 0) . ' Kč') : '—'; ?></td>
+          <td><?php echo $row['mapped'] ? '<strong style="color:#16733b">ANO</strong>' : '<span style="color:#8a5b00">zdrojový odkaz</span>'; ?></td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+
+    <?php
+    $manifest = solar_expert_load_manifest();
+    ?>
+    <h2 style="margin-top:28px">Managed content</h2>
+    <table class="widefat striped">
+      <thead><tr><th>Obsah</th><th>Typ</th><th>WordPress stav</th><th>Manifest</th></tr></thead>
+      <tbody>
+      <?php foreach ( $manifest['items'] as $item ) :
+        $type = isset($item['type']) && in_array($item['type'], array('page','post'), true) ? $item['type'] : 'page';
+        $post = get_page_by_path(sanitize_title($item['slug'] ?? ''), OBJECT, $type);
+      ?>
+        <tr>
+          <td><code><?php echo esc_html($item['slug'] ?? ''); ?></code></td>
+          <td><?php echo esc_html($type); ?></td>
+          <td><?php echo esc_html($post ? $post->post_status : 'nenalezeno'); ?></td>
+          <td><?php echo ! empty($item['preserve_status']) ? 'preserve' : esc_html($item['status'] ?? $item['status_if_new'] ?? 'draft'); ?></td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
   </div>
   <?php
 }
 
 
 function solar_expert_health_payload() {
-  $catalog_path = trailingslashit(get_template_directory()) . 'assets/data/product-seed.json';
-  $catalog = array('schemaVersion'=>'0','products'=>array());
-
-  if ( file_exists($catalog_path) ) {
-    $decoded = json_decode(file_get_contents($catalog_path), true);
-    if ( is_array($decoded) ) {
-      $catalog = $decoded;
-    }
-  }
+  $catalog = solar_expert_load_catalog();
 
   $manifest = solar_expert_load_manifest();
   $map = get_option('solar_expert_affiliate_map', array('products'=>array(),'leads'=>array()));
