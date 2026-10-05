@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "items": [
     {
       "type": "page",
@@ -31,6 +31,14 @@
       "title": "Jak vybrat měnič pro ostrovní systém",
       "status_if_new": "draft",
       "file": "content/pages/vyber-menice.html",
+      "create_if_missing": true
+    },
+    {
+      "type": "page",
+      "slug": "quote-checker",
+      "title": "Quote Checker: zkontrolujte nabídku fotovoltaiky",
+      "status_if_new": "draft",
+      "file": "content/pages/quote-checker.html",
       "create_if_missing": true
     },
     {
