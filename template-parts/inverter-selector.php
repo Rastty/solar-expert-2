@@ -1,11 +1,24 @@
 <div class="se-panel" x-data="solarExpertInverterSelector()" x-init="init()">
   <div class="se-kicker">Inverter Selector</div><h2>Vyberte měnič podle výkonu a napětí</h2>
   <div class="se-formgrid">
-    <div class="se-field"><label>DC systém</label><select class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
-    <div class="se-field"><label>Trvalý požadovaný výkon (W)</label><input class="se-input" type="number" step="100" x-model.number="continuousW" @input.debounce.200ms="run()"></div>
-    <div class="se-field"><label>Rozběhová špička (W)</label><input class="se-input" type="number" step="100" x-model.number="peakW" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-inverter-voltage">DC systém</label><select id="se-inverter-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
+    <div class="se-field"><label for="se-inverter-continuous">Trvalý požadovaný výkon (W)</label><input id="se-inverter-continuous" class="se-input" type="number" min="100" step="100" x-model.number="continuousW" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-inverter-peak">Rozběhová špička (W)</label><input id="se-inverter-peak" class="se-input" type="number" min="100" step="100" x-model.number="peakW" @input.debounce.200ms="run()"></div>
   </div>
-  <div class="se-bundles">
+  <div class="se-note" style="margin-top:14px">
+    Měnič musí zvládnout oba limity: <strong><span x-text="continuousW"></span> W trvale</strong> a
+    <strong><span x-text="peakW"></span> W krátkodobě</strong>.
+    Bateriový bank musí při zvoleném napětí dodat orientačně alespoň <strong><span x-text="requiredDcA"></span> A</strong> trvale
+    a <strong><span x-text="peakDcA"></span> A</strong> při špičce; skutečný DC proud může být vyšší kvůli účinnosti měniče a poklesu napětí.
+  </div>
+  <div class="se-note se-note-error" x-show="!inputValid" style="margin-top:14px" role="alert">
+    Zkontrolujte vstupy: trvalý výkon musí být kladný a rozběhová špička musí být alespoň stejně vysoká jako trvalý požadovaný výkon.
+  </div>
+  <div class="se-note" x-show="catalogLoading" style="margin-top:14px" role="status" aria-live="polite">Načítám ověřený katalog měničů…</div>
+  <div class="se-note se-note-error" x-show="catalogError" style="margin-top:14px" role="alert">
+    Katalog měničů se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
+  </div>
+  <div class="se-bundles" :aria-busy="catalogLoading ? 'true' : 'false'" aria-live="polite">
     <template x-for="r in matches" :key="r.product.id">
       <div class="se-bundle">
         <div class="se-bundle-head">
@@ -24,6 +37,6 @@
         </div>
       </div>
     </template>
-    <div x-show="!matches.length" class="se-note">V katalogu zatím nemáme měnič, který projde zadaným trvalým výkonem, špičkou a napětím.</div>
+    <div x-show="!catalogLoading && !catalogError && inputValid && !matches.length" class="se-note">V ověřeném katalogu zatím nemáme měnič, který současně projde zadaným DC napětím, trvalým výkonem a špičkou.</div>
   </div>
 </div>
