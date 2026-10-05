@@ -213,3 +213,12 @@ assert(comboHtml.includes('data-se-lead-id="eon-heat-pump"'),'Combined FVE + hea
 assert(comboHtml.includes('/quote-checker/'),'Combined FVE + heat-pump page must route into Quote Checker');
 assert(comboHtml.includes('/solarni-sestava-na-chatu/'),'Combined FVE + heat-pump page must route into Builder');
 assert(comboHtml.includes('ověřeno říjen 2026'),'Time-sensitive price benchmark must be explicitly date-stamped');
+
+
+assert(leadCore.includes("function solar_expert_solar_lead_slugs()"),'Solar lead CTA must be bounded by an explicit allowlist');
+assert(leadCore.includes("'eon-solar'"),'Solar lead CTA must use the canonical E.ON solar lead key');
+assert(leadCore.includes("https://www.eon.cz/domacnosti/usporne-technologie/solar/"),'Solar lead CTA must retain a safe public fallback');
+assert(leadCore.includes("data-se-placement=\"solar_legacy_article\""),'Solar lead CTA must expose a stable measurement placement');
+for(const slug of ['fve-panely-na-strechu','fotovoltaika-na-eternitovou-strechu','kotveni-fotovoltaickych-panelu-na-ploche-strese','velikost-rozmery-a-hmotnost-solarnich-panelu']){
+  assert(leadCore.includes("'"+slug+"'"),'Solar lead allowlist must include GSC-backed planning page: '+slug);
+}
