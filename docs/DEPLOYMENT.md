@@ -95,3 +95,14 @@ Guardrails:
 
 This keeps Git deployments autonomous without relying on a WordPress upgrader hook.
 
+## Legacy frontend quarantine
+
+Solar Expert 2.0 keeps old plugins installed for rollback safety, but the active theme quarantines known legacy frontend mutations that conflict with the new decision-engine UI:
+
+- MyThemeShop WP Notification Bar: old fixed CTA bar;
+- Ninja Popups: old popup plus PHP 8 warning output;
+- Simple Author Box: old imported author persona and styles;
+- SEO Automated Link Building: automatic post-render link mutation.
+
+The quarantine removes only known callback/class signatures and their matching frontend assets. It does **not** deactivate or delete plugins and does not affect wp-admin. Broad hook removal such as `remove_all_actions('wp_footer')` is prohibited by repository tests.
+
