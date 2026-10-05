@@ -13,7 +13,8 @@ add_action('after_setup_theme','solar_expert_setup');
 function solar_expert_assets() {
   $dir=get_template_directory(); $uri=get_template_directory_uri();
   wp_enqueue_style('solar-expert-style', get_stylesheet_uri(), array(), filemtime($dir.'/style.css'));
-  wp_enqueue_script('solar-expert-affiliate',$uri.'/assets/js/affiliate-adapter.js',array(),filemtime($dir.'/assets/js/affiliate-adapter.js'),true);
+  wp_enqueue_script('solar-expert-analytics',$uri.'/assets/js/analytics.js',array(),filemtime($dir.'/assets/js/analytics.js'),true);
+  wp_enqueue_script('solar-expert-affiliate',$uri.'/assets/js/affiliate-adapter.js',array('solar-expert-analytics'),filemtime($dir.'/assets/js/affiliate-adapter.js'),true);
   wp_enqueue_script('solar-expert-leads',$uri.'/assets/js/lead-cta.js',array('solar-expert-affiliate'),filemtime($dir.'/assets/js/lead-cta.js'),true);
   wp_enqueue_script('solar-expert-matcher',$uri.'/assets/js/product-matcher.js',array('solar-expert-affiliate'),filemtime($dir.'/assets/js/product-matcher.js'),true);
   wp_enqueue_script('solar-expert-bundles',$uri.'/assets/js/bundle-composer.js',array('solar-expert-matcher'),filemtime($dir.'/assets/js/bundle-composer.js'),true);
@@ -30,6 +31,10 @@ function solar_expert_assets() {
   if ( ! is_array($affiliate_bases) ) {
     $affiliate_bases = array();
   }
+
+  wp_localize_script('solar-expert-analytics','SolarExpertAnalyticsConfig',array(
+    'endpoint'=>esc_url_raw(rest_url('solar-expert/v1/funnel-event')),
+  ));
 
   wp_localize_script('solar-expert-builder','SolarExpertConfig',array(
     'catalogUrl'=>$uri.'/assets/data/product-seed.json',
