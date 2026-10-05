@@ -796,6 +796,7 @@ const firstPartyCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),
 const firstPartyAnalytics=fs.readFileSync(path.join(__dirname,'..','assets','js','analytics.js'),'utf8');
 assert(firstPartyFunctions.includes("wp_enqueue_script('solar-expert-analytics'"),'First-party funnel collector must be enqueued');
 assert(firstPartyFunctions.includes("array('solar-expert-analytics')"),'First-party funnel collector must be enqueued before affiliate tracking');
+assert(firstPartyFunctions.includes("wp_enqueue_script('solar-expert-quote-checker',$uri.'/assets/js/quote-checker.js',array('solar-expert-analytics')"),'Quote Checker must load after first-party analytics');
 assert(firstPartyFunctions.includes("rest_url('solar-expert/v1/funnel-event')"),'Analytics collector must receive the first-party REST endpoint');
 assert(firstPartyCore.includes("register_rest_route('solar-expert/v1', '/funnel-event'"),'First-party funnel REST route must stay registered');
 assert(firstPartyCore.includes("get_option('solar_expert_funnel_daily'"),'Funnel collector must use aggregate daily storage');
