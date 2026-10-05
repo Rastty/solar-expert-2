@@ -310,6 +310,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
+    <p><strong>Build <code>dev-rc-0.5.7</code></strong></p>
     <p>Affiliate deeplinky jsou uložené ve WordPress databázi a nejsou součástí veřejného GitHub repozitáře.</p>
     <?php settings_errors('solar_expert_affiliate_map'); ?>
     <?php if ( ! empty($_GET['solar_expert_saved']) ) : ?>
@@ -427,7 +428,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.5.6',
+    'build_marker' => 'dev-rc-0.5.7',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
