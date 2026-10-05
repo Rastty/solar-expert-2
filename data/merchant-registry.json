@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "merchants": [
     {
       "id": "battery-cz",
@@ -19,7 +19,9 @@
         "panel",
         "mppt",
         "inverter",
-        "hybrid"
+        "hybrid",
+        "lifepo4",
+        "storage"
       ],
       "priority": "p0"
     },
