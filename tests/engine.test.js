@@ -4,6 +4,7 @@ require('../assets/js/product-matcher.js');
 require('../assets/js/bundle-composer.js');
 require('../assets/js/builder.js');
 require('../assets/js/quote-checker.js');
+require('../assets/js/selectors.js');
 
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
@@ -28,6 +29,30 @@ assert(M.effectivePrice(multiProduct)===3899,'Matcher should use cheapest in-sto
 const temporarilyExpensive={...multiProduct,price_czk:99999};
 assert(M.effectivePrice(temporarilyExpensive)===3899,'Offer price should override stale product-level price for ranking');
 
+
+const batterySelectorReserve=global.window.solarExpertBatterySelector();
+batterySelectorReserve.catalog=catalog.products;
+batterySelectorReserve.voltage=24;
+batterySelectorReserve.dailyKwh=1.5;
+batterySelectorReserve.autonomy=1;
+batterySelectorReserve.inverterW=1000;
+batterySelectorReserve.run();
+assert(batterySelectorReserve.matches.some(x=>x.product.id==='battery-goowei-24-100'),'24V 2.56kWh battery should cover 1.5kWh/day with reserve');
+assert(!batterySelectorReserve.matches.some(x=>x.product.id==='battery-goowei-24-50'),'24V 1.28kWh battery must not pass a larger nominal sizing target');
+
+const mpptSelectorStart=global.window.solarExpertMpptSelector();
+mpptSelectorStart.catalog=catalog.products;
+mpptSelectorStart.voltage=24;
+mpptSelectorStart.panelWp=500;
+mpptSelectorStart.panelVoc=25.5;
+mpptSelectorStart.panelVmp=21.8;
+mpptSelectorStart.seriesCount=1;
+mpptSelectorStart.run();
+assert(mpptSelectorStart.matches.length===0,'One-panel 24V string must fail Victron MPPT start-voltage window');
+
+mpptSelectorStart.seriesCount=2;
+mpptSelectorStart.run();
+assert(mpptSelectorStart.matches.length>0,'Two-panel 24V string should reach the verified MPPT start-voltage window');
 
 const battery24Sizing = { voltage:24, batteryKwh:1.5, inverterW:1000 };
 const batteries = M.rank(catalog.products.filter(p=>p.type==='battery'), battery24Sizing);
