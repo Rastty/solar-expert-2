@@ -172,6 +172,51 @@ function solar_expert_sync_managed_content($force = false) {
   return $result;
 }
 
+function solar_expert_content_sync_state() {
+  $manifest = solar_expert_load_manifest();
+  $current = solar_expert_manifest_fingerprint($manifest);
+  $stored = (string) get_option('solar_expert_content_fingerprint', '');
+  $last = get_option('solar_expert_last_content_sync', array());
+  $errors = isset($last['result']['errors']) && is_array($last['result']['errors'])
+    ? count($last['result']['errors'])
+    : 0;
+
+  if ( ! $current ) {
+    return array('status'=>'error','required'=>true,'current'=>'','stored'=>$stored,'errors'=>1);
+  }
+  if ( $stored && hash_equals($stored, $current) ) {
+    return array('status'=>'current','required'=>false,'current'=>$current,'stored'=>$stored,'errors'=>$errors);
+  }
+  return array(
+    'status' => $errors > 0 ? 'error' : 'sync_required',
+    'required' => true,
+    'current' => $current,
+    'stored' => $stored,
+    'errors' => $errors,
+  );
+}
+
+function solar_expert_schedule_content_sync() {
+  $state = solar_expert_content_sync_state();
+  if ( empty($state['required']) ) {
+    return;
+  }
+
+  if ( ! wp_next_scheduled('solar_expert_async_content_sync') ) {
+    wp_schedule_single_event(time() + 60, 'solar_expert_async_content_sync');
+  }
+}
+add_action('init', 'solar_expert_schedule_content_sync', 50);
+
+function solar_expert_run_async_content_sync() {
+  $state = solar_expert_content_sync_state();
+  if ( empty($state['required']) ) {
+    return;
+  }
+  solar_expert_sync_managed_content(false);
+}
+add_action('solar_expert_async_content_sync', 'solar_expert_run_async_content_sync');
+
 function solar_expert_maybe_sync_content() {
   solar_expert_sync_managed_content(false);
 }
