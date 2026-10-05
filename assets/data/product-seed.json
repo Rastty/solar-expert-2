@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.9.0",
+  "schemaVersion": "1.0.0",
   "mode": "verified-public-seed; affiliate URLs added separately",
   "verifiedAt": "2026-10-05",
   "products": [
@@ -116,7 +116,10 @@
           "source_url": "https://www.solar-import.cz/pylontech/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
           "verified_at": "2026-10-05"
         }
-      ]
+      ],
+      "parallel_max_units": 16,
+      "parallel_evidence_url": "https://en.pylontech.com.cn/products/c23/134.html",
+      "parallel_verified_at": "2026-10-05"
     },
     {
       "id": "battery-seplos-pusung-48",
@@ -156,7 +159,10 @@
           "source_url": "https://www.solar-import.cz/seplos/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
           "verified_at": "2026-10-05"
         }
-      ]
+      ],
+      "parallel_max_units": 16,
+      "parallel_evidence_url": "https://www.battery.cz/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
+      "parallel_verified_at": "2026-10-05"
     },
     {
       "id": "battery-seplos-polo-w-48",
