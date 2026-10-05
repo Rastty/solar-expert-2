@@ -1,45 +1,55 @@
 {
-  "schemaVersion": "1.2.0",
+  "schemaVersion": "1.3.0",
   "items": [
     {
       "type": "page",
       "slug": "solarni-sestava-na-chatu",
       "title": "Solární sestava na chatu: spočítejte panely, baterii, měnič a MPPT",
-      "status_if_new": "draft",
+      "status_if_new": "publish",
       "file": "content/pages/solarni-sestava-na-chatu.html",
-      "create_if_missing": true
+      "create_if_missing": true,
+      "status": "publish",
+      "publish_ready": true
     },
     {
       "type": "page",
       "slug": "vyber-baterii",
       "title": "Jak vybrat LiFePO4 baterii pro ostrovní systém",
-      "status_if_new": "draft",
+      "status_if_new": "publish",
       "file": "content/pages/vyber-baterii.html",
-      "create_if_missing": true
+      "create_if_missing": true,
+      "status": "publish",
+      "publish_ready": true
     },
     {
       "type": "page",
       "slug": "mppt-kalkulacka",
       "title": "MPPT kalkulačka a výběr regulátoru",
-      "status_if_new": "draft",
+      "status_if_new": "publish",
       "file": "content/pages/mppt-kalkulacka.html",
-      "create_if_missing": true
+      "create_if_missing": true,
+      "status": "publish",
+      "publish_ready": true
     },
     {
       "type": "page",
       "slug": "vyber-menice",
       "title": "Jak vybrat měnič pro ostrovní systém",
-      "status_if_new": "draft",
+      "status_if_new": "publish",
       "file": "content/pages/vyber-menice.html",
-      "create_if_missing": true
+      "create_if_missing": true,
+      "status": "publish",
+      "publish_ready": true
     },
     {
       "type": "page",
       "slug": "quote-checker",
       "title": "Quote Checker: zkontrolujte nabídku fotovoltaiky",
-      "status_if_new": "draft",
+      "status_if_new": "publish",
       "file": "content/pages/quote-checker.html",
-      "create_if_missing": true
+      "create_if_missing": true,
+      "status": "publish",
+      "publish_ready": true
     },
     {
       "type": "post",
@@ -77,17 +87,21 @@
       "type": "page",
       "slug": "jak-doporucujeme",
       "title": "Jak Solar Expert doporučuje produkty",
-      "status_if_new": "draft",
+      "status_if_new": "publish",
       "create_if_missing": true,
-      "file": "content/pages/jak-doporucujeme.html"
+      "file": "content/pages/jak-doporucujeme.html",
+      "status": "publish",
+      "publish_ready": true
     },
     {
       "type": "page",
       "slug": "affiliate-transparentnost",
       "title": "Affiliate transparentnost",
-      "status_if_new": "draft",
+      "status_if_new": "publish",
       "create_if_missing": true,
-      "file": "content/pages/affiliate-transparentnost.html"
+      "file": "content/pages/affiliate-transparentnost.html",
+      "status": "publish",
+      "publish_ready": true
     },
     {
       "type": "post",
