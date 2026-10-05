@@ -23,6 +23,7 @@ Git-first development active on `dev`.
 - “Co ještě potřebuji?”: separates included core components from site-specific protection/cabling/mounting work
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
+- Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
 - Production deploy: intentionally not enabled yet
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
