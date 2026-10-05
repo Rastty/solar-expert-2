@@ -160,6 +160,28 @@ assert(window.dataLayer.some(e=>e.event==='bundle_deal_click'&&e.dealId===withDe
 window.SolarExpertConfig.affiliateBases={};
 window.dataLayer=[];
 
+const high48Sizing={voltage:48,batteryKwh:5,inverterW:5000,peak:9000,panelWp:2500,mpptA:70};
+const high48Bundles=B.compose(catalog.products,high48Sizing,catalog.bundle_deals);
+const high48Best=high48Bundles.find(b=>b.tier==='best');
+assert(high48Best&&high48Best.complete,'High-power 48V scenario should become complete with a verified parallel battery bank');
+assert(high48Best.battery.id==='battery-seplos-pusung-48','High-power Best Value bank should use verified PUSUNG-S modules');
+assert(high48Best.batteryQuantity===2,'High-power Best Value bank should use the minimum verified quantity of two PUSUNG-S modules');
+assert(high48Best.batteryBank.totalEnergyWh===10240,'Two PUSUNG-S modules should expose 10.24kWh nominal energy');
+assert(high48Best.batteryBank.dischargePowerW>=high48Sizing.inverterW,'Parallel battery bank must cover requested continuous inverter power');
+assert(high48Best.bundleDeal===null,'Single-battery + inverter deal must not attach to a two-battery bank');
+
+const high48Premium=high48Bundles.find(b=>b.tier==='premium');
+assert(high48Premium&&high48Premium.complete,'Premium high-power 48V scenario should also be complete');
+assert(high48Premium.battery.id==='battery-pylontech-us5000','Premium high-power bank should use verified Pylontech US5000 modules');
+assert(high48Premium.batteryQuantity===2,'Premium high-power bank should use two Pylontech modules');
+assert(high48Premium.batteryBank.totalEnergyWh===9600,'Two Pylontech US5000 modules should expose 9.6kWh nominal energy');
+assert(high48Premium.bundleDeal===null,'Bundle deal must not apply when battery quantity is greater than one');
+
+const pusungParallel=catalog.products.find(p=>p.id==='battery-seplos-pusung-48');
+const pylonParallel=catalog.products.find(p=>p.id==='battery-pylontech-us5000');
+assert(pusungParallel.parallel_max_units===16,'PUSUNG-S parallel limit should match verified evidence');
+assert(pylonParallel.parallel_max_units===16,'Pylontech US5000 parallel limit should match verified evidence');
+
 const discontinuedOnly=B.findPanelPlan(
   catalog.products.filter(p=>p.id==='panel-dah-555'),
   {voltage:48,panelWp:1000},
