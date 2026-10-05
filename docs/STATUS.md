@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.15`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.16`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -66,6 +66,7 @@ Git-first development active on `dev`.
 - Metal-roof FVE refresh: US-centric marketing article replaced with a Czech-useful guide for standing seam, trapezoidal sheet, penetrations, sealing, statics and corrosion; joins the active E.ON solar funnel
 - Mono-vs-poly refresh: legacy comparison rebuilt for the 2026 market, where monocrystalline/N-type dominates; the page now routes users toward concrete panel selection instead of stale 250–400 W assumptions
 - Residual flat-roof cleanup: `jak-funguji-solarni-panely-na-plochych-strechach` (33 GSC impressions) now 301s to the managed canonical flat-roof mounting guide
+- Builder UX audit: mobile/desktop Lighthouse 99 performance, 100 accessibility/best-practices; catalog loading/error states are now explicit, late catalog loads repopulate bundles, mobile offer targets are full-width, and Solar Expert SEO metadata now passes through Yoast
 - Heat-pump temperature-limit refresh: model-specific frost/output-water guide replaces fake universal limits and joins the active E.ON heat-pump funnel
 - Panel buyer-guide upgrade: added independent-review criteria (IEC 61215/61730, warranties, degradation, mechanical reliability and Kiwa PVEL 2026) and joined the active E.ON solar funnel
 - Panel review consolidation: copied Australian `recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii` now 301s to the owned panel buyer guide
