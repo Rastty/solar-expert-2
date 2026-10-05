@@ -60,3 +60,16 @@ for(const item of manifest.items){
 }
 
 console.log('Solar Expert repository integrity checks passed');
+
+
+const deploy=JSON.parse(fs.readFileSync(path.join(__dirname,'..','deploy.json'),'utf8'));
+assert(deploy.repository==='Rastty/solar-expert-2','deploy.json repository mismatch');
+assert(deploy.branch==='dev','deploy.json must target dev for release-candidate deployment');
+assert(deploy.package_type==='theme','deploy.json package_type must be theme');
+const deployThemeRoot=path.resolve(path.join(__dirname,'..'),deploy.theme_path||'.');
+assert(fs.existsSync(path.join(deployThemeRoot,'style.css')),'deploy.json must point to a valid WordPress theme root containing style.css');
+assert(fs.existsSync(path.join(deployThemeRoot,'functions.php')),'deploy.json theme root must contain functions.php');
+assert(deploy.production_requires_manual_approval===true,'Production deployment must require manual approval');
+if(deploy.plugin_path){
+  assert(fs.existsSync(path.join(__dirname,'..',deploy.plugin_path)),'Configured plugin_path must exist');
+}
