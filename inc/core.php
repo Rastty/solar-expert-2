@@ -1042,6 +1042,26 @@ function solar_expert_quarantine_legacy_frontend_plugins() {
     return false;
   });
 
+  // Legacy automated link building mutates managed editorial HTML after sync.
+  // Solar Expert 2.0 owns internal and external link decisions explicitly.
+  solar_expert_remove_matching_hook_callbacks('the_content', function($callback) {
+    if ( ! is_array($callback) || ! isset($callback[0], $callback[1]) || ! is_object($callback[0]) ) {
+      return false;
+    }
+
+    return get_class($callback[0]) === 'SeoAutomatedLinkBuilding\\Plugin'
+      && (string) $callback[1] === 'changeContent';
+  });
+
+  solar_expert_remove_matching_hook_callbacks('wp_enqueue_scripts', function($callback) {
+    if ( ! is_array($callback) || ! isset($callback[0], $callback[1]) || ! is_object($callback[0]) ) {
+      return false;
+    }
+
+    return get_class($callback[0]) === 'SeoAutomatedLinkBuilding\\Plugin'
+      && (string) $callback[1] === 'enqueueScripts';
+  });
+
   // MyThemeShop Notification Bar registers object callbacks, so remove only the
   // two known frontend render methods on its shared object.
   solar_expert_remove_matching_hook_callbacks('wp_footer', function($callback) {
@@ -1088,6 +1108,7 @@ function solar_expert_dequeue_legacy_frontend_assets() {
     '/plugins/mts-wp-notification-bar/',
     '/plugins/arscode-ninja-popups/',
     '/plugins/simple-author-box/',
+    '/plugins/seo-automated-link-building/',
   );
 
   global $wp_scripts, $wp_styles;
