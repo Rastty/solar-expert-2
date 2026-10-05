@@ -256,6 +256,31 @@ function solar_expert_register_settings() {
 }
 add_action('admin_init','solar_expert_register_settings');
 
+function solar_expert_handle_settings_save() {
+  if ( ! current_user_can('edit_theme_options') ) {
+    wp_die(esc_html__('Nemáte oprávnění spravovat nastavení Solar Expert.', 'solar-expert-2'));
+  }
+
+  check_admin_referer('solar_expert_save_settings');
+
+  $map_input = isset($_POST['solar_expert_affiliate_map']) ? wp_unslash($_POST['solar_expert_affiliate_map']) : '';
+  $bases_input = isset($_POST['solar_expert_affiliate_bases']) ? wp_unslash($_POST['solar_expert_affiliate_bases']) : '';
+
+  $clean_map = solar_expert_sanitize_affiliate_map($map_input);
+  $clean_bases = solar_expert_sanitize_affiliate_bases($bases_input);
+
+  update_option('solar_expert_affiliate_map', $clean_map, false);
+  update_option('solar_expert_affiliate_bases', $clean_bases, false);
+
+  $redirect = add_query_arg(
+    array('page'=>'solar-expert-settings','solar_expert_saved'=>'1'),
+    admin_url('themes.php')
+  );
+  wp_safe_redirect($redirect);
+  exit;
+}
+add_action('admin_post_solar_expert_save_settings', 'solar_expert_handle_settings_save');
+
 function solar_expert_settings_menu() {
   add_options_page('Solar Expert','Solar Expert','edit_theme_options','solar-expert-settings','solar_expert_settings_page');
   add_theme_page('Solar Expert','Solar Expert','edit_theme_options','solar-expert-settings','solar_expert_settings_page');
@@ -287,8 +312,12 @@ function solar_expert_settings_page() {
     <h1>Solar Expert</h1>
     <p>Affiliate deeplinky jsou uložené ve WordPress databázi a nejsou součástí veřejného GitHub repozitáře.</p>
     <?php settings_errors('solar_expert_affiliate_map'); ?>
-    <form method="post" action="options.php">
-      <?php settings_fields('solar_expert_settings'); ?>
+    <?php if ( ! empty($_GET['solar_expert_saved']) ) : ?>
+      <div class="notice notice-success is-dismissible"><p>Nastavení Solar Expert bylo uloženo.</p></div>
+    <?php endif; ?>
+    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+      <input type="hidden" name="action" value="solar_expert_save_settings">
+      <?php wp_nonce_field('solar_expert_save_settings'); ?>
       <h2>Affiliate base odkazy</h2>
       <p>Sem stačí uložit defaultní partnerský odkaz obchodníka. Pro konkrétní produkt se automaticky doplní <code>desturl</code>. Produktová mapa níže slouží jako přesnější override.</p>
       <textarea name="solar_expert_affiliate_bases" rows="8" class="large-text code"><?php echo esc_textarea($bases_json); ?></textarea>
