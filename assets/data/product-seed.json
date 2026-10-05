@@ -568,7 +568,8 @@
       "price_czk_snapshot": 9563,
       "price_czk": 9563,
       "price_mode": "snapshot",
-      "source_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/"
+      "source_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-growatt-48-3500",
@@ -591,7 +592,8 @@
       },
       "source_url": "https://www.solar-import.cz/hybridni/growatt-spf-3500es-menic-3-5kw-48v/",
       "price_czk": 11990,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-growatt-48-6000",
@@ -614,7 +616,8 @@
         "mppt_v_min": 120,
         "mppt_v_max": 450,
         "charge_a_max": 100
-      }
+      },
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-kosun-12-1000",
@@ -655,7 +658,8 @@
       "price_czk": 2890,
       "price_mode": "snapshot",
       "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/"
+      "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-rogerele-rep1500-24",
