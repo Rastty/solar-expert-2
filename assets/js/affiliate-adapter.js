@@ -91,7 +91,30 @@ window.SolarExpertAffiliate = {
   resolveLead(id, fallback) {
     const map = this.map();
     const leads = map.leads || {};
-    return leads[id] || fallback || '#';
+    const mapped = leads[id] || null;
+    return {
+      href: mapped || fallback || '#',
+      monetized: Boolean(mapped),
+      leadId: id || null
+    };
+  },
+
+  trackLead(id, placement, fallback) {
+    const resolved = this.resolveLead(id, fallback);
+    const detail = {
+      leadId: id || null,
+      merchant: id && id.startsWith('eon-') ? 'eon-cz' : null,
+      placement: placement || 'lead_cta',
+      monetized: resolved.monetized,
+      hrefType: resolved.monetized ? 'affiliate' : 'source'
+    };
+    if (Array.isArray(window.dataLayer)) {
+      window.dataLayer.push({event:'lead_click', ...detail});
+    }
+    if (typeof window.dispatchEvent === 'function' && typeof CustomEvent !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('solar-expert-lead-click', {detail}));
+    }
+    return resolved;
   },
 
   trackOffer(product, offer, placement) {
