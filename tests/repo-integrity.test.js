@@ -73,3 +73,18 @@ assert(deploy.production_requires_manual_approval===true,'Production deployment 
 if(deploy.plugin_path){
   assert(fs.existsSync(path.join(__dirname,'..',deploy.plugin_path)),'Configured plugin_path must exist');
 }
+
+
+const publicTemplateFiles=['front-page.php','header.php','footer.php'];
+const draftManagedPages=new Set(
+  manifest.items
+    .filter(item=>item.type==='page'&&item.create_if_missing===true&&(item.status_if_new||'draft')!=='publish')
+    .map(item=>item.slug)
+);
+for(const file of publicTemplateFiles){
+  const content=fs.readFileSync(path.join(__dirname,'..',file),'utf8');
+  for(const slug of draftManagedPages){
+    const unsafe="home_url('/"+slug+"/')";
+    assert(!content.includes(unsafe),'Managed draft page must not be linked directly from '+file+': '+slug);
+  }
+}
