@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.5.0",
+  "schemaVersion": "2.6.0",
   "items": [
     {
       "type": "page",
@@ -255,6 +255,14 @@
       "status": "publish",
       "file": "content/rewrites/fotovoltaika-na-pozemku.html",
       "create_if_missing": true
+    },
+    {
+      "type": "post",
+      "slug": "prumerna-spotreba-tepelneho-cerpadla",
+      "title": "Spotřeba tepelného čerpadla: kWh za den, měsíc a rok",
+      "preserve_status": true,
+      "file": "content/rewrites/prumerna-spotreba-tepelneho-cerpadla.html",
+      "create_if_missing": false
     }
   ]
 }
