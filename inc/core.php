@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.33</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.34</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -504,6 +504,36 @@ function solar_expert_settings_page() {
     }
     $coverage_total = count(array_filter($coverage_rows, function($row){ return ! empty($row['active']); }));
     ?>
+    <?php
+      $funnel7 = solar_expert_funnel_summary(7);
+      $funnel28 = solar_expert_funnel_summary(28);
+      $funnel_rows = array(
+        'tool_view' => 'Tool views',
+        'tool_start' => 'Tool starts',
+        'solar_builder_complete' => 'Builder completes',
+        'selector_engaged' => 'Selector engagements',
+        'quote_checker_complete' => 'Quote Checker completes',
+        'affiliate_click' => 'Affiliate product clicks',
+        'bundle_deal_click' => 'Bundle-deal clicks',
+        'lead_click' => 'Lead clicks',
+      );
+    ?>
+    <hr>
+    <h2>Money funnel</h2>
+    <p class="description">First-party agregované čítače bez ukládání IP, cookie ID nebo volného uživatelského textu. Uchovává se pouze posledních 35 dní.</p>
+    <table class="widefat striped" style="max-width:720px">
+      <thead><tr><th>Událost</th><th>7 dní</th><th>28 dní</th></tr></thead>
+      <tbody>
+      <?php foreach ( $funnel_rows as $event_key => $label ) : ?>
+        <tr>
+          <td><?php echo esc_html($label); ?></td>
+          <td><?php echo esc_html((int) ($funnel7['events'][$event_key] ?? 0)); ?></td>
+          <td><?php echo esc_html((int) ($funnel28['events'][$event_key] ?? 0)); ?></td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+
     <hr>
     <h2>Price freshness</h2>
     <p>
@@ -582,6 +612,112 @@ function solar_expert_settings_page() {
 }
 
 
+function solar_expert_funnel_allowed_events() {
+  return array(
+    'tool_view',
+    'tool_start',
+    'solar_builder_complete',
+    'selector_engaged',
+    'quote_checker_complete',
+    'affiliate_click',
+    'bundle_deal_click',
+    'lead_click',
+  );
+}
+
+function solar_expert_funnel_summary($days = 28) {
+  $days = max(1, min(35, (int) $days));
+  $data = get_option('solar_expert_funnel_daily', array());
+  if ( ! is_array($data) ) { $data = array(); }
+
+  $cutoff = gmdate('Y-m-d', time() - (($days - 1) * DAY_IN_SECONDS));
+  $events = array();
+  $tools = array();
+
+  foreach ( $data as $date => $buckets ) {
+    if ( (string) $date < $cutoff || ! is_array($buckets) ) { continue; }
+    foreach ( $buckets as $bucket => $count ) {
+      $count = max(0, (int) $count);
+      if ( ! $count ) { continue; }
+      $parts = explode('|', (string) $bucket);
+      $event = sanitize_key(array_shift($parts));
+      if ( ! $event ) { continue; }
+      $events[$event] = ($events[$event] ?? 0) + $count;
+      foreach ( $parts as $part ) {
+        if ( strpos($part, 'tool=') === 0 ) {
+          $tool = sanitize_key(substr($part, 5));
+          if ( $tool ) { $tools[$tool] = ($tools[$tool] ?? 0) + $count; }
+        }
+      }
+    }
+  }
+
+  return array('events'=>$events, 'tools'=>$tools);
+}
+
+function solar_expert_record_funnel_event(WP_REST_Request $request) {
+  $origin = (string) $request->get_header('origin');
+  if ( $origin ) {
+    $origin_host = strtolower((string) wp_parse_url($origin, PHP_URL_HOST));
+    $home_host = strtolower((string) wp_parse_url(home_url('/'), PHP_URL_HOST));
+    if ( $origin_host && $home_host && $origin_host !== $home_host ) {
+      return new WP_Error('solar_expert_origin', 'Invalid event origin.', array('status'=>403));
+    }
+  }
+
+  $payload = $request->get_json_params();
+  if ( ! is_array($payload) ) { $payload = array(); }
+
+  $event = sanitize_key($payload['event'] ?? '');
+  if ( ! in_array($event, solar_expert_funnel_allowed_events(), true) ) {
+    return new WP_Error('solar_expert_event', 'Unsupported event.', array('status'=>400));
+  }
+
+  $dimensions = array();
+  foreach ( array('tool','selector','status','merchant','placement','scenario','productId','leadId','dealId') as $field ) {
+    if ( ! isset($payload[$field]) || ! is_scalar($payload[$field]) ) { continue; }
+    $value = sanitize_key((string) $payload[$field]);
+    if ( $value ) { $dimensions[$field] = substr($value, 0, 80); }
+  }
+  if ( isset($payload['monetized']) ) {
+    $dimensions['monetized'] = ! empty($payload['monetized']) ? '1' : '0';
+  }
+  if ( isset($payload['matchCount']) ) {
+    $dimensions['matchCount'] = (string) max(0, min(50, (int) $payload['matchCount']));
+  }
+
+  ksort($dimensions);
+  $bucket = $event;
+  foreach ( $dimensions as $key => $value ) {
+    $bucket .= '|' . sanitize_key($key) . '=' . $value;
+  }
+
+  $day = gmdate('Y-m-d');
+  $data = get_option('solar_expert_funnel_daily', array());
+  if ( ! is_array($data) ) { $data = array(); }
+
+  $cutoff = gmdate('Y-m-d', time() - (34 * DAY_IN_SECONDS));
+  foreach ( array_keys($data) as $date ) {
+    if ( (string) $date < $cutoff ) { unset($data[$date]); }
+  }
+
+  if ( empty($data[$day]) || ! is_array($data[$day]) ) { $data[$day] = array(); }
+  $data[$day][$bucket] = min(1000000000, ((int) ($data[$day][$bucket] ?? 0)) + 1);
+  update_option('solar_expert_funnel_daily', $data, false);
+
+  return rest_ensure_response(array('ok'=>true));
+}
+
+function solar_expert_register_funnel_route() {
+  register_rest_route('solar-expert/v1', '/funnel-event', array(
+    'methods' => 'POST',
+    'callback' => 'solar_expert_record_funnel_event',
+    'permission_callback' => '__return_true',
+  ));
+}
+add_action('rest_api_init', 'solar_expert_register_funnel_route');
+
+
 function solar_expert_health_payload() {
   $catalog = solar_expert_load_catalog();
 
@@ -602,7 +738,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.33',
+    'build_marker' => 'dev-rc-0.11.34',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -619,6 +755,7 @@ function solar_expert_health_payload() {
     'affiliate_product_mappings' => isset($map['products']) && is_array($map['products']) ? count($map['products']) : 0,
     'affiliate_merchant_bases' => count($bases),
     'affiliate_lead_mappings' => isset($map['leads']) && is_array($map['leads']) ? count($map['leads']) : 0,
+    'funnel_tracking' => 'first_party_v1',
     'last_content_sync_utc' => isset($last_sync['time']) ? (string) $last_sync['time'] : null,
   );
 }
