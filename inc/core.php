@@ -823,6 +823,57 @@ function solar_expert_heat_pump_lead_slugs() {
   );
 }
 
+function solar_expert_append_heat_pump_related_links($content) {
+  if ( is_admin() || ! is_singular('post') || ! in_the_loop() || ! is_main_query() ) {
+    return $content;
+  }
+
+  $post = get_queried_object();
+  $slug = $post && ! empty($post->post_name) ? $post->post_name : '';
+  if ( ! $slug || ! in_array($slug, solar_expert_heat_pump_lead_slugs(), true) ) {
+    return $content;
+  }
+
+  if ( strpos($content, 'data-se-related="heat-pump-cluster"') !== false ) {
+    return $content;
+  }
+
+  $guides = array(
+    'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu' => array(
+      'label' => 'Nejlepší tepelná čerpadla 2026',
+      'url' => home_url('/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/'),
+    ),
+    'prumerna-spotreba-tepelneho-cerpadla' => array(
+      'label' => 'Spotřeba tepelného čerpadla',
+      'url' => home_url('/prumerna-spotreba-tepelneho-cerpadla/'),
+    ),
+    'kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem' => array(
+      'label' => 'FVE + tepelné čerpadlo',
+      'url' => home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/'),
+    ),
+  );
+
+  $links = array();
+  foreach ( $guides as $guide_slug => $guide ) {
+    if ( $guide_slug === $slug ) {
+      continue;
+    }
+    $links[] = '<a href="' . esc_url($guide['url']) . '">' . esc_html($guide['label']) . '</a>';
+  }
+
+  if ( empty($links) ) {
+    return $content;
+  }
+
+  $related = '<aside class="se-note se-related-guides" data-se-related="heat-pump-cluster">'
+    . '<strong>Související průvodci:</strong> '
+    . implode(' · ', $links)
+    . '</aside>';
+
+  return $content . $related;
+}
+add_filter('the_content', 'solar_expert_append_heat_pump_related_links', 24);
+
 function solar_expert_append_heat_pump_lead_cta($content) {
   if ( is_admin() || ! is_singular('post') || ! in_the_loop() || ! is_main_query() ) {
     return $content;
