@@ -132,14 +132,13 @@ window.SolarExpertBundleComposer = {
             const panelPlan = this.findPanelPlan(panels, sizing, inverter, true, tier);
             if (!panelPlan) continue;
 
-            const priceParts = [
-              battery.price_czk,
-              inverter.price_czk,
-              panelPlan.product.price_czk
-            ];
-            const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0);
+            const batteryPrice = matcher.effectivePrice(battery);
+            const inverterPrice = matcher.effectivePrice(inverter);
+            const panelPrice = matcher.effectivePrice(panelPlan.product);
+            const priceParts = [batteryPrice, inverterPrice, panelPrice];
+            const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0 && Number(v) < Number.MAX_SAFE_INTEGER);
             const totalPrice = priceComplete
-              ? Number(battery.price_czk) + Number(inverter.price_czk) + Number(panelPlan.product.price_czk) * panelPlan.count
+              ? batteryPrice + inverterPrice + panelPrice * panelPlan.count
               : null;
 
             return {
@@ -168,15 +167,14 @@ window.SolarExpertBundleComposer = {
             const panelPlan = this.findPanelPlan(panels, sizing, mppt, false, tier);
             if (!panelPlan) continue;
 
-            const priceParts = [
-              battery.price_czk,
-              inverter.price_czk,
-              mppt.price_czk,
-              panelPlan.product.price_czk
-            ];
-            const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0);
+            const batteryPrice = matcher.effectivePrice(battery);
+            const inverterPrice = matcher.effectivePrice(inverter);
+            const mpptPrice = matcher.effectivePrice(mppt);
+            const panelPrice = matcher.effectivePrice(panelPlan.product);
+            const priceParts = [batteryPrice, inverterPrice, mpptPrice, panelPrice];
+            const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0 && Number(v) < Number.MAX_SAFE_INTEGER);
             const totalPrice = priceComplete
-              ? Number(battery.price_czk) + Number(inverter.price_czk) + Number(mppt.price_czk) + Number(panelPlan.product.price_czk) * panelPlan.count
+              ? batteryPrice + inverterPrice + mpptPrice + panelPrice * panelPlan.count
               : null;
 
             return {
