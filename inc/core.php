@@ -374,7 +374,8 @@ function solar_expert_settings_page() {
         $mapped = isset($product_map[$exact_key]) || (
           ($product['merchant'] ?? '') === $merchant && isset($product_map[$legacy_key])
         ) || isset($bases[$merchant]);
-        if ( $mapped ) { $mapped_count++; }
+        $active = ! in_array(($offer['availability'] ?? $product['availability'] ?? ''), array('discontinued','unavailable'), true);
+        if ( $mapped && $active ) { $mapped_count++; }
 
         $coverage_rows[] = array(
           'product' => $product['name'] ?? $product['id'],
@@ -383,10 +384,11 @@ function solar_expert_settings_page() {
           'availability' => $offer['availability'] ?? $product['availability'] ?? '',
           'price' => $offer['price_czk'] ?? $product['price_czk'] ?? null,
           'mapped' => $mapped,
+          'active' => $active,
         );
       }
     }
-    $coverage_total = count($coverage_rows);
+    $coverage_total = count(array_filter($coverage_rows, function($row){ return ! empty($row['active']); }));
     ?>
     <hr>
     <h2>Affiliate coverage</h2>
@@ -401,7 +403,13 @@ function solar_expert_settings_page() {
           <td><code><?php echo esc_html($row['key']); ?></code></td>
           <td><?php echo esc_html($row['availability']); ?></td>
           <td><?php echo $row['price'] ? esc_html(number_format_i18n((float)$row['price'], 0) . ' Kč') : '—'; ?></td>
-          <td><?php echo $row['mapped'] ? '<strong style="color:#16733b">ANO</strong>' : '<span style="color:#8a5b00">zdrojový odkaz</span>'; ?></td>
+          <td><?php
+            if ( empty($row['active']) ) {
+              echo '<span style="color:#777">NEAKTIVNÍ</span>';
+            } else {
+              echo $row['mapped'] ? '<strong style="color:#16733b">ANO</strong>' : '<span style="color:#8a5b00">zdrojový odkaz</span>';
+            }
+          ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>
@@ -477,3 +485,71 @@ function solar_expert_register_health_route() {
   ));
 }
 add_action('rest_api_init', 'solar_expert_register_health_route');
+
+
+function solar_expert_seo_meta() {
+  $map = array(
+    'front' => array(
+      'title' => 'Solární kalkulačka: panely, baterie a měnič | Solar Expert',
+      'description' => 'Spočítejte solární sestavu podle spotřeby. Panely, LiFePO4 baterie, měnič, MPPT a kompatibilní varianty s vysvětlením.'
+    ),
+    'solarni-sestava-na-chatu' => array(
+      'title' => 'Solární sestava na chatu: kalkulačka a výběr | Solar Expert',
+      'description' => 'Navrhněte solární sestavu na chatu podle spotřebičů, sezóny a autonomie. Výpočet panelů, baterie, měniče a MPPT.'
+    ),
+    'vyber-baterii' => array(
+      'title' => 'LiFePO4 baterie: kalkulačka a výběr 12/24/48 V | Solar Expert',
+      'description' => 'Vyberte LiFePO4 baterii podle systémového napětí, kWh a limitu BMS. Technický výběr pro 12V, 24V a 48V systémy.'
+    ),
+    'mppt-kalkulacka' => array(
+      'title' => 'MPPT kalkulačka: Voc, Vmp a výběr regulátoru | Solar Expert',
+      'description' => 'Zkontrolujte MPPT regulátor podle výkonu FV pole, nabíjecího proudu, startovacího Vmp a cold Voc panelového stringu.'
+    ),
+    'vyber-menice' => array(
+      'title' => 'Měnič pro ostrovní systém: výkon a surge | Solar Expert',
+      'description' => 'Vyberte měnič podle 12/24/48 V, trvalého výkonu a rozběhové špičky. Oddělená kontrola continuous a surge výkonu.'
+    ),
+    'quote-checker' => array(
+      'title' => 'Kontrola nabídky fotovoltaiky: Quote Checker | Solar Expert',
+      'description' => 'Prověřte nabídku fotovoltaiky podle spotřeby, panelů, baterie, měniče, špičkového výkonu a systémového napětí.'
+    ),
+    'jak-doporucujeme' => array(
+      'title' => 'Jak Solar Expert doporučuje produkty | Metodika',
+      'description' => 'Jak vzniká technické doporučení Solar Expert: kompatibilita, ověřené parametry, dostupnost a cena. Provize ranking neurčuje.'
+    ),
+    'affiliate-transparentnost' => array(
+      'title' => 'Affiliate transparentnost | Solar Expert',
+      'description' => 'Jak Solar Expert používá affiliate odkazy a proč provize neovlivňuje technickou kompatibilitu ani pořadí doporučení.'
+    ),
+  );
+
+  if ( is_front_page() ) {
+    return $map['front'];
+  }
+
+  if ( is_singular('page') ) {
+    $post = get_queried_object();
+    if ( $post && isset($map[$post->post_name]) ) {
+      return $map[$post->post_name];
+    }
+  }
+
+  return null;
+}
+
+function solar_expert_document_title($title) {
+  $meta = solar_expert_seo_meta();
+  return $meta && ! empty($meta['title']) ? $meta['title'] : $title;
+}
+add_filter('pre_get_document_title', 'solar_expert_document_title', 20);
+
+function solar_expert_meta_description() {
+  if ( defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') ) {
+    return;
+  }
+  $meta = solar_expert_seo_meta();
+  if ( $meta && ! empty($meta['description']) ) {
+    echo '<meta name="description" content="' . esc_attr($meta['description']) . '">' . "\n";
+  }
+}
+add_action('wp_head', 'solar_expert_meta_description', 1);
