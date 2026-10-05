@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.13</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.14</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.13',
+    'build_marker' => 'dev-rc-0.11.14',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -758,6 +758,10 @@ function solar_expert_seo_meta() {
     'kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely' => array(
       'title' => 'Fotovoltaika na plechové střeše: kotvení bez zatékání | Solar Expert',
       'description' => 'Jak kotvit FVE na falc, trapézový plech a plechovou tašku. Prostupy, EPDM, statika, vítr, sníh, koroze a co požadovat v nabídce.'
+    ),
+    'monokrystalicke-vs-polykrystalicke-solarni-panely' => array(
+      'title' => 'Monokrystalické vs. polykrystalické panely 2026 | Solar Expert',
+      'description' => 'Mono vs. poly v roce 2026: proč dnes rozhodují účinnost na m², TOPCon/N-type, teplotní koeficient, Voc/Vmp a záruky víc než staré dělení panelů.'
     ),
     'castecne-zastineni-a-solarni-panely' => array(
       'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
