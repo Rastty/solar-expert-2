@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.9.0",
+  "schemaVersion": "2.0.0",
   "items": [
     {
       "type": "page",
@@ -197,6 +197,14 @@
       "title": "Čištění solárních panelů: kdy, jak a čemu se vyhnout",
       "preserve_status": true,
       "file": "content/rewrites/cisteni-solarnich-panelu-proc-kdy-jak.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady",
+      "title": "Samsung tepelné čerpadlo: recenze a technický přehled 2026",
+      "preserve_status": true,
+      "file": "content/rewrites/recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady.html",
       "create_if_missing": false
     }
   ]
