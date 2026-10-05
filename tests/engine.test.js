@@ -37,6 +37,19 @@ const generatedUrl=new URL(generatedPanelOffer.href);
 assert(generatedUrl.searchParams.get('a_aid')==='testpub','Generated deeplink should preserve publisher id');
 assert(generatedUrl.searchParams.get('a_bid')==='testsolar','Generated deeplink should preserve advertiser creative id');
 assert(generatedUrl.searchParams.get('desturl')===victronPanel.source_url,'Generated deeplink should target exact product source URL');
+window.SolarExpertConfig.affiliateBases={
+  'eon-cz':'https://ehub.cz/system/scripts/click.php?a_aid=testpub&a_bid=testeon'
+};
+const eonHeat=A.resolveLead('eon-heat-pump','https://www.eon.cz/domacnosti/usporne-technologie/tepelne-cerpadlo/');
+assert(eonHeat.monetized,'One E.ON base should monetize the heat-pump lead');
+assert(new URL(eonHeat.href).searchParams.get('desturl')==='https://www.eon.cz/domacnosti/usporne-technologie/tepelne-cerpadlo/','Heat-pump lead should deep-link to heat-pump landing page');
+const eonSolar=A.resolveLead('eon-solar','https://www.eon.cz/domacnosti/usporne-technologie/solar/');
+assert(eonSolar.monetized,'One E.ON base should monetize the solar lead');
+assert(new URL(eonSolar.href).searchParams.get('desturl')==='https://www.eon.cz/domacnosti/usporne-technologie/solar/','Solar lead should deep-link to solar landing page');
+window.SolarExpertConfig.affiliateMap.leads['eon-solar']='https://example.com/eon-solar-override';
+const eonOverride=A.resolveLead('eon-solar','https://www.eon.cz/domacnosti/usporne-technologie/solar/');
+assert(eonOverride.href==='https://example.com/eon-solar-override','Explicit lead mapping must override generated E.ON deeplink');
+delete window.SolarExpertConfig.affiliateMap.leads['eon-solar'];
 window.SolarExpertConfig.affiliateBases={};
 assert(M.effectivePrice(multiProduct)===3899,'Matcher should use cheapest in-stock merchant offer');
 const temporarilyExpensive={...multiProduct,price_czk:99999};
