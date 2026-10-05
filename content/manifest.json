@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.6.0",
+  "schemaVersion": "2.7.0",
   "items": [
     {
       "type": "page",
@@ -262,6 +262,14 @@
       "title": "Spotřeba tepelného čerpadla: kWh za den, měsíc a rok",
       "preserve_status": true,
       "file": "content/rewrites/prumerna-spotreba-tepelneho-cerpadla.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "prehled-vzduchovych-tepelnych-cerpadel-daikin",
+      "title": "Daikin tepelné čerpadlo: recenze Altherma 4 H a 3 R MT 2026",
+      "preserve_status": true,
+      "file": "content/rewrites/prehled-vzduchovych-tepelnych-cerpadel-daikin.html",
       "create_if_missing": false
     }
   ]
