@@ -562,6 +562,10 @@ function solar_expert_seo_meta() {
       'title' => 'Fotovoltaika na eternitovou střechu: co ověřit | Solar Expert',
       'description' => 'Co zkontrolovat před montáží FVE na starší eternitovou nebo vláknocementovou střechu: azbest, statiku, kotvení, stav krytiny a string.'
     ),
+    'kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem' => array(
+      'title' => 'Kolik stojí fotovoltaika s tepelným čerpadlem 2026 | Solar Expert',
+      'description' => 'Aktuální orientační ceny FVE s baterií a tepelného čerpadla, jak správně dimenzovat kombinaci a co porovnat v nabídce.'
+    ),
   );
 
   if ( is_front_page() ) {
