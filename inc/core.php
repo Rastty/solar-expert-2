@@ -257,13 +257,19 @@ function solar_expert_register_settings() {
 add_action('admin_init','solar_expert_register_settings');
 
 function solar_expert_settings_menu() {
-  add_options_page('Solar Expert','Solar Expert','manage_options','solar-expert-settings','solar_expert_settings_page');
+  add_options_page('Solar Expert','Solar Expert','edit_theme_options','solar-expert-settings','solar_expert_settings_page');
+  add_theme_page('Solar Expert','Solar Expert','edit_theme_options','solar-expert-settings','solar_expert_settings_page');
 }
 add_action('admin_menu','solar_expert_settings_menu');
 
+function solar_expert_settings_capability() {
+  return 'edit_theme_options';
+}
+add_filter('option_page_capability_solar_expert_settings','solar_expert_settings_capability');
+
 function solar_expert_settings_page() {
-  if ( ! current_user_can('manage_options') ) {
-    return;
+  if ( ! current_user_can('edit_theme_options') ) {
+    wp_die(esc_html__('Nemáte oprávnění spravovat nastavení Solar Expert.', 'solar-expert-2'));
   }
 
   $map = get_option('solar_expert_affiliate_map', array('products'=>array(),'leads'=>array()));
