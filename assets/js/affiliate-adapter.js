@@ -13,6 +13,25 @@ window.SolarExpertAffiliate = {
     return typeof map === 'object' && map ? map : {};
   },
 
+  baseMap() {
+    const config = window.SolarExpertConfig || {};
+    const bases = config.affiliateBases || {};
+    return typeof bases === 'object' && bases ? bases : {};
+  },
+
+  merchantDeepLink(merchantId, targetUrl) {
+    const base = this.baseMap()[merchantId];
+    if (!base || !targetUrl) return null;
+    try {
+      const u = new URL(base, window.location?.origin || 'https://solar-expert.cz');
+      u.searchParams.delete('desturl');
+      u.searchParams.set('desturl', targetUrl);
+      return u.toString();
+    } catch (_) {
+      return null;
+    }
+  },
+
   rawOffers(product) {
     if (!product) return [];
     const offers = Array.isArray(product.offers) && product.offers.length
@@ -46,11 +65,13 @@ window.SolarExpertAffiliate = {
     const exactMapped = products[exactKey];
     const legacyMapped = offer.merchant === product.merchant ? products[product.id] : null;
     const mapped = exactMapped || legacyMapped;
-    const href = mapped || offer.affiliate_url || offer.source_url || product.source_url || '#';
+    const target = offer.source_url || product.source_url || null;
+    const generated = this.merchantDeepLink(offer.merchant, target);
+    const href = mapped || offer.affiliate_url || generated || target || '#';
 
     return {
       href,
-      monetized: Boolean(mapped || offer.affiliate_url),
+      monetized: Boolean(mapped || offer.affiliate_url || generated),
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant,
       price_czk: Number(offer.price_czk || 0) || null,
