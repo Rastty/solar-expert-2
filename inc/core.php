@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.11</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.12</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.11',
+    'build_marker' => 'dev-rc-0.11.12',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -742,6 +742,14 @@ function solar_expert_seo_meta() {
     'vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih' => array(
       'title' => 'Fotovoltaika v zimě: výkon, sníh a sklon panelů | Solar Expert',
       'description' => 'Jak funguje fotovoltaika v zimě, proč chlad panelům nevadí, co udělá sníh, kdy ho neodmetat a jak odhadnout zimní výrobu přes PVGIS.'
+    ),
+    'jak-vybrat-solarni-panely-pro-vas-domov' => array(
+      'title' => 'Jak vybrat solární panely 2026: výkon, záruky a testy | Solar Expert',
+      'description' => 'Jak vybrat fotovoltaické panely podle Wp, Voc, teplotního koeficientu, záruk, IEC testů a nezávislých reliability dat. Ne jen podle značky.'
+    ),
+    'realny-vykon-solarnich-panelu' => array(
+      'title' => 'Reálný výkon solárních panelů: Wp vs. výkon na střeše | Solar Expert',
+      'description' => 'Proč panel 450 Wp běžně nevyrábí 450 W. STC, ozáření, teplota článku, stín, MPPT, clipping a systémové ztráty vysvětlené prakticky.'
     ),
     'castecne-zastineni-a-solarni-panely' => array(
       'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
@@ -943,6 +951,7 @@ function solar_expert_solar_lead_slugs() {
     'fotovoltaika-vykon-na-m2',
     'kolik-vyrobi-fotovoltaika-za-rok',
     'fotovoltaika-na-pozemku',
+    'jak-vybrat-solarni-panely-pro-vas-domov',
   );
 }
 
@@ -997,6 +1006,7 @@ function solar_expert_legacy_redirects() {
     'kompletni-pruvodce-velikosti-solarnich-panelu' => 'velikost-rozmery-a-hmotnost-solarnich-panelu',
     'spotreba-tepelneho-cerpadla-v-kwh' => 'prumerna-spotreba-tepelneho-cerpadla',
     'co-dela-fotovoltaika-kdyz-je-zima' => 'vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih',
+    'recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii' => 'jak-vybrat-solarni-panely-pro-vas-domov',
     'ucinnost-tepelneho-cerpadla-se-zdrojem-vzduchu' => 'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla',
     'tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda' => 'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
   );
