@@ -16,7 +16,7 @@ Git-first development active on `dev`.
 - Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
 - Verified small 12V bundle path: ROGERELE REP1000-12
 - Affiliate map: stored in WordPress option with admin settings UI; no deeplinks in public GitHub
-- Managed content manifest: 40 items (money pages, transparency pages and legacy rewrites)
+- Managed content manifest: 42 items (money pages, transparency pages and legacy rewrites)
 - Repository guardrails: catalog parity, offer/merchant integrity, no public affiliate deeplinks, manifest target validation
 - Obsolete duplicate bootstrap theme: removed
 - Product comparison: compares complete bundles on battery, continuous/surge inverter power, PV and MPPT fit
@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.12`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.13`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -63,6 +63,8 @@ Git-first development active on `dev`.
 - PVT intent separation: `vysvetleni-solarnich-panelu-pv-t` remains a distinct hybrid electricity+heat guide; obsolete UK incentive and unsupported legacy efficiency claims removed
 - Winter PV consolidation: two overlapping winter-efficiency URLs merged into one managed guide; `co-dela-fotovoltaika-kdyz-je-zima` now 301s to the canonical winter-performance/snow/tilt page
 - Real-world PV performance refresh: `realny-vykon-solarnich-panelu` rebuilt around STC, irradiance, cell temperature, MPPT, clipping and BOS losses; exact query already had a top-5 signal
+- Metal-roof FVE refresh: US-centric marketing article replaced with a Czech-useful guide for standing seam, trapezoidal sheet, penetrations, sealing, statics and corrosion; joins the active E.ON solar funnel
+- Heat-pump temperature-limit refresh: model-specific frost/output-water guide replaces fake universal limits and joins the active E.ON heat-pump funnel
 - Panel buyer-guide upgrade: added independent-review criteria (IEC 61215/61730, warranties, degradation, mechanical reliability and Kiwa PVEL 2026) and joined the active E.ON solar funnel
 - Panel review consolidation: copied Australian `recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii` now 301s to the owned panel buyer guide
 - Solar principle refresh: `solarni-panel-definice-a-fakta` rebuilt as the owner of `jak funguje solární panel`, replacing copied/legacy encyclopedia-style content with an original PV-effect explainer
