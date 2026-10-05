@@ -281,6 +281,28 @@ function solar_expert_handle_settings_save() {
 }
 add_action('admin_post_solar_expert_save_settings', 'solar_expert_handle_settings_save');
 
+function solar_expert_handle_content_sync() {
+  if ( ! current_user_can('edit_theme_options') ) {
+    wp_die(esc_html__('Nemáte oprávnění synchronizovat obsah Solar Expert.', 'solar-expert-2'));
+  }
+
+  check_admin_referer('solar_expert_sync_content');
+
+  $result = solar_expert_sync_managed_content(true);
+  $args = array(
+    'page' => 'solar-expert-settings',
+    'solar_expert_synced' => '1',
+    'se_created' => (int) ($result['created'] ?? 0),
+    'se_updated' => (int) ($result['updated'] ?? 0),
+    'se_skipped' => (int) ($result['skipped'] ?? 0),
+    'se_errors' => count($result['errors'] ?? array()),
+  );
+
+  wp_safe_redirect(add_query_arg($args, admin_url('themes.php')));
+  exit;
+}
+add_action('admin_post_solar_expert_sync_content', 'solar_expert_handle_content_sync');
+
 function solar_expert_settings_menu() {
   add_options_page('Solar Expert','Solar Expert','edit_theme_options','solar-expert-settings','solar_expert_settings_page');
   add_theme_page('Solar Expert','Solar Expert','edit_theme_options','solar-expert-settings','solar_expert_settings_page');
@@ -389,6 +411,12 @@ function solar_expert_settings_page() {
     $manifest = solar_expert_load_manifest();
     ?>
     <h2 style="margin-top:28px">Managed content</h2>
+    <p>Po aktualizaci tématu lze vynutit synchronizaci manifestu a WordPress stránek ručně.</p>
+    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin:12px 0 18px">
+      <input type="hidden" name="action" value="solar_expert_sync_content">
+      <?php wp_nonce_field('solar_expert_sync_content'); ?>
+      <?php submit_button('Synchronizovat obsah teď', 'secondary', 'submit', false); ?>
+    </form>
     <table class="widefat striped">
       <thead><tr><th>Obsah</th><th>Typ</th><th>WordPress stav</th><th>Manifest</th></tr></thead>
       <tbody>
