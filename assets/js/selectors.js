@@ -16,7 +16,18 @@ window.solarExpertBatterySelector=function(){return{
   run(track=true){
     const batteryKwh=Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/.85)*10)/10;
     const s={voltage:Number(this.voltage),batteryKwh,inverterW:Number(this.inverterW)};
-    this.matches=window.SolarExpertProductMatcher.rank(this.catalog.filter(p=>p.type==='battery'),s).slice(0,5);
+    const batteries=this.catalog.filter(p=>p.type==='battery');
+    this.matches=window.SolarExpertBundleComposer
+      ? window.SolarExpertBundleComposer.batteryBankCandidatesAll(batteries,s).slice(0,5)
+      : window.SolarExpertProductMatcher.rank(batteries,s).map(r=>({
+          product:r.product,
+          quantity:1,
+          totalEnergyWh:Number(r.product.energy_wh||0),
+          totalDischargeA:Number(r.product.max_discharge_a||0),
+          dischargePowerW:Number(r.product.system_voltage_class||0)*Number(r.product.max_discharge_a||0),
+          unitPrice:window.SolarExpertProductMatcher.effectivePrice(r.product),
+          totalPrice:window.SolarExpertProductMatcher.effectivePrice(r.product)
+        })).slice(0,5);
     if(track) seTrackSelectorOnce(this,'battery',{voltage:s.voltage,batteryKwh,inverterW:s.inverterW});
   }
 };};
