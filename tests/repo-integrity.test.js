@@ -776,3 +776,18 @@ assert(positioningHtml.includes('/nataceni-solarnich-panelu-za-sluncem/'),'Posit
 assert(positioningHtml.includes('/castecne-zastineni-a-solarni-panely/'),'Positioning guide must account for shading intent');
 assert(!positioningHtml.includes('vysokou latitudou'),'Positioning guide must not retain translated tracker generalizations');
 
+const pvHubSlug='vse-o-solarnich-panelech-a-fotovoltaice';
+const pvHubItem=manifest.items.find(x=>x.slug===pvHubSlug);
+assert(pvHubItem&&pvHubItem.preserve_status===true,'Photovoltaic hub must remain managed and preserve status');
+assert(pvHubItem.file&&fs.existsSync(path.join(__dirname,'..',pvHubItem.file)),'Photovoltaic hub rewrite file missing');
+assert(seoCore.includes("'vse-o-solarnich-panelech-a-fotovoltaice' => array("),'Photovoltaic hub must have dedicated SEO metadata');
+assert(leadCore.includes("'vse-o-solarnich-panelech-a-fotovoltaice'"),'Photovoltaic hub must participate in bounded E.ON solar funnel');
+const pvHubHtml=fs.readFileSync(path.join(__dirname,'..',pvHubItem.file),'utf8');
+for(const href of ['/jak-vybrat-solarni-panely-pro-vas-domov/','/mppt-kalkulacka/','/vyber-menice/','/vyber-baterii/','/quote-checker/','/solarni-sestava-na-chatu/']){
+  assert(pvHubHtml.includes(href),'Photovoltaic hub must route to '+href);
+}
+assert(!pvHubHtml.includes('250 000 až 600 000 Kč'),'Photovoltaic hub must not retain stale universal FVE pricing');
+assert(!pvHubHtml.includes('7 až 10 lety'),'Photovoltaic hub must not retain stale universal payback claims');
+assert(!pvHubHtml.includes('25 000 až 45 000 Kč'),'Photovoltaic hub must not retain stale price-per-kWp claims');
+assert(!pvHubHtml.includes('tepelné energie na elektrickou'),'Photovoltaic hub must not misdescribe photovoltaic conversion');
+
