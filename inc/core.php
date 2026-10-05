@@ -584,6 +584,10 @@ function solar_expert_seo_meta() {
       'title' => 'Čištění solárních panelů: jak často, čím a bezpečně | Solar Expert',
       'description' => 'Kdy čistit fotovoltaické panely, čemu se vyhnout, jak bezpečně odstranit prach a ptačí trus a kdy je lepší profesionální servis.'
     ),
+    'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady' => array(
+      'title' => 'Samsung tepelné čerpadlo recenze 2026: EHS R290 | Solar Expert',
+      'description' => 'Technická recenze Samsung EHS 2026: R290 Mono, hlučnost, COP, teplota vody, výhody, nevýhody a co ověřit před nákupem.'
+    ),
   );
 
   if ( is_front_page() ) {
