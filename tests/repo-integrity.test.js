@@ -469,3 +469,13 @@ assert(wiringHtml.includes('panely se běžně nepřipojují „jen tak“ pří
 assert(wiringHtml.includes('/mppt-kalkulacka/'),'12V wiring guide must route into MPPT calculator');
 const wiringStyle=fs.readFileSync(path.join(__dirname,'..','style.css'),'utf8');
 assert(wiringStyle.includes('.se-code'),'Technical wiring diagrams must have readable responsive styling');
+
+
+const selectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
+const batterySelectorTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts','battery-selector.php'),'utf8');
+assert(selectorJs.includes('batteryBankCandidatesAll'),'Battery Selector must use shared verified bank logic');
+assert(batterySelectorTemplate.includes("(r.quantity||1)+'× '"),'Battery Selector must render bank quantity');
+assert(batterySelectorTemplate.includes('r.totalEnergyWh'),'Battery Selector must render total bank energy');
+assert(batterySelectorTemplate.includes('r.totalDischargeA'),'Battery Selector must render total discharge current');
+assert(batterySelectorTemplate.includes('r.totalPrice'),'Battery Selector must render total bank price');
+assert(batterySelectorTemplate.includes('Ověřený paralelní bank'),'Battery Selector must explain parallel-bank installation checks');
