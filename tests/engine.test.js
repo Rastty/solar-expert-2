@@ -119,6 +119,26 @@ const mppt24Sizing = { voltage:24, panelWp:700, mpptA:40 };
 const mppts = M.rank(catalog.products.filter(p=>p.type==='mppt'), mppt24Sizing);
 assert(mppts.some(x=>x.product.id==='mppt-victron-100-50'), '24V / 700Wp / 40A should find SmartSolar 100/50');
 
+const mppt250100=catalog.products.find(p=>p.id==='mppt-victron-250-100');
+assert(mppt250100,'Verified Victron SmartSolar MPPT 250/100 must exist in catalog');
+assert(mppt250100.rated_charge_a===100,'MPPT 250/100 must expose verified 100A charge current');
+assert(mppt250100.max_pv_voc_v===250,'MPPT 250/100 must expose verified 250V PV maximum');
+assert(mppt250100.max_pv_w_by_voltage['24']===2900,'MPPT 250/100 must expose verified 2900Wp 24V PV limit');
+
+const yearRound24Sizing={
+  voltage:24,
+  batteryKwh:2.5,
+  inverterW:1300,
+  peak:2477,
+  panelWp:1750,
+  mpptA:95
+};
+const yearRound24=B.compose(catalog.products,yearRound24Sizing,catalog.bundle_deals).find(b=>b.tier==='best');
+assert(yearRound24&&yearRound24.complete,'Year-round 24V Best Value bundle should become complete with MPPT 250/100');
+assert(yearRound24.mppt&&yearRound24.mppt.id==='mppt-victron-250-100','Year-round 24V bundle should use verified MPPT 250/100');
+assert(yearRound24.panel.totalWp>=yearRound24Sizing.panelWp,'Year-round 24V panel plan must meet requested PV power');
+assert(yearRound24.panel.coldStringVoc<yearRound24.mppt.max_pv_voc_v*0.98,'Year-round 24V string must remain below MPPT cold-Voc safety margin');
+
 const bundle24Sizing = {
   voltage:24,
   batteryKwh:1.5,
