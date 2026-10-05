@@ -93,3 +93,7 @@ Fresh GSC shows two competing cleaning URLs: `/cisteni-solarnich-panelu-proc-kdy
 
 Fresh 28-day query evidence: `tepelné čerpadlo Samsung recenze` has **11 impressions at average position 10.45**. The legacy 2023 article contained obsolete UK RHI guidance and stale product/cost claims. Decision: preserve the indexed URL but replace the body with a 2026 technical buyer guide based on current Samsung EHS R290 documentation, explicit model-condition caveats and an owned-first comparison funnel.
 
+### Overheating / cooling protection decision
+
+Fresh near-win data: `/proc-se-solarni-panely-neprehrivaji/` has **14 impressions / avg. position 7.07** over 90 days; `/chlazeni-fotovoltaickych-panelu/` has **14 impressions / avg. position 7.14 and 1 click**. Historical query evidence does not establish the same intent. Decision: do **not** consolidate. Protect both URLs; apply title/meta refinement only to the zero-click overheating page and leave the clicked cooling page body untouched.
+
