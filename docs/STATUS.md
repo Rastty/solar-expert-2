@@ -16,7 +16,7 @@ Git-first development active on `dev`.
 - Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
 - Verified small 12V bundle path: ROGERELE REP1000-12
 - Affiliate map: stored in WordPress option with admin settings UI; no deeplinks in public GitHub
-- Managed content manifest: 14 items (money pages, transparency pages and legacy rewrites)
+- Managed content manifest: 17 items (money pages, transparency pages and legacy rewrites)
 - Repository guardrails: catalog parity, offer/merchant integrity, no public affiliate deeplinks, manifest target validation
 - Obsolete duplicate bootstrap theme: removed
 - Product comparison: compares complete bundles on battery, continuous/surge inverter power, PV and MPPT fit
@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.5.9`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.6.0`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -34,6 +34,8 @@ Git-first development active on `dev`.
 - Explicit managed-content sync: admin button forces manifest → WordPress publish/update and reports created/updated/errors
 - Focused SEO titles/meta descriptions: homepage + 7 managed tool/transparency pages
 - Product coverage: added verified GOOWEI 12V/200Ah and KOSUN 48V/3000W products
+- SEO rescue batch: rewrote degradation, flat-roof mounting and panel-size pages
+- Cannibalization cleanup: 301 redirects consolidate two duplicate indexed legacy URLs into stronger managed pages
 - Production deploy: active RC with manual Git pull/update
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
