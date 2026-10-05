@@ -41,13 +41,20 @@ window.solarExpertBatterySelector=function(){return{
 };};
 
 window.solarExpertMpptSelector=function(){return{
-  voltage:24,panelWp:760,panelVoc:25.5,panelVmp:21.8,seriesCount:2,coldFactor:1.12,catalog:[],matches:[],engagementTracked:false,
-  async init(){this.catalog=await seCatalog();this.run(false);},
+  voltage:24,panelWp:760,panelVoc:25.5,panelVmp:21.8,seriesCount:2,coldFactor:1.12,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,
   get coldStringVoc(){return Number(this.panelVoc)*Number(this.seriesCount)*Number(this.coldFactor);},
   get stringVmp(){return Number(this.panelVmp)*Number(this.seriesCount);},
+  get requiredChargeA(){const voltage=Math.max(1,Number(this.voltage));return Math.max(10,Math.ceil(((Number(this.panelWp)/voltage)*1.25)/5)*5);},
+  get inputValid(){return Number(this.panelWp)>0&&Number(this.panelVoc)>0&&Number(this.panelVmp)>0&&Number(this.panelVoc)>Number(this.panelVmp)&&Number(this.seriesCount)>=1;},
+  async init(){
+    this.catalogLoading=true;this.catalogError=false;
+    try{this.catalog=await seCatalog();this.run(false);}
+    catch(_){this.catalog=[];this.matches=[];this.catalogError=true;}
+    finally{this.catalogLoading=false;}
+  },
   run(track=true){
-    const voltage=Number(this.voltage),panelWp=Number(this.panelWp);
-    const mpptA=Math.max(10,Math.ceil(((panelWp/voltage)*1.25)/5)*5);
+    if(!this.catalog.length||!this.inputValid){this.matches=[];return;}
+    const voltage=Number(this.voltage),panelWp=Number(this.panelWp),mpptA=this.requiredChargeA;
     const s={voltage,panelWp,mpptA};
     this.matches=window.SolarExpertProductMatcher.rank(this.catalog.filter(p=>p.type==='mppt'),s)
       .filter(x=>{
@@ -57,7 +64,7 @@ window.solarExpertMpptSelector=function(){return{
         return this.coldStringVoc < maxVoc*.98 && this.stringVmp >= minVmp;
       })
       .slice(0,5);
-    if(track) seTrackSelectorOnce(this,'mppt',{voltage,panelWp,seriesCount:Number(this.seriesCount),stringVmp:this.stringVmp,coldStringVoc:this.coldStringVoc});
+    if(track) seTrackSelectorOnce(this,'mppt',{voltage,panelWp,requiredChargeA:mpptA,seriesCount:Number(this.seriesCount),stringVmp:this.stringVmp,coldStringVoc:this.coldStringVoc});
   }
 };};
 
