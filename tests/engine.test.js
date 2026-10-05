@@ -2,6 +2,7 @@ global.window = {};
 require('../assets/js/product-matcher.js');
 require('../assets/js/bundle-composer.js');
 require('../assets/js/builder.js');
+require('../assets/js/quote-checker.js');
 
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
@@ -94,5 +95,36 @@ const cottageBest = builder.bundles.find(b=>b.tier==='best');
 assert(cottageBest && cottageBest.complete, 'Default cottage scenario should produce a complete Best Value bundle');
 assert(cottageBest.inverter.id==='inverter-rogerele-rep1500-24', 'Default cottage should select the verified 24V 1500W inverter');
 assert(cottageBest.inverter.peak_w>=builder.result.peak, 'Selected inverter must cover estimated surge');
+
+const quoteGood = global.window.solarExpertQuoteChecker();
+quoteGood.dailyKwh=2;
+quoteGood.season='three';
+quoteGood.autonomy=1;
+quoteGood.loadW=900;
+quoteGood.surgeNeedW=1800;
+quoteGood.panelWp=1000;
+quoteGood.batteryKwh=2.5;
+quoteGood.inverterW=1200;
+quoteGood.inverterPeakW=2200;
+quoteGood.systemVoltage=24;
+quoteGood.evaluate();
+assert(quoteGood.result.status==='pass', 'Balanced quote should pass base sizing checks');
+
+const quoteBad = global.window.solarExpertQuoteChecker();
+quoteBad.dailyKwh=4;
+quoteBad.season='year';
+quoteBad.autonomy=2;
+quoteBad.loadW=2500;
+quoteBad.surgeNeedW=4500;
+quoteBad.panelWp=900;
+quoteBad.batteryKwh=3;
+quoteBad.inverterW=1800;
+quoteBad.inverterPeakW=3000;
+quoteBad.systemVoltage=12;
+quoteBad.evaluate();
+assert(quoteBad.result.status==='fail', 'Undersized quote must fail');
+assert(quoteBad.checks.some(c=>c.key==='pv'&&c.status==='fail'), 'Undersized quote should fail PV sizing');
+assert(quoteBad.checks.some(c=>c.key==='battery'&&c.status==='fail'), 'Undersized quote should fail battery sizing');
+assert(quoteBad.checks.some(c=>c.key==='inverter'&&c.status==='fail'), 'Undersized quote should fail inverter sizing');
 
 console.log('Solar Expert engine tests passed');
