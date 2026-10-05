@@ -394,12 +394,12 @@ function solar_expert_settings_page() {
     <h2>Lead-gen coverage</h2>
     <?php
       $lead_map = isset($map['leads']) && is_array($map['leads']) ? $map['leads'] : array();
-      $eon_heat_pump_mapped = ! empty($lead_map['eon-heat-pump']);
+      $eon_heat_pump_mapped = ! empty($lead_map['eon-heat-pump']) || ! empty($bases['eon-cz']);
     ?>
     <p><code>eon-heat-pump</code>: <?php echo $eon_heat_pump_mapped ? '<strong style="color:#16733b">AFFILIATE AKTIVNÍ</strong>' : '<span style="color:#8a5b00">veřejný E.ON fallback</span>'; ?></p>
-    <?php $eon_solar_mapped = ! empty($lead_map['eon-solar']); ?>
+    <?php $eon_solar_mapped = ! empty($lead_map['eon-solar']) || ! empty($bases['eon-cz']); ?>
     <p><code>eon-solar</code>: <?php echo $eon_solar_mapped ? '<strong style="color:#16733b">AFFILIATE AKTIVNÍ</strong>' : '<span style="color:#8a5b00">veřejný E.ON fallback</span>'; ?></p>
-    <p class="description">Pro monetizaci GSC-prokázané návštěvnosti vložte partnerské linky do <code>leads.eon-heat-pump</code> a <code>leads.eon-solar</code>. Bez nich CTA zůstávají funkční, ale nemonetizované.</p>
+    <p class="description">Nejjednodušší je vložit jeden E.ON partnerský base link jako <code>eon-cz</code> do Affiliate base odkazů. Solar Expert z něj automaticky vytvoří deeplink pro FVE i tepelné čerpadlo. Přesné hodnoty v <code>leads</code> zůstávají jako override.</p>
 
     <hr>
     <h2>Affiliate coverage</h2>
