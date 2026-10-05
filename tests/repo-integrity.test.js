@@ -222,3 +222,16 @@ assert(leadCore.includes("data-se-placement=\"solar_legacy_article\""),'Solar le
 for(const slug of ['fve-panely-na-strechu','fotovoltaika-na-eternitovou-strechu','kotveni-fotovoltaickych-panelu-na-ploche-strese','velikost-rozmery-a-hmotnost-solarnich-panelu']){
   assert(leadCore.includes("'"+slug+"'"),'Solar lead allowlist must include GSC-backed planning page: '+slug);
 }
+
+
+const boundarySlug='umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda';
+const boundaryItem=manifest.items.find(x=>x.slug===boundarySlug);
+assert(boundaryItem&&boundaryItem.preserve_status===true,'Heat-pump boundary near-win must remain managed and preserve status');
+assert(boundaryItem.file&&fs.existsSync(path.join(__dirname,'..',boundaryItem.file)),'Heat-pump boundary rewrite file missing');
+assert(seoCore.includes("'"+boundarySlug+"' => array("),'Heat-pump boundary near-win must have dedicated SEO metadata');
+const boundaryHtml=fs.readFileSync(path.join(__dirname,'..',boundaryItem.file),'utf8');
+assert(boundaryHtml.includes('MMR'),'Heat-pump boundary guide must cite current MMR methodology');
+assert(boundaryHtml.includes('data-se-lead-id="eon-heat-pump"'),'Heat-pump boundary guide must retain bounded E.ON lead CTA');
+assert(boundaryHtml.includes('neexistuje jedno univerzální pravidlo'),'Heat-pump boundary guide must reject a fake universal setback');
+assert(!boundaryHtml.includes('musí být minimálně 2 metry'),'Heat-pump boundary guide must not invent a universal two-metre setback');
+assert(seoCore.includes("'castecne-zastineni-a-solarni-panely' => array("),'Fresh top-5 shading page should get CTR-focused metadata without content rewrite');
