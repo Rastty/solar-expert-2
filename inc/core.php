@@ -533,6 +533,18 @@ function solar_expert_seo_meta() {
       'title' => 'Rozměry a hmotnost solárních panelů: praktický návrh | Solar Expert',
       'description' => 'Jak rozměry, hmotnost a Wp solárních panelů ovlivní počet kusů, využití střechy, statiku a návrh MPPT stringu.'
     ),
+    'fotovoltaika-vykon-na-m2' => array(
+      'title' => 'Výkon fotovoltaiky na m²: Wp/m² a výpočet | Solar Expert',
+      'description' => 'Jak spočítat výkon fotovoltaického panelu na m², rozdíl Wp a kWh a kolik plochy potřebujete pro požadovaný výkon.'
+    ),
+    'co-je-1-kwp' => array(
+      'title' => 'Co je kWp a Wp: rozdíl proti kWh a příklady | Solar Expert',
+      'description' => 'Co znamená Wp a kWp u fotovoltaiky, jak se liší od kWh a jak převést požadovaný kWp na počet solárních panelů.'
+    ),
+    'jak-zapojit-solarni-panely' => array(
+      'title' => 'Jak zapojit solární panely: série, paralelně a MPPT | Solar Expert',
+      'description' => 'Sériové a paralelní zapojení solárních panelů, co se sčítá, jak hlídat Voc, Vmp a proud a jak ověřit string proti MPPT.'
+    ),
   );
 
   if ( is_front_page() ) {
