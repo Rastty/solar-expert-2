@@ -791,3 +791,22 @@ assert(!pvHubHtml.includes('7 až 10 lety'),'Photovoltaic hub must not retain st
 assert(!pvHubHtml.includes('25 000 až 45 000 Kč'),'Photovoltaic hub must not retain stale price-per-kWp claims');
 assert(!pvHubHtml.includes('tepelné energie na elektrickou'),'Photovoltaic hub must not misdescribe photovoltaic conversion');
 
+const firstPartyFunctions=fs.readFileSync(path.join(__dirname,'..','functions.php'),'utf8');
+const firstPartyCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
+const firstPartyAnalytics=fs.readFileSync(path.join(__dirname,'..','assets','js','analytics.js'),'utf8');
+assert(firstPartyFunctions.includes("wp_enqueue_script('solar-expert-analytics'"),'First-party funnel collector must be enqueued');
+assert(firstPartyFunctions.includes("array('solar-expert-analytics')"),'First-party funnel collector must be enqueued before affiliate tracking');
+assert(firstPartyFunctions.includes("wp_enqueue_script('solar-expert-quote-checker',$uri.'/assets/js/quote-checker.js',array('solar-expert-analytics')"),'Quote Checker must load after first-party analytics');
+assert(firstPartyFunctions.includes("rest_url('solar-expert/v1/funnel-event')"),'Analytics collector must receive the first-party REST endpoint');
+assert(firstPartyCore.includes("register_rest_route('solar-expert/v1', '/funnel-event'"),'First-party funnel REST route must stay registered');
+assert(firstPartyCore.includes("get_option('solar_expert_funnel_daily'"),'Funnel collector must use aggregate daily storage');
+assert(firstPartyCore.includes("34 * DAY_IN_SECONDS"),'Funnel collector must prune storage to a 35-day rolling window');
+assert(firstPartyCore.includes("<h2>Money funnel</h2>"),'Admin diagnostics must expose the money funnel summary');
+assert(firstPartyCore.includes("'funnel_tracking' => 'first_party_v1'"),'Health payload must expose first-party funnel tracking state');
+for(const eventName of ['tool_view','tool_start','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click']){
+  assert(firstPartyAnalytics.includes("'"+eventName+"'"),'Analytics collector must whitelist '+eventName);
+}
+assert(firstPartyAnalytics.includes("keepalive:true"),'Funnel POST must survive outbound navigation when possible');
+assert(!firstPartyAnalytics.includes('localStorage'),'First-party funnel collector must not use localStorage');
+assert(!firstPartyAnalytics.includes('document.cookie'),'First-party funnel collector must not set or read cookies');
+
