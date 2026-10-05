@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "merchants": [
     {
       "id": "battery-cz",
@@ -39,11 +39,12 @@
     {
       "id": "eon-cz",
       "name": "E.ON.cz",
-      "status": "approved",
+      "status": "pending_approval",
       "roles": [
         "installer-lead"
       ],
-      "priority": "secondary"
+      "priority": "secondary",
+      "notes": "Public eHUB campaign verified 2026-10-05; account approval not yet confirmed. Activate only after a real eHUB base link is stored in WordPress."
     },
     {
       "id": "vselektro-eu",
