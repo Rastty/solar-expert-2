@@ -26,6 +26,44 @@
 
 <p>Pokud právě řešíte, <strong>kolik panelů může být v jednom stringu</strong>, navazuje samostatný výpočet v článku <a href="/kolik-panelu-je-potreba-na-jeden-string/">Kolik panelů je potřeba na jeden string</a>.</p>
 
+<h2>Schéma zapojení solárních panelů pro 12V systém</h2>
+<p>„12V systém“ obvykle znamená <strong>12V baterii</strong>, ne panel s přesně 12 V na výstupu. Takzvaný 12V nominální panel může mít pracovní napětí Vmp například kolem 18–22 V a Voc ještě vyšší. Přesné hodnoty vždy vezměte z datasheetu.</p>
+
+<h3>Příklad 2 panelů přes MPPT</h3>
+<pre class="se-code">Varianta 2S — panely v sérii
+
+Panel 1 (+) ───── Panel 2 (−)
+Panel 1 (−)                  Panel 2 (+)
+     │                            │
+     └──────── MPPT PV −   PV + ──┘
+                 │
+           MPPT BAT − / BAT +
+                 │
+              12V baterie</pre>
+
+<p>U série se sčítá napětí. Pokud má každý panel například Vmp 20 V a Voc 25 V, dva stejné panely vytvoří přibližně Vmp 40 V a Voc 50 V. To může být pro 12V baterii přes MPPT zcela v pořádku, <strong>pokud</strong> regulátor dovolí takové vstupní napětí i cold Voc.</p>
+
+<pre class="se-code">Varianta 2P — panely paralelně
+
+Panel 1 (+) ─┐
+             ├──── MPPT PV +
+Panel 2 (+) ─┘
+
+Panel 1 (−) ─┐
+             ├──── MPPT PV −
+Panel 2 (−) ─┘
+
+MPPT BAT + / BAT − ───── 12V baterie</pre>
+
+<p>U paralelního zapojení zůstává napětí přibližně stejné, ale proud se sčítá. To může být vhodné u regulátoru s nižším PV napětím, ale musíte kontrolovat maximální vstupní proud, kabeláž a jištění větví.</p>
+
+<div class="se-note"><strong>Co z toho neplyne:</strong> panely se běžně nepřipojují „jen tak“ přímo na 12V baterii. Mezi FV polem a baterií je regulátor odpovídající typu systému. U MPPT se kontroluje PV Voc/Vmp okno; u PWM platí jiné návrhové podmínky.</div>
+
+<h3>2S nebo 2P pro 12V?</h3>
+<p>Správná odpověď závisí na konkrétním regulátoru. Pokud MPPT bezpečně zvládne cold Voc série a pracovní Vmp je v jeho okně, série často snižuje proud na FV straně. Pokud by série překročila napěťový limit, je potřeba jiná topologie.</p>
+
+<p><a class="se-btn" href="/mppt-kalkulacka/">Ověřit 12V string v MPPT kalkulačce →</a></p>
+
 <h2>Nejdůležitější kontrola: Voc za chladu</h2>
 <p>Napětí Voc panelu při nízké teplotě roste. Proto nestačí vynásobit počet panelů STC hodnotou Voc a porovnat ji s limitem MPPT bez teplotní rezervy. Překročení maximálního PV Voc může regulátor poškodit.</p>
 
