@@ -223,3 +223,14 @@ Decision:
 - rebuild the metal-roof page around standing seam, trapezoidal sheet, penetrations, sealing, statics, wind/snow and corrosion rather than old US roofing marketing;
 - add both pages to their bounded E.ON lead funnels.
 
+### Mono-vs-poly refresh
+
+Fresh raw 90-day GSC evidence from the 2026-10-05 Prometheus artifact:
+- `/monokrystalicke-vs-polykrystalicke-solarni-panely/`: 21 impressions at average position ~53.
+
+Decision:
+- preserve the indexed URL;
+- replace stale 2023 assumptions about polycrystalline panels, old 250–400 W module ranges and generic hot-weather claims;
+- reposition the page around the 2026 market: monocrystalline dominance, N-type/TOPCon context, efficiency per m², temperature coefficient, Voc/Vmp and warranties;
+- route users into the owned panel buyer guide and MPPT calculator.
+
