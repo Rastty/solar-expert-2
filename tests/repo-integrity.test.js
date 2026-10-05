@@ -715,3 +715,15 @@ assert(!mitsubishiHtml.includes('dolar'),'Mitsubishi guide must not retain trans
 assert(!mitsubishiHtml.includes('MCS020'),'Mitsubishi guide must not retain UK-specific legacy certification guidance');
 assert(seoCore.includes("'mohou-solarni-panely-pohanet-vzduchove-tepelne-cerpadlo' => 'kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem'"),'Translated FVE plus heat-pump article must redirect to canonical decision guide');
 
+const apartmentPvSlug='navratnost-fotovoltaicke-elektrarny-v-bytovem-dome';
+const apartmentPvItem=manifest.items.find(x=>x.slug===apartmentPvSlug);
+assert(apartmentPvItem&&apartmentPvItem.preserve_status===true,'Apartment-building PV ROI guide must remain managed and preserve status');
+assert(apartmentPvItem.file&&fs.existsSync(path.join(__dirname,'..',apartmentPvItem.file)),'Apartment-building PV ROI rewrite file missing');
+assert(seoCore.includes("'"+apartmentPvSlug+"' => array("),'Apartment-building PV ROI guide must have dedicated SEO metadata');
+const apartmentPvHtml=fs.readFileSync(path.join(__dirname,'..',apartmentPvItem.file),'utf8');
+assert(apartmentPvHtml.includes('EDC'),'Apartment-building PV ROI guide must cover EDC sharing');
+assert(apartmentPvHtml.includes('bezúročný úvěr'),'Apartment-building PV ROI guide must reflect 2026 NZÚ financing');
+assert(!apartmentPvHtml.includes('7 a 15 lety'),'Apartment-building PV ROI guide must not retain fake universal payback range');
+assert(!apartmentPvHtml.includes('2 až 3 kWh'),'Apartment-building PV ROI guide must not retain fixed battery-per-kWp sizing');
+assert(!apartmentPvHtml.includes('výnosu kolem 20%'),'Apartment-building PV ROI guide must not retain unsupported investment-return claims');
+
