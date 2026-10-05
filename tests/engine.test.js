@@ -292,6 +292,7 @@ assert(!larger12Batteries.some(x=>x.product.id==='battery-goowei-12-100'),'12V 1
 const rep1500Freshness=catalog.products.find(p=>p.id==='inverter-rogerele-rep1500-24');
 const rep2000Freshness=catalog.products.find(p=>p.id==='inverter-rogerele-rep2000-24');
 assert(rep1500Freshness&&rep1500Freshness.availability==='on_request','REP1500-24 must stay excluded while availability is on_request');
+assert(rep1500Freshness.tier==='reference','On-request REP1500-24 must stay outside active recommendation tiers');
 assert(M.availabilityRank(rep1500Freshness)===0,'On-request REP1500-24 must not unlock a complete bundle');
 assert(rep2000Freshness&&rep2000Freshness.availability==='in_stock','REP2000-24 must stay verified in stock');
 assert(rep2000Freshness.tier==='best','REP2000-24 must be the Best Value 24V inverter while REP1500 is unavailable');
