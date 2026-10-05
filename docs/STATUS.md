@@ -16,7 +16,7 @@ Git-first development active on `dev`.
 - Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
 - Verified small 12V bundle path: ROGERELE REP1000-12
 - Affiliate map: stored in WordPress option with admin settings UI; no deeplinks in public GitHub
-- Managed content manifest: 45 items (money pages, transparency pages and legacy rewrites)
+- Managed content manifest: 46 items (money pages, transparency pages and legacy rewrites)
 - Repository guardrails: catalog parity, offer/merchant integrity, no public affiliate deeplinks, manifest target validation
 - Obsolete duplicate bootstrap theme: removed
 - Product comparison: compares complete bundles on battery, continuous/surge inverter power, PV and MPPT fit
@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.24`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.25`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -120,3 +120,4 @@ Next:
 3. use GSC query/page data for the next rewrite batch,
 4. expand only verified product gaps that unlock real scenarios,
 5. optimize CTR/internal links from pages already receiving impressions.
+- Overheating ranking-safe refresh: top-10 `/proc-se-solarni-panely-neprehrivaji/` keeps URL/title/meta but replaces incorrect legacy body with temperature-coefficient, ventilation, hotspot and active-cooling guidance
