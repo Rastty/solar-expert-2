@@ -444,3 +444,18 @@ for(const legacyPath of [
 assert(legacyCleanupCore.includes('if ( is_admin() )'),'Legacy quarantine must leave WordPress admin behavior untouched');
 assert(!legacyCleanupCore.includes("remove_all_actions('wp_footer'"),'Legacy cleanup must never remove all wp_footer callbacks');
 assert(!legacyCleanupCore.includes("remove_all_filters('the_content'"),'Legacy cleanup must never remove all the_content filters');
+
+
+const groundPvSlug='fotovoltaika-na-pozemku';
+const groundPvItem=manifest.items.find(x=>x.slug===groundPvSlug);
+assert(groundPvItem&&groundPvItem.create_if_missing===true,'Ground-mounted PV guide must be publish-ready managed content');
+assert(groundPvItem.status_if_new==='publish'&&groundPvItem.publish_ready===true,'Ground-mounted PV guide must publish only through explicit manifest readiness');
+assert(groundPvItem.file&&fs.existsSync(path.join(__dirname,'..',groundPvItem.file)),'Ground-mounted PV guide file missing');
+assert(seoCore.includes("'"+groundPvSlug+"' => array("),'Ground-mounted PV guide must have dedicated SEO metadata');
+const groundPvHtml=fs.readFileSync(path.join(__dirname,'..',groundPvItem.file),'utf8');
+assert(groundPvHtml.includes('12. 1. 2026'),'Ground-mounted PV guide must cite current MMR methodology date');
+assert(groundPvHtml.includes('249/2025'),'Ground-mounted PV guide must cite the current renewable-permitting law');
+assert(groundPvHtml.includes('/mppt-kalkulacka/'),'Ground-mounted PV guide must route into MPPT tool');
+assert(groundPvHtml.includes('/solarni-sestava-na-chatu/'),'Ground-mounted PV guide must route into Builder');
+assert(!groundPvHtml.includes('do 100 kW bez povolení'),'Ground-mounted PV guide must not claim a universal no-permit rule');
+assert(groundPvHtml.includes('Limit 100 kW je důležitý, ale sám o sobě nestačí'),'Ground-mounted PV guide must explicitly reject simplistic 100kW permitting advice');
