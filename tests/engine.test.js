@@ -72,6 +72,21 @@ const impossiblePlan = B.findPanelPlan(
 );
 assert(impossiblePlan===null, 'Impossible MPPT voltage window must not produce a panel plan');
 
+const bundle12Sizing = {
+  voltage:12,
+  batteryKwh:1,
+  inverterW:800,
+  peak:1800,
+  panelWp:180,
+  mpptA:20
+};
+const bundles12 = B.compose(catalog.products, bundle12Sizing);
+const budget12Verified = bundles12.find(b=>b.tier==='budget');
+assert(budget12Verified && budget12Verified.complete, 'Small 12V Budget bundle should be complete with verified standalone inverter');
+assert(budget12Verified.inverter.id==='inverter-rogerele-rep1000-12', '12V Budget bundle should use ROGERELE REP1000-12');
+assert(budget12Verified.inverter.peak_w>=bundle12Sizing.peak, '12V Budget inverter must cover requested surge');
+assert(budget12Verified.mppt.id==='mppt-victron-100-20', 'Small 12V Budget bundle should use verified SmartSolar 100/20');
+
 const kosunSizing = {
   voltage:12,
   batteryKwh:1,
