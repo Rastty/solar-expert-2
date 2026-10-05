@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.6.0",
+  "schemaVersion": "0.7.0",
   "mode": "verified-public-seed; affiliate URLs added separately",
   "verifiedAt": "2026-10-05",
   "products": [
@@ -80,7 +80,23 @@
       "price_czk_snapshot": 22900,
       "source_url": "https://www.battery.cz/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
       "price_czk": 22900,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 22900,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 22900,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/pylontech/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     },
     {
       "id": "battery-seplos-pusung-48",
@@ -104,7 +120,23 @@
       "price_czk_snapshot": 20990,
       "source_url": "https://www.battery.cz/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
       "price_czk": 20990,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 20990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 21834,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/seplos/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     },
     {
       "id": "battery-seplos-polo-w-48",
@@ -191,7 +223,23 @@
         "24": 29,
         "48": 53
       },
-      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking."
+      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 2091,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/mppt/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 2091,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/mppt/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     },
     {
       "id": "mppt-victron-100-30",
@@ -219,7 +267,23 @@
         "12": 17,
         "24": 29
       },
-      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking."
+      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 2984,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/mppt/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 2984,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/mppt/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     },
     {
       "id": "mppt-victron-100-50",
@@ -247,7 +311,23 @@
         "12": 17,
         "24": 29
       },
-      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking."
+      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 3899,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/mppt/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 4305,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-50--12-24v--50a/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     },
     {
       "id": "mppt-victron-150-35",
