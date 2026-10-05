@@ -1,4 +1,4 @@
-global.window = {SolarExpertConfig:{affiliateMap:{products:{}}}};
+global.window = {SolarExpertConfig:{affiliateMap:{products:{},leads:{}},affiliateBases:{}}};
 require('../assets/js/affiliate-adapter.js');
 require('../assets/js/product-matcher.js');
 require('../assets/js/bundle-composer.js');
