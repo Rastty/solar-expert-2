@@ -152,6 +152,7 @@ window.SolarExpertBundleComposer = {
     const candidates = (Array.isArray(bundleDeals) ? bundleDeals : [])
       .filter(deal => {
         if (!deal || deal.availability !== 'in_stock' || !Array.isArray(deal.components)) return false;
+        if (window.SolarExpertProductMatcher && window.SolarExpertProductMatcher.verificationState(deal.verified_at) === 'stale') return false;
         const dealIds = [...deal.components].sort();
         if (dealIds.length !== ids.length || dealIds.some((id,i)=>id!==ids[i])) return false;
         const price = Number(deal.price_czk || 0);
