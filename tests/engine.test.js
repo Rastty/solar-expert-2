@@ -247,6 +247,14 @@ assert(discontinuedOnly===null,'A discontinued panel cannot form a bundle even w
 const victron190=catalog.products.find(p=>p.id==='panel-victron-190');
 assert(M.effectivePrice(victron190)===2251,'Victron 190W current verified snapshot should be 2251 CZK');
 
+const defaultEvidenceIds=['panel-victron-190','battery-goowei-24-100','mppt-victron-150-70','mppt-victron-250-100'];
+for(const id of defaultEvidenceIds){
+  const product=catalog.products.find(p=>p.id===id);
+  assert(product&&Array.isArray(product.offers)&&product.offers.length>=2,'Default bundle core products must expose fresh merchant evidence: '+id);
+  assert(product.offers.every(o=>M.verificationState(o.verified_at)!=='stale'),'Default bundle offers must not be stale: '+id);
+}
+assert(M.effectivePrice(catalog.products.find(p=>p.id==='mppt-victron-250-100'))===14246,'MPPT 250/100 should use current verified 14246 CZK price');
+
 const impossibleController = {
   max_pv_w_by_voltage: {'24': 2000},
   max_pv_voc_v: 80,
