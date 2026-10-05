@@ -713,4 +713,5 @@ assert(mitsubishiHtml.includes('PUZ-WZ'),'Mitsubishi guide must cover current R2
 assert(mitsubishiHtml.includes('75 °C'),'Mitsubishi guide must retain current high-temperature operating context');
 assert(!mitsubishiHtml.includes('dolar'),'Mitsubishi guide must not retain translated dollar-price guidance');
 assert(!mitsubishiHtml.includes('MCS020'),'Mitsubishi guide must not retain UK-specific legacy certification guidance');
+assert(seoCore.includes("'mohou-solarni-panely-pohanet-vzduchove-tepelne-cerpadlo' => 'kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem'"),'Translated FVE plus heat-pump article must redirect to canonical decision guide');
 
