@@ -66,7 +66,10 @@
               <div>
                 <small>Výhodnější set baterie + měnič</small>
                 <strong x-text="b.bundleDeal?.label"></strong>
-                <span class="se-muted">Ověřená cena setu <strong x-text="b.bundleDeal?.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong> · úspora <strong x-text="b.bundleDeal?.savings_czk?.toLocaleString('cs-CZ')+' Kč'"></strong> proti stejným komponentům zvlášť.</span>
+                <span class="se-muted">Ověřená cena setu <strong x-text="b.bundleDeal?.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong> · úspora <strong x-text="(b.bundleDeal?.bankSavingsCzk||b.bundleDeal?.savings_czk)?.toLocaleString('cs-CZ')+' Kč'"></strong> proti stejným komponentům zvlášť.</span>
+                <span class="se-muted" x-show="(b.bundleDeal?.extraBatteryUnits||0)>0">
+                  Set obsahuje 1× baterii + měnič. Pro celý bank dokupte ještě <strong x-text="b.bundleDeal?.extraBatteryUnits+'× '+b.battery?.name"></strong> přes nabídku baterie níže.
+                </span>
               </div>
               <a class="se-btn se-btn-primary" target="_blank"
                  :href="SolarExpertAffiliate.resolveBundleDeal(b.bundleDeal).href"
