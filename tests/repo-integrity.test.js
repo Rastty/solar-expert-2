@@ -117,3 +117,10 @@ assert(corePhp.includes("register_setting('solar_expert_settings','solar_expert_
 const solarCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
 assert(solarCore.includes("add_theme_page('Solar Expert','Solar Expert','edit_theme_options'"),'Solar Expert settings must use theme-management capability');
 assert(solarCore.includes("option_page_capability_solar_expert_settings"),'Settings submission must use matching capability override');
+
+
+const settingsCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
+assert(settingsCore.includes("admin_post_solar_expert_save_settings"),'Solar Expert settings must have a dedicated admin save handler');
+assert(settingsCore.includes("admin_url('admin-post.php')"),'Solar Expert settings form must bypass options.php');
+assert(!settingsCore.includes('<form method="post" action="options.php">'),'Solar Expert settings must not post to options.php');
+assert(settingsCore.includes("wp_nonce_field('solar_expert_save_settings')"),'Solar Expert settings save must be nonce protected');
