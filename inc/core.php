@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.10</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.11</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.10',
+    'build_marker' => 'dev-rc-0.11.11',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -738,6 +738,10 @@ function solar_expert_seo_meta() {
     'vysvetleni-solarnich-panelu-pv-t' => array(
       'title' => 'PVT panely: elektřina a teplo v jednom kolektoru | Solar Expert',
       'description' => 'Jak fungují hybridní PVT panely, rozdíl proti běžné FVE a solární termice, výhody, nevýhody a kdy dává PVT smysl.'
+    ),
+    'vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih' => array(
+      'title' => 'Fotovoltaika v zimě: výkon, sníh a sklon panelů | Solar Expert',
+      'description' => 'Jak funguje fotovoltaika v zimě, proč chlad panelům nevadí, co udělá sníh, kdy ho neodmetat a jak odhadnout zimní výrobu přes PVGIS.'
     ),
     'castecne-zastineni-a-solarni-panely' => array(
       'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
@@ -992,6 +996,7 @@ function solar_expert_legacy_redirects() {
     'jak-vycistit-solarni-panely-pruvodce-cistenim-solaru' => 'cisteni-solarnich-panelu-proc-kdy-jak',
     'kompletni-pruvodce-velikosti-solarnich-panelu' => 'velikost-rozmery-a-hmotnost-solarnich-panelu',
     'spotreba-tepelneho-cerpadla-v-kwh' => 'prumerna-spotreba-tepelneho-cerpadla',
+    'co-dela-fotovoltaika-kdyz-je-zima' => 'vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih',
     'ucinnost-tepelneho-cerpadla-se-zdrojem-vzduchu' => 'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla',
     'tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda' => 'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
   );
