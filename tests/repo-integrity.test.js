@@ -639,3 +639,17 @@ assert(builderUxTpl.includes('x-show="catalogError"'),'Builder template must dis
 assert(seoCore.includes("add_filter('wpseo_metadesc', 'solar_expert_wpseo_metadesc', 20)"),'Solar Expert metadata must pass through Yoast');
 assert(seoCore.includes("add_filter('wpseo_title', 'solar_expert_wpseo_title', 20)"),'Solar Expert titles must pass through Yoast');
 
+const batterySelectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
+const batterySelectorTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','battery-selector.php'),'utf8');
+assert(batterySelectorJs.includes('catalogLoading:true,catalogError:false'),'Battery Selector must expose explicit catalog loading state');
+assert(batterySelectorJs.includes('get requiredBatteryKwh()'),'Battery Selector must expose calculated required capacity');
+assert(batterySelectorJs.includes('get requiredDischargeA()'),'Battery Selector must expose calculated discharge-current requirement');
+assert(batterySelectorJs.includes("if(!r.ok)throw new Error('catalog_http_'"),'Selector catalog loader must reject failed HTTP responses');
+for(const id of ['se-battery-voltage','se-battery-daily-kwh','se-battery-autonomy','se-battery-inverter-w']){
+  assert(batterySelectorTpl.includes('for="'+id+'"'),'Battery Selector label must target '+id);
+  assert(batterySelectorTpl.includes('id="'+id+'"'),'Battery Selector control id missing: '+id);
+}
+assert(batterySelectorTpl.includes('x-show="catalogLoading"'),'Battery Selector must show catalog loading feedback');
+assert(batterySelectorTpl.includes('x-show="catalogError"'),'Battery Selector must show catalog error feedback');
+assert(batterySelectorTpl.includes("!catalogLoading && !catalogError && !matches.length"),'Battery Selector must distinguish no-match from loading/error state');
+
