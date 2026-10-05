@@ -130,4 +130,4 @@ Next:
 - Default-bundle offer freshness: Victron 190W panel, GOOWEI 24V100 battery, MPPT 150/70 and MPPT 250/100 now carry fresh merchant evidence; Battery.cz/Solar-Import comparison offers added and MPPT 250/100 refreshed to 14,246 CZK
 - Catalog integrity hotfix: on-request ROGERELE REP1500-24 moved to non-recommendation `reference` tier; strict guardrail stays intact and in-stock REP2000-24 remains the active Best Value choice
 - First-party money-funnel measurement: cookie-free theme collector now aggregates tool views/starts, Builder/selector/Quote Checker completions and affiliate/bundle/E.ON lead clicks for 35 days; 7/28-day counts are visible in Solar Expert admin and no free-form user inputs are stored
-- Price evidence refresh: current Solar-Import availability/prices verified for KOSUN 48V/3000W, Growatt SPF 3500ES, Growatt SPF 6000 ES Plus and ROGERELE REP1000-12; price-freshness unknown count drops without changing technical ranking
+- Price evidence refresh: all 32 active priced snapshots now carry current verification evidence (32 fresh / 0 stale / 0 unknown); no technical compatibility ranking was changed
