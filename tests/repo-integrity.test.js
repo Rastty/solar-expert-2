@@ -667,3 +667,18 @@ assert(mpptSelectorTpl.includes('x-show="catalogLoading"'),'MPPT Selector must s
 assert(mpptSelectorTpl.includes('x-show="catalogError"'),'MPPT Selector must show catalog error feedback');
 assert(mpptSelectorTpl.includes("!catalogLoading && !catalogError && inputValid && !matches.length"),'MPPT Selector must distinguish catalog gap from loading/error/invalid input');
 
+const inverterSelectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
+const inverterSelectorTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','inverter-selector.php'),'utf8');
+assert(inverterSelectorJs.includes('catalogLoading:true,catalogError:false'),'Inverter Selector must expose explicit catalog loading state');
+assert(inverterSelectorJs.includes('get inputValid()'),'Inverter Selector must validate continuous and surge inputs');
+assert(inverterSelectorJs.includes('get requiredDcA()'),'Inverter Selector must expose continuous DC current requirement');
+assert(inverterSelectorJs.includes('get peakDcA()'),'Inverter Selector must expose peak DC current requirement');
+for(const id of ['se-inverter-voltage','se-inverter-continuous','se-inverter-peak']){
+  assert(inverterSelectorTpl.includes('for="'+id+'"'),'Inverter Selector label must target '+id);
+  assert(inverterSelectorTpl.includes('id="'+id+'"'),'Inverter Selector control id missing: '+id);
+}
+assert(inverterSelectorTpl.includes('x-show="!inputValid"'),'Inverter Selector must show invalid-input feedback');
+assert(inverterSelectorTpl.includes('x-show="catalogLoading"'),'Inverter Selector must show catalog loading feedback');
+assert(inverterSelectorTpl.includes('x-show="catalogError"'),'Inverter Selector must show catalog error feedback');
+assert(inverterSelectorTpl.includes("!catalogLoading && !catalogError && inputValid && !matches.length"),'Inverter Selector must distinguish no-match from loading/error/invalid input');
+
