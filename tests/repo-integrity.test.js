@@ -550,3 +550,27 @@ assert(heatPumpPrincipleItem&&heatPumpPrincipleItem.preserve_status===true,'Heat
 assert(heatPumpPrincipleItem.file&&fs.existsSync(path.join(__dirname,'..',heatPumpPrincipleItem.file)),'Heat-pump principle rewrite file missing');
 assert(seoCore.includes("'"+heatPumpPrincipleSlug+"' => array("),'Heat-pump principle guide must have dedicated SEO metadata');
 
+const lifespanSlug='jak-dlouho-vydrzi-tepelna-cerpadla';
+const lifespanItem=manifest.items.find(x=>x.slug===lifespanSlug);
+assert(lifespanItem&&lifespanItem.preserve_status===true,'Heat-pump lifespan guide must remain managed and preserve status');
+assert(lifespanItem.file&&fs.existsSync(path.join(__dirname,'..',lifespanItem.file)),'Heat-pump lifespan rewrite file missing');
+assert(seoCore.includes("'"+lifespanSlug+"' => array("),'Heat-pump lifespan guide must have dedicated SEO metadata');
+assert(leadCore.includes("'jak-dlouho-vydrzi-tepelna-cerpadla'"),'Heat-pump lifespan guide must participate in the bounded E.ON/related-links funnel');
+
+const solarPrincipleSlug='solarni-panel-definice-a-fakta';
+const solarPrincipleItem=manifest.items.find(x=>x.slug===solarPrincipleSlug);
+assert(solarPrincipleItem&&solarPrincipleItem.preserve_status===true,'Solar principle guide must remain managed and preserve status');
+assert(solarPrincipleItem.file&&fs.existsSync(path.join(__dirname,'..',solarPrincipleItem.file)),'Solar principle rewrite file missing');
+assert(seoCore.includes("'"+solarPrincipleSlug+"' => array("),'Solar principle guide must have dedicated SEO metadata');
+const solarPrincipleHtml=fs.readFileSync(path.join(__dirname,'..',solarPrincipleItem.file),'utf8');
+assert(!solarPrincipleHtml.includes('Britannica'),'Solar principle guide must not retain copied Britannica-style legacy content');
+
+const pvtSlug='vysvetleni-solarnich-panelu-pv-t';
+const pvtItem=manifest.items.find(x=>x.slug===pvtSlug);
+assert(pvtItem&&pvtItem.preserve_status===true,'PVT guide must remain managed and preserve status');
+assert(pvtItem.file&&fs.existsSync(path.join(__dirname,'..',pvtItem.file)),'PVT rewrite file missing');
+assert(seoCore.includes("'"+pvtSlug+"' => array("),'PVT guide must have dedicated SEO metadata');
+const pvtHtml=fs.readFileSync(path.join(__dirname,'..',pvtItem.file),'utf8');
+assert(!pvtHtml.includes('Renewable Heat Incentive'),'PVT guide must not contain obsolete UK incentive guidance');
+assert(!pvtHtml.includes('85 %'),'PVT guide must not keep unsupported legacy combined-efficiency marketing claims');
+
