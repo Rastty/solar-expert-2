@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.3.0",
+  "schemaVersion": "1.4.0",
   "items": [
     {
       "type": "page",
@@ -125,6 +125,30 @@
       "title": "Solární sady: jak vybrat kompatibilní panely, baterii, měnič a MPPT",
       "preserve_status": true,
       "file": "content/rewrites/sady-pro-solarni-napajeni-kompletni-pruvodce.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu",
+      "title": "Degradace solárních panelů: co znamená a jak ji porovnávat",
+      "preserve_status": true,
+      "file": "content/rewrites/rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "kotveni-fotovoltaickych-panelu-na-ploche-strese",
+      "title": "Fotovoltaika na ploché střeše: kotvení, balast, sklon a rozteč",
+      "preserve_status": true,
+      "file": "content/rewrites/kotveni-fotovoltaickych-panelu-na-ploche-strese.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "velikost-rozmery-a-hmotnost-solarnich-panelu",
+      "title": "Rozměry a hmotnost solárních panelů: jak ovlivní návrh FVE",
+      "preserve_status": true,
+      "file": "content/rewrites/velikost-rozmery-a-hmotnost-solarnich-panelu.html",
       "create_if_missing": false
     }
   ]
