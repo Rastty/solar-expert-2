@@ -163,3 +163,17 @@ Fresh page-query evidence for `/jak-zapojit-solarni-panely/` includes:
 
 The existing rewrite already covered series, parallel, cold Voc and MPPT start voltage, but did not answer the exact 12V schematic intent. Decision: preserve the page and add a compact 2S/2P conceptual diagram, a 12V battery example and an explicit warning against interpreting the article as direct panel-to-battery wiring guidance.
 
+### Air-water and COP cannibalization cleanup
+
+Fresh raw 90-day GSC page-query evidence from the 2026-10-05 Prometheus artifact:
+- `/tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji/`: 153 page impressions; 149 disclosed page-query impressions, including `tepelné čerpadlo vzduch voda` at 45 impressions.
+- `/tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda/`: 66 page impressions and substantial overlap on the same generic air-water query family.
+- `/cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla/`: 48 page impressions, dominated by COP queries.
+- `/ucinnost-tepelneho-cerpadla-se-zdrojem-vzduchu/`: 38 page impressions with overlapping COP/efficiency intent.
+
+Decision:
+- rebuild the stronger air-water URL as the canonical 2026 buyer guide and 301 the overlapping comparison URL into it;
+- rebuild the stronger COP URL as the canonical COP/SCOP/efficiency guide and 301 the overlapping efficiency URL into it;
+- keep `/jak-funguje-tepelne-cerpadlo/` separate because its query set is clearly principle-focused;
+- keep the lifespan URL separate because its query set is clearly durability-focused.
+
