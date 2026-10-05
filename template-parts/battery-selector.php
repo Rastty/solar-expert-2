@@ -11,21 +11,28 @@
     <template x-for="r in matches" :key="r.product.id">
       <div class="se-bundle">
         <div class="se-bundle-head">
-          <strong x-text="r.product.name"></strong>
-          <strong x-show="SolarExpertProductMatcher.effectivePrice(r.product)<Number.MAX_SAFE_INTEGER"><span x-text="SolarExpertProductMatcher.effectivePrice(r.product).toLocaleString('cs-CZ')"></span> Kč</strong>
+          <strong x-text="(r.quantity||1)+'× '+r.product.name"></strong>
+          <strong x-show="r.totalPrice<Number.MAX_SAFE_INTEGER"><span x-text="r.totalPrice.toLocaleString('cs-CZ')"></span> Kč</strong>
         </div>
-        <div class="se-muted"><span x-text="r.product.energy_wh/1000"></span> kWh · max. vybíjení <span x-text="r.product.max_discharge_a"></span> A</div>
+        <div class="se-muted">
+          <span x-text="(r.totalEnergyWh/1000).toFixed(2)"></span> kWh celkem ·
+          max. vybíjení <span x-text="r.totalDischargeA"></span> A celkem
+          <span x-show="(r.quantity||1)>1"> · <span x-text="(r.product.energy_wh/1000).toFixed(2)"></span> kWh / modul</span>
+        </div>
+        <div class="se-note" x-show="(r.quantity||1)>1" style="margin-top:10px">
+          Ověřený paralelní bank: <strong x-text="r.quantity+' stejné moduly'"></strong>. Před instalací ověřte sběrnici, symetrickou kabeláž, jištění každé větve a nastavení BMS podle výrobce.
+        </div>
         <div class="se-offer-links" style="margin-top:10px">
           <template x-for="o in SolarExpertAffiliate.offers(r.product).slice(0,2)" :key="r.product.id+'-'+o.merchantId">
             <a class="se-offer" target="_blank" :href="o.href"
                :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                @click="SolarExpertAffiliate.trackOffer(r.product,o.raw,'battery-selector')">
-              <span x-text="o.merchant?.label"></span><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+              <span x-text="o.merchant?.label"></span><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'+((r.quantity||1)>1?' / ks':'')"></strong>
             </a>
           </template>
         </div>
       </div>
     </template>
-    <div x-show="!matches.length" class="se-note">V ověřeném katalogu zatím nemáme baterii, která projde všemi limity.</div>
+    <div x-show="!matches.length" class="se-note">V ověřeném katalogu zatím nemáme ani jeden modul nebo ověřený paralelní bank, který projde kapacitou i limitem BMS.</div>
   </div>
 </div>
