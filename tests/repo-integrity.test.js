@@ -326,7 +326,9 @@ assert(affiliateAdapter.includes("event:'bundle_deal_click'"),'Bundle deal click
 const builderJs=fs.readFileSync(path.join(__dirname,'..','assets','js','builder.js'),'utf8');
 const composerJs=fs.readFileSync(path.join(__dirname,'..','assets','js','bundle-composer.js'),'utf8');
 assert(composerJs.includes('batteryBankCandidates(products, sizing, tier)'),'Bundle composer must support verified battery banks');
-assert(composerJs.includes('batteryBank.quantity === 1'),'Bundle deal must be limited to single-battery bundles');
+assert(composerJs.includes('batteryBank.unitPrice + inverterPrice'),'Bundle deal must be evaluated against exactly one battery plus inverter');
+assert(composerJs.includes('extraBatteryUnits = Math.max(0, batteryBank.quantity - 1)'),'Multi-battery bundle pricing must account for extra battery units explicitly');
+assert(composerJs.includes('batteryBank.unitPrice * bundleDeal.extraBatteryUnits'),'Extra battery modules must be added at verified unit price');
 assert(builderJs.includes('Paralelní bateriový bank'),'Builder checklist must surface parallel-bank verification');
 assert(builderTemplate.includes("b.batteryQuantity||1"),'Builder must render battery quantity');
 assert(builderTemplate.includes('kWh celkem'),'Builder must render total battery-bank energy');
@@ -479,3 +481,8 @@ assert(batterySelectorTemplate.includes('r.totalEnergyWh'),'Battery Selector mus
 assert(batterySelectorTemplate.includes('r.totalDischargeA'),'Battery Selector must render total discharge current');
 assert(batterySelectorTemplate.includes('r.totalPrice'),'Battery Selector must render total bank price');
 assert(batterySelectorTemplate.includes('Ověřený paralelní bank'),'Battery Selector must explain parallel-bank installation checks');
+
+
+assert(builderTemplate.includes('Set obsahuje 1× baterii + měnič'),'Builder must explain multi-bank set composition');
+assert(affiliateAdapter.includes('extraBatteryUnits'),'Bundle analytics must include extra battery units');
+assert(affiliateAdapter.includes('bankSavingsCzk'),'Bundle analytics must include whole-bank savings');
