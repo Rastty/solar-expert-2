@@ -486,3 +486,10 @@ assert(batterySelectorTemplate.includes('Ověřený paralelní bank'),'Battery S
 assert(builderTemplate.includes('Set obsahuje 1× baterii + měnič'),'Builder must explain multi-bank set composition');
 assert(affiliateAdapter.includes('extraBatteryUnits'),'Bundle analytics must include extra battery units');
 assert(affiliateAdapter.includes('bankSavingsCzk'),'Bundle analytics must include whole-bank savings');
+
+
+for(const product of source.products||[]){
+  if(['budget','best','premium'].includes(product.tier)){
+    assert(product.availability!=='on_request','Active recommended catalog products must not use on_request availability: '+product.id);
+  }
+}
