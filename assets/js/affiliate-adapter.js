@@ -88,6 +88,40 @@ window.SolarExpertAffiliate = {
     return this.offers(product)[0] || {href:'#', monetized:false, merchant:null, price_czk:null, raw:null};
   },
 
+  resolveBundleDeal(deal) {
+    if (!deal) return {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null};
+    const generated = this.merchantDeepLink(deal.merchant, deal.source_url);
+    return {
+      href: generated || deal.source_url || '#',
+      monetized: Boolean(generated),
+      merchant: this.merchants[deal.merchant] || {label:deal.merchant, approved:false},
+      merchantId: deal.merchant || null,
+      price_czk: Number(deal.price_czk || 0) || null,
+      savings_czk: Number(deal.savings_czk || 0) || null,
+      raw: deal
+    };
+  },
+
+  trackBundleDeal(deal, placement) {
+    const resolved = this.resolveBundleDeal(deal);
+    const detail = {
+      dealId: deal?.id || null,
+      merchant: resolved.merchantId,
+      placement: placement || 'builder-bundle-deal',
+      monetized: resolved.monetized,
+      hrefType: resolved.monetized ? 'affiliate' : 'source',
+      priceCzk: resolved.price_czk,
+      savingsCzk: resolved.savings_czk
+    };
+    if (Array.isArray(window.dataLayer)) {
+      window.dataLayer.push({event:'bundle_deal_click', ...detail});
+    }
+    if (typeof window.dispatchEvent === 'function' && typeof CustomEvent !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('solar-expert-bundle-deal-click', {detail}));
+    }
+    return resolved;
+  },
+
   resolveLead(id, fallback) {
     const map = this.map();
     const leads = map.leads || {};
