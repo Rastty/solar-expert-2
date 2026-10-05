@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.4.0",
+  "schemaVersion": "2.5.0",
   "items": [
     {
       "type": "page",
@@ -246,6 +246,16 @@
       "preserve_status": true,
       "file": "content/rewrites/recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady.html",
       "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "fotovoltaika-na-pozemku",
+      "title": "Fotovoltaika na pozemku: konstrukce, návrh a povolení",
+      "status_if_new": "publish",
+      "status": "publish",
+      "publish_ready": true,
+      "file": "content/rewrites/fotovoltaika-na-pozemku.html",
+      "create_if_missing": true
     }
   ]
 }
