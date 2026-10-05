@@ -1,0 +1,84 @@
+<p class="se-lead"><strong>Roční výrobu fotovoltaiky nelze určit jedním univerzálním číslem pro celou Českou republiku.</strong> Nejlepší rychlý odhad je vzít instalovaný výkon v kWp a vynásobit ho lokalitním specifickým výnosem v kWh/kWp/rok. Ten se liší podle místa, orientace, sklonu, zastínění a systémových ztrát.</p>
+
+<h2>Nejdůležitější vztah</h2>
+<p><strong>Roční výroba [kWh] = výkon FVE [kWp] × specifický výnos [kWh/kWp/rok]</strong></p>
+<p>Specifický výnos je vhodné získat z lokalitního výpočtu, například z bezplatného nástroje <a href="https://re.jrc.ec.europa.eu/pvg_tools/en/" rel="nofollow noopener">PVGIS Evropské komise</a>.</p>
+
+<div class="se-note"><strong>Příklad:</strong> pokud PVGIS pro konkrétní střechu ukáže specifický výnos 1 050 kWh/kWp/rok, pak 5 kWp systém odpovídá přibližně 5 250 kWh ročně před odchylkami skutečného provozu. Číslo 1 050 je pouze demonstrační vstup — pro vlastní střechu použijte vlastní lokalitu a orientaci.</div>
+
+<h2>Kolik vyrobí 1, 5 nebo 10 kWp za rok?</h2>
+<p>Bez lokality není poctivé uvést jedno univerzální číslo. Použijte specifický výnos z PVGIS a jednoduchou násobilku:</p>
+
+<table>
+<thead><tr><th>Velikost FVE</th><th>Výpočet</th><th>Při demonstračním výnosu 1 050 kWh/kWp/rok</th></tr></thead>
+<tbody>
+<tr><td>1 kWp</td><td>1 × specifický výnos</td><td>1 050 kWh/rok</td></tr>
+<tr><td>5 kWp</td><td>5 × specifický výnos</td><td>5 250 kWh/rok</td></tr>
+<tr><td>10 kWp</td><td>10 × specifický výnos</td><td>10 500 kWh/rok</td></tr>
+</tbody>
+</table>
+
+<h2>Proč dvě stejné 10 kWp elektrárny nevyrobí stejně</h2>
+<ul>
+<li><strong>Lokalita:</strong> množství dopadajícího slunečního záření se liší.</li>
+<li><strong>Orientace:</strong> jih, východ/západ nebo jiný azimut mění denní profil i roční součet.</li>
+<li><strong>Sklon:</strong> ovlivňuje dopad záření během roku.</li>
+<li><strong>Stínění:</strong> komín, strom nebo okolní budova mohou významně snížit výrobu.</li>
+<li><strong>Teplota panelů:</strong> vysoká teplota článků snižuje okamžitý výkon.</li>
+<li><strong>Ztráty systému:</strong> kabeláž, měnič, nesoulad modulů a další prvky nejsou bezeztrátové.</li>
+<li><strong>Clipping:</strong> pokud je FV pole výrazně větší než AC výkon měniče, může při špičkách docházet k omezení výkonu.</li>
+<li><strong>Dostupnost systému:</strong> odstávka nebo porucha snižuje skutečný roční výnos.</li>
+</ul>
+
+<h2>Jak se roční výroba rozdělí během roku</h2>
+<p>Roční číslo je užitečné, ale pro návrh baterie nebo ostrovního systému nestačí. Fotovoltaika vyrábí během roku velmi nerovnoměrně. Letní měsíce mohou mít výrazně vyšší výrobu než zimní, takže roční průměr nesmí být použit jako „výroba za typický den“.</p>
+
+<p>PVGIS umí zobrazit nejen celoroční součet, ale také průměrnou výrobu po jednotlivých měsících. To je důležité hlavně pro chaty, sezónní provoz a systémy bez spolehlivé sítě.</p>
+
+<h2>Roční výroba vs. vlastní spotřeba</h2>
+<p>To, že systém vyrobí například 5 000 kWh ročně, neznamená, že všech 5 000 kWh spotřebujete přímo doma. Rozhoduje časový profil výroby a spotřeby.</p>
+<ul>
+<li>energie spotřebovaná okamžitě má nejjednodušší využití,</li>
+<li>baterie přesouvá přebytky mezi částmi dne,</li>
+<li>přebytky mohou odcházet do sítě, pokud je systém připojený,</li>
+<li>baterie sama o sobě <strong>nezvyšuje výrobu panelů</strong>.</li>
+</ul>
+
+<h2>Jak velkou FVE navrhnout podle spotřeby</h2>
+<p>Roční spotřeba domácnosti je dobrý vstup, ale není jediný. U ostrovního systému nebo chaty je často důležitější <strong>denní spotřeba v konkrétní sezóně</strong>, požadovaná autonomie a špičkový výkon spotřebičů.</p>
+
+<p><a class="se-btn se-btn-primary" href="/solarni-sestava-na-chatu/">Spočítat sestavu podle vlastní spotřeby →</a></p>
+
+<h2>Jak zpřesnit vlastní odhad v PVGIS</h2>
+<ol>
+<li>Zadejte přesnou lokalitu.</li>
+<li>Vyberte výkon systému v kWp.</li>
+<li>Zadejte nebo optimalizujte sklon a azimut.</li>
+<li>Nechte nástroj započítat systémové ztráty.</li>
+<li>Porovnejte roční součet i jednotlivé měsíce.</li>
+<li>U skutečné střechy přidejte realistické zastínění, pokud není v modelu zachycené.</li>
+</ol>
+
+<h2>Jak souvisí roční a hodinová výroba</h2>
+<p>Roční výrobu nelze odvodit z jedné „dobré hodiny“. Stejně tak instalovaný výkon 10 kWp neznamená 10 kWh každou hodinu. Pokud chcete pochopit převod výkonu na energii v krátkém časovém kroku, pokračujte na <a href="/kolik-vyrobi-fotovoltaika-za-hodinu/">Kolik vyrobí fotovoltaika za hodinu</a>.</p>
+
+<h2>FAQ</h2>
+<h3>Kolik vyrobí 1 kWp fotovoltaiky za rok?</h3>
+<p>Záleží na lokalitě, orientaci, sklonu, zastínění a ztrátách. Pro konkrétní místo použijte specifický výnos z PVGIS a vynásobte jej 1 kWp.</p>
+
+<h3>Kolik vyrobí 10 kWp FVE za rok?</h3>
+<p>Vynásobte 10 kWp specifickým výnosem pro danou střechu. Pokud by model například ukázal 1 050 kWh/kWp/rok, odpovídalo by to přibližně 10 500 kWh/rok.</p>
+
+<h3>Zvýší baterie roční výrobu?</h3>
+<p>Ne. Baterie pomáhá využít energii v jiném čase, ale množství energie vyrobené FV panely nezvyšuje.</p>
+
+<h3>Je lepší počítat podle slunečních hodin?</h3>
+<p>Pro hrubý krátkodobý odhad to může být užitečné, ale pro roční návrh je lepší dlouhodobý klimatický model. PVGIS používá víceletá data a zohledňuje více parametrů systému.</p>
+
+<h3>Je roční výroba každý rok stejná?</h3>
+<p>Ne. Počasí se mezi roky liší. Dlouhodobý model proto představuje očekávaný průměr, ne garantovaný výsledek pro konkrétní rok.</p>
+
+<h2>Zdroj pro lokalitní výpočet</h2>
+<p><a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="nofollow noopener">PVGIS — Joint Research Centre, European Commission</a>. Nástroj poskytuje odhad roční i měsíční výroby FVE pro konkrétní lokalitu a konfiguraci.</p>
+
+<div class="se-note"><strong>Pravidlo Solar Expertu:</strong> roční výrobu neodhadujeme jedním univerzálním číslem pro celou republiku. Používáme lokalitní specifický výnos a oddělujeme výkon kWp od energie kWh.</div>
