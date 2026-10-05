@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.2</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.3</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.2',
+    'build_marker' => 'dev-rc-0.11.3',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -750,6 +750,10 @@ function solar_expert_seo_meta() {
     'recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady' => array(
       'title' => 'Viessmann tepelné čerpadlo recenze 2026: Vitocal 250-A | Solar Expert',
       'description' => 'Technická recenze Viessmann Vitocal 250-A 2026: R290, výkon, hlučnost, teplota vody, výhody, nevýhody a modernizace.'
+    ),
+    'prehled-vzduchovych-tepelnych-cerpadel-daikin' => array(
+      'title' => 'Daikin tepelné čerpadlo recenze 2026: Altherma 4 H | Solar Expert',
+      'description' => 'Daikin Altherma 4 H a 3 R MT v roce 2026: R290 vs. R32, teplota vody, provoz v mrazu, výběr pro radiátory a co hlídat v nabídce.'
     ),
     'tepelne-cerpadlo-nebo-elektrokotel' => array(
       'title' => 'Tepelné čerpadlo vs. elektrokotel: spotřeba a náklady | Solar Expert',
