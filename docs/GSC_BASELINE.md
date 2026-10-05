@@ -85,3 +85,7 @@ Fresh 90-day GSC evidence for `/umisteni-tepelneho-cerpadla-od-hranice-pozemku-s
 
 Fresh 28-day `/castecne-zastineni-a-solarni-panely/`: **8 impressions, average position 5.0, 0 clicks**. Decision: protect ranking; adjust title/meta only, no aggressive body rewrite.
 
+### Cleaning cannibalization cleanup
+
+Fresh GSC shows two competing cleaning URLs: `/cisteni-solarnich-panelu-proc-kdy-jak/` with **27 impressions / avg. position 55.19** over 90 days and `/jak-vycistit-solarni-panely-pruvodce-cistenim-solaru/` with **22 impressions / avg. position 56.23**. Both target `čištění solárních panelů`. Decision: keep the first URL as canonical managed guide, rewrite it comprehensively, and 301 the second URL into it.
+
