@@ -763,3 +763,16 @@ assert(trackerHtml.includes('Jednoosý vs. dvouosý tracker'),'Solar tracker gui
 assert(trackerHtml.includes('/kolik-vyrobi-fotovoltaika-za-rok/'),'Solar tracker guide must route into annual-yield methodology');
 assert(!trackerHtml.includes('Text odpovědi'),'Solar tracker guide must not retain placeholder FAQ content');
 
+const positioningSlug='polohovani-solarnich-panelu';
+const positioningItem=manifest.items.find(x=>x.slug===positioningSlug);
+assert(positioningItem&&positioningItem.preserve_status===true,'Fixed panel positioning guide must remain managed and preserve status');
+assert(positioningItem.file&&fs.existsSync(path.join(__dirname,'..',positioningItem.file)),'Fixed panel positioning rewrite file missing');
+assert(seoCore.includes("'polohovani-solarnich-panelu' => array("),'Fixed panel positioning guide must have dedicated SEO metadata');
+assert(leadCore.includes("'polohovani-solarnich-panelu'"),'Fixed panel positioning guide must participate in bounded E.ON solar funnel');
+const positioningHtml=fs.readFileSync(path.join(__dirname,'..',positioningItem.file),'utf8');
+assert(positioningHtml.includes('východ–západ'),'Positioning guide must compare east-west and south-facing layouts');
+assert(positioningHtml.includes('PVGIS'),'Positioning guide must route orientation decisions through PVGIS');
+assert(positioningHtml.includes('/nataceni-solarnich-panelu-za-sluncem/'),'Positioning guide must separate fixed-positioning and tracker intents');
+assert(positioningHtml.includes('/castecne-zastineni-a-solarni-panely/'),'Positioning guide must account for shading intent');
+assert(!positioningHtml.includes('vysokou latitudou'),'Positioning guide must not retain translated tracker generalizations');
+
