@@ -92,10 +92,13 @@ window.SolarExpertAffiliate = {
     const map = this.map();
     const leads = map.leads || {};
     const mapped = leads[id] || null;
+    const merchantId = id && id.startsWith('eon-') ? 'eon-cz' : null;
+    const generated = merchantId ? this.merchantDeepLink(merchantId, fallback) : null;
     return {
-      href: mapped || fallback || '#',
-      monetized: Boolean(mapped),
-      leadId: id || null
+      href: mapped || generated || fallback || '#',
+      monetized: Boolean(mapped || generated),
+      leadId: id || null,
+      merchantId
     };
   },
 
