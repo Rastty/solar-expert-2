@@ -1,0 +1,16 @@
+name: WordPress Playground Preview
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: WordPress/action-wp-playground-pr-preview@v3
+        with:
+          theme-path: .
+          github-token: ${{ secrets.GITHUB_TOKEN }}
