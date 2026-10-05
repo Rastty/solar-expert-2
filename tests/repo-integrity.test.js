@@ -98,12 +98,12 @@ for(const item of manifest.items){
   }
 }
 
-const managedPageSlugs=new Set(manifest.items.filter(x=>x.type==='page').map(x=>x.slug));
+const managedContentSlugs=new Set(manifest.items.map(x=>x.slug));
 for(const item of manifest.items.filter(x=>x.publish_ready&&x.file)){
   const html=fs.readFileSync(path.join(__dirname,'..',item.file),'utf8');
   const hrefs=[...html.matchAll(/href=["']\/([^"'#?]+)\/?["']/g)].map(m=>m[1].replace(/\/$/,''));
   for(const slug of hrefs){
-    assert(managedPageSlugs.has(slug),'Internal tool link from '+item.slug+' targets unmanaged page: '+slug);
+    assert(managedContentSlugs.has(slug),'Internal tool link from '+item.slug+' targets unmanaged content: '+slug);
   }
 }
 
