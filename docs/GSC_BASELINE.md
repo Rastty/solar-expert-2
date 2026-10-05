@@ -156,3 +156,10 @@ Decision:
 - link it from the roof-sizing and flat-roof mounting guides;
 - do not claim that every installation under 100 kW is permit-free.
 
+### 12V wiring intent refinement
+
+Fresh page-query evidence for `/jak-zapojit-solarni-panely/` includes:
+- `schéma zapojení solárních panelů 12v` — **6 impressions / avg. position 20.83**.
+
+The existing rewrite already covered series, parallel, cold Voc and MPPT start voltage, but did not answer the exact 12V schematic intent. Decision: preserve the page and add a compact 2S/2P conceptual diagram, a 12V battery example and an explicit warning against interpreting the article as direct panel-to-battery wiring guidance.
+
