@@ -391,6 +391,15 @@ function solar_expert_settings_page() {
     $coverage_total = count(array_filter($coverage_rows, function($row){ return ! empty($row['active']); }));
     ?>
     <hr>
+    <h2>Lead-gen coverage</h2>
+    <?php
+      $lead_map = isset($map['leads']) && is_array($map['leads']) ? $map['leads'] : array();
+      $eon_heat_pump_mapped = ! empty($lead_map['eon-heat-pump']);
+    ?>
+    <p><code>eon-heat-pump</code>: <?php echo $eon_heat_pump_mapped ? '<strong style="color:#16733b">AFFILIATE AKTIVNÍ</strong>' : '<span style="color:#8a5b00">veřejný E.ON fallback</span>'; ?></p>
+    <p class="description">Pro monetizaci GSC-prokázané návštěvnosti tepelných čerpadel vložte partnerský link do <code>leads.eon-heat-pump</code>. Bez něj CTA zůstává funkční, ale nemonetizované.</p>
+
+    <hr>
     <h2>Affiliate coverage</h2>
     <p><strong><?php echo esc_html($mapped_count); ?> / <?php echo esc_html($coverage_total); ?></strong> produktových nabídek má affiliate mapování. Nezmapované nabídky bezpečně používají ověřený zdrojový odkaz.</p>
     <table class="widefat striped">
@@ -585,6 +594,52 @@ function solar_expert_meta_description() {
   }
 }
 add_action('wp_head', 'solar_expert_meta_description', 1);
+
+function solar_expert_heat_pump_lead_slugs() {
+  return array(
+    'prumerna-spotreba-tepelneho-cerpadla',
+    'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady',
+    'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu',
+    'recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady',
+    'spotreba-tepelneho-cerpadla-v-kwh',
+    'prehled-vzduchovych-tepelnych-cerpadel-daikin',
+    'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
+    'jak-funguje-tepelne-cerpadlo',
+    'umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda',
+    'tepelne-cerpadlo-nebo-elektrokotel',
+    'tepelna-cerpadla-mitsubishi-vyhody-nevyhody-ceny-vlastnosti',
+    'tepelne-cerpadla-lg-vyhody-nevyhody-ceny'
+  );
+}
+
+function solar_expert_append_heat_pump_lead_cta($content) {
+  if ( is_admin() || ! is_singular('post') || ! in_the_loop() || ! is_main_query() ) {
+    return $content;
+  }
+
+  $post = get_queried_object();
+  $slug = $post && ! empty($post->post_name) ? $post->post_name : '';
+  if ( ! $slug || ! in_array($slug, solar_expert_heat_pump_lead_slugs(), true) ) {
+    return $content;
+  }
+
+  if ( strpos($content, 'data-se-lead-id="eon-heat-pump"') !== false ) {
+    return $content;
+  }
+
+  $fallback = 'https://www.eon.cz/domacnosti/usporne-technologie/tepelne-cerpadlo/';
+  $cta = '<aside class="se-note se-lead-cta">'
+    . '<strong>Řešíte nové tepelné čerpadlo?</strong> '
+    . 'Nechte si připravit nezávaznou nabídku od E.ON a porovnejte ji s dalšími variantami pro svůj dům.'
+    . '<p><a class="se-btn se-btn-primary" href="' . esc_url($fallback) . '" '
+    . 'data-se-lead-id="eon-heat-pump" data-se-placement="heat_pump_legacy_article" '
+    . 'data-se-fallback="' . esc_attr($fallback) . '" rel="nofollow noopener">Nezávazně poptat tepelné čerpadlo →</a></p>'
+    . '<small>Partnerský odkaz může Solar Expertu přinést provizi. Technický obsah článku ani pořadí doporučení tím není ovlivněno.</small>'
+    . '</aside>';
+
+  return $content . $cta;
+}
+add_filter('the_content', 'solar_expert_append_heat_pump_lead_cta', 25);
 
 
 function solar_expert_legacy_redirects() {
