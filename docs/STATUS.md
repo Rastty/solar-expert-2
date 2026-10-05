@@ -131,3 +131,4 @@ Next:
 - Catalog integrity hotfix: on-request ROGERELE REP1500-24 moved to non-recommendation `reference` tier; strict guardrail stays intact and in-stock REP2000-24 remains the active Best Value choice
 - First-party money-funnel measurement: cookie-free theme collector now aggregates tool views/starts, Builder/selector/Quote Checker completions and affiliate/bundle/E.ON lead clicks for 35 days; 7/28-day counts are visible in Solar Expert admin and no free-form user inputs are stored
 - Price evidence refresh: all 32 active priced snapshots now carry current verification evidence (32 fresh / 0 stale / 0 unknown); no technical compatibility ranking was changed
+- Price-evidence guardrail: repository validation now rejects any active priced product/offer that loses its verification date
