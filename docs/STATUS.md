@@ -10,7 +10,7 @@ Git-first development active on `dev`.
 - Compatibility and bundle engine: implemented
 - Battery sizing: nominal target is enforced once; no double 0.85 reduction
 - Quote Checker MVP: implemented
-- Verified public product seed: 23 products
+- Verified public product seed: 24 products
 - Multi-merchant offer layer: active for 5 verified products
 - Merchant-specific affiliate keys: `product-id@merchant-id`
 - Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.29`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.30`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -125,3 +125,4 @@ Next:
 - Solar tracker ranking-safe refresh: top-10 `/nataceni-solarnich-panelu-za-sluncem/` keeps URL/title/meta but replaces placeholder legacy body with single-axis vs dual-axis, backtracking, wind-stow, O&M and economics guidance
 - Fixed panel positioning near-win: `/polohovani-solarnich-panelu/` rebuilt around azimuth, tilt, south vs east-west, shading and PVGIS; tracker intent is separated and the page joins the bounded E.ON solar funnel
 - Photovoltaic topical hub refresh: `/vse-o-solarnich-panelech-a-fotovoltaice/` rebuilt from a stale 2023 mega-article into an intent-preserving hub for panels, sizing, string/MPPT, inverter, battery, roof, maintenance, Builder and Quote Checker; stale universal pricing/payback claims removed
+- Catalog MPPT coverage: added verified in-stock Victron SmartSolar MPPT 250/100-Tr VE.Can (100A, 250V, 24V PV limit 2.9kWp), unlocking year-round 24V Best Value cottage/off-grid bundles that previously failed MPPT coverage

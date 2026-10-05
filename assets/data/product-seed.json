@@ -424,6 +424,47 @@
       "max_pv_isc_a": 50
     },
     {
+      "id": "mppt-victron-250-100",
+      "type": "mppt",
+      "merchant": "solar-import-cz",
+      "sku": "E7786",
+      "tier": "premium",
+      "name": "Victron SmartSolar MPPT 250/100-Tr VE.Can",
+      "battery_voltages": [
+        12,
+        24,
+        48
+      ],
+      "rated_charge_a": 100,
+      "max_pv_voc_v": 250,
+      "max_pv_w_by_voltage": {
+        "12": 1450,
+        "24": 2900,
+        "48": 5800
+      },
+      "price_czk_snapshot": 14294,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-250-100-tr-ve-can--12-24-48v--100a/",
+      "price_czk": 14294,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05",
+      "min_pv_start_v_by_voltage": {
+        "12": 17,
+        "24": 29,
+        "48": 53
+      },
+      "evidence_note": "Solar-Import lists 12/24/48V support, 100A charge current, 250V max PV voltage and 1450/2900/5800Wp PV limits; Victron start requires PV voltage about 5V above battery voltage.",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 14294,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-250-100-tr-ve-can--12-24-48v--100a/",
+          "verified_at": "2026-10-05"
+        }
+      ]
+    },
+    {
       "id": "inverter-victron-24-1200",
       "type": "inverter",
       "merchant": "solar-import-cz",
