@@ -330,3 +330,11 @@ assert(composerJs.includes('batteryBank.quantity === 1'),'Bundle deal must be li
 assert(builderJs.includes('Paralelní bateriový bank'),'Builder checklist must surface parallel-bank verification');
 assert(builderTemplate.includes("b.batteryQuantity||1"),'Builder must render battery quantity');
 assert(builderTemplate.includes('kWh celkem'),'Builder must render total battery-bank energy');
+
+
+const builderLogic=fs.readFileSync(path.join(__dirname,'..','assets','js','builder.js'),'utf8');
+assert(builderLogic.includes('get incompleteBundles()'),'Builder must keep incomplete tiers available for transparency messaging');
+assert(builderTemplate.includes('x-for="b in completeBundles"'),'Builder must render only technically complete bundle tiers');
+assert(builderTemplate.includes('Neúplné cenové úrovně nezobrazujeme'),'Builder must explain why incomplete tiers are hidden');
+assert(!builderTemplate.includes('zatím neúplná varianta'),'Builder must not present incomplete tier cards as user-facing recommendations');
+assert(builderTemplate.includes('Raději nezobrazíme neověřenou kombinaci'),'Zero-result state must prefer no recommendation over weak technical evidence');
