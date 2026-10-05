@@ -574,3 +574,13 @@ const pvtHtml=fs.readFileSync(path.join(__dirname,'..',pvtItem.file),'utf8');
 assert(!pvtHtml.includes('Renewable Heat Incentive'),'PVT guide must not contain obsolete UK incentive guidance');
 assert(!pvtHtml.includes('85 %'),'PVT guide must not keep unsupported legacy combined-efficiency marketing claims');
 
+const winterPvSlug='vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih';
+const winterPvItem=manifest.items.find(x=>x.slug===winterPvSlug);
+assert(winterPvItem&&winterPvItem.preserve_status===true,'Winter PV canonical guide must remain managed and preserve status');
+assert(winterPvItem.file&&fs.existsSync(path.join(__dirname,'..',winterPvItem.file)),'Winter PV rewrite file missing');
+assert(seoCore.includes("'"+winterPvSlug+"' => array("),'Winter PV guide must have dedicated SEO metadata');
+assert(seoCore.includes("'co-dela-fotovoltaika-kdyz-je-zima' => 'vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih'"),'Duplicate winter PV URL must redirect to the canonical winter guide');
+const winterPvHtml=fs.readFileSync(path.join(__dirname,'..',winterPvItem.file),'utf8');
+assert(!winterPvHtml.includes('vlažnou vodou'),'Winter PV guide must not recommend legacy risky de-icing advice');
+assert(!winterPvHtml.includes('zahradního fukaru'),'Winter PV guide must not keep legacy ad-hoc snow-removal advice');
+
