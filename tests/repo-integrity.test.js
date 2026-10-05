@@ -262,3 +262,14 @@ assert(samsungHtml.includes('data-se-lead-id="eon-heat-pump"'),'Samsung review m
 assert(!samsungHtml.includes('Renewable Heat Incentive'),'Samsung review must not contain obsolete UK RHI advice');
 assert(!samsungHtml.includes('90 000 do 300 000'),'Samsung review must not keep stale undated price range');
 assert(samsungHtml.includes('nejde o placenou recenzi Samsungu'),'Samsung review must disclose methodology and independence');
+
+
+assert(seoCore.includes("function solar_expert_schema_graph()"),'Structured data graph must be registered');
+assert(seoCore.includes("'@type' => 'WebApplication'"),'Structured data must describe published decision tools');
+assert(seoCore.includes("'@type' => 'Article'"),'Structured data must describe legacy editorial posts');
+assert(seoCore.includes("'@type' => 'BreadcrumbList'"),'Structured data must include breadcrumb context');
+assert(seoCore.includes("defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION')"),'Structured data must stand down when a major SEO plugin owns schema');
+for(const slug of ['solarni-sestava-na-chatu','vyber-baterii','mppt-kalkulacka','vyber-menice','quote-checker']){
+  assert(seoCore.includes("'"+slug+"'"),'Structured data allowlist must include decision tool: '+slug);
+}
+assert(seoCore.includes("'proc-se-solarni-panely-neprehrivaji' => array("),'Fresh top-10 overheating page should get CTR-focused metadata without body rewrite');
