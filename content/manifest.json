@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "4.0.0",
+  "schemaVersion": "4.1.0",
   "items": [
     {
       "type": "page",
@@ -398,6 +398,14 @@
       "title": "Natáčení solárních panelů za sluncem: kdy se tracker vyplatí",
       "preserve_status": true,
       "file": "content/rewrites/nataceni-solarnich-panelu-za-sluncem.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "polohovani-solarnich-panelu",
+      "title": "Polohování solárních panelů: směr, sklon a východ–západ",
+      "preserve_status": true,
+      "file": "content/rewrites/polohovani-solarnich-panelu.html",
       "create_if_missing": false
     }
   ]
