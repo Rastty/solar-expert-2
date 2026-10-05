@@ -281,6 +281,14 @@ const larger12Batteries=M.rank(catalog.products.filter(p=>p.type==='battery'),ba
 assert(larger12Batteries.some(x=>x.product.id==='battery-goowei-12-200'),'12V 2kWh scenario should find verified GOOWEI 200Ah battery');
 assert(!larger12Batteries.some(x=>x.product.id==='battery-goowei-12-100'),'12V 100Ah battery must not pass a 2kWh nominal target');
 
+const rep1500Freshness=catalog.products.find(p=>p.id==='inverter-rogerele-rep1500-24');
+const rep2000Freshness=catalog.products.find(p=>p.id==='inverter-rogerele-rep2000-24');
+assert(rep1500Freshness&&rep1500Freshness.availability==='on_request','REP1500-24 must stay excluded while availability is on_request');
+assert(M.availabilityRank(rep1500Freshness)===0,'On-request REP1500-24 must not unlock a complete bundle');
+assert(rep2000Freshness&&rep2000Freshness.availability==='in_stock','REP2000-24 must stay verified in stock');
+assert(rep2000Freshness.tier==='best','REP2000-24 must be the Best Value 24V inverter while REP1500 is unavailable');
+assert(M.effectivePrice(rep2000Freshness)===4990,'REP2000-24 must use the cheapest fresh in-stock merchant offer');
+
 const kosun48Sizing={voltage:48,inverterW:2500,peak:5000};
 const kosun48Matches=M.rank(catalog.products.filter(p=>p.type==='inverter'||p.type==='inverter_hybrid'),kosun48Sizing);
 assert(kosun48Matches.some(x=>x.product.id==='inverter-kosun-48-3000'),'48V selector should include verified KOSUN 3000W budget inverter');
@@ -306,7 +314,7 @@ assert(builder.result.inverterW>=builder.result.runningWatts, 'Continuous invert
 assert(builder.result.peak>builder.result.inverterW, 'Cottage pump scenario should keep surge separate from continuous inverter sizing');
 const cottageBest = builder.bundles.find(b=>b.tier==='best');
 assert(cottageBest && cottageBest.complete, 'Default cottage scenario should produce a complete Best Value bundle');
-assert(cottageBest.inverter.id==='inverter-rogerele-rep1500-24', 'Default cottage should select the verified 24V 1500W inverter');
+assert(cottageBest.inverter.id==='inverter-rogerele-rep2000-24', 'Default cottage should select the verified in-stock 24V 2000W inverter');
 assert(cottageBest.inverter.peak_w>=builder.result.peak, 'Selected inverter must cover estimated surge');
 const cottageComparison=builder.comparisonFor(cottageBest);
 assert(cottageComparison&&cottageComparison.batteryKwh>=builder.result.batteryKwh,'Comparison must expose battery capacity that meets sizing target');
