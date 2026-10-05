@@ -662,7 +662,7 @@
       "type": "inverter",
       "merchant": "battery-cz",
       "sku": "E7934",
-      "tier": "best",
+      "tier": "reference",
       "name": "ROGERELE REP1500-24 24V 1500W",
       "dc_voltage": 24,
       "continuous_w": 1500,
