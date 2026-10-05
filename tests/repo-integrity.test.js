@@ -364,3 +364,16 @@ assert(annualHtml.includes('specifický výnos'),'Annual FVE output guide must e
 assert(!annualHtml.includes('1 200 – 1 500'),'Annual FVE output guide must not keep the stale universal Czech production range');
 assert(annualHtml.includes('/solarni-sestava-na-chatu/'),'Annual FVE output guide must route users into Builder');
 assert(seoCore.includes("'kompletni-pruvodce-velikosti-solarnich-panelu' => 'velikost-rozmery-a-hmotnost-solarnich-panelu'"),'Duplicate size guide must 301 to the stronger managed dimensions guide');
+
+
+const hpVsBoilerSlug='tepelne-cerpadlo-nebo-elektrokotel';
+const hpVsBoilerItem=manifest.items.find(x=>x.slug===hpVsBoilerSlug);
+assert(hpVsBoilerItem&&hpVsBoilerItem.preserve_status===true,'Heat-pump vs electric-boiler near-win must remain managed');
+assert(hpVsBoilerItem.file&&fs.existsSync(path.join(__dirname,'..',hpVsBoilerItem.file)),'Heat-pump vs electric-boiler rewrite file missing');
+assert(seoCore.includes("'"+hpVsBoilerSlug+"' => array("),'Heat-pump vs electric-boiler guide must have dedicated SEO metadata');
+const hpVsBoilerHtml=fs.readFileSync(path.join(__dirname,'..',hpVsBoilerItem.file),'utf8');
+assert(hpVsBoilerHtml.includes('12 000 kWh'),'Heating comparison should include a transparent worked energy example');
+assert(hpVsBoilerHtml.includes('data-se-lead-id="eon-heat-pump"'),'Heating comparison must expose bounded E.ON comparison lead CTA');
+assert(hpVsBoilerHtml.includes('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/'),'Heating comparison must link into the combined FVE + heat-pump decision page');
+assert(!hpVsBoilerHtml.includes('třikrát levnější v provozních nákladech'),'Heating comparison must not keep the old universal 3x-cheaper claim');
+assert(!hpVsBoilerHtml.includes('v zimě záložní zdroj tepla'),'Heating comparison must not claim every heat pump always requires backup heating');
