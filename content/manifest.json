@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1.0.0",
+  "items": [
+    {
+      "type": "page",
+      "slug": "solarni-sestava-na-chatu",
+      "title": "Solární sestava na chatu: spočítejte panely, baterii, měnič a MPPT",
+      "status_if_new": "draft",
+      "file": "content/pages/solarni-sestava-na-chatu.html",
+      "create_if_missing": true
+    },
+    {
+      "type": "page",
+      "slug": "vyber-baterii",
+      "title": "Jak vybrat LiFePO4 baterii pro ostrovní systém",
+      "status_if_new": "draft",
+      "file": "content/pages/vyber-baterii.html",
+      "create_if_missing": true
+    },
+    {
+      "type": "page",
+      "slug": "mppt-kalkulacka",
+      "title": "MPPT kalkulačka a výběr regulátoru",
+      "status_if_new": "draft",
+      "file": "content/pages/mppt-kalkulacka.html",
+      "create_if_missing": true
+    },
+    {
+      "type": "page",
+      "slug": "vyber-menice",
+      "title": "Jak vybrat měnič pro ostrovní systém",
+      "status_if_new": "draft",
+      "file": "content/pages/vyber-menice.html",
+      "create_if_missing": true
+    },
+    {
+      "type": "post",
+      "slug": "fotovoltaika-vykon-na-m2",
+      "title": "Výkon fotovoltaiky na m²: kolik elektřiny opravdu získáte",
+      "preserve_status": true,
+      "file": "content/rewrites/fotovoltaika-vykon-na-m2.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "jak-zapojit-solarni-panely",
+      "title": "Jak zapojit solární panely: série, paralelně a co hlídat u MPPT",
+      "preserve_status": true,
+      "file": "content/rewrites/jak-zapojit-solarni-panely.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "co-je-1-kwp",
+      "title": "Co je 1 kWp a kolik elektřiny může vyrobit",
+      "preserve_status": true,
+      "file": "content/rewrites/co-je-1-kwp.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "fve-panely-na-strechu",
+      "title": "Fotovoltaické panely na střechu: jak navrhnout správný výkon",
+      "preserve_status": true,
+      "file": "content/rewrites/fve-panely-na-strechu.html",
+      "create_if_missing": false
+    }
+  ]
+}

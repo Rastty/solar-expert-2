@@ -11,11 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: PHP syntax
-        run: |
-          find . -name '*.php' -not -path './theme/*' -not -path './plugin/*' -print0 | xargs -0 -n1 php -l
+        run: find . -name '*.php' -not -path './theme/*' -not -path './plugin/*' -print0 | xargs -0 -n1 php -l
       - name: JavaScript syntax
-        run: |
-          find assets/js -name '*.js' -print0 | xargs -0 -n1 node --check
+        run: find assets/js tests -name '*.js' -print0 | xargs -0 -n1 node --check
       - name: JSON validity
-        run: |
-          find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
+        run: find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
+      - name: Engine tests
+        run: node tests/engine.test.js
