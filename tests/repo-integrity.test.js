@@ -201,3 +201,15 @@ assert(affiliateAdapter.includes("trackLead(id, placement, fallback)"),'Affiliat
 assert(affiliateAdapter.includes("event:'lead_click'"),'Lead-gen clicks must emit a dedicated dataLayer event');
 const functionsPhp=fs.readFileSync(path.join(__dirname,'..','functions.php'),'utf8');
 assert(functionsPhp.includes("'solar-expert-leads'"),'Lead runtime must be enqueued sitewide');
+
+
+const comboSlug='kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem';
+const comboItem=manifest.items.find(x=>x.slug===comboSlug);
+assert(comboItem&&comboItem.preserve_status===true,'Combined FVE + heat-pump near-win must remain managed and preserve status');
+assert(comboItem.file&&fs.existsSync(path.join(__dirname,'..',comboItem.file)),'Combined FVE + heat-pump rewrite file missing');
+assert(seoCore.includes("'"+comboSlug+"' => array("),'Combined FVE + heat-pump near-win must have dedicated SEO metadata');
+const comboHtml=fs.readFileSync(path.join(__dirname,'..',comboItem.file),'utf8');
+assert(comboHtml.includes('data-se-lead-id="eon-heat-pump"'),'Combined FVE + heat-pump page must expose E.ON lead CTA');
+assert(comboHtml.includes('/quote-checker/'),'Combined FVE + heat-pump page must route into Quote Checker');
+assert(comboHtml.includes('/solarni-sestava-na-chatu/'),'Combined FVE + heat-pump page must route into Builder');
+assert(comboHtml.includes('ověřeno říjen 2026'),'Time-sensitive price benchmark must be explicitly date-stamped');
