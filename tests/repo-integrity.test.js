@@ -287,3 +287,9 @@ const singlePhp=fs.readFileSync(path.join(__dirname,'..','single.php'),'utf8');
 assert(singlePhp.includes("Aktualizováno"),'Single posts must expose visible freshness');
 assert(singlePhp.includes("get_the_modified_date"),'Single posts must use WordPress modified date');
 assert(singlePhp.includes("solar_expert_public_url('solarni-sestava-na-chatu'"),'Single post CTA must route to the dedicated Builder page when published');
+
+
+const selectorsJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
+assert(selectorsJs.includes("event:'selector_engaged'"),'Selectors must emit a one-shot engagement event');
+assert(selectorsJs.includes("engagementTracked"),'Selector analytics must suppress repeated engagement events');
+assert(selectorsJs.includes("this.run(false)"),'Selector initialization must not count as user engagement');
