@@ -101,3 +101,14 @@ Fresh near-win data: `/proc-se-solarni-panely-neprehrivaji/` has **14 impression
 
 Fresh 90-day GSC near-win: `/category/baterie/` has **10 impressions at average position 18.5**. Decision: preserve the indexed category URL, replace the generic archive presentation with a battery decision hub, route users into Battery Selector, keep the article archive below it, add dedicated title/meta and CollectionPage schema, and strengthen discovery with a sitewide footer link.
 
+### Annual-output near-win and size-guide cannibalization
+
+Fresh query-level GSC evidence:
+- `/kolik-vyrobi-fotovoltaika-za-rok/` receives `kolik vyrobí fotovoltaika za rok` at **6 impressions / avg. position 15.17**; the same query also leaks to the hourly-output URL at **5 impressions / avg. position 18.0**.
+- `fotovoltaické panely-rozměry` is split between `/velikost-rozmery-a-hmotnost-solarnich-panelu/` (**6 impressions / avg. position 20.0**) and `/kompletni-pruvodce-velikosti-solarnich-panelu/` (**5 impressions / avg. position 20.8**).
+
+Decision:
+- preserve and rewrite the dedicated annual-output URL around kWp × locality-specific yield from PVGIS;
+- cross-link hourly ↔ annual output so the intents are explicit;
+- consolidate the stale duplicate size guide with a 301 into the stronger managed dimensions/weight page.
+
