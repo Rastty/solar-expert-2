@@ -17,6 +17,30 @@ window.solarExpertBuilder=function(){return{
   get estimatedPeak(){if(!this.selectedAppliances.length)return 0;const b=this.runningWatts;return Math.round(Math.max(b,...this.selectedAppliances.map(a=>b-a.watts*a.qty+a.surge*a.qty)));},
   toggle(id){const a=this.appliances.find(x=>x.id===id);if(a)a.selected=!a.selected;},
   preset(type){this.appliances.forEach(a=>a.selected=false);const ids=type==='chata'?['fridge','lights','laptop','router','pump']:type==='offgrid'?['fridge','lights','laptop','router','tv','pump']:['fridge','lights','router','pump'];ids.forEach(id=>{const a=this.appliances.find(x=>x.id===id);if(a)a.selected=true;});this.scenario=type;this.step=2;},
-  calc(){if(!this.selectedAppliances.length)return;const energyWh=this.dailyWh,psh=this.season==='summer'?4.2:(this.season==='three'?2.8:1.6),panelWp=Math.ceil((energyWh/(psh*.76))/50)*50,peak=Math.max(Number(this.manualPeak)||0,this.estimatedPeak),voltage=peak<=900?12:(peak<=2200?24:48),batteryKwh=Math.ceil((((energyWh*this.autonomy)/.85)/1000)*10)/10,inverterW=Math.ceil((peak*1.25)/100)*100,mpptA=Math.max(10,Math.ceil(((panelWp/voltage)*1.25)/5)*5);this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,peak,panelWp,voltage,batteryKwh,inverterW,mpptA,psh};this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result);this.step=4;},
-  reset(){this.step=1;this.result=null;this.bundles=[];this.appliances.forEach(a=>a.selected=false);}
+  chooseSystemVoltage(inverterW,peak){
+    if(inverterW<=1000 && peak<=2000) return 12;
+    if(inverterW<=2500 && peak<=4000) return 24;
+    return 48;
+  },
+  calc(){
+    if(!this.selectedAppliances.length)return;
+    const energyWh=this.dailyWh;
+    const runningWatts=this.runningWatts;
+    const psh=this.season==='summer'?4.2:(this.season==='three'?2.8:1.6);
+    const panelWp=Math.ceil((energyWh/(psh*.76))/50)*50;
+    const peak=Math.max(Number(this.manualPeak)||0,this.estimatedPeak);
+    const inverterW=Math.max(300,Math.ceil((runningWatts*1.2)/100)*100);
+    const voltage=this.chooseSystemVoltage(inverterW,peak);
+    const batteryKwh=Math.ceil((((energyWh*this.autonomy)/.85)/1000)*10)/10;
+    const mpptA=Math.max(10,Math.ceil(((panelWp/voltage)*1.25)/5)*5);
+    const riskFlags=[];
+    if(this.season==='year')riskFlags.push('Celoroční ostrovní provoz vyžaduje lokalitní PV výpočet a obvykle větší zimní rezervu.');
+    if(peak>inverterW*1.8)riskFlags.push('Výrazná rozběhová špička: ověřte surge dobu konkrétního měniče a spotřebiče.');
+    if(this.selectedAppliances.some(a=>a.id==='pump'))riskFlags.push('U čerpadla ověřte skutečný rozběhový proud podle konkrétního modelu.');
+    this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,batteryKwh,inverterW,mpptA,psh,riskFlags};
+    this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result);
+    this.step=4;
+    if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'solar_builder_complete',scenario:this.scenario,voltage,panelWp,batteryKwh,inverterW,peak});
+  },
+  reset(){this.step=1;this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}
 };};
