@@ -120,3 +120,13 @@ Fresh query-level evidence for `/tepelne-cerpadlo-nebo-elektrokotel/`:
 
 The legacy article contained stale universal claims about 3× lower operating cost, backup heating and permitting/dotations. Decision: preserve the indexed URL, replace it with a decision guide based on annual heat demand and seasonal performance, explicitly cover FVE + electric boiler vs FVE + heat pump, and retain bounded E.ON lead monetization.
 
+### Best heat-pumps query near-win
+
+Fresh query-level evidence for `/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/`:
+- `nejlepší tepelná čerpadla` — **10 impressions / avg. position 23.7**;
+- `nejlepší tepelné čerpadlo vzduch - voda` — **5 impressions / avg. position 17.0**;
+- `nejlepší tepelná čerpadla vzduch/voda` — **5 impressions / avg. position 21.6**;
+- `nejspolehlivější tepelná čerpadla` — **4 impressions / avg. position 7.5**.
+
+The legacy page was a 2023 UK-oriented Top-10 with stale model families and unsupported ranking logic. Decision: preserve the URL but replace the body with a methodology-first 2026 shortlist by use-case, using current official manufacturer families and explicitly refusing a fake reliability ranking without comparable long-term service data.
+
