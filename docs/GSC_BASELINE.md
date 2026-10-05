@@ -200,3 +200,15 @@ Decision:
 - rebuild it around winter irradiation, module temperature, PVGIS monthly output, snow cover, tilt and safe snow-removal guidance;
 - 301 the weaker duplicate `co-dela-fotovoltaika-kdyz-je-zima` URL into the canonical guide.
 
+### Panel review and real-world performance cleanup
+
+Fresh raw 90-day GSC page-query evidence from the 2026-10-05 Prometheus artifact:
+- `/recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii/`: commercial review intent including `fotovoltaické panely recenze`, `solární panely zkušenosti` and `solární panely recenze`.
+- The live page was copied Australian-review content with foreign personas/scripts and did not represent Solar Expert's own methodology.
+- `/realny-vykon-solarnich-panelu/`: 28 disclosed query impressions, including `reálný výkon solárních panelů` at avg. position 4 and `realny vykon fotovoltaiky` at avg. position 19.
+
+Decision:
+- consolidate the legacy review URL via 301 into the existing managed `/jak-vybrat-solarni-panely-pro-vas-domov/` buyer guide;
+- expand the buyer guide with warranty, IEC 61215/61730, degradation, mechanical-load and 2026 Kiwa PVEL reliability criteria;
+- keep `/realny-vykon-solarnich-panelu/` as a separate intent owner and rebuild it around STC, irradiance, cell temperature, MPPT, clipping and BOS losses.
+
