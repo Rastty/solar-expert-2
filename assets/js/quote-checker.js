@@ -1,7 +1,17 @@
 window.solarExpertQuoteChecker=function(){return{
-  dailyKwh:2.5,season:'three',autonomy:1,loadW:1200,surgeNeedW:2200,panelWp:1200,batteryKwh:3,inverterW:1500,inverterPeakW:3000,systemVoltage:24,quotePrice:null,
-  result:null,checks:[],
+  dailyKwh:2.5,season:'three',autonomy:1,loadW:1200,surgeNeedW:2200,panelWp:1200,batteryKwh:3,batteryBmsA:null,inverterW:1500,inverterPeakW:3000,systemVoltage:24,quotePrice:null,
+  result:null,checks:[],inputError:'',
+  get inputValid(){
+    const vals=[this.dailyKwh,this.loadW,this.surgeNeedW,this.panelWp,this.batteryKwh,this.inverterW,this.inverterPeakW,this.systemVoltage];
+    return vals.every(v=>Number(v)>=0)&&Number(this.dailyKwh)>0&&Number(this.systemVoltage)>0&&Number(this.inverterPeakW)>=Number(this.inverterW);
+  },
   evaluate(){
+    this.inputError='';
+    if(!this.inputValid){
+      this.result=null;this.checks=[];
+      this.inputError='Zkontrolujte vstupy: denní spotřeba musí být kladná a špičkový výkon měniče nesmí být nižší než jeho trvalý výkon.';
+      return;
+    }
     const daily=Math.max(0,Number(this.dailyKwh)||0);
     const autonomy=Math.max(.25,Number(this.autonomy)||1);
     const psh=this.season==='summer'?4.2:(this.season==='year'?1.6:2.8);
@@ -41,12 +51,20 @@ window.solarExpertQuoteChecker=function(){return{
     if(voltage<recommendedVoltage) push('voltage','Systémové napětí','warn','Pro tento výkon bychom prověřili spíš '+recommendedVoltage+' V kvůli proudům a ztrátám.');
     else push('voltage','Systémové napětí','pass','Systémové napětí odpovídá orientační výkonové třídě.');
 
+    const bmsA=Math.max(0,Number(this.batteryBmsA)||0);
+    const bareMinA=voltage>0?inverter/voltage:0;
+    const recommendedBmsA=voltage>0?Math.ceil((inverter/voltage)/.9):0;
+    if(bmsA>0 && bmsA<bareMinA) push('bms','Baterie / BMS proud','fail','Zadaný BMS proud '+bmsA+' A je nižší než samotný orientační DC proud měniče '+Math.ceil(bareMinA)+' A. Ověřte baterii, BMS a kabeláž.');
+    else if(bmsA>0 && bmsA<recommendedBmsA) push('bms','Baterie / BMS proud','warn','BMS proud je blízko minimálnímu požadavku. Pro ztráty a rezervu bychom prověřili alespoň přibližně '+recommendedBmsA+' A trvale.');
+    else if(bmsA>0) push('bms','Baterie / BMS proud','pass','Deklarovaný trvalý BMS proud pokrývá orientační DC požadavek měniče.');
+    else push('bms','Baterie / BMS proud','info','BMS proud nebyl zadán. Ověřte, že bateriový bank zvládne alespoň přibližně '+recommendedBmsA+' A trvale při '+voltage+' V.');
+
     if(Number(this.quotePrice)>0) push('price','Cena','info','Cena '+Number(this.quotePrice).toLocaleString('cs-CZ')+' Kč je zaznamenána, ale bez aktuálního benchmark koše ji zatím nehodnotíme.');
 
     const status=checks.some(c=>c.status==='fail')?'fail':(checks.some(c=>c.status==='warn')?'warn':'pass');
     this.checks=checks;
-    this.result={status,recommendedPanelWp,recommendedBatteryKwh,recommendedInverterW,recommendedVoltage};
+    this.result={status,recommendedPanelWp,recommendedBatteryKwh,recommendedInverterW,recommendedVoltage,recommendedBmsA};
     if(Array.isArray(window.dataLayer)) window.dataLayer.push({event:'quote_checker_complete',status,recommendedPanelWp,recommendedBatteryKwh,recommendedInverterW,recommendedVoltage});
   },
-  reset(){this.result=null;this.checks=[];}
+  reset(){this.result=null;this.checks=[];this.inputError='';}
 };};
