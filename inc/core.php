@@ -658,6 +658,10 @@ function solar_expert_seo_meta() {
       'title' => 'Tepelné čerpadlo vs. elektrokotel: spotřeba a náklady | Solar Expert',
       'description' => 'Tepelné čerpadlo nebo elektrokotel? Porovnání investice, roční spotřeby, radiátorů, podlahovky a kombinace s fotovoltaikou.'
     ),
+    'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu' => array(
+      'title' => 'Nejlepší tepelná čerpadla 2026: podle použití, ne Top 10 | Solar Expert',
+      'description' => 'Jak vybrat nejlepší tepelné čerpadlo vzduch–voda 2026. Současné R290 řady, hlučnost, radiátory, SCOP, servis a spolehlivost.'
+    ),
     'proc-se-solarni-panely-neprehrivaji' => array(
       'title' => 'Přehřívání solárních panelů: teplota, výkon a chlazení | Solar Expert',
       'description' => 'Jak vysoká teplota ovlivňuje výkon fotovoltaických panelů, proč se panely běžně nepoškodí přehřátím a kdy řešit chlazení.'
