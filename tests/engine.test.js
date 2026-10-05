@@ -1,6 +1,7 @@
 global.window = {};
 require('../assets/js/product-matcher.js');
 require('../assets/js/bundle-composer.js');
+require('../assets/js/builder.js');
 
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
@@ -81,5 +82,17 @@ const kosunSizing = {
 const kosunBundles = B.compose(catalog.products, kosunSizing);
 const budget12 = kosunBundles.find(b=>b.tier==='budget');
 assert(!budget12.complete, '12V KOSUN bundle must stay incomplete until explicit PV power evidence is available');
+
+const builder = global.window.solarExpertBuilder();
+builder.catalog = catalog.products;
+builder.preset('chata');
+builder.calc();
+assert(builder.result.voltage===24, 'Default cottage preset should use 24V, not jump to 48V only because of short pump surge');
+assert(builder.result.inverterW>=builder.result.runningWatts, 'Continuous inverter target must cover running load');
+assert(builder.result.peak>builder.result.inverterW, 'Cottage pump scenario should keep surge separate from continuous inverter sizing');
+const cottageBest = builder.bundles.find(b=>b.tier==='best');
+assert(cottageBest && cottageBest.complete, 'Default cottage scenario should produce a complete Best Value bundle');
+assert(cottageBest.inverter.id==='inverter-rogerele-rep1500-24', 'Default cottage should select the verified 24V 1500W inverter');
+assert(cottageBest.inverter.peak_w>=builder.result.peak, 'Selected inverter must cover estimated surge');
 
 console.log('Solar Expert engine tests passed');
