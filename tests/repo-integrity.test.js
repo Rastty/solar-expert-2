@@ -273,3 +273,11 @@ for(const slug of ['solarni-sestava-na-chatu','vyber-baterii','mppt-kalkulacka',
   assert(seoCore.includes("'"+slug+"'"),'Structured data allowlist must include decision tool: '+slug);
 }
 assert(seoCore.includes("'proc-se-solarni-panely-neprehrivaji' => array("),'Fresh top-10 overheating page should get CTR-focused metadata without body rewrite');
+
+
+const categoryPhp=fs.readFileSync(path.join(__dirname,'..','category.php'),'utf8');
+assert(categoryPhp.includes("is_category('baterie')"),'Battery category must be a dedicated decision hub');
+assert(categoryPhp.includes("solar_expert_public_url('vyber-baterii')"),'Battery category hub must route users into Battery Selector');
+assert(seoCore.includes("is_category('baterie')"),'Battery category must have dedicated SEO metadata');
+assert(seoCore.includes("'@type' => 'CollectionPage'"),'Category archives must expose CollectionPage structured data');
+assert(footerPhp.includes("/category/baterie/"),'Battery knowledge hub must receive a sitewide internal link');
