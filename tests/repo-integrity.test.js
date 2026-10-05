@@ -628,3 +628,14 @@ assert(monoPolyHtml.includes('TOPCon'),'Mono-vs-poly guide must reflect current 
 assert(monoPolyHtml.includes('/jak-vybrat-solarni-panely-pro-vas-domov/'),'Mono-vs-poly guide must route into the owned panel buyer guide');
 assert(seoCore.includes("'jak-funguji-solarni-panely-na-plochych-strechach' => 'kotveni-fotovoltaickych-panelu-na-ploche-strese'"),'Residual flat-roof guide must redirect to canonical mounting guide');
 
+const builderJs=fs.readFileSync(path.join(__dirname,'..','assets','js','builder.js'),'utf8');
+const builderTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
+assert(builderJs.includes('catalogLoading:true'),'Builder must expose an explicit catalog loading state');
+assert(builderJs.includes('catalogError:false'),'Builder must expose an explicit catalog error state');
+assert(builderJs.includes("if(!r.ok)throw new Error('catalog_http_'"),'Builder must reject failed catalog HTTP responses');
+assert(builderJs.includes('if(this.result)this.bundles=window.SolarExpertBundleComposer.compose'),'Late catalog load must refresh an already calculated Builder result');
+assert(builderTpl.includes('x-show="catalogLoading"'),'Builder template must display catalog loading feedback');
+assert(builderTpl.includes('x-show="catalogError"'),'Builder template must display catalog error feedback');
+assert(seoCore.includes("add_filter('wpseo_metadesc', 'solar_expert_wpseo_metadesc', 20)"),'Solar Expert metadata must pass through Yoast');
+assert(seoCore.includes("add_filter('wpseo_title', 'solar_expert_wpseo_title', 20)"),'Solar Expert titles must pass through Yoast');
+
