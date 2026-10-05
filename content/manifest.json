@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "3.7.0",
+  "schemaVersion": "3.8.0",
   "items": [
     {
       "type": "page",
@@ -374,6 +374,14 @@
       "title": "Návratnost fotovoltaiky v bytovém domě: sdílení, EDC a ekonomika 2026",
       "preserve_status": true,
       "file": "content/rewrites/navratnost-fotovoltaicke-elektrarny-v-bytovem-dome.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "proc-se-solarni-panely-neprehrivaji",
+      "title": "Proč se solární panely přehřívají: teplota, výkon a chlazení",
+      "preserve_status": true,
+      "file": "content/rewrites/proc-se-solarni-panely-neprehrivaji.html",
       "create_if_missing": false
     }
   ]
