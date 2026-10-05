@@ -604,3 +604,17 @@ assert(panelBuyerHtml.includes('Kiwa PVEL'),'Panel buyer guide must retain indep
 assert(panelBuyerHtml.includes('IEC 61215'),'Panel buyer guide must retain module qualification guidance');
 assert(panelBuyerHtml.includes('IEC 61730'),'Panel buyer guide must retain safety qualification guidance');
 
+const hpTempSlug='minimalni-a-maximalni-teploty-tepelneho-cerpadla';
+const hpTempItem=manifest.items.find(x=>x.slug===hpTempSlug);
+assert(hpTempItem&&hpTempItem.preserve_status===true,'Heat-pump temperature-limit guide must remain managed and preserve status');
+assert(hpTempItem.file&&fs.existsSync(path.join(__dirname,'..',hpTempItem.file)),'Heat-pump temperature-limit rewrite file missing');
+assert(seoCore.includes("'"+hpTempSlug+"' => array("),'Heat-pump temperature-limit guide must have dedicated SEO metadata');
+assert(leadCore.includes("'minimalni-a-maximalni-teploty-tepelneho-cerpadla'"),'Heat-pump temperature-limit guide must participate in E.ON heat-pump funnel');
+
+const metalRoofSlug='kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely';
+const metalRoofItem=manifest.items.find(x=>x.slug===metalRoofSlug);
+assert(metalRoofItem&&metalRoofItem.preserve_status===true,'Metal-roof PV guide must remain managed and preserve status');
+assert(metalRoofItem.file&&fs.existsSync(path.join(__dirname,'..',metalRoofItem.file)),'Metal-roof PV rewrite file missing');
+assert(seoCore.includes("'"+metalRoofSlug+"' => array("),'Metal-roof PV guide must have dedicated SEO metadata');
+assert(leadCore.includes("'kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely'"),'Metal-roof PV guide must participate in E.ON solar funnel');
+
