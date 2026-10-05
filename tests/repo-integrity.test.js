@@ -112,3 +112,8 @@ const corePhp=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8')
 assert(corePhp.includes("get_option('solar_expert_affiliate_bases'"),'Health/settings core must load affiliate bases');
 assert(corePhp.includes("'affiliate_merchant_bases' => count($bases)"),'Health payload must expose affiliate merchant base count');
 assert(corePhp.includes("register_setting('solar_expert_settings','solar_expert_affiliate_bases'"),'Affiliate bases must be registered as a WordPress setting');
+
+
+const solarCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
+assert(solarCore.includes("add_theme_page('Solar Expert','Solar Expert','edit_theme_options'"),'Solar Expert settings must use theme-management capability');
+assert(solarCore.includes("option_page_capability_solar_expert_settings"),'Settings submission must use matching capability override');
