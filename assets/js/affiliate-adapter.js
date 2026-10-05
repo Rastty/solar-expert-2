@@ -98,6 +98,8 @@ window.SolarExpertAffiliate = {
       merchantId: deal.merchant || null,
       price_czk: Number(deal.price_czk || 0) || null,
       savings_czk: Number(deal.savings_czk || 0) || null,
+      bank_savings_czk: Number(deal.bankSavingsCzk || deal.savings_czk || 0) || null,
+      extra_battery_units: Number(deal.extraBatteryUnits || 0),
       raw: deal
     };
   },
@@ -111,7 +113,9 @@ window.SolarExpertAffiliate = {
       monetized: resolved.monetized,
       hrefType: resolved.monetized ? 'affiliate' : 'source',
       priceCzk: resolved.price_czk,
-      savingsCzk: resolved.savings_czk
+      savingsCzk: resolved.savings_czk,
+      bankSavingsCzk: resolved.bank_savings_czk,
+      extraBatteryUnits: resolved.extra_battery_units
     };
     if (Array.isArray(window.dataLayer)) {
       window.dataLayer.push({event:'bundle_deal_click', ...detail});
