@@ -249,3 +249,16 @@ assert('jak-vycistit-solarni-panely-pruvodce-cistenim-solaru'!==cleaningSlug,'Cl
 assert(leadCore.includes("home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/')"),'Heat-pump legacy CTA must route through owned combined-system page before outbound lead');
 assert(affiliateAdapter.includes("id && id.startsWith('eon-') ? 'eon-cz' : null"),'E.ON lead ids must resolve through the shared eon-cz merchant base');
 assert(leadCore.includes("! empty($bases['eon-cz'])"),'WordPress lead diagnostics must recognize one shared E.ON merchant base');
+
+
+const samsungSlug='recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady';
+const samsungItem=manifest.items.find(x=>x.slug===samsungSlug);
+assert(samsungItem&&samsungItem.preserve_status===true,'Samsung review near-win must remain managed and preserve status');
+assert(samsungItem.file&&fs.existsSync(path.join(__dirname,'..',samsungItem.file)),'Samsung review rewrite file missing');
+assert(seoCore.includes("'"+samsungSlug+"' => array("),'Samsung review near-win must have dedicated SEO metadata');
+const samsungHtml=fs.readFileSync(path.join(__dirname,'..',samsungItem.file),'utf8');
+assert(samsungHtml.includes('EHS R290'),'Samsung review must cover current R290 platform');
+assert(samsungHtml.includes('data-se-lead-id="eon-heat-pump"'),'Samsung review must retain bounded comparison lead CTA');
+assert(!samsungHtml.includes('Renewable Heat Incentive'),'Samsung review must not contain obsolete UK RHI advice');
+assert(!samsungHtml.includes('90 000 do 300 000'),'Samsung review must not keep stale undated price range');
+assert(samsungHtml.includes('nejde o placenou recenzi Samsungu'),'Samsung review must disclose methodology and independence');
