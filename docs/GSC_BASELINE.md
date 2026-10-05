@@ -130,3 +130,11 @@ Fresh query-level evidence for `/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/`:
 
 The legacy page was a 2023 UK-oriented Top-10 with stale model families and unsupported ranking logic. Decision: preserve the URL but replace the body with a methodology-first 2026 shortlist by use-case, using current official manufacturer families and explicitly refusing a fake reliability ranking without comparable long-term service data.
 
+### LG review near-win
+
+Fresh query-level evidence for `/tepelne-cerpadla-lg-vyhody-nevyhody-ceny/`:
+- `tepelná čerpadla lg recenze` — **8 impressions / avg. position 21.5**;
+- `tepelné čerpadlo lg recenze` — **5 impressions / avg. position 27.4**.
+
+The legacy 2023 page centered on older R32/Split families and an undated 120–400k CZK price range. Decision: preserve the indexed URL but replace the body with a 2026 THERMA V R290 buyer guide based on current LG Czech/EU documentation, explicit model-condition caveats and bounded comparison monetization.
+
