@@ -730,3 +730,136 @@ function solar_expert_legacy_redirects() {
   }
 }
 add_action('template_redirect', 'solar_expert_legacy_redirects', 1);
+
+
+function solar_expert_schema_graph() {
+  if ( defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') ) {
+    return;
+  }
+
+  $home = home_url('/');
+  $graph = array(
+    array(
+      '@type' => 'WebSite',
+      '@id' => $home . '#website',
+      'url' => $home,
+      'name' => 'Solar Expert',
+      'inLanguage' => 'cs-CZ',
+      'publisher' => array('@id' => $home . '#organization'),
+    ),
+    array(
+      '@type' => 'Organization',
+      '@id' => $home . '#organization',
+      'name' => 'Solar Expert',
+      'url' => $home,
+    ),
+  );
+
+  if ( is_front_page() ) {
+    $graph[] = array(
+      '@type' => 'WebPage',
+      '@id' => $home . '#webpage',
+      'url' => $home,
+      'name' => wp_get_document_title(),
+      'isPartOf' => array('@id' => $home . '#website'),
+      'about' => array('@id' => $home . '#organization'),
+      'inLanguage' => 'cs-CZ',
+    );
+  }
+
+  if ( is_singular(array('page','post')) ) {
+    $post = get_queried_object();
+    if ( $post instanceof WP_Post ) {
+      $url = get_permalink($post);
+      $title = get_the_title($post);
+      $description = '';
+      $meta = solar_expert_seo_meta();
+      if ( is_array($meta) && ! empty($meta['description']) ) {
+        $description = $meta['description'];
+      } else {
+        $description = wp_strip_all_tags(get_the_excerpt($post));
+      }
+
+      $breadcrumb_id = $url . '#breadcrumb';
+      $graph[] = array(
+        '@type' => 'BreadcrumbList',
+        '@id' => $breadcrumb_id,
+        'itemListElement' => array(
+          array(
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'Solar Expert',
+            'item' => $home,
+          ),
+          array(
+            '@type' => 'ListItem',
+            'position' => 2,
+            'name' => $title,
+            'item' => $url,
+          ),
+        ),
+      );
+
+      if ( $post->post_type === 'page' && in_array($post->post_name, array(
+        'solarni-sestava-na-chatu',
+        'vyber-baterii',
+        'mppt-kalkulacka',
+        'vyber-menice',
+        'quote-checker',
+      ), true) ) {
+        $category = array(
+          'solarni-sestava-na-chatu' => 'Solar system sizing calculator',
+          'vyber-baterii' => 'Battery sizing calculator',
+          'mppt-kalkulacka' => 'MPPT sizing calculator',
+          'vyber-menice' => 'Inverter sizing calculator',
+          'quote-checker' => 'Solar quote checker',
+        );
+        $graph[] = array(
+          '@type' => 'WebApplication',
+          '@id' => $url . '#app',
+          'name' => $title,
+          'url' => $url,
+          'description' => $description,
+          'applicationCategory' => 'UtilitiesApplication',
+          'operatingSystem' => 'Web',
+          'browserRequirements' => 'Requires JavaScript',
+          'isAccessibleForFree' => true,
+          'featureList' => $category[$post->post_name] ?? 'Solar decision tool',
+          'isPartOf' => array('@id' => $home . '#website'),
+          'breadcrumb' => array('@id' => $breadcrumb_id),
+          'inLanguage' => 'cs-CZ',
+        );
+      } elseif ( $post->post_type === 'post' ) {
+        $article = array(
+          '@type' => 'Article',
+          '@id' => $url . '#article',
+          'headline' => $title,
+          'url' => $url,
+          'mainEntityOfPage' => $url,
+          'datePublished' => get_the_date(DATE_W3C, $post),
+          'dateModified' => get_the_modified_date(DATE_W3C, $post),
+          'author' => array('@id' => $home . '#organization'),
+          'publisher' => array('@id' => $home . '#organization'),
+          'isPartOf' => array('@id' => $home . '#website'),
+          'breadcrumb' => array('@id' => $breadcrumb_id),
+          'inLanguage' => 'cs-CZ',
+        );
+        if ( $description ) {
+          $article['description'] = $description;
+        }
+        $image = get_the_post_thumbnail_url($post, 'full');
+        if ( $image ) {
+          $article['image'] = array($image);
+        }
+        $graph[] = $article;
+      }
+    }
+  }
+
+  $payload = array(
+    '@context' => 'https://schema.org',
+    '@graph' => $graph,
+  );
+  echo '<script type="application/ld+json">' . wp_json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>' . "\n";
+}
+add_action('wp_head', 'solar_expert_schema_graph', 30);
