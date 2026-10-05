@@ -352,7 +352,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.5.3',
+    'build_marker' => 'dev-rc-0.5.4',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
