@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.6</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.7</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.6',
+    'build_marker' => 'dev-rc-0.11.7',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -714,6 +714,14 @@ function solar_expert_seo_meta() {
     'prumerna-spotreba-tepelneho-cerpadla' => array(
       'title' => 'Spotřeba tepelného čerpadla: kWh za den a rok | Solar Expert',
       'description' => 'Jak odhadnout spotřebu tepelného čerpadla z potřeby tepla a SCOP. Příklady kWh za den a rok, TUV, elektrokotel, mráz a FVE.'
+    ),
+    'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji' => array(
+      'title' => 'Tepelné čerpadlo vzduch–voda: jak funguje a výběr 2026 | Solar Expert',
+      'description' => 'Jak funguje tepelné čerpadlo vzduch–voda, jak ho dimenzovat, co znamená COP/SCOP, radiátory vs. podlahovka, mráz, hlučnost a cena celé instalace.'
+    ),
+    'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla' => array(
+      'title' => 'COP a SCOP tepelného čerpadla: účinnost prakticky | Solar Expert',
+      'description' => 'Co znamená COP, SCOP, A7/W35 a A−7/W55. Jak porovnat účinnost tepelných čerpadel a proč jeden katalogový COP neříká roční spotřebu.'
     ),
     'castecne-zastineni-a-solarni-panely' => array(
       'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
@@ -967,6 +975,8 @@ function solar_expert_legacy_redirects() {
     'jak-vycistit-solarni-panely-pruvodce-cistenim-solaru' => 'cisteni-solarnich-panelu-proc-kdy-jak',
     'kompletni-pruvodce-velikosti-solarnich-panelu' => 'velikost-rozmery-a-hmotnost-solarnich-panelu',
     'spotreba-tepelneho-cerpadla-v-kwh' => 'prumerna-spotreba-tepelneho-cerpadla',
+    'ucinnost-tepelneho-cerpadla-se-zdrojem-vzduchu' => 'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla',
+    'tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda' => 'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
   );
 
   if ( isset($redirects[$post->post_name]) ) {
