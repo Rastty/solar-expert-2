@@ -590,7 +590,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.10.3',
+    'build_marker' => 'dev-rc-0.10.4',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -702,6 +702,10 @@ function solar_expert_seo_meta() {
     'castecne-zastineni-a-solarni-panely' => array(
       'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
       'description' => 'Jak částečné zastínění ovlivní výkon fotovoltaických panelů a stringu, kdy pomůže MPPT nebo optimizér a co ověřit v návrhu.'
+    ),
+    'nataceni-solarnich-panelu-za-sluncem' => array(
+      'title' => 'Natáčení solárních panelů za sluncem: vyplatí se? | Solar Expert',
+      'description' => 'Kdy natáčení solárních panelů za sluncem zvýší výrobu, kdy tracker nedává ekonomický smysl a co porovnat proti pevné konstrukci.'
     ),
     'kolik-vyrobi-fotovoltaika-za-hodinu' => array(
       'title' => 'Kolik vyrobí fotovoltaika za hodinu? kW vs. kWh | Solar Expert',
