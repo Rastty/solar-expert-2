@@ -393,3 +393,17 @@ assert(bestHpHtml.includes('data-se-lead-id="eon-heat-pump"'),'Best heat-pumps g
 assert(bestHpHtml.includes('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/'),'Best heat-pumps guide must route into combined FVE decision page');
 assert(!bestHpHtml.includes('výběr 10 nejlepších'),'Best heat-pumps guide must not revert to the stale unmethodical Top-10 framing');
 assert(!bestHpHtml.includes('ve Velké Británii'),'Best heat-pumps guide must not retain UK-market framing');
+
+
+const lgSlug='tepelne-cerpadla-lg-vyhody-nevyhody-ceny';
+const lgItem=manifest.items.find(x=>x.slug===lgSlug);
+assert(lgItem&&lgItem.preserve_status===true,'LG review near-win must remain managed');
+assert(lgItem.file&&fs.existsSync(path.join(__dirname,'..',lgItem.file)),'LG review rewrite file missing');
+assert(seoCore.includes("'"+lgSlug+"' => array("),'LG review near-win must have dedicated SEO metadata');
+const lgHtml=fs.readFileSync(path.join(__dirname,'..',lgItem.file),'utf8');
+assert(lgHtml.includes('THERMA V R290'),'LG review must cover current R290 platform');
+assert(lgHtml.includes('75 °C'),'LG review must cover current high-temperature capability with caveats');
+assert(lgHtml.includes('data-se-lead-id="eon-heat-pump"'),'LG review must retain bounded comparison lead CTA');
+assert(!lgHtml.includes('120000 až 400000'),'LG review must not keep stale undated installation-price range');
+assert(!lgHtml.includes('patří k nejlepším na trhu'),'LG review must avoid unsupported best-on-market claims');
+assert(lgHtml.includes('nejde o placenou recenzi LG'),'LG review must disclose methodology and independence');
