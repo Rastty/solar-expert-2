@@ -57,6 +57,33 @@
             <div><strong>Baterie:</strong> <span x-text="b.battery?.name"></span></div>
             <div><strong>Měnič:</strong> <span x-text="b.inverter?.name"></span></div>
             <div><strong>MPPT:</strong> <span x-text="b.integratedMppt?'integrovaný v měniči':b.mppt?.name"></span></div>
+
+            <div class="se-actions" style="margin-top:12px">
+              <a class="se-btn" target="_blank"
+                 :href="SolarExpertAffiliate.resolve(b.battery).href"
+                 :rel="SolarExpertAffiliate.resolve(b.battery).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                 @click="SolarExpertAffiliate.track(b.battery,'builder-battery-'+b.tier)">
+                Baterie · <span x-text="SolarExpertAffiliate.resolve(b.battery).merchant?.label"></span> →
+              </a>
+              <a class="se-btn" target="_blank"
+                 :href="SolarExpertAffiliate.resolve(b.inverter).href"
+                 :rel="SolarExpertAffiliate.resolve(b.inverter).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                 @click="SolarExpertAffiliate.track(b.inverter,'builder-inverter-'+b.tier)">
+                Měnič · <span x-text="SolarExpertAffiliate.resolve(b.inverter).merchant?.label"></span> →
+              </a>
+              <a class="se-btn" target="_blank"
+                 :href="SolarExpertAffiliate.resolve(b.panel?.product).href"
+                 :rel="SolarExpertAffiliate.resolve(b.panel?.product).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                 @click="SolarExpertAffiliate.track(b.panel?.product,'builder-panel-'+b.tier)">
+                Panely · <span x-text="SolarExpertAffiliate.resolve(b.panel?.product).merchant?.label"></span> →
+              </a>
+              <a class="se-btn" x-show="!b.integratedMppt" target="_blank"
+                 :href="SolarExpertAffiliate.resolve(b.mppt).href"
+                 :rel="SolarExpertAffiliate.resolve(b.mppt).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                 @click="SolarExpertAffiliate.track(b.mppt,'builder-mppt-'+b.tier)">
+                MPPT · <span x-text="SolarExpertAffiliate.resolve(b.mppt).merchant?.label"></span> →
+              </a>
+            </div>
           </div>
           <div x-show="!b.complete" class="se-muted" style="margin-top:12px">Chybí ověřená data / produkt: <span x-text="(b.missing||[]).join(', ')"></span>.</div>
         </div>
