@@ -76,9 +76,26 @@
       "chemistry": "LiFePO4",
       "availability": "in_stock",
       "price_czk_snapshot": 14690,
-      "source_url": "https://www.battery.cz/24v-10/",
+      "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-25-6--100ah--25-6v/",
       "price_czk": 14690,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 14690,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-25-6--100ah--25-6v/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 14690,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-25-6--100ah--25-6v/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     },
     {
       "id": "battery-pylontech-us5000",
@@ -203,7 +220,24 @@
       "source_url": "https://www.solar-import.cz/ramove-male/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
       "price_czk": 2251,
       "price_mode": "snapshot",
-      "cold_voc_factor": 1.12
+      "cold_voc_factor": 1.12,
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 2251,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/ramove-male/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 2496,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     },
     {
       "id": "panel-dah-555",
@@ -412,7 +446,7 @@
       },
       "price_czk_snapshot": 9650,
       "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/regulatory/",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-150-70-tr-ve-can--12-24-48v--70a/",
       "price_czk": 9650,
       "price_mode": "snapshot",
       "min_pv_start_v_by_voltage": {
@@ -421,7 +455,24 @@
         "48": 53
       },
       "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
-      "max_pv_isc_a": 50
+      "max_pv_isc_a": 50,
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 9650,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-150-70-tr-ve-can--12-24-48v--70a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 9650,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-150-70-tr-ve-can--12-24-48v--70a/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     },
     {
       "id": "mppt-victron-250-100",
@@ -442,10 +493,10 @@
         "24": 2900,
         "48": 5800
       },
-      "price_czk_snapshot": 14294,
+      "price_czk_snapshot": 14246,
       "availability": "in_stock",
       "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-250-100-tr-ve-can--12-24-48v--100a/",
-      "price_czk": 14294,
+      "price_czk": 14246,
       "price_mode": "snapshot",
       "verified_at": "2026-10-05",
       "min_pv_start_v_by_voltage": {
@@ -457,9 +508,16 @@
       "offers": [
         {
           "merchant": "solar-import-cz",
-          "price_czk": 14294,
+          "price_czk": 14246,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-250-100-tr-ve-can--12-24-48v--100a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 14246,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-250-100-tr-ve-can--12-24-48v--100a/",
           "verified_at": "2026-10-05"
         }
       ]
