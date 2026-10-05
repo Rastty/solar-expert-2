@@ -584,3 +584,23 @@ const winterPvHtml=fs.readFileSync(path.join(__dirname,'..',winterPvItem.file),'
 assert(!winterPvHtml.includes('vlažnou vodou'),'Winter PV guide must not recommend legacy risky de-icing advice');
 assert(!winterPvHtml.includes('zahradního fukaru'),'Winter PV guide must not keep legacy ad-hoc snow-removal advice');
 
+const realPvSlug='realny-vykon-solarnich-panelu';
+const realPvItem=manifest.items.find(x=>x.slug===realPvSlug);
+assert(realPvItem&&realPvItem.preserve_status===true,'Real-world PV performance guide must remain managed and preserve status');
+assert(realPvItem.file&&fs.existsSync(path.join(__dirname,'..',realPvItem.file)),'Real-world PV performance rewrite file missing');
+assert(seoCore.includes("'"+realPvSlug+"' => array("),'Real-world PV performance guide must have dedicated SEO metadata');
+const realPvHtml=fs.readFileSync(path.join(__dirname,'..',realPvItem.file),'utf8');
+assert(realPvHtml.includes('STC'),'Real-world PV performance guide must explain STC');
+assert(realPvHtml.includes('/quote-checker/'),'Real-world PV performance guide must route into Quote Checker');
+
+const panelBuyerSlug='jak-vybrat-solarni-panely-pro-vas-domov';
+const panelBuyerItem=manifest.items.find(x=>x.slug===panelBuyerSlug);
+assert(panelBuyerItem&&panelBuyerItem.preserve_status===true,'Panel buyer guide must remain managed');
+assert(seoCore.includes("'"+panelBuyerSlug+"' => array("),'Panel buyer guide must have dedicated SEO metadata');
+assert(leadCore.includes("'jak-vybrat-solarni-panely-pro-vas-domov'"),'Panel buyer guide must participate in the bounded E.ON solar funnel');
+assert(seoCore.includes("'recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii' => 'jak-vybrat-solarni-panely-pro-vas-domov'"),'Copied legacy panel-review URL must redirect to the owned buyer guide');
+const panelBuyerHtml=fs.readFileSync(path.join(__dirname,'..',panelBuyerItem.file),'utf8');
+assert(panelBuyerHtml.includes('Kiwa PVEL'),'Panel buyer guide must retain independent reliability criteria');
+assert(panelBuyerHtml.includes('IEC 61215'),'Panel buyer guide must retain module qualification guidance');
+assert(panelBuyerHtml.includes('IEC 61730'),'Panel buyer guide must retain safety qualification guidance');
+
