@@ -138,3 +138,10 @@ Fresh query-level evidence for `/tepelne-cerpadla-lg-vyhody-nevyhody-ceny/`:
 
 The legacy 2023 page centered on older R32/Split families and an undated 120–400k CZK price range. Decision: preserve the indexed URL but replace the body with a 2026 THERMA V R290 buyer guide based on current LG Czech/EU documentation, explicit model-condition caveats and bounded comparison monetization.
 
+### Viessmann review near-win
+
+Fresh query-level evidence for `/recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady/`:
+- `tepelné čerpadlo viessmann recenze` — **7 impressions / avg. position 30.0**.
+
+The legacy article mixed several older model generations, obsolete UK RHI guidance and an undated 120–350k CZK price range. Decision: preserve the indexed URL but replace the body with a 2026 Vitocal 250-A / 252-A buyer guide based on current Viessmann Czech documentation, explicit A/W condition caveats and bounded comparison monetization.
+
