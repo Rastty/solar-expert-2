@@ -20,6 +20,21 @@ function walk(value,where='root'){
 }
 walk(source,'catalog');
 
+assert(Array.isArray(source.bundle_deals),'Catalog bundle deals must be an array');
+const productIds=new Set((source.products||[]).map(p=>p.id));
+const dealIds=new Set();
+for(const deal of source.bundle_deals){
+  assert(deal.id&&!dealIds.has(deal.id),'Bundle deal id must be unique: '+deal.id);
+  dealIds.add(deal.id);
+  assert(Array.isArray(deal.components)&&deal.components.length>=2,'Bundle deal must reference at least two components: '+deal.id);
+  for(const componentId of deal.components){
+    assert(productIds.has(componentId),'Bundle deal references unknown product '+componentId+' in '+deal.id);
+  }
+  assert(Number(deal.price_czk)>0,'Bundle deal price must be positive: '+deal.id);
+  assert(/^https:\/\//.test(deal.source_url||''),'Bundle deal source must be HTTPS: '+deal.id);
+  assert(deal.availability==='in_stock','Only verified in-stock bundle deals may be active: '+deal.id);
+}
+
 const merchantRegistry=JSON.parse(fs.readFileSync(path.join(__dirname,'..','data','merchant-registry.json'),'utf8'));
 const merchantIds=new Set((merchantRegistry.merchants||[]).map(m=>m.id));
 assert(merchantIds.size>0,'Merchant registry must not be empty');
@@ -293,3 +308,10 @@ const selectorsJs=fs.readFileSync(path.join(__dirname,'..','assets','js','select
 assert(selectorsJs.includes("event:'selector_engaged'"),'Selectors must emit a one-shot engagement event');
 assert(selectorsJs.includes("engagementTracked"),'Selector analytics must suppress repeated engagement events');
 assert(selectorsJs.includes("this.run(false)"),'Selector initialization must not count as user engagement');
+
+
+const builderTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
+assert(builderTemplate.includes('Výhodnější set baterie + měnič'),'Builder template must show verified bundle deal savings');
+assert(builderTemplate.includes('trackBundleDeal'),'Builder bundle-deal CTA must emit dedicated analytics');
+assert(affiliateAdapter.includes('resolveBundleDeal(deal)'),'Affiliate adapter must resolve bundle deals through merchant base links');
+assert(affiliateAdapter.includes("event:'bundle_deal_click'"),'Bundle deal clicks must emit a dedicated dataLayer event');
