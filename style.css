@@ -3,7 +3,7 @@ Theme Name: Solar Expert 2.0
 Theme URI: https://solar-expert.cz/
 Author: Solar Expert
 Description: Independent solar decision engine for CZ/SK.
-Version: 0.4.0
+Version: 0.5.0
 Text Domain: solar-expert-2
 */
 
@@ -38,3 +38,11 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-offer-links{display:flex;gap:8px;flex-wrap:wrap}
 .se-offer{display:inline-flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid rgba(20,33,28,.14);border-radius:12px;background:var(--paper);font-size:13px}
 .se-offer:hover{border-color:var(--green3);background:#edf5f1}.se-offer strong{font-size:12px}
+
+.se-compare,.se-checklist{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.se-section-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:14px}.se-section-head h3{margin:4px 0 0}
+.se-compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.se-compare-card{border:1px solid var(--line);border-radius:16px;background:white;padding:16px}.se-compare-card.best{border:2px solid var(--green2);background:#edf5f1}
+.se-compare-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.se-compare-metrics div{padding:10px;border-radius:12px;background:rgba(20,33,28,.04)}.se-compare-metrics dt{font-size:11px;color:var(--muted);font-weight:750}.se-compare-metrics dd{margin:2px 0 0;font-weight:850}
+.se-reasons{margin:10px 0 0;padding-left:18px;color:#435149;font-size:13px}.se-reasons li{margin:5px 0}
+.se-checklist-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.se-checklist-grid h4{margin:0 0 8px}.se-checkline{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(20,33,28,.08)}.se-checkline>span{display:grid;place-items:center;flex:0 0 24px;height:24px;border-radius:50%;background:#f0f1ef;font-weight:850}.se-checkline.included>span{background:#dff1e5;color:#176638}.se-checkline strong,.se-checkline small{display:block}.se-checkline small{margin-top:2px;color:var(--muted);font-size:12px}
+@media(max-width:900px){.se-compare-grid,.se-checklist-grid{grid-template-columns:1fr}.se-section-head{align-items:flex-start;flex-direction:column}}
