@@ -24,6 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
+- RC build marker: `dev-rc-0.5.2`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Production deploy: intentionally not enabled yet
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
