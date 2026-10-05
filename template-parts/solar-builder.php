@@ -44,10 +44,10 @@
     </div>
 
     <div class="se-bundles">
-      <template x-for="b in bundles" :key="b.tier">
+      <template x-for="b in completeBundles" :key="b.tier">
         <div class="se-bundle" :class="b.tier==='best'?'best':''">
           <div class="se-bundle-head">
-            <div><span class="se-chip" x-text="b.label"></span><div class="se-muted" style="font-size:12px;margin-top:5px" x-text="b.complete?'předběžně kompatibilní':'zatím neúplná varianta'"></div></div>
+            <div><span class="se-chip" x-text="b.label"></span><div class="se-muted" style="font-size:12px;margin-top:5px">předběžně kompatibilní</div></div>
             <div style="text-align:right">
               <strong x-show="b.complete && b.priceComplete"><span x-text="b.totalPrice?.toLocaleString('cs-CZ')"></span> Kč</strong>
               <small class="se-muted" style="display:block" x-show="b.bundleDeal">celkem při využití setu</small>
@@ -131,9 +131,15 @@
             </div>
           </div>
 
-          <div x-show="!b.complete" class="se-muted" style="margin-top:12px">Chybí ověřená data / produkt: <span x-text="(b.missing||[]).join(', ')"></span>.</div>
         </div>
       </template>
+    </div>
+
+    <div class="se-note" x-show="!completeBundles.length" style="margin-top:14px">
+      Pro zadané parametry zatím nemáme v ověřeném katalogu kompletní sestavu. Raději nezobrazíme neověřenou kombinaci, než doporučit technicky slabou variantu.
+    </div>
+    <div class="se-muted se-tier-transparency" x-show="completeBundles.length && incompleteBundles.length">
+      Neúplné cenové úrovně nezobrazujeme: <strong x-text="incompleteBundles.map(b=>b.label).join(', ')"></strong>. Zobrazí se až ve chvíli, kdy pro ně máme ověřenou baterii, měnič a panelové zapojení.
     </div>
 
     <section class="se-compare" x-show="completeBundles.length>1">
