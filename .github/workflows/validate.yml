@@ -15,6 +15,10 @@ jobs:
       - name: JavaScript syntax
         run: find assets/js tests -name '*.js' -print0 | xargs -0 -n1 node --check
       - name: JSON validity
-        run: find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
+        run: |
+          find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
+          jq empty content/manifest.json
       - name: Engine tests
         run: node tests/engine.test.js
+      - name: Repository integrity
+        run: node tests/repo-integrity.test.js
