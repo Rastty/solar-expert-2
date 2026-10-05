@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.7.0",
+  "schemaVersion": "0.8.0",
   "mode": "verified-public-seed; affiliate URLs added separately",
   "verifiedAt": "2026-10-05",
   "products": [
@@ -20,6 +20,26 @@
       "price_czk_snapshot": 8650,
       "source_url": "https://www.battery.cz/baterie-blokove/",
       "price_czk": 8650,
+      "price_mode": "snapshot"
+    },
+    {
+      "id": "battery-goowei-12-200",
+      "type": "battery",
+      "merchant": "battery-cz",
+      "sku": "E8284",
+      "tier": "best",
+      "name": "GOOWEI ENERGY CNLFP200-12.8 12.8V 200Ah",
+      "system_voltage_class": 12,
+      "nominal_voltage_v": 12.8,
+      "capacity_ah": 200,
+      "energy_wh": 2560,
+      "max_discharge_a": 120,
+      "max_charge_a": 100,
+      "chemistry": "LiFePO4",
+      "availability": "in_stock",
+      "price_czk_snapshot": 14690,
+      "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
+      "price_czk": 14690,
       "price_mode": "snapshot"
     },
     {
@@ -425,6 +445,25 @@
       "source_url": "https://www.battery.cz/48v-2/",
       "price_czk": 7623,
       "price_mode": "snapshot"
+    },
+    {
+      "id": "inverter-kosun-48-3000",
+      "type": "inverter",
+      "merchant": "solar-import-cz",
+      "sku": "E8203",
+      "tier": "budget",
+      "name": "KOSUN 48V / 3000W + nabíječka",
+      "dc_voltage": 48,
+      "continuous_w": 3000,
+      "peak_w": 6000,
+      "waveform": "pure_sine",
+      "charger": true,
+      "ups": true,
+      "availability": "in_stock",
+      "price_czk_snapshot": 9563,
+      "price_czk": 9563,
+      "price_mode": "snapshot",
+      "source_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/"
     },
     {
       "id": "inverter-growatt-48-3500",
