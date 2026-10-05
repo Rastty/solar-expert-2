@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.10.2`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.10.3`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -75,6 +75,7 @@ Git-first development active on `dev`.
 - 12V wiring intent: `jak-zapojit-solarni-panely` now includes safe 2S/2P conceptual schematics and explicit MPPT routing for the observed `schéma zapojení solárních panelů 12v` query
 - Battery Selector parallel-bank support: standalone selector now reuses the Builder's verified bank logic and can recommend 2×/3× supported modules with total kWh, BMS current and bank price
 - Multi-bank set optimization: a verified 1× battery + inverter merchant set may be used once inside a larger parallel bank; remaining battery modules are priced separately and shown explicitly
+- Intentional Premium gaps: 12V/24V Premium remains hidden until an approved-merchant battery is both technically evidenced and currently recommendable; `on_request` inventory cannot unlock a complete tier
 - Production deploy: active RC with manual Git pull/update
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
