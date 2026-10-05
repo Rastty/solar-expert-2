@@ -531,3 +531,17 @@ assert(daikinItem&&daikinItem.preserve_status===true,'Daikin buyer guide must be
 assert(daikinItem.file&&fs.existsSync(path.join(__dirname,'..',daikinItem.file)),'Daikin buyer guide rewrite file missing');
 assert(seoCore.includes("'prehled-vzduchovych-tepelnych-cerpadel-daikin' => array("),'Daikin buyer guide must have dedicated SEO metadata');
 
+const airWaterSlug='tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji';
+const airWaterItem=manifest.items.find(x=>x.slug===airWaterSlug);
+assert(airWaterItem&&airWaterItem.preserve_status===true,'Air-water canonical guide must be managed and preserve status');
+assert(airWaterItem.file&&fs.existsSync(path.join(__dirname,'..',airWaterItem.file)),'Air-water rewrite file missing');
+assert(seoCore.includes("'tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda' => 'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji'"),'Overlapping air-air vs air-water URL must redirect to the canonical air-water guide');
+
+const copSlug='cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla';
+const copItem=manifest.items.find(x=>x.slug===copSlug);
+assert(copItem&&copItem.preserve_status===true,'COP/SCOP canonical guide must be managed and preserve status');
+assert(copItem.file&&fs.existsSync(path.join(__dirname,'..',copItem.file)),'COP/SCOP rewrite file missing');
+assert(seoCore.includes("'ucinnost-tepelneho-cerpadla-se-zdrojem-vzduchu' => 'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla'"),'Overlapping efficiency URL must redirect to the canonical COP/SCOP guide');
+assert(seoCore.includes("'"+airWaterSlug+"' => array("),'Air-water guide must have dedicated SEO metadata');
+assert(seoCore.includes("'"+copSlug+"' => array("),'COP/SCOP guide must have dedicated SEO metadata');
+
