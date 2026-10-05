@@ -79,3 +79,9 @@ The fresh refresh supersedes the historical snapshot for prioritization; the his
 
 Fresh 90-day GSC evidence for `/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/`: **18 impressions, average position 14.22, 0 clicks**. Query mix includes `fotovoltaika s tepelným čerpadlem`, `kolik stojí fotovoltaika` and `kolik stojí solární panel`. Decision: preserve the existing URL, rewrite it as a combined-system cost/sizing page, route users to Builder + Quote Checker, and use the bounded `eon-heat-pump` lead CTA.
 
+### Heat-pump boundary P1
+
+Fresh 90-day GSC evidence for `/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/`: **95 impressions, average position 16.29, 0 clicks**; last 28 days: **38 impressions, average position 15.03**. Main disclosed query: `umístění tepelného čerpadla od hranice pozemku souseda` with 61 impressions. Decision: preserve URL, replace generic content with current October 2026 guidance based on the MMR April 2026 methodology and applicable noise rules, and retain bounded E.ON lead monetization.
+
+Fresh 28-day `/castecne-zastineni-a-solarni-panely/`: **8 impressions, average position 5.0, 0 clicks**. Decision: protect ranking; adjust title/meta only, no aggressive body rewrite.
+
