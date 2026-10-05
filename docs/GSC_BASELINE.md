@@ -112,3 +112,11 @@ Decision:
 - cross-link hourly ↔ annual output so the intents are explicit;
 - consolidate the stale duplicate size guide with a 301 into the stronger managed dimensions/weight page.
 
+### Heat-pump vs electric-boiler decision near-win
+
+Fresh query-level evidence for `/tepelne-cerpadlo-nebo-elektrokotel/`:
+- `fotovoltaické panely a elektrokotel` — **8 impressions / avg. position 15.5**;
+- `elektrokotel fotovoltaika` — **6 impressions / avg. position 22.83**.
+
+The legacy article contained stale universal claims about 3× lower operating cost, backup heating and permitting/dotations. Decision: preserve the indexed URL, replace it with a decision guide based on annual heat demand and seasonal performance, explicitly cover FVE + electric boiler vs FVE + heat pump, and retain bounded E.ON lead monetization.
+
