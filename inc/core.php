@@ -654,6 +654,10 @@ function solar_expert_seo_meta() {
       'title' => 'Samsung tepelné čerpadlo recenze 2026: EHS R290 | Solar Expert',
       'description' => 'Technická recenze Samsung EHS 2026: R290 Mono, hlučnost, COP, teplota vody, výhody, nevýhody a co ověřit před nákupem.'
     ),
+    'tepelne-cerpadla-lg-vyhody-nevyhody-ceny' => array(
+      'title' => 'LG tepelné čerpadlo recenze 2026: THERMA V R290 | Solar Expert',
+      'description' => 'Technická recenze LG THERMA V 2026: R290 Monobloc, výkon v mrazu, hlučnost, teplota vody, výhody a nevýhody.'
+    ),
     'tepelne-cerpadlo-nebo-elektrokotel' => array(
       'title' => 'Tepelné čerpadlo vs. elektrokotel: spotřeba a náklady | Solar Expert',
       'description' => 'Tepelné čerpadlo nebo elektrokotel? Porovnání investice, roční spotřeby, radiátorů, podlahovky a kombinace s fotovoltaikou.'
