@@ -1,13 +1,21 @@
 <div class="se-panel" x-data="solarExpertBatterySelector()" x-init="init()">
   <div class="se-kicker">Battery Selector</div><h2>Jakou LiFePO₄ baterii potřebujete?</h2>
   <div class="se-formgrid">
-    <div class="se-field"><label>Systémové napětí</label><select class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
-    <div class="se-field"><label>Denní spotřeba (kWh)</label><input class="se-input" type="number" min=".2" step=".1" x-model.number="dailyKwh" @input.debounce.200ms="run()"></div>
-    <div class="se-field"><label>Rezerva</label><select class="se-select" x-model.number="autonomy" @change="run()"><option value=".5">½ dne</option><option value="1">1 den</option><option value="2">2 dny</option></select></div>
-    <div class="se-field"><label>Výkon měniče (W)</label><input class="se-input" type="number" step="100" x-model.number="inverterW" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-battery-voltage">Systémové napětí</label><select id="se-battery-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
+    <div class="se-field"><label for="se-battery-daily-kwh">Denní spotřeba (kWh)</label><input id="se-battery-daily-kwh" class="se-input" type="number" min=".2" step=".1" x-model.number="dailyKwh" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-battery-autonomy">Rezerva</label><select id="se-battery-autonomy" class="se-select" x-model.number="autonomy" @change="run()"><option value=".5">½ dne</option><option value="1">1 den</option><option value="2">2 dny</option></select></div>
+    <div class="se-field"><label for="se-battery-inverter-w">Výkon měniče (W)</label><input id="se-battery-inverter-w" class="se-input" type="number" min="100" step="100" x-model.number="inverterW" @input.debounce.200ms="run()"></div>
   </div>
-  <div class="se-note" style="margin-top:14px">Výběr hlídá nominální energii baterie včetně rezervy i maximální vybíjecí proud BMS vůči měniči.</div>
-  <div class="se-bundles">
+  <div class="se-note" style="margin-top:14px">
+    Výběr hlídá nominální energii baterie včetně rezervy i maximální vybíjecí proud BMS vůči měniči.
+    Pro toto zadání potřebujete alespoň <strong><span x-text="requiredBatteryKwh.toFixed(1)"></span> kWh</strong> nominální kapacity a orientačně nejméně
+    <strong><span x-text="requiredDischargeA"></span> A</strong> trvalého vybíjecího proudu banku při zvoleném systémovém napětí.
+  </div>
+  <div class="se-note" x-show="catalogLoading" style="margin-top:14px" role="status" aria-live="polite">Načítám ověřený katalog baterií…</div>
+  <div class="se-note se-note-error" x-show="catalogError" style="margin-top:14px" role="alert">
+    Katalog baterií se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
+  </div>
+  <div class="se-bundles" :aria-busy="catalogLoading ? 'true' : 'false'" aria-live="polite">
     <template x-for="r in matches" :key="r.product.id">
       <div class="se-bundle">
         <div class="se-bundle-head">
@@ -33,6 +41,6 @@
         </div>
       </div>
     </template>
-    <div x-show="!matches.length" class="se-note">V ověřeném katalogu zatím nemáme ani jeden modul nebo ověřený paralelní bank, který projde kapacitou i limitem BMS.</div>
+    <div x-show="!catalogLoading && !catalogError && !matches.length" class="se-note">V ověřeném katalogu zatím nemáme ani jeden modul nebo ověřený paralelní bank, který projde kapacitou i limitem BMS.</div>
   </div>
 </div>
