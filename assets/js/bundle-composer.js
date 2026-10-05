@@ -101,7 +101,26 @@ window.SolarExpertBundleComposer = {
     return candidates.sort((a, b) => a.score - b.score)[0] || null;
   },
 
-  compose(catalog, sizing) {
+  findBundleDeal(bundleDeals, componentIds, separatePrice) {
+    const ids = [...componentIds].sort();
+    const candidates = (Array.isArray(bundleDeals) ? bundleDeals : [])
+      .filter(deal => {
+        if (!deal || deal.availability !== 'in_stock' || !Array.isArray(deal.components)) return false;
+        const dealIds = [...deal.components].sort();
+        if (dealIds.length !== ids.length || dealIds.some((id,i)=>id!==ids[i])) return false;
+        const price = Number(deal.price_czk || 0);
+        return price > 0 && Number.isFinite(price) && price < Number(separatePrice);
+      })
+      .sort((a,b)=>Number(a.price_czk)-Number(b.price_czk));
+    const deal = candidates[0] || null;
+    if (!deal) return null;
+    return {
+      ...deal,
+      savings_czk: Math.max(0, Math.round(Number(separatePrice)-Number(deal.price_czk)))
+    };
+  },
+
+  compose(catalog, sizing, bundleDeals=[]) {
     const matcher = window.SolarExpertProductMatcher;
     if (!matcher) return [];
 
@@ -140,8 +159,13 @@ window.SolarExpertBundleComposer = {
             const panelPrice = matcher.effectivePrice(panelPlan.product);
             const priceParts = [batteryPrice, inverterPrice, panelPrice];
             const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0 && Number(v) < Number.MAX_SAFE_INTEGER);
+            const separateCorePrice = batteryPrice + inverterPrice;
+            const bundleDeal = priceComplete
+              ? this.findBundleDeal(bundleDeals, [battery.id, inverter.id], separateCorePrice)
+              : null;
+            const effectiveCorePrice = bundleDeal ? Number(bundleDeal.price_czk) : separateCorePrice;
             const totalPrice = priceComplete
-              ? batteryPrice + inverterPrice + panelPrice * panelPlan.count
+              ? effectiveCorePrice + panelPrice * panelPlan.count
               : null;
 
             return {
@@ -156,6 +180,7 @@ window.SolarExpertBundleComposer = {
               panel: panelPlan,
               totalPrice,
               priceComplete,
+              bundleDeal,
               checksPending: [
                 'kabeláž a jištění',
                 'přesný teplotní koeficient Voc pro lokalitu',
@@ -176,8 +201,13 @@ window.SolarExpertBundleComposer = {
             const panelPrice = matcher.effectivePrice(panelPlan.product);
             const priceParts = [batteryPrice, inverterPrice, mpptPrice, panelPrice];
             const priceComplete = priceParts.every(v => Number.isFinite(Number(v)) && Number(v) > 0 && Number(v) < Number.MAX_SAFE_INTEGER);
+            const separateCorePrice = batteryPrice + inverterPrice;
+            const bundleDeal = priceComplete
+              ? this.findBundleDeal(bundleDeals, [battery.id, inverter.id], separateCorePrice)
+              : null;
+            const effectiveCorePrice = bundleDeal ? Number(bundleDeal.price_czk) : separateCorePrice;
             const totalPrice = priceComplete
-              ? batteryPrice + inverterPrice + mpptPrice + panelPrice * panelPlan.count
+              ? effectiveCorePrice + mpptPrice + panelPrice * panelPlan.count
               : null;
 
             return {
@@ -192,6 +222,7 @@ window.SolarExpertBundleComposer = {
               panel: panelPlan,
               totalPrice,
               priceComplete,
+              bundleDeal,
               checksPending: [
                 'kabeláž a jištění',
                 'přesný teplotní koeficient Voc pro lokalitu',
