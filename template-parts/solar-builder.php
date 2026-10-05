@@ -119,6 +119,64 @@
       </template>
     </div>
 
+    <section class="se-compare" x-show="completeBundles.length>1">
+      <div class="se-section-head">
+        <div><div class="se-kicker">Product comparison</div><h3>Srovnání variant podle stejných kritérií</h3></div>
+        <span class="se-muted">Technika první, cena až potom.</span>
+      </div>
+      <div class="se-compare-grid">
+        <template x-for="b in completeBundles" :key="'compare-'+b.tier">
+          <article class="se-compare-card" :class="b.tier==='best'?'best':''">
+            <div class="se-bundle-head">
+              <span class="se-chip" x-text="b.label"></span>
+              <strong x-show="b.priceComplete"><span x-text="b.totalPrice?.toLocaleString('cs-CZ')"></span> Kč</strong>
+            </div>
+            <template x-if="comparisonFor(b)">
+              <div>
+                <dl class="se-compare-metrics">
+                  <div><dt>Baterie</dt><dd><span x-text="comparisonFor(b).batteryKwh.toFixed(2)"></span> kWh</dd></div>
+                  <div><dt>Měnič</dt><dd><span x-text="comparisonFor(b).inverterW"></span> W</dd></div>
+                  <div><dt>Špička</dt><dd><span x-text="comparisonFor(b).surgeW"></span> W</dd></div>
+                  <div><dt>Panely</dt><dd><span x-text="comparisonFor(b).panelWp"></span> Wp</dd></div>
+                </dl>
+                <ul class="se-reasons">
+                  <template x-for="reason in comparisonFor(b).reasons" :key="b.tier+'-'+reason">
+                    <li x-text="reason"></li>
+                  </template>
+                </ul>
+              </div>
+            </template>
+          </article>
+        </template>
+      </div>
+    </section>
+
+    <section class="se-checklist" x-show="primaryBundle">
+      <div class="se-section-head">
+        <div><div class="se-kicker">Co ještě potřebuji?</div><h3>Co je v návrhu a co ještě chybí</h3></div>
+        <span class="se-muted">Pro variantu <strong x-text="primaryBundle?.label"></strong></span>
+      </div>
+      <div class="se-checklist-grid">
+        <div>
+          <h4>Už v sestavě</h4>
+          <template x-for="item in checklistFor(primaryBundle).filter(x=>x.group==='included')" :key="'in-'+item.label">
+            <div class="se-checkline included">
+              <span>✓</span><div><strong x-text="item.label"></strong><small x-text="item.note"></small></div>
+            </div>
+          </template>
+        </div>
+        <div>
+          <h4>Ještě dimenzovat / dokoupit</h4>
+          <template x-for="item in checklistFor(primaryBundle).filter(x=>x.group==='extra')" :key="'ex-'+item.label">
+            <div class="se-checkline">
+              <span>○</span><div><strong x-text="item.label"></strong><small x-text="item.note"></small></div>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div class="se-note" style="margin-top:14px">Tento seznam zatím nevybírá konkrétní jištění, kabely ani konstrukci bez potřebných vstupů. Raději ukážeme, co je potřeba ověřit, než doporučit falešně přesný díl.</div>
+    </section>
+
     <div class="se-note" style="margin-top:14px">Výsledek je sizing a předběžný compatibility check. Ceny jsou orientační snapshoty a technický ranking není ovlivněn affiliate provizí. Před nákupem ověřte kabeláž, jištění, teplotní Voc a přesný datasheet.</div>
     <div class="se-actions"><button class="se-btn" @click="reset()">Přepočítat</button></div>
   </div>
