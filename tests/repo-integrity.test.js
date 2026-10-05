@@ -739,3 +739,15 @@ assert(overheatingHtml.includes('/chlazeni-fotovoltaickych-panelu/'),'Overheatin
 assert(!overheatingHtml.includes('termálních izolátorů'),'Overheating explainer must not retain unsupported legacy cooling advice');
 assert(!overheatingHtml.includes('panely umístěné ve stínu mají nižší teplotu'),'Overheating explainer must not recommend shading panels as thermal management');
 
+const pvCoolingSlug='chlazeni-fotovoltaickych-panelu';
+const pvCoolingItem=manifest.items.find(x=>x.slug===pvCoolingSlug);
+assert(pvCoolingItem&&pvCoolingItem.preserve_status===true,'PV cooling guide must remain managed and preserve status');
+assert(pvCoolingItem.file&&fs.existsSync(path.join(__dirname,'..',pvCoolingItem.file)),'PV cooling rewrite file missing');
+assert(seoCore.includes("'chlazeni-fotovoltaickych-panelu' => array("),'PV cooling guide must have dedicated SEO metadata');
+const pvCoolingHtml=fs.readFileSync(path.join(__dirname,'..',pvCoolingItem.file),'utf8');
+assert(pvCoolingHtml.includes('Pasivní chlazení'),'PV cooling guide must cover passive cooling');
+assert(pvCoolingHtml.includes('Vodní chlazení'),'PV cooling guide must cover water cooling');
+assert(pvCoolingHtml.includes('/vysvetleni-solarnich-panelu-pv-t/'),'PV cooling guide must separate PVT intent');
+assert(pvCoolingHtml.includes('/proc-se-solarni-panely-neprehrivaji/'),'PV cooling guide must cross-link the temperature/overheating intent');
+assert(!pvCoolingHtml.includes('chlazení je klíčovým prvkem'),'PV cooling guide must not retain universal active-cooling claims');
+
