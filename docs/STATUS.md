@@ -57,7 +57,7 @@ Git-first development active on `dev`.
 - Owned-first heat-pump funnel: legacy traffic is internally routed to the FVE + heat-pump decision page before the outbound E.ON CTA
 - Shared E.ON base: one optional `eon-cz` eHub base automatically monetizes both `eon-solar` and `eon-heat-pump`; explicit lead mappings remain overrides
 - E.ON lead monetization due diligence: E.ON is confirmed approved for Solar Expert; current public eHUB campaign pays 300 Kč per valid lead for electricity/gas/FVE/heat pumps. Shared `eon-cz` base can monetize both solar and heat-pump CTAs.
-- E.ON private base link: received from approved eHUB account on 2026-10-05; keep out of GitHub and store only in WordPress `solar_expert_affiliate_bases` as `eon-cz`. Private option write is still pending.
+- E.ON private base link: ACTIVE in WordPress as `eon-cz` from the approved eHUB account; the private URL is intentionally kept out of GitHub. Live health confirms 3 merchant bases.
 - Samsung review refresh: legacy 2023 article replaced with 2026 EHS R290 buyer guide, current manufacturer-backed specs and no stale UK RHI/cost claims
 - Structured data discovery: WebSite + Organization + BreadcrumbList + WebApplication for five tools + Article for posts, disabled when a major SEO plugin owns schema
 - Overheating/cooling protection: two fresh top-10 URLs kept separate; only zero-click overheating page gets CTR-focused metadata
