@@ -234,3 +234,46 @@ function solar_expert_settings_page() {
   </div>
   <?php
 }
+
+
+function solar_expert_health_payload() {
+  $catalog_path = trailingslashit(get_template_directory()) . 'assets/data/product-seed.json';
+  $catalog = array('schemaVersion'=>'0','products'=>array());
+
+  if ( file_exists($catalog_path) ) {
+    $decoded = json_decode(file_get_contents($catalog_path), true);
+    if ( is_array($decoded) ) {
+      $catalog = $decoded;
+    }
+  }
+
+  $manifest = solar_expert_load_manifest();
+  $map = get_option('solar_expert_affiliate_map', array('products'=>array(),'leads'=>array()));
+  if ( ! is_array($map) ) {
+    $map = array('products'=>array(),'leads'=>array());
+  }
+
+  $theme = wp_get_theme();
+  $last_sync = get_option('solar_expert_last_content_sync', array());
+
+  return array(
+    'status' => 'ok',
+    'theme_version' => (string) $theme->get('Version'),
+    'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
+    'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
+    'manifest_schema_version' => (string) ($manifest['schemaVersion'] ?? '0'),
+    'managed_content_items' => isset($manifest['items']) && is_array($manifest['items']) ? count($manifest['items']) : 0,
+    'affiliate_product_mappings' => isset($map['products']) && is_array($map['products']) ? count($map['products']) : 0,
+    'affiliate_lead_mappings' => isset($map['leads']) && is_array($map['leads']) ? count($map['leads']) : 0,
+    'last_content_sync_utc' => isset($last_sync['time']) ? (string) $last_sync['time'] : null,
+  );
+}
+
+function solar_expert_register_health_route() {
+  register_rest_route('solar-expert/v1', '/health', array(
+    'methods' => 'GET',
+    'callback' => function(){ return rest_ensure_response(solar_expert_health_payload()); },
+    'permission_callback' => '__return_true',
+  ));
+}
+add_action('rest_api_init', 'solar_expert_register_health_route');
