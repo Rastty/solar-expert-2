@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.3</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.4</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.11.3',
+    'build_marker' => 'dev-rc-0.11.4',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -906,6 +906,7 @@ function solar_expert_legacy_redirects() {
   $redirects = array(
     'veda-o-ztrate-ucinnosti-solarnich-panelu-v-prubehu-casu' => 'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu',
     'jak-funguji-solarni-panely-na-plochych-strechach' => 'kotveni-fotovoltaickych-panelu-na-ploche-strese',
+    'kotveni-fotovoltaickych-panelu-na-ploche-strese-2' => 'kotveni-fotovoltaickych-panelu-na-ploche-strese',
     'jak-vycistit-solarni-panely-pruvodce-cistenim-solaru' => 'cisteni-solarnich-panelu-proc-kdy-jak',
     'kompletni-pruvodce-velikosti-solarnich-panelu' => 'velikost-rozmery-a-hmotnost-solarnich-panelu',
     'spotreba-tepelneho-cerpadla-v-kwh' => 'prumerna-spotreba-tepelneho-cerpadla',
