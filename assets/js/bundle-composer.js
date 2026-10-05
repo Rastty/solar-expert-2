@@ -6,7 +6,7 @@ window.SolarExpertBundleComposer = {
     return [];
   },
 
-  batteryBankCandidates(products, sizing, tier) {
+  batteryBankCandidatesAll(products, sizing) {
     const matcher = window.SolarExpertProductMatcher;
     const all = [];
 
@@ -40,12 +40,16 @@ window.SolarExpertBundleComposer = {
       }
     }
 
-    const exact = all.filter(x => x.product.tier === tier);
-    const pool = exact.length ? exact : (tier === 'best' ? all : []);
-    return pool.sort((a,b) => {
+    return all.sort((a,b) => {
       if (a.totalPrice !== b.totalPrice) return a.totalPrice - b.totalPrice;
       return a.quantity - b.quantity;
     });
+  },
+
+  batteryBankCandidates(products, sizing, tier) {
+    const all = this.batteryBankCandidatesAll(products, sizing);
+    const exact = all.filter(x => x.product.tier === tier);
+    return exact.length ? exact : (tier === 'best' ? all : []);
   },
 
   controllerLimits(controller, sizing, integrated) {
