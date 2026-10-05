@@ -38,6 +38,61 @@ function solar_expert_load_catalog() {
   return $decoded;
 }
 
+function solar_expert_catalog_price_freshness($catalog, $max_days = 30) {
+  $stats = array(
+    'max_age_days' => (int) $max_days,
+    'total' => 0,
+    'fresh' => 0,
+    'stale' => 0,
+    'unknown' => 0,
+  );
+
+  $products = isset($catalog['products']) && is_array($catalog['products']) ? $catalog['products'] : array();
+  $now = time();
+
+  foreach ( $products as $product ) {
+    if ( ($product['availability'] ?? '') === 'discontinued' ) {
+      continue;
+    }
+
+    $offers = ! empty($product['offers']) && is_array($product['offers'])
+      ? $product['offers']
+      : array($product);
+
+    foreach ( $offers as $snapshot ) {
+      $price = isset($snapshot['price_czk']) ? (float) $snapshot['price_czk'] : 0;
+      if ( $price <= 0 || ($snapshot['availability'] ?? $product['availability'] ?? '') === 'discontinued' ) {
+        continue;
+      }
+
+      $stats['total']++;
+      $verified_at = isset($snapshot['verified_at'])
+        ? (string) $snapshot['verified_at']
+        : (isset($product['verified_at']) ? (string) $product['verified_at'] : '');
+
+      if ( ! $verified_at ) {
+        $stats['unknown']++;
+        continue;
+      }
+
+      $ts = strtotime($verified_at . ' 00:00:00 UTC');
+      if ( ! $ts ) {
+        $stats['unknown']++;
+        continue;
+      }
+
+      $age_days = (int) floor(max(0, $now - $ts) / DAY_IN_SECONDS);
+      if ( $age_days > (int) $max_days ) {
+        $stats['stale']++;
+      } else {
+        $stats['fresh']++;
+      }
+    }
+  }
+
+  return $stats;
+}
+
 function solar_expert_content_root() {
   return trailingslashit(get_template_directory()) . 'content/';
 }
@@ -531,6 +586,7 @@ function solar_expert_health_payload() {
   $theme = wp_get_theme();
   $last_sync = get_option('solar_expert_last_content_sync', array());
   $sync_state = solar_expert_content_sync_state();
+  $price_freshness = solar_expert_catalog_price_freshness($catalog, 30);
 
   return array(
     'status' => 'ok',
@@ -538,6 +594,11 @@ function solar_expert_health_payload() {
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
+    'catalog_price_max_age_days' => (int) ($price_freshness['max_age_days'] ?? 30),
+    'catalog_price_snapshots' => (int) ($price_freshness['total'] ?? 0),
+    'catalog_price_fresh' => (int) ($price_freshness['fresh'] ?? 0),
+    'catalog_price_stale' => (int) ($price_freshness['stale'] ?? 0),
+    'catalog_price_verification_unknown' => (int) ($price_freshness['unknown'] ?? 0),
     'manifest_schema_version' => (string) ($manifest['schemaVersion'] ?? '0'),
     'managed_content_items' => isset($manifest['items']) && is_array($manifest['items']) ? count($manifest['items']) : 0,
     'content_sync_status' => (string) ($sync_state['status'] ?? 'unknown'),
