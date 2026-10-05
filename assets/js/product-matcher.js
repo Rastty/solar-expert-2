@@ -20,11 +20,23 @@ window.SolarExpertProductMatcher={
     }
     return{pass,reasons};
   },
+  availabilityRank(product){
+    const offers=Array.isArray(product.offers)?product.offers:[];
+    if(offers.some(o=>o.availability==='in_stock'))return 2;
+    if(product.availability==='in_stock')return 2;
+    if(offers.some(o=>o.availability==='usually_in_stock')||product.availability==='usually_in_stock')return 1;
+    return 0;
+  },
+  effectivePrice(product){
+    const offers=Array.isArray(product.offers)?product.offers.filter(o=>o.availability==='in_stock'&&Number(o.price_czk)>0):[];
+    if(offers.length)return Math.min(...offers.map(o=>Number(o.price_czk)));
+    return Number(product.price_czk||Number.MAX_SAFE_INTEGER);
+  },
   rank(products,sizing){
     return products.map(product=>({product,fit:this.explain(product,sizing)})).filter(x=>x.fit.pass).sort((a,b)=>{
-      const sa=a.product.availability==='in_stock'?1:0,sb=b.product.availability==='in_stock'?1:0;
+      const sa=this.availabilityRank(a.product),sb=this.availabilityRank(b.product);
       if(sa!==sb)return sb-sa;
-      return(a.product.price_czk||999999999)-(b.product.price_czk||999999999);
+      return this.effectivePrice(a.product)-this.effectivePrice(b.product);
     });
   }
 };
