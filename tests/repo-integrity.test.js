@@ -618,3 +618,12 @@ assert(metalRoofItem.file&&fs.existsSync(path.join(__dirname,'..',metalRoofItem.
 assert(seoCore.includes("'"+metalRoofSlug+"' => array("),'Metal-roof PV guide must have dedicated SEO metadata');
 assert(leadCore.includes("'kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely'"),'Metal-roof PV guide must participate in E.ON solar funnel');
 
+const monoPolySlug='monokrystalicke-vs-polykrystalicke-solarni-panely';
+const monoPolyItem=manifest.items.find(x=>x.slug===monoPolySlug);
+assert(monoPolyItem&&monoPolyItem.preserve_status===true,'Mono-vs-poly guide must remain managed and preserve status');
+assert(monoPolyItem.file&&fs.existsSync(path.join(__dirname,'..',monoPolyItem.file)),'Mono-vs-poly rewrite file missing');
+assert(seoCore.includes("'"+monoPolySlug+"' => array("),'Mono-vs-poly guide must have dedicated SEO metadata');
+const monoPolyHtml=fs.readFileSync(path.join(__dirname,'..',monoPolyItem.file),'utf8');
+assert(monoPolyHtml.includes('TOPCon'),'Mono-vs-poly guide must reflect current cell-technology context');
+assert(monoPolyHtml.includes('/jak-vybrat-solarni-panely-pro-vas-domov/'),'Mono-vs-poly guide must route into the owned panel buyer guide');
+
