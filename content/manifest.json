@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "3.3.0",
+  "schemaVersion": "3.4.0",
   "items": [
     {
       "type": "page",
@@ -334,6 +334,22 @@
       "title": "Reálný výkon solárních panelů: proč Wp není výkon na střeše",
       "preserve_status": true,
       "file": "content/rewrites/realny-vykon-solarnich-panelu.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "minimalni-a-maximalni-teploty-tepelneho-cerpadla",
+      "title": "Tepelné čerpadlo v mrazu: minimální teplota a maximální teplota vody",
+      "preserve_status": true,
+      "file": "content/rewrites/minimalni-a-maximalni-teploty-tepelneho-cerpadla.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely",
+      "title": "Fotovoltaika na plechové střeše: kotvení, těsnění a statika",
+      "preserve_status": true,
+      "file": "content/rewrites/kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely.html",
       "create_if_missing": false
     }
   ]
