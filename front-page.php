@@ -32,6 +32,7 @@
       <a class="se-tool" href="<?php echo esc_url(home_url('/vyber-baterii/')); ?>"><span class="se-chip">P1</span><h3>Battery Selector</h3><p>Napětí, energie, vybíjecí výkon a reálný fit k měniči.</p></a>
       <a class="se-tool" href="<?php echo esc_url(home_url('/mppt-kalkulacka/')); ?>"><span class="se-chip">P1</span><h3>MPPT Selector</h3><p>PV výkon, nabíjecí proud, Voc a podporované napětí baterie.</p></a>
       <a class="se-tool" href="<?php echo esc_url(home_url('/vyber-menice/')); ?>"><span class="se-chip">P1</span><h3>Inverter Selector</h3><p>Trvalý výkon, surge, 12/24/48 V a integrovaný MPPT.</p></a>
+      <a class="se-tool" href="<?php echo esc_url(home_url('/quote-checker/')); ?>"><span class="se-chip">NEW</span><h3>Quote Checker</h3><p>Prověřte sizing konkrétní nabídky a odhalte poddimenzované komponenty.</p></a>
     </div>
   </div>
 </section>
