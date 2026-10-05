@@ -467,4 +467,5 @@ assert(wiringHtml.includes('Varianta 2S'),'12V wiring guide must show a series e
 assert(wiringHtml.includes('Varianta 2P'),'12V wiring guide must show a parallel example');
 assert(wiringHtml.includes('panely se běžně nepřipojují „jen tak“ přímo na 12V baterii'),'12V wiring guide must reject direct-panel-to-battery interpretation');
 assert(wiringHtml.includes('/mppt-kalkulacka/'),'12V wiring guide must route into MPPT calculator');
-assert(css.includes('.se-code'),'Technical wiring diagrams must have readable responsive styling');
+const wiringStyle=fs.readFileSync(path.join(__dirname,'..','style.css'),'utf8');
+assert(wiringStyle.includes('.se-code'),'Technical wiring diagrams must have readable responsive styling');
