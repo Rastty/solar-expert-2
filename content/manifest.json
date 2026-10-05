@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.7.0",
+  "schemaVersion": "1.8.0",
   "items": [
     {
       "type": "page",
@@ -181,6 +181,14 @@
       "title": "Umístění tepelného čerpadla od hranice pozemku a souseda",
       "preserve_status": true,
       "file": "content/rewrites/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "kolik-vyrobi-fotovoltaika-za-hodinu",
+      "title": "Kolik vyrobí fotovoltaika za hodinu: kW, kWh a praktické příklady",
+      "preserve_status": true,
+      "file": "content/rewrites/kolik-vyrobi-fotovoltaika-za-hodinu.html",
       "create_if_missing": false
     }
   ]
