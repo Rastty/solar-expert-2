@@ -14,6 +14,7 @@ function solar_expert_assets() {
   $dir=get_template_directory(); $uri=get_template_directory_uri();
   wp_enqueue_style('solar-expert-style', get_stylesheet_uri(), array(), filemtime($dir.'/style.css'));
   wp_enqueue_script('solar-expert-affiliate',$uri.'/assets/js/affiliate-adapter.js',array(),filemtime($dir.'/assets/js/affiliate-adapter.js'),true);
+  wp_enqueue_script('solar-expert-leads',$uri.'/assets/js/lead-cta.js',array('solar-expert-affiliate'),filemtime($dir.'/assets/js/lead-cta.js'),true);
   wp_enqueue_script('solar-expert-matcher',$uri.'/assets/js/product-matcher.js',array('solar-expert-affiliate'),filemtime($dir.'/assets/js/product-matcher.js'),true);
   wp_enqueue_script('solar-expert-bundles',$uri.'/assets/js/bundle-composer.js',array('solar-expert-matcher'),filemtime($dir.'/assets/js/bundle-composer.js'),true);
   wp_enqueue_script('solar-expert-builder',$uri.'/assets/js/builder.js',array('solar-expert-bundles'),filemtime($dir.'/assets/js/builder.js'),true);
