@@ -626,4 +626,5 @@ assert(seoCore.includes("'"+monoPolySlug+"' => array("),'Mono-vs-poly guide must
 const monoPolyHtml=fs.readFileSync(path.join(__dirname,'..',monoPolyItem.file),'utf8');
 assert(monoPolyHtml.includes('TOPCon'),'Mono-vs-poly guide must reflect current cell-technology context');
 assert(monoPolyHtml.includes('/jak-vybrat-solarni-panely-pro-vas-domov/'),'Mono-vs-poly guide must route into the owned panel buyer guide');
+assert(seoCore.includes("'jak-funguji-solarni-panely-na-plochych-strechach' => 'kotveni-fotovoltaickych-panelu-na-ploche-strese'"),'Residual flat-roof guide must redirect to canonical mounting guide');
 
