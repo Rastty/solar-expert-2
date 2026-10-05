@@ -658,6 +658,10 @@ function solar_expert_seo_meta() {
       'title' => 'LG tepelné čerpadlo recenze 2026: THERMA V R290 | Solar Expert',
       'description' => 'Technická recenze LG THERMA V 2026: R290 Monobloc, výkon v mrazu, hlučnost, teplota vody, výhody a nevýhody.'
     ),
+    'recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady' => array(
+      'title' => 'Viessmann tepelné čerpadlo recenze 2026: Vitocal 250-A | Solar Expert',
+      'description' => 'Technická recenze Viessmann Vitocal 250-A 2026: R290, výkon, hlučnost, teplota vody, výhody, nevýhody a modernizace.'
+    ),
     'tepelne-cerpadlo-nebo-elektrokotel' => array(
       'title' => 'Tepelné čerpadlo vs. elektrokotel: spotřeba a náklady | Solar Expert',
       'description' => 'Tepelné čerpadlo nebo elektrokotel? Porovnání investice, roční spotřeby, radiátorů, podlahovky a kombinace s fotovoltaikou.'
