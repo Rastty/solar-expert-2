@@ -1051,6 +1051,27 @@ function solar_expert_quarantine_legacy_frontend_plugins() {
     return $class === 'MTSNB_Shared'
       && in_array($method, array('display_bar','display_hidden_bars'), true);
   });
+
+  // Remove Simple Author Box inline style hooks as well as its content injection.
+  foreach ( array('wp_head','wp_footer') as $tag ) {
+    solar_expert_remove_matching_hook_callbacks($tag, function($callback) {
+      if ( ! is_array($callback) || ! isset($callback[0], $callback[1]) || ! is_object($callback[0]) ) {
+        return false;
+      }
+
+      return strpos(get_class($callback[0]), 'Simple_Author_Box') !== false
+        && (string) $callback[1] === 'inline_style';
+    });
+  }
+
+  solar_expert_remove_matching_hook_callbacks('wp_enqueue_scripts', function($callback) {
+    if ( ! is_array($callback) || ! isset($callback[0], $callback[1]) || ! is_object($callback[0]) ) {
+      return false;
+    }
+
+    return strpos(get_class($callback[0]), 'Simple_Author_Box') !== false
+      && in_array((string) $callback[1], array('saboxplugin_author_box_style','sab_load_scripts'), true);
+  });
 }
 add_action('wp', 'solar_expert_quarantine_legacy_frontend_plugins', PHP_INT_MAX);
 
