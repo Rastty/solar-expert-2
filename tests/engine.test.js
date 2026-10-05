@@ -334,3 +334,40 @@ assert(quoteBad.checks.some(c=>c.key==='battery'&&c.status==='fail'), 'Undersize
 assert(quoteBad.checks.some(c=>c.key==='inverter'&&c.status==='fail'), 'Undersized quote should fail inverter sizing');
 
 console.log('Solar Expert engine tests passed');
+
+
+assert(M.verificationState(null,'2026-10-05T00:00:00Z')==='unknown','Missing verification date must stay explicit as unknown');
+assert(M.verificationState('2026-09-20','2026-10-05T00:00:00Z')==='fresh','15-day verification snapshot should be fresh');
+assert(M.verificationState('2026-08-01','2026-10-05T00:00:00Z')==='stale','Old verification snapshot should be stale');
+
+const staleOfferProduct={
+  id:'stale-offer-test',
+  type:'battery',
+  system_voltage_class:48,
+  energy_wh:5000,
+  max_discharge_a:100,
+  availability:'in_stock',
+  price_czk:1000,
+  offers:[{
+    merchant:'battery-cz',
+    price_czk:999,
+    availability:'in_stock',
+    source_url:'https://www.battery.cz/',
+    verified_at:'2000-01-01'
+  }]
+};
+assert(M.effectivePrice(staleOfferProduct)===Number.MAX_SAFE_INTEGER,'Known stale verified offer must not drive effective price');
+assert(M.availabilityRank(staleOfferProduct)===1,'Known stale stock evidence may stay technically recommendable but must be downgraded from fresh in-stock rank');
+const staleResolved=A.resolveOffer(staleOfferProduct,staleOfferProduct.offers[0]);
+assert(staleResolved.price_czk===null,'Known stale offer price must be hidden in UI resolver');
+assert(staleResolved.price_freshness==='stale','UI resolver must expose stale price state');
+
+const staleDeal=B.findBundleDeal([{
+  id:'stale-deal',
+  merchant:'battery-cz',
+  availability:'in_stock',
+  components:['battery-seplos-pusung-48','inverter-growatt-48-6000'],
+  price_czk:1,
+  verified_at:'2000-01-01'
+}],['battery-seplos-pusung-48','inverter-growatt-48-6000'],99999);
+assert(staleDeal===null,'Known stale verified bundle deal must not lower bundle price');
