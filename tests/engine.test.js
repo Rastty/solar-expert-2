@@ -137,6 +137,29 @@ assert(best48.panel.stringVmp >= best48.inverter.integrated_mppt.mppt_v_min, 'Gr
 assert(best48.panel.coldStringVoc < best48.inverter.integrated_mppt.pv_voc_max * 0.98, 'Growatt cold Voc must stay below safe maximum');
 assert(best48.panel.topology.includes('S') && best48.panel.topology.includes('P'), 'Bundle must expose series/parallel topology');
 assert(best48.panel.product.id!=='panel-dah-555','Discontinued DAH panel must never be selected');
+const bundleDealSizing={voltage:48,batteryKwh:4.5,inverterW:4000,peak:7000,panelWp:1000,mpptA:30};
+const withoutDeal=B.compose(catalog.products,bundleDealSizing,[]).find(b=>b.tier==='best');
+const withDeal=B.compose(catalog.products,bundleDealSizing,catalog.bundle_deals).find(b=>b.tier==='best');
+assert(withoutDeal&&withDeal&&withoutDeal.complete&&withDeal.complete,'48V deal scenario should stay technically complete');
+assert(withoutDeal.battery.id===withDeal.battery.id&&withoutDeal.inverter.id===withDeal.inverter.id,'Bundle deal must not change technical component selection');
+assert(withDeal.battery.id==='battery-seplos-pusung-48','Deal scenario should use verified PUSUNG battery');
+assert(withDeal.inverter.id==='inverter-growatt-48-6000','Deal scenario should use verified Growatt 6000 inverter');
+assert(withDeal.bundleDeal&&withDeal.bundleDeal.id==='deal-battery-pusung-growatt6000','Verified PUSUNG + Growatt deal must attach');
+assert(withDeal.bundleDeal.savings_czk===1490,'Verified bundle deal should save 1490 CZK versus separate battery + inverter prices');
+assert(withDeal.totalPrice===Number(withDeal.bundleDeal.price_czk)+M.effectivePrice(withDeal.panel.product)*withDeal.panel.count,'Bundle total should use deal price plus panel cost');
+assert(withDeal.totalPrice===withoutDeal.totalPrice-withDeal.bundleDeal.savings_czk,'Bundle deal must lower total only by verified savings');
+assert(B.findBundleDeal([{id:'too-expensive',availability:'in_stock',components:['battery-seplos-pusung-48','inverter-growatt-48-6000'],price_czk:99999}],['battery-seplos-pusung-48','inverter-growatt-48-6000'],34480)===null,'A bundle deal must be ignored when it is not cheaper');
+
+window.SolarExpertConfig.affiliateBases={'battery-cz':'https://ehub.cz/system/scripts/click.php?a_aid=testpub&a_bid=testbattery'};
+const resolvedDeal=A.resolveBundleDeal(withDeal.bundleDeal);
+assert(resolvedDeal.monetized,'Verified bundle deal should use merchant affiliate base when available');
+assert(new URL(resolvedDeal.href).searchParams.get('desturl')===withDeal.bundleDeal.source_url,'Bundle affiliate deeplink must target exact set URL');
+window.dataLayer=[];
+A.trackBundleDeal(withDeal.bundleDeal,'builder-best');
+assert(window.dataLayer.some(e=>e.event==='bundle_deal_click'&&e.dealId===withDeal.bundleDeal.id),'Bundle deal click must emit dedicated analytics event');
+window.SolarExpertConfig.affiliateBases={};
+window.dataLayer=[];
+
 const discontinuedOnly=B.findPanelPlan(
   catalog.products.filter(p=>p.id==='panel-dah-555'),
   {voltage:48,panelWp:1000},
