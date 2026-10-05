@@ -421,3 +421,26 @@ assert(viessmannHtml.includes('data-se-lead-id="eon-heat-pump"'),'Viessmann revi
 assert(!viessmannHtml.includes('Renewable Heat Incentive'),'Viessmann review must not keep obsolete UK RHI guidance');
 assert(!viessmannHtml.includes('120 000 korun do více než 350 000'),'Viessmann review must not keep stale undated price range');
 assert(viessmannHtml.includes('nejde o placenou recenzi Viessmannu'),'Viessmann review must disclose methodology and independence');
+
+
+const legacyCleanupCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
+assert(legacyCleanupCore.includes('solar_expert_quarantine_legacy_frontend_plugins'),'Legacy frontend quarantine must be scoped and explicit');
+assert(legacyCleanupCore.includes("function_exists('snp_footer')"),'Ninja Popups footer output must be quarantined');
+assert(legacyCleanupCore.includes("MTSNB_Shared"),'MyThemeShop notification bar object callbacks must be targeted by class');
+assert(legacyCleanupCore.includes("display_bar"),'Legacy notification-bar display callback must be removed');
+assert(legacyCleanupCore.includes("display_hidden_bars"),'Legacy delayed notification-bar callback must be removed');
+assert(legacyCleanupCore.includes("wpsabox_author_box"),'Simple Author Box content injection must be removed');
+assert(legacyCleanupCore.includes("Simple_Author_Box"),'Simple Author Box styles/scripts must be removed by class signature');
+assert(legacyCleanupCore.includes("SeoAutomatedLinkBuilding\\\\Plugin"),'SEO Automated Link Building content mutation must be targeted by exact class');
+assert(legacyCleanupCore.includes("changeContent"),'SEO Automated Link Building the_content callback must be removed');
+for(const legacyPath of [
+  '/plugins/mts-wp-notification-bar/',
+  '/plugins/arscode-ninja-popups/',
+  '/plugins/simple-author-box/',
+  '/plugins/seo-automated-link-building/'
+]){
+  assert(legacyCleanupCore.includes(legacyPath),'Legacy frontend asset path must be quarantined: '+legacyPath);
+}
+assert(legacyCleanupCore.includes('if ( is_admin() )'),'Legacy quarantine must leave WordPress admin behavior untouched');
+assert(!legacyCleanupCore.includes("remove_all_actions('wp_footer'"),'Legacy cleanup must never remove all wp_footer callbacks');
+assert(!legacyCleanupCore.includes("remove_all_filters('the_content'"),'Legacy cleanup must never remove all the_content filters');
