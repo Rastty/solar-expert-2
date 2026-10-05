@@ -544,4 +544,9 @@ assert(copItem.file&&fs.existsSync(path.join(__dirname,'..',copItem.file)),'COP/
 assert(seoCore.includes("'ucinnost-tepelneho-cerpadla-se-zdrojem-vzduchu' => 'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla'"),'Overlapping efficiency URL must redirect to the canonical COP/SCOP guide');
 assert(seoCore.includes("'"+airWaterSlug+"' => array("),'Air-water guide must have dedicated SEO metadata');
 assert(seoCore.includes("'"+copSlug+"' => array("),'COP/SCOP guide must have dedicated SEO metadata');
+const heatPumpPrincipleSlug='jak-funguje-tepelne-cerpadlo';
+const heatPumpPrincipleItem=manifest.items.find(x=>x.slug===heatPumpPrincipleSlug);
+assert(heatPumpPrincipleItem&&heatPumpPrincipleItem.preserve_status===true,'Heat-pump principle guide must remain managed and preserve status');
+assert(heatPumpPrincipleItem.file&&fs.existsSync(path.join(__dirname,'..',heatPumpPrincipleItem.file)),'Heat-pump principle rewrite file missing');
+assert(seoCore.includes("'"+heatPumpPrincipleSlug+"' => array("),'Heat-pump principle guide must have dedicated SEO metadata');
 
