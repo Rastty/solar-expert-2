@@ -41,6 +41,12 @@ assert(merchantIds.size>0,'Merchant registry must not be empty');
 
 for(const product of source.products||[]){
   assert(product.id&&typeof product.id==='string','Product is missing id');
+  if(Number(product.parallel_max_units||1)>1){
+    assert(product.type==='battery','Only battery products may declare parallel_max_units: '+product.id);
+    assert(Number.isInteger(Number(product.parallel_max_units))&&Number(product.parallel_max_units)>=2,'parallel_max_units must be an integer >=2: '+product.id);
+    assert(/^https:\/\//.test(product.parallel_evidence_url||''),'Parallel battery evidence URL must be HTTPS: '+product.id);
+    assert(/^\d{4}-\d{2}-\d{2}$/.test(product.parallel_verified_at||''),'Parallel battery evidence must be date-stamped: '+product.id);
+  }
   assert(merchantIds.has(product.merchant),'Unknown primary merchant '+product.merchant+' for '+product.id);
   if(Array.isArray(product.offers)){
     const offerMerchants=new Set();
@@ -315,3 +321,12 @@ assert(builderTemplate.includes('Výhodnější set baterie + měnič'),'Builder
 assert(builderTemplate.includes('trackBundleDeal'),'Builder bundle-deal CTA must emit dedicated analytics');
 assert(affiliateAdapter.includes('resolveBundleDeal(deal)'),'Affiliate adapter must resolve bundle deals through merchant base links');
 assert(affiliateAdapter.includes("event:'bundle_deal_click'"),'Bundle deal clicks must emit a dedicated dataLayer event');
+
+
+const builderJs=fs.readFileSync(path.join(__dirname,'..','assets','js','builder.js'),'utf8');
+const composerJs=fs.readFileSync(path.join(__dirname,'..','assets','js','bundle-composer.js'),'utf8');
+assert(composerJs.includes('batteryBankCandidates(products, sizing, tier)'),'Bundle composer must support verified battery banks');
+assert(composerJs.includes('batteryBank.quantity === 1'),'Bundle deal must be limited to single-battery bundles');
+assert(builderJs.includes('Paralelní bateriový bank'),'Builder checklist must surface parallel-bank verification');
+assert(builderTemplate.includes("b.batteryQuantity||1"),'Builder must render battery quantity');
+assert(builderTemplate.includes('kWh celkem'),'Builder must render total battery-bank energy');
