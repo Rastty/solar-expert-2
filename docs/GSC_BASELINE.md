@@ -42,3 +42,36 @@ Portfolio summary:
 ## Rule for future work
 
 Use this baseline only as historical evidence. New production changes should prefer fresher Prometheus GSC captures when available. Preserve URLs with existing clicks or meaningful impressions; consolidate only where duplicate intent is evidenced and redirect targets are stronger.
+
+## Fresh Prometheus refresh — 2026-10-05
+
+Source: read-only Prometheus workflow `Prometheus Solar Expert GSC refresh`, run `37320112710`. No Search Console or production writes.
+
+Fresh final Search Console data:
+- 90 days: **111 measured page rows, 14 clicks, 3,284 impressions**
+- 28 days: **80 measured page rows, 4 clicks, 908 impressions**
+
+### Current solar near-wins
+
+| URL | 90d clicks | 90d impressions | 90d avg. position | 28d impressions | 28d avg. position | Decision |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `/kolik-panelu-je-potreba-na-jeden-string/` | 1 | 85 | 10.02 | 30 | 9.90 | P1 rewrite + MPPT internal links |
+| `/fotovoltaika-na-eternitovou-strechu/` | 0 | 53 | 10.64 | 18 | 9.28 | P1 rewrite; improve CTR + safety/intent |
+| `/nataceni-solarnich-panelu-za-sluncem/` | 1 | 56 | 8.46 | 14 | 4.21 | protect; no rewrite now |
+| `/jak-zapojit-solarni-panely/` | 0 | 65 | 47.60 | 14 | 37.57 | rewritten from observed query intent; monitor |
+| `/co-je-1-kwp/` | 0 | 56 | 39.71 | 7 | 43.86 | rewritten from observed query intent; monitor |
+
+Other fresh signal: `/velikost-rozmery-a-hmotnost-solarnich-panelu/` has 42 impressions in the last 28 days at average position 33.4; its rewrite is already deployed in the rescue batch.
+
+### URL inspection snapshot
+
+- homepage: **PASS / Submitted and indexed**
+- `/jak-zapojit-solarni-panely/`: **PASS / Submitted and indexed**
+- `/co-je-1-kwp/`: **PASS / Submitted and indexed**
+- `/fve-panely-na-strechu/`: **PASS / Submitted and indexed**
+- `/fotovoltaika-na-eternitovou-strechu/`: **PASS / Submitted and indexed**
+- `/fotovoltaika-vykon-na-m2/`: **Crawled – currently not indexed**; canonical correct
+- newly created tool pages (`solarni-sestava-na-chatu`, selectors, Quote Checker): **URL unknown to Google** at capture time, consistent with being newly published. Sitewide footer/internal links were strengthened; monitor before taking further indexing action.
+
+The fresh refresh supersedes the historical snapshot for prioritization; the historical section remains useful for trend/context.
+
