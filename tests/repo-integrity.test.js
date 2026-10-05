@@ -751,3 +751,15 @@ assert(pvCoolingHtml.includes('/vysvetleni-solarnich-panelu-pv-t/'),'PV cooling 
 assert(pvCoolingHtml.includes('/proc-se-solarni-panely-neprehrivaji/'),'PV cooling guide must cross-link the temperature/overheating intent');
 assert(!pvCoolingHtml.includes('chlazení je klíčovým prvkem'),'PV cooling guide must not retain universal active-cooling claims');
 
+const trackerSlug='nataceni-solarnich-panelu-za-sluncem';
+const trackerItem=manifest.items.find(x=>x.slug===trackerSlug);
+assert(trackerItem&&trackerItem.preserve_status===true,'Solar tracker guide must remain managed and preserve status');
+assert(trackerItem.file&&fs.existsSync(path.join(__dirname,'..',trackerItem.file)),'Solar tracker rewrite file missing');
+assert(seoCore.includes("'nataceni-solarnich-panelu-za-sluncem' => array("),'Solar tracker top-ranking SEO metadata must remain present');
+const trackerHtml=fs.readFileSync(path.join(__dirname,'..',trackerItem.file),'utf8');
+assert(trackerHtml.includes('Backtracking'),'Solar tracker guide must explain backtracking');
+assert(trackerHtml.includes('Wind-stow'),'Solar tracker guide must explain wind-stow');
+assert(trackerHtml.includes('Jednoosý vs. dvouosý tracker'),'Solar tracker guide must compare tracker types');
+assert(trackerHtml.includes('/kolik-vyrobi-fotovoltaika-za-rok/'),'Solar tracker guide must route into annual-yield methodology');
+assert(!trackerHtml.includes('Text odpovědi'),'Solar tracker guide must not retain placeholder FAQ content');
+
