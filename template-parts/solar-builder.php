@@ -48,7 +48,10 @@
         <div class="se-bundle" :class="b.tier==='best'?'best':''">
           <div class="se-bundle-head">
             <div><span class="se-chip" x-text="b.label"></span><div class="se-muted" style="font-size:12px;margin-top:5px" x-text="b.complete?'předběžně kompatibilní':'zatím neúplná varianta'"></div></div>
-            <strong x-show="b.complete && b.priceComplete"><span x-text="b.totalPrice?.toLocaleString('cs-CZ')"></span> Kč</strong>
+            <div style="text-align:right">
+              <strong x-show="b.complete && b.priceComplete"><span x-text="b.totalPrice?.toLocaleString('cs-CZ')"></span> Kč</strong>
+              <small class="se-muted" style="display:block" x-show="b.bundleDeal">celkem při využití setu</small>
+            </div>
             <span class="se-muted" x-show="b.complete && !b.priceComplete">cena se doplní</span>
           </div>
 
@@ -58,6 +61,20 @@
             <div><strong>Baterie:</strong> <span x-text="b.battery?.name"></span></div>
             <div><strong>Měnič:</strong> <span x-text="b.inverter?.name"></span></div>
             <div><strong>MPPT:</strong> <span x-text="b.integratedMppt?'integrovaný v měniči':b.mppt?.name"></span></div>
+
+            <div class="se-bundle-deal" x-show="b.bundleDeal">
+              <div>
+                <small>Výhodnější set baterie + měnič</small>
+                <strong x-text="b.bundleDeal?.label"></strong>
+                <span class="se-muted">Ověřená cena setu <strong x-text="b.bundleDeal?.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong> · úspora <strong x-text="b.bundleDeal?.savings_czk?.toLocaleString('cs-CZ')+' Kč'"></strong> proti stejným komponentům zvlášť.</span>
+              </div>
+              <a class="se-btn se-btn-primary" target="_blank"
+                 :href="SolarExpertAffiliate.resolveBundleDeal(b.bundleDeal).href"
+                 :rel="SolarExpertAffiliate.resolveBundleDeal(b.bundleDeal).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                 @click="SolarExpertAffiliate.trackBundleDeal(b.bundleDeal,'builder-'+b.tier)">
+                 Koupit jako set →
+              </a>
+            </div>
 
             <div class="se-offer-groups">
               <div class="se-offer-group">
