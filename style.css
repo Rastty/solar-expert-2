@@ -3,7 +3,7 @@ Theme Name: Solar Expert 2.0
 Theme URI: https://solar-expert.cz/
 Author: Solar Expert
 Description: Independent solar decision engine for CZ/SK.
-Version: 0.3.0
+Version: 0.4.0
 Text Domain: solar-expert-2
 */
 
@@ -32,3 +32,9 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-checks{display:grid;gap:10px;margin:12px 0}.se-check{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:white}.se-check p{margin:4px 0 0;color:var(--muted);font-size:14px}.se-check>span{font-size:11px;font-weight:850;letter-spacing:.08em}.se-check.pass>span{color:#176638}.se-check.warn>span{color:#946b00}.se-check.fail>span{color:#a33224}.se-check.info>span{color:#37637e}
 @media(max-width:1050px){.se-tools{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.se-menu{display:none}.se-hero-grid{grid-template-columns:1fr}.se-tools,.se-cardgrid{grid-template-columns:1fr}.se-footer-inner{grid-template-columns:1fr}.se-formgrid{grid-template-columns:1fr}.se-hero{padding-top:48px}}
+
+.se-offer-groups{display:grid;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.se-offer-group>small{display:block;color:var(--muted);font-weight:750;margin-bottom:6px}
+.se-offer-links{display:flex;gap:8px;flex-wrap:wrap}
+.se-offer{display:inline-flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid rgba(20,33,28,.14);border-radius:12px;background:var(--paper);font-size:13px}
+.se-offer:hover{border-color:var(--green3);background:#edf5f1}.se-offer strong{font-size:12px}
