@@ -51,6 +51,7 @@
             <strong x-show="b.complete && b.priceComplete"><span x-text="b.totalPrice?.toLocaleString('cs-CZ')"></span> Kč</strong>
             <span class="se-muted" x-show="b.complete && !b.priceComplete">cena se doplní</span>
           </div>
+
           <div x-show="b.complete" style="margin-top:12px;font-size:14px">
             <div><strong>Panely:</strong> <span x-text="b.panel?.count"></span>× <span x-text="b.panel?.product?.name"></span> · <strong x-text="b.panel?.topology"></strong></div>
             <div class="se-muted"><span x-text="b.panel?.totalWp"></span> Wp · string Vmp <span x-text="b.panel?.stringVmp"></span> V · cold Voc <span x-text="b.panel?.coldStringVoc"></span> V</div>
@@ -58,38 +59,67 @@
             <div><strong>Měnič:</strong> <span x-text="b.inverter?.name"></span></div>
             <div><strong>MPPT:</strong> <span x-text="b.integratedMppt?'integrovaný v měniči':b.mppt?.name"></span></div>
 
-            <div class="se-actions" style="margin-top:12px">
-              <a class="se-btn" target="_blank"
-                 :href="SolarExpertAffiliate.resolve(b.battery).href"
-                 :rel="SolarExpertAffiliate.resolve(b.battery).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
-                 @click="SolarExpertAffiliate.track(b.battery,'builder-battery-'+b.tier)">
-                Baterie · <span x-text="SolarExpertAffiliate.resolve(b.battery).merchant?.label"></span> →
-              </a>
-              <a class="se-btn" target="_blank"
-                 :href="SolarExpertAffiliate.resolve(b.inverter).href"
-                 :rel="SolarExpertAffiliate.resolve(b.inverter).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
-                 @click="SolarExpertAffiliate.track(b.inverter,'builder-inverter-'+b.tier)">
-                Měnič · <span x-text="SolarExpertAffiliate.resolve(b.inverter).merchant?.label"></span> →
-              </a>
-              <a class="se-btn" target="_blank"
-                 :href="SolarExpertAffiliate.resolve(b.panel?.product).href"
-                 :rel="SolarExpertAffiliate.resolve(b.panel?.product).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
-                 @click="SolarExpertAffiliate.track(b.panel?.product,'builder-panel-'+b.tier)">
-                Panely · <span x-text="SolarExpertAffiliate.resolve(b.panel?.product).merchant?.label"></span> →
-              </a>
-              <a class="se-btn" x-show="!b.integratedMppt" target="_blank"
-                 :href="SolarExpertAffiliate.resolve(b.mppt).href"
-                 :rel="SolarExpertAffiliate.resolve(b.mppt).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
-                 @click="SolarExpertAffiliate.track(b.mppt,'builder-mppt-'+b.tier)">
-                MPPT · <span x-text="SolarExpertAffiliate.resolve(b.mppt).merchant?.label"></span> →
-              </a>
+            <div class="se-offer-groups">
+              <div class="se-offer-group">
+                <small>Baterie · kde koupit</small>
+                <div class="se-offer-links">
+                  <template x-for="o in SolarExpertAffiliate.offers(b.battery).slice(0,2)" :key="b.battery?.id+'-'+o.merchantId">
+                    <a class="se-offer" target="_blank" :href="o.href"
+                       :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                       @click="SolarExpertAffiliate.trackOffer(b.battery,o.raw,'builder-battery-'+b.tier)">
+                      <span x-text="o.merchant?.label"></span><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                    </a>
+                  </template>
+                </div>
+              </div>
+
+              <div class="se-offer-group">
+                <small>Měnič · kde koupit</small>
+                <div class="se-offer-links">
+                  <template x-for="o in SolarExpertAffiliate.offers(b.inverter).slice(0,2)" :key="b.inverter?.id+'-'+o.merchantId">
+                    <a class="se-offer" target="_blank" :href="o.href"
+                       :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                       @click="SolarExpertAffiliate.trackOffer(b.inverter,o.raw,'builder-inverter-'+b.tier)">
+                      <span x-text="o.merchant?.label"></span><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                    </a>
+                  </template>
+                </div>
+              </div>
+
+              <div class="se-offer-group">
+                <small>Panely · kde koupit</small>
+                <div class="se-offer-links">
+                  <template x-for="o in SolarExpertAffiliate.offers(b.panel?.product).slice(0,2)" :key="b.panel?.product?.id+'-'+o.merchantId">
+                    <a class="se-offer" target="_blank" :href="o.href"
+                       :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                       @click="SolarExpertAffiliate.trackOffer(b.panel?.product,o.raw,'builder-panel-'+b.tier)">
+                      <span x-text="o.merchant?.label"></span><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                    </a>
+                  </template>
+                </div>
+              </div>
+
+              <div class="se-offer-group" x-show="!b.integratedMppt">
+                <small>MPPT · kde koupit</small>
+                <div class="se-offer-links">
+                  <template x-for="o in SolarExpertAffiliate.offers(b.mppt).slice(0,2)" :key="b.mppt?.id+'-'+o.merchantId">
+                    <a class="se-offer" target="_blank" :href="o.href"
+                       :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                       @click="SolarExpertAffiliate.trackOffer(b.mppt,o.raw,'builder-mppt-'+b.tier)">
+                      <span x-text="o.merchant?.label"></span><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                    </a>
+                  </template>
+                </div>
+              </div>
             </div>
           </div>
+
           <div x-show="!b.complete" class="se-muted" style="margin-top:12px">Chybí ověřená data / produkt: <span x-text="(b.missing||[]).join(', ')"></span>.</div>
         </div>
       </template>
     </div>
-    <div class="se-note" style="margin-top:14px">Výsledek je sizing a předběžný compatibility check. Před nákupem je nutné ověřit kabeláž, jištění, teplotní Voc a přesný datasheet.</div>
+
+    <div class="se-note" style="margin-top:14px">Výsledek je sizing a předběžný compatibility check. Ceny jsou orientační snapshoty a technický ranking není ovlivněn affiliate provizí. Před nákupem ověřte kabeláž, jištění, teplotní Voc a přesný datasheet.</div>
     <div class="se-actions"><button class="se-btn" @click="reset()">Přepočítat</button></div>
   </div>
 </div>
