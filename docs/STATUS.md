@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.6.9`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.7.0`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -53,6 +53,8 @@ Git-first development active on `dev`.
 - Owned-first heat-pump funnel: legacy traffic is internally routed to the FVE + heat-pump decision page before the outbound E.ON CTA
 - Shared E.ON base: one optional `eon-cz` eHub base automatically monetizes both `eon-solar` and `eon-heat-pump`; explicit lead mappings remain overrides
 - Samsung review refresh: legacy 2023 article replaced with 2026 EHS R290 buyer guide, current manufacturer-backed specs and no stale UK RHI/cost claims
+- Structured data discovery: WebSite + Organization + BreadcrumbList + WebApplication for five tools + Article for posts, disabled when a major SEO plugin owns schema
+- Overheating/cooling protection: two fresh top-10 URLs kept separate; only zero-click overheating page gets CTR-focused metadata
 - Production deploy: active RC with manual Git pull/update
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
