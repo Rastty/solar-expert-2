@@ -16,7 +16,7 @@ Git-first development active on `dev`.
 - Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
 - Verified small 12V bundle path: ROGERELE REP1000-12
 - Affiliate map: stored in WordPress option with admin settings UI; no deeplinks in public GitHub
-- Managed content manifest: 39 items (money pages, transparency pages and legacy rewrites)
+- Managed content manifest: 40 items (money pages, transparency pages and legacy rewrites)
 - Repository guardrails: catalog parity, offer/merchant integrity, no public affiliate deeplinks, manifest target validation
 - Obsolete duplicate bootstrap theme: removed
 - Product comparison: compares complete bundles on battery, continuous/surge inverter power, PV and MPPT fit
@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.11`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.12`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -62,6 +62,9 @@ Git-first development active on `dev`.
 - Heat-pump principle refresh: `/jak-funguje-tepelne-cerpadlo/` (99 fresh-GSC impressions) rebuilt as a clean four-stage thermodynamic explainer with COP and buyer-guide routing; stale UK grant/translation content removed
 - PVT intent separation: `vysvetleni-solarnich-panelu-pv-t` remains a distinct hybrid electricity+heat guide; obsolete UK incentive and unsupported legacy efficiency claims removed
 - Winter PV consolidation: two overlapping winter-efficiency URLs merged into one managed guide; `co-dela-fotovoltaika-kdyz-je-zima` now 301s to the canonical winter-performance/snow/tilt page
+- Real-world PV performance refresh: `realny-vykon-solarnich-panelu` rebuilt around STC, irradiance, cell temperature, MPPT, clipping and BOS losses; exact query already had a top-5 signal
+- Panel buyer-guide upgrade: added independent-review criteria (IEC 61215/61730, warranties, degradation, mechanical reliability and Kiwa PVEL 2026) and joined the active E.ON solar funnel
+- Panel review consolidation: copied Australian `recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii` now 301s to the owned panel buyer guide
 - Solar principle refresh: `solarni-panel-definice-a-fakta` rebuilt as the owner of `jak funguje solární panel`, replacing copied/legacy encyclopedia-style content with an original PV-effect explainer
 - Heat-pump lifespan refresh: 43 disclosed GSC query impressions now map to a managed guide covering compressor starts, cycling, service and replace-vs-repair; the page joins the bounded E.ON/related-links funnel
 - Air-water TČ consolidation: 153-impression legacy buyer page rebuilt for 2026; overlapping `vzduch-vzduch-vs-vzduch-voda` URL now 301s into the canonical air-water guide
