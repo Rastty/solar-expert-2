@@ -212,3 +212,14 @@ Decision:
 - expand the buyer guide with warranty, IEC 61215/61730, degradation, mechanical-load and 2026 Kiwa PVEL reliability criteria;
 - keep `/realny-vykon-solarnich-panelu/` as a separate intent owner and rebuild it around STC, irradiance, cell temperature, MPPT, clipping and BOS losses.
 
+### TČ temperature and metal-roof opportunity
+
+Fresh raw 90-day GSC page-query evidence from the 2026-10-05 Prometheus artifact:
+- `/minimalni-a-maximalni-teploty-tepelneho-cerpadla/`: 18 disclosed query impressions, led by `výstupní teplota tepelného čerpadla` (7) plus water-temperature and minimum-outdoor-temperature variants.
+- `/kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely/`: 15 disclosed query impressions around roof-integrated PV, metal roofing and photovoltaic roof-covering intent.
+
+Decision:
+- rebuild the TČ temperature page around model-specific operating envelopes, output-water temperature, performance in frost and bivalent backup rather than a fake universal temperature range;
+- rebuild the metal-roof page around standing seam, trapezoidal sheet, penetrations, sealing, statics, wind/snow and corrosion rather than old US roofing marketing;
+- add both pages to their bounded E.ON lead funnels.
+
