@@ -3,7 +3,7 @@ window.SolarExpertAffiliate = {
     'battery-cz': {label:'Battery.cz', approved:true},
     'solar-import-cz': {label:'Solar-Import.cz', approved:true},
     'ampul-eu': {label:'Ampul.eu', approved:true},
-    'eon-cz': {label:'E.ON.cz', approved:true},
+    'eon-cz': {label:'E.ON.cz', approved:false},
     'vselektro-eu': {label:'VS Elektro', approved:false}
   },
 
