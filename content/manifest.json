@@ -64,6 +64,22 @@
       "preserve_status": true,
       "file": "content/rewrites/fve-panely-na-strechu.html",
       "create_if_missing": false
+    },
+    {
+      "type": "page",
+      "slug": "jak-doporucujeme",
+      "title": "Jak Solar Expert doporučuje produkty",
+      "status_if_new": "draft",
+      "create_if_missing": true,
+      "file": "content/pages/jak-doporucujeme.html"
+    },
+    {
+      "type": "page",
+      "slug": "affiliate-transparentnost",
+      "title": "Affiliate transparentnost",
+      "status_if_new": "draft",
+      "create_if_missing": true,
+      "file": "content/pages/affiliate-transparentnost.html"
     }
   ]
 }
