@@ -3,7 +3,7 @@
 Git-first development active on `dev`.
 
 - WordPress theme root: ready
-- Builder: implemented
+- Builder: implemented with product comparison + completion checklist
 - Battery Selector: implemented and offer-enabled
 - MPPT Selector: implemented, offer-enabled, cold-Voc + MPPT start-window checks added
 - Inverter Selector: implemented and offer-enabled
@@ -19,13 +19,17 @@ Git-first development active on `dev`.
 - Managed content manifest: 14 items (money pages, transparency pages and legacy rewrites)
 - Repository guardrails: catalog parity, offer/merchant integrity, no public affiliate deeplinks, manifest target validation
 - Obsolete duplicate bootstrap theme: removed
+- Product comparison: compares complete bundles on battery, continuous/surge inverter power, PV and MPPT fit
+- “Co ještě potřebuji?”: separates included core components from site-specific protection/cabling/mounting work
+- Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
+- Pre-production QA gate + rollback runbook: added
 - Production deploy: intentionally not enabled yet
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
 
 Next:
-1. connect/verify Deployer for Git against `Rastty/solar-expert-2` branch `dev`,
-2. populate real merchant-specific affiliate deeplinks in WordPress settings,
-3. extend multi-merchant offers to more duplicated SKUs only where current price/availability are verified,
-4. run staging/pre-production UX and mobile QA,
-5. use GSC query/page data for the next rewrite batch.
+1. connect/verify Deployer for Git against `Rastty/solar-expert-2` branch `dev` as a theme rooted at the repository root,
+2. run `docs/PREPROD_QA.md` on staging/preview,
+3. populate real merchant-specific affiliate deeplinks in WordPress settings,
+4. fix only QA findings that block release,
+5. after stable deployment, use GSC query/page data for the next rewrite batch.
