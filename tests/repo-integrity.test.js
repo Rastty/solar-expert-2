@@ -505,3 +505,11 @@ assert(settingsCore.includes('Známě starší snapshot než 30 dní'),'Admin di
 assert(affiliateAdapter.includes("price_freshness: freshness"),'Affiliate offers must expose price freshness state');
 assert(affiliateAdapter.includes("freshness === 'stale' ? null"),'Affiliate offer UI must suppress known stale prices');
 assert(composerJs.includes("verificationState(deal.verified_at) === 'stale'"),'Bundle composer must ignore known stale set prices');
+
+const heatPumpConsumptionSlug='prumerna-spotreba-tepelneho-cerpadla';
+const heatPumpConsumptionItem=manifest.items.find(x=>x.slug===heatPumpConsumptionSlug);
+assert(heatPumpConsumptionItem&&heatPumpConsumptionItem.preserve_status===true,'Heat-pump consumption canonical must be managed without changing publication status');
+assert(heatPumpConsumptionItem.file&&fs.existsSync(path.join(__dirname,'..',heatPumpConsumptionItem.file)),'Heat-pump consumption rewrite file missing');
+assert(seoCore.includes("'prumerna-spotreba-tepelneho-cerpadla' => array("),'Heat-pump consumption canonical must have dedicated SEO metadata');
+assert(seoCore.includes("'spotreba-tepelneho-cerpadla-v-kwh' => 'prumerna-spotreba-tepelneho-cerpadla'"),'Duplicate heat-pump consumption URL must 301 to the canonical guide');
+
