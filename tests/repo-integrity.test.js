@@ -242,10 +242,17 @@ assert(comboHtml.includes('/solarni-sestava-na-chatu/'),'Combined FVE + heat-pum
 assert(comboHtml.includes('ověřeno říjen 2026'),'Time-sensitive price benchmark must be explicitly date-stamped');
 
 
+assert(leadCore.includes("function solar_expert_append_heat_pump_related_links"),'Heat-pump cluster must expose a dedicated related-links renderer');
+assert(leadCore.includes('data-se-related="heat-pump-cluster"'),'Heat-pump cluster must expose related-guide marker');
+assert(leadCore.includes("/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/"),'Heat-pump cluster must link the comparison hub');
+assert(leadCore.includes("/prumerna-spotreba-tepelneho-cerpadla/"),'Heat-pump cluster must link the consumption guide');
+assert(leadCore.includes("/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/"),'Heat-pump cluster must link the FVE + heat-pump decision page');
+
 assert(leadCore.includes("function solar_expert_solar_lead_slugs()"),'Solar lead CTA must be bounded by an explicit allowlist');
 assert(leadCore.includes("'eon-solar'"),'Solar lead CTA must use the canonical E.ON solar lead key');
 assert(leadCore.includes("https://www.eon.cz/domacnosti/usporne-technologie/solar/"),'Solar lead CTA must retain a safe public fallback');
 assert(leadCore.includes("data-se-placement=\"solar_legacy_article\""),'Solar lead CTA must expose a stable measurement placement');
+assert(leadCore.includes("home_url('/quote-checker/')"),'Solar lead CTA must route through Quote Checker before outbound E.ON comparison');
 for(const slug of ['fve-panely-na-strechu','fotovoltaika-na-eternitovou-strechu','kotveni-fotovoltaickych-panelu-na-ploche-strese','velikost-rozmery-a-hmotnost-solarnich-panelu','fotovoltaika-vykon-na-m2','kolik-vyrobi-fotovoltaika-za-rok','fotovoltaika-na-pozemku']){
   assert(leadCore.includes("'"+slug+"'"),'Solar lead allowlist must include GSC-backed planning page: '+slug);
 }
