@@ -682,3 +682,17 @@ assert(inverterSelectorTpl.includes('x-show="catalogLoading"'),'Inverter Selecto
 assert(inverterSelectorTpl.includes('x-show="catalogError"'),'Inverter Selector must show catalog error feedback');
 assert(inverterSelectorTpl.includes("!catalogLoading && !catalogError && inputValid && !matches.length"),'Inverter Selector must distinguish no-match from loading/error/invalid input');
 
+const quoteCheckerJsUx=fs.readFileSync(path.join(__dirname,'..','assets','js','quote-checker.js'),'utf8');
+const quoteCheckerTplUx=fs.readFileSync(path.join(__dirname,'..','template-parts','quote-checker.php'),'utf8');
+assert(quoteCheckerJsUx.includes('batteryBmsA:null'),'Quote Checker must expose optional BMS-current input');
+assert(quoteCheckerJsUx.includes('get inputValid()'),'Quote Checker must validate core numeric inputs');
+assert(quoteCheckerJsUx.includes("push('bms','Baterie / BMS proud','fail'"),'Quote Checker must flag clearly insufficient BMS current');
+assert(quoteCheckerJsUx.includes("push('bms','Baterie / BMS proud','warn'"),'Quote Checker must warn on marginal BMS current');
+assert(quoteCheckerTplUx.includes('id="se-quote-battery-bms-a"'),'Quote Checker BMS input id missing');
+assert(quoteCheckerTplUx.includes('for="se-quote-battery-bms-a"'),'Quote Checker BMS label association missing');
+assert(quoteCheckerTplUx.includes('x-show="inputError"'),'Quote Checker must expose invalid-input feedback');
+for(const id of ['se-quote-daily-kwh','se-quote-season','se-quote-autonomy','se-quote-load-w','se-quote-surge-w','se-quote-panel-wp','se-quote-battery-kwh','se-quote-inverter-w','se-quote-inverter-peak-w','se-quote-system-voltage','se-quote-price']){
+  assert(quoteCheckerTplUx.includes('for="'+id+'"'),'Quote Checker label must target '+id);
+  assert(quoteCheckerTplUx.includes('id="'+id+'"'),'Quote Checker control id missing: '+id);
+}
+
