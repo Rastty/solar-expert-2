@@ -13,6 +13,19 @@ add_shortcode('solar_expert_mppt_selector', fn()=>solar_expert_render_part('mppt
 add_shortcode('solar_expert_inverter_selector', fn()=>solar_expert_render_part('inverter-selector'));
 add_shortcode('solar_expert_quote_checker', fn()=>solar_expert_render_part('quote-checker'));
 
+function solar_expert_public_url($slug, $fallback = '/#builder') {
+  $post = get_page_by_path(sanitize_title($slug), OBJECT, 'page');
+  if ( $post && $post->post_status === 'publish' ) {
+    return get_permalink($post);
+  }
+  return home_url($fallback);
+}
+
+function solar_expert_public_page_exists($slug) {
+  $post = get_page_by_path(sanitize_title($slug), OBJECT, 'page');
+  return (bool) ($post && $post->post_status === 'publish');
+}
+
 function solar_expert_content_root() {
   return trailingslashit(get_template_directory()) . 'content/';
 }
