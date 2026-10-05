@@ -1,4 +1,41 @@
-<p class="se-lead">Měnič nevybírejte jen podle čísla ve wattech. Potřebujete správné DC napětí, trvalý výkon a dostatečnou rozběhovou rezervu.</p>
+<p class="se-lead">Měnič pro ostrovní nebo záložní systém nevybírejte podle jediného marketingového čísla ve wattech. Potřebujete správné DC napětí, dostatečný trvalý výkon a špičkovou rezervu pro rozběh motorových spotřebičů.</p>
+
 [solar_expert_inverter_selector]
+
+<h2>Trvalý výkon a surge nejsou totéž</h2>
+<p><strong>Trvalý výkon</strong> musí pokrýt spotřebiče, které mohou běžet současně. <strong>Peak nebo surge</strong> řeší krátké špičky, typicky při startu čerpadla, kompresoru, lednice nebo některého elektrického nářadí. Silná rozběhová špička proto automaticky neznamená, že potřebujete stejně vysoký trvalý výkon.</p>
+
+<h2>Proč záleží na 12 / 24 / 48 V</h2>
+<p>Se stoupajícím výkonem roste na nízkém DC napětí proud. Proto se u větších systémů často přechází na 24 nebo 48 V. Volbu ale nelze dělat izolovaně — stejnou napěťovou třídu musí respektovat baterie, měnič a další relevantní komponenty.</p>
+
 <h2>Co Inverter Selector kontroluje</h2>
-<ul><li>12 / 24 / 48V DC systém,</li><li>trvalý výkon pro běžnou zátěž,</li><li>peak/surge pro čerpadla, kompresory a nářadí,</li><li>u hybridů také integrovaný MPPT.</li></ul>
+<ul>
+<li>shodu systémového DC napětí,</li>
+<li>minimální požadovaný trvalý výkon,</li>
+<li>požadovanou rozběhovou špičku,</li>
+<li>u hybridních měničů přítomnost a ověřitelnost integrovaného MPPT.</li>
+</ul>
+
+<h2>Typické chyby při výběru</h2>
+<ul>
+<li>dimenzování pouze podle největšího spotřebiče místo reálného souběhu,</li>
+<li>ignorování motorových rozběhů,</li>
+<li>výběr 12V architektury pro zbytečně vysoký výkon,</li>
+<li>zaměnění špičkového marketingového údaje za trvalý výkon,</li>
+<li>předpoklad, že integrovaný MPPT automaticky sedí k libovolnému počtu panelů.</li>
+</ul>
+
+<h2>Hybridní měnič: výhoda i další sada limitů</h2>
+<p>Hybrid může spojit měnič a MPPT do jednoho zařízení, což zjednoduší sestavu. Současně ale musíte hlídat jeho PV Voc, pracovní MPPT napětí, maximální FV výkon a případný vstupní proud. Proto v kompletním Builderu kontrolujeme panelové zapojení i u měničů s integrovaným MPPT.</p>
+
+<h2>Co řešit společně s měničem</h2>
+<p>Měnič a baterii posuzujte jako pár: BMS baterie musí zvládnout požadovaný DC výkon. Pro tuto kontrolu použijte <a href="/vyber-baterii/">Battery Selector</a>. U hybridního nebo samostatného regulátoru navazuje <a href="/mppt-kalkulacka/">MPPT kalkulačka</a>. Kompletní sizing od spotřebičů umí <a href="/solarni-sestava-na-chatu/">Solar Setup Builder</a>.</p>
+
+<h2>FAQ</h2>
+<h3>Potřebuji měnič s čistou sinusovkou?</h3>
+<p>Pro běžnou univerzální domácí sestavu a citlivější elektroniku preferujeme produkty s čistou sinusovkou. Konkrétní požadavky vždy závisí na připojených spotřebičích.</p>
+
+<h3>Jak velkou rezervu výkonu mít?</h3>
+<p>Není rozumné používat jedno univerzální procento pro všechny systémy. Rezerva má vycházet ze souběhu zátěží a skutečných rozběhových požadavků. Proto Selector odděluje trvalý výkon a surge.</p>
+
+<div class="se-note">Výběr měniče je jen část návrhu. Finální systém musí mít správně dimenzovanou baterii, jištění, kabeláž a u pevné AC instalace odpovídající odborné provedení a revizi.</div>
