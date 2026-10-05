@@ -25,6 +25,19 @@ const batteryOffer=A.offers(multiProduct).find(o=>o.merchantId==='battery-cz');
 const solarOffer=A.offers(multiProduct).find(o=>o.merchantId==='solar-import-cz');
 assert(batteryOffer.monetized&&batteryOffer.href==='https://example.com/battery-affiliate','Merchant-specific affiliate URL must resolve for matching merchant');
 assert(!solarOffer.monetized,'Merchant-specific affiliate URL must not leak to another merchant');
+
+window.SolarExpertConfig.affiliateBases={
+  'solar-import-cz':'https://ehub.cz/system/scripts/click.php?a_aid=testpub&a_bid=testsolar'
+};
+const victronPanel=catalog.products.find(p=>p.id==='panel-victron-190');
+const generatedPanelOffer=A.resolve(victronPanel);
+assert(generatedPanelOffer.monetized,'Merchant base should auto-generate deeplink');
+assert(generatedPanelOffer.href.startsWith('https://ehub.cz/system/scripts/click.php?'),'Generated deeplink should preserve eHub base URL');
+const generatedUrl=new URL(generatedPanelOffer.href);
+assert(generatedUrl.searchParams.get('a_aid')==='testpub','Generated deeplink should preserve publisher id');
+assert(generatedUrl.searchParams.get('a_bid')==='testsolar','Generated deeplink should preserve advertiser creative id');
+assert(generatedUrl.searchParams.get('desturl')===victronPanel.source_url,'Generated deeplink should target exact product source URL');
+window.SolarExpertConfig.affiliateBases={};
 assert(M.effectivePrice(multiProduct)===3899,'Matcher should use cheapest in-stock merchant offer');
 const temporarilyExpensive={...multiProduct,price_czk:99999};
 assert(M.effectivePrice(temporarilyExpensive)===3899,'Offer price should override stale product-level price for ranking');
