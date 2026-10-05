@@ -351,3 +351,16 @@ assert(contentSyncCore.includes("'content_sync_required'"),'Public health payloa
 assert(contentSyncCore.includes("'content_sync_errors'"),'Public health payload must expose managed-content sync errors');
 assert(settingsCore.includes('Managed content: CURRENT'),'Admin diagnostics must show a current managed-content state');
 assert(settingsCore.includes('Automatický sync je naplánovaný'),'Admin diagnostics must explain pending automatic sync');
+
+
+const annualSlug='kolik-vyrobi-fotovoltaika-za-rok';
+const annualItem=manifest.items.find(x=>x.slug===annualSlug);
+assert(annualItem&&annualItem.preserve_status===true,'Annual FVE output near-win must remain managed and preserve status');
+assert(annualItem.file&&fs.existsSync(path.join(__dirname,'..',annualItem.file)),'Annual FVE output rewrite file missing');
+assert(seoCore.includes("'"+annualSlug+"' => array("),'Annual FVE output near-win must have dedicated SEO metadata');
+const annualHtml=fs.readFileSync(path.join(__dirname,'..',annualItem.file),'utf8');
+assert(annualHtml.includes('PVGIS'),'Annual FVE output guide must use locality-aware PVGIS methodology');
+assert(annualHtml.includes('specifický výnos'),'Annual FVE output guide must explain specific yield');
+assert(!annualHtml.includes('1 200 – 1 500'),'Annual FVE output guide must not keep the stale universal Czech production range');
+assert(annualHtml.includes('/solarni-sestava-na-chatu/'),'Annual FVE output guide must route users into Builder');
+assert(seoCore.includes("'kompletni-pruvodce-velikosti-solarnich-panelu' => 'velikost-rozmery-a-hmotnost-solarnich-panelu'"),'Duplicate size guide must 301 to the stronger managed dimensions guide');
