@@ -568,6 +568,14 @@ function solar_expert_seo_meta() {
       'title' => 'Kolik stojí fotovoltaika s tepelným čerpadlem 2026 | Solar Expert',
       'description' => 'Aktuální orientační ceny FVE s baterií a tepelného čerpadla, jak správně dimenzovat kombinaci a co porovnat v nabídce.'
     ),
+    'umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda' => array(
+      'title' => 'Tepelné čerpadlo u souseda: vzdálenost, hluk a pravidla 2026 | Solar Expert',
+      'description' => 'Jak umístit venkovní jednotku tepelného čerpadla vůči hranici pozemku a sousedovi. Hluk, povolení a praktické chyby.'
+    ),
+    'castecne-zastineni-a-solarni-panely' => array(
+      'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
+      'description' => 'Jak částečné zastínění ovlivní výkon fotovoltaických panelů a stringu, kdy pomůže MPPT nebo optimizér a co ověřit v návrhu.'
+    ),
   );
 
   if ( is_front_page() ) {
