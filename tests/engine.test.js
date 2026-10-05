@@ -99,6 +99,17 @@ assert(best48.integratedMppt, 'Growatt bundle should use integrated MPPT');
 assert(best48.panel.stringVmp >= best48.inverter.integrated_mppt.mppt_v_min, 'Growatt string Vmp must reach MPPT minimum');
 assert(best48.panel.coldStringVoc < best48.inverter.integrated_mppt.pv_voc_max * 0.98, 'Growatt cold Voc must stay below safe maximum');
 assert(best48.panel.topology.includes('S') && best48.panel.topology.includes('P'), 'Bundle must expose series/parallel topology');
+assert(best48.panel.product.id!=='panel-dah-555','Discontinued DAH panel must never be selected');
+const discontinuedOnly=B.findPanelPlan(
+  catalog.products.filter(p=>p.id==='panel-dah-555'),
+  {voltage:48,panelWp:1000},
+  catalog.products.find(p=>p.id==='inverter-growatt-48-6000'),
+  true,
+  'premium'
+);
+assert(discontinuedOnly===null,'A discontinued panel cannot form a bundle even when technically compatible');
+const victron190=catalog.products.find(p=>p.id==='panel-victron-190');
+assert(M.effectivePrice(victron190)===2251,'Victron 190W current verified snapshot should be 2251 CZK');
 
 const impossibleController = {
   max_pv_w_by_voltage: {'24': 2000},
