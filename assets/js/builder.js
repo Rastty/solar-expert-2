@@ -20,24 +20,25 @@ window.solarExpertBuilder=function(){return{
   pctReserve(actual,target){if(!Number(target))return 0;return Math.round(((Number(actual)-Number(target))/Number(target))*100);},
   comparisonFor(bundle){
     if(!bundle||!bundle.complete||!this.result)return null;
-    const batteryKwh=Number(bundle.battery?.energy_wh||0)/1000;
+    const batteryQuantity=Number(bundle.batteryQuantity||1);
+    const batteryKwh=Number(bundle.batteryBank?.totalEnergyWh||((bundle.battery?.energy_wh||0)*batteryQuantity))/1000;
     const inverterW=Number(bundle.inverter?.continuous_w||0);
     const surgeW=Number(bundle.inverter?.peak_w||0);
     const panelWp=Number(bundle.panel?.totalWp||0);
     const reasons=[
-      'Baterie: '+batteryKwh.toFixed(2)+' kWh ('+this.pctReserve(batteryKwh,this.result.batteryKwh)+' % proti cíli)',
+      'Baterie: '+batteryQuantity+'× '+bundle.battery?.name+' = '+batteryKwh.toFixed(2)+' kWh ('+this.pctReserve(batteryKwh,this.result.batteryKwh)+' % proti cíli)',
       'Měnič: '+inverterW+' W trvale ('+this.pctReserve(inverterW,this.result.inverterW)+' % rezerva)',
       'Špička: '+surgeW+' W ('+this.pctReserve(surgeW,this.result.peak)+' % rezerva)',
       'FV pole: '+panelWp+' Wp ('+this.pctReserve(panelWp,this.result.panelWp)+' % proti cíli)',
       bundle.integratedMppt?'MPPT je ověřený jako součást měniče':'Samostatný MPPT prošel výkonovým i napěťovým oknem'
     ];
-    return {batteryKwh,inverterW,surgeW,panelWp,reasons};
+    return {batteryKwh,batteryQuantity,inverterW,surgeW,panelWp,reasons};
   },
   checklistFor(bundle){
     if(!bundle||!bundle.complete)return [];
     const rows=[
       {group:'included',status:'included',label:'Solární panely',note:bundle.panel?.count+'× '+bundle.panel?.product?.name},
-      {group:'included',status:'included',label:'Baterie',note:bundle.battery?.name},
+      {group:'included',status:'included',label:'Baterie',note:(bundle.batteryQuantity||1)+'× '+bundle.battery?.name},
       {group:'included',status:'included',label:'Měnič',note:bundle.inverter?.name},
       {group:'included',status:'included',label:'MPPT regulátor',note:bundle.integratedMppt?'integrovaný v měniči':bundle.mppt?.name},
       {group:'extra',status:'size',label:'DC jištění baterie + odpojovač',note:'Dimenzovat podle proudu měniče, kabelu a BMS.'},
@@ -47,6 +48,9 @@ window.solarExpertBuilder=function(){return{
       {group:'extra',status:'site',label:'Uzemnění a pospojování',note:'Ověřit podle konkrétní instalace a použitých komponent.'},
       {group:'extra',status:'verify',label:'230V zapojení a revize',note:'Pevnou AC instalaci musí posoudit a provést odpovídající odborník.'}
     ];
+    if(Number(bundle.batteryQuantity||1)>1){
+      rows.push({group:'extra',status:'verify',label:'Paralelní bateriový bank',note:'Ověřit shodný model a stav baterií, symetrickou kabeláž / sběrnici, jištění každé větve a nastavení master/slave podle výrobce.'});
+    }
     if(Array.isArray(bundle.battery?.communications)&&bundle.battery.communications.length){
       rows.push({group:'extra',status:'verify',label:'BMS komunikační kabel / nastavení',note:'Ověřit podporovaný protokol mezi baterií a měničem.'});
     }
