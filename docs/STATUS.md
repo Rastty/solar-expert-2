@@ -16,7 +16,7 @@ Git-first development active on `dev`.
 - Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
 - Verified small 12V bundle path: ROGERELE REP1000-12
 - Affiliate map: stored in WordPress option with admin settings UI; no deeplinks in public GitHub
-- Managed content manifest: 43 items (money pages, transparency pages and legacy rewrites)
+- Managed content manifest: 44 items (money pages, transparency pages and legacy rewrites)
 - Repository guardrails: catalog parity, offer/merchant integrity, no public affiliate deeplinks, manifest target validation
 - Obsolete duplicate bootstrap theme: removed
 - Product comparison: compares complete bundles on battery, continuous/surge inverter power, PV and MPPT fit
@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.21`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.22`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -72,6 +72,7 @@ Git-first development active on `dev`.
 - Inverter Selector UX audit: matcher correctly enforces DC voltage, continuous power and surge power; labels, input validation, battery-current guidance and loading/error/no-match states are now explicit, with approved Solar-Import purchase coverage in tested 12/24/48 V scenarios
 - Quote Checker UX audit: pass/warn/fail scenarios behave correctly; labels and input validation are fixed, optional BMS-current input now catches battery/inverter current mismatches, and the result keeps the owned Builder path plus monetized E.ON comparison CTA
 - robots.txt normalization: WordPress indexing remains enabled; theme now emits a minimal valid crawler policy plus Yoast sitemap index to remove the Lighthouse site-wide robots warning
+- Mitsubishi Ecodan ranking-safe refresh: legacy 2023 translated body replaced with a 2026 guide covering Ultra Quiet legacy intent plus current R290 PUZ-WZ; URL and ranking-protection title/meta preserved
 - Heat-pump temperature-limit refresh: model-specific frost/output-water guide replaces fake universal limits and joins the active E.ON heat-pump funnel
 - Panel buyer-guide upgrade: added independent-review criteria (IEC 61215/61730, warranties, degradation, mechanical reliability and Kiwa PVEL 2026) and joined the active E.ON solar funnel
 - Panel review consolidation: copied Australian `recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii` now 301s to the owned panel buyer guide
