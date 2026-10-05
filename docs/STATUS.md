@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.6.2`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.6.3`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -41,6 +41,9 @@ Git-first development active on `dev`.
 - Fresh GSC refresh 2026-10-05: 90d 3,284 impressions / 14 clicks; 28d 908 impressions / 4 clicks
 - Fresh near-win rewrites: `kolik-panelu-je-potreba-na-jeden-string` and `fotovoltaika-na-eternitovou-strechu`
 - Crawl discovery: all five money/tool pages linked sitewide from footer
+- Heat-pump legacy monetization: bounded E.ON lead CTA on 12 fresh-GSC-proven legacy articles; public fallback if affiliate lead mapping is absent
+- Lead analytics: `lead_click` dataLayer event + `solar-expert-lead-click` browser event
+- WordPress diagnostics: `eon-heat-pump` lead mapping status visible in Solar Expert settings
 - Production deploy: active RC with manual Git pull/update
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
