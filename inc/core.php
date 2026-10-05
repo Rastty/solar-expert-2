@@ -184,9 +184,10 @@ function solar_expert_sanitize_affiliate_map($input) {
       continue;
     }
     foreach ( $input[$bucket] as $key => $url ) {
-      $id = sanitize_key($key);
+      $id = strtolower(trim((string)$key));
+      $valid_key = (bool) preg_match('/^[a-z0-9_-]+(?:@[a-z0-9_-]+)?$/', $id);
       $safe = esc_url_raw($url, array('http','https'));
-      if ( $id && $safe ) {
+      if ( $valid_key && $safe ) {
         $clean[$bucket][$id] = $safe;
       }
     }
@@ -226,7 +227,7 @@ function solar_expert_settings_page() {
     <form method="post" action="options.php">
       <?php settings_fields('solar_expert_settings'); ?>
       <h2>Affiliate mapa</h2>
-      <p>Klíč v <code>products</code> musí odpovídat ID produktu v katalogu. <code>leads</code> je určené pro lead-gen odkazy.</p>
+      <p>Klíč v <code>products</code> může být buď ID produktu (např. <code>mppt-victron-100-50</code>), nebo přesná kombinace produktu a obchodu (např. <code>mppt-victron-100-50@battery-cz</code>). Varianta s obchodem má přednost. <code>leads</code> je určené pro lead-gen odkazy.</p>
       <textarea name="solar_expert_affiliate_map" rows="22" class="large-text code"><?php echo esc_textarea($json); ?></textarea>
       <?php submit_button('Uložit affiliate mapu'); ?>
     </form>
