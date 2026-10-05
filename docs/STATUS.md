@@ -77,6 +77,7 @@ Git-first development active on `dev`.
 - Battery Selector parallel-bank support: standalone selector now reuses the Builder's verified bank logic and can recommend 2×/3× supported modules with total kWh, BMS current and bank price
 - Multi-bank set optimization: a verified 1× battery + inverter merchant set may be used once inside a larger parallel bank; remaining battery modules are priced separately and shown explicitly
 - Intentional Premium gaps: 12V/24V Premium remains hidden until an approved-merchant battery is both technically evidenced and currently recommendable; `on_request` inventory cannot unlock a complete tier
+- Catalog price freshness: 30-day verified-price window; stale merchant prices cannot drive ranking or set discounts, stale prices are hidden, health/admin expose fresh/stale/verification-unknown counts
 - Production deploy: active RC with manual Git pull/update
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
