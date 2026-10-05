@@ -224,6 +224,10 @@ assert(affiliateAdapter.includes("trackLead(id, placement, fallback)"),'Affiliat
 assert(affiliateAdapter.includes("event:'lead_click'"),'Lead-gen clicks must emit a dedicated dataLayer event');
 const functionsPhp=fs.readFileSync(path.join(__dirname,'..','functions.php'),'utf8');
 assert(functionsPhp.includes("'solar-expert-leads'"),'Lead runtime must be enqueued sitewide');
+const quoteCheckerTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','quote-checker.php'),'utf8');
+assert(quoteCheckerTpl.includes('data-se-lead-id="eon-solar"'),'Quote Checker result must expose monetized E.ON solar next step');
+assert(quoteCheckerTpl.includes('data-se-placement="quote_checker_result"'),'Quote Checker E.ON CTA must expose a dedicated analytics placement');
+assert(quoteCheckerTpl.includes('/solarni-sestava-na-chatu/'),'Quote Checker result must retain an owned Builder next step before outbound comparison');
 
 
 const comboSlug='kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem';
@@ -242,7 +246,7 @@ assert(leadCore.includes("function solar_expert_solar_lead_slugs()"),'Solar lead
 assert(leadCore.includes("'eon-solar'"),'Solar lead CTA must use the canonical E.ON solar lead key');
 assert(leadCore.includes("https://www.eon.cz/domacnosti/usporne-technologie/solar/"),'Solar lead CTA must retain a safe public fallback');
 assert(leadCore.includes("data-se-placement=\"solar_legacy_article\""),'Solar lead CTA must expose a stable measurement placement');
-for(const slug of ['fve-panely-na-strechu','fotovoltaika-na-eternitovou-strechu','kotveni-fotovoltaickych-panelu-na-ploche-strese','velikost-rozmery-a-hmotnost-solarnich-panelu']){
+for(const slug of ['fve-panely-na-strechu','fotovoltaika-na-eternitovou-strechu','kotveni-fotovoltaickych-panelu-na-ploche-strese','velikost-rozmery-a-hmotnost-solarnich-panelu','fotovoltaika-vykon-na-m2','kolik-vyrobi-fotovoltaika-za-rok','fotovoltaika-na-pozemku']){
   assert(leadCore.includes("'"+slug+"'"),'Solar lead allowlist must include GSC-backed planning page: '+slug);
 }
 
