@@ -230,6 +230,14 @@
       "preserve_status": true,
       "file": "content/rewrites/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu.html",
       "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "tepelne-cerpadla-lg-vyhody-nevyhody-ceny",
+      "title": "LG tepelné čerpadlo: recenze a technický přehled 2026",
+      "preserve_status": true,
+      "file": "content/rewrites/tepelne-cerpadla-lg-vyhody-nevyhody-ceny.html",
+      "create_if_missing": false
     }
   ]
 }
