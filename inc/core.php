@@ -466,6 +466,7 @@ function solar_expert_settings_page() {
 
     <?php
     $catalog = solar_expert_load_catalog();
+    $price_freshness = solar_expert_catalog_price_freshness($catalog, 30);
     $product_map = isset($map['products']) && is_array($map['products']) ? $map['products'] : array();
     $coverage_rows = array();
     $mapped_count = 0;
@@ -503,6 +504,17 @@ function solar_expert_settings_page() {
     }
     $coverage_total = count(array_filter($coverage_rows, function($row){ return ! empty($row['active']); }));
     ?>
+    <hr>
+    <h2>Price freshness</h2>
+    <p>
+      Okno: <strong><?php echo esc_html($price_freshness['max_age_days']); ?> dní</strong> ·
+      fresh <strong style="color:#16733b"><?php echo esc_html($price_freshness['fresh']); ?></strong> ·
+      stale <strong style="color:#b32d2e"><?php echo esc_html($price_freshness['stale']); ?></strong> ·
+      verification unknown <strong style="color:#8a5b00"><?php echo esc_html($price_freshness['unknown']); ?></strong>
+      / <?php echo esc_html($price_freshness['total']); ?> cenových snapshotů.
+    </p>
+    <p class="description">Známě starší snapshot než 30 dní se nesmí použít pro cenové pořadí. Odkaz může zůstat dostupný, ale cena se návštěvníkovi nezobrazuje, dokud není znovu ověřena.</p>
+
     <hr>
     <h2>Lead-gen coverage</h2>
     <?php
