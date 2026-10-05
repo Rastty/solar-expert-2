@@ -407,3 +407,17 @@ assert(lgHtml.includes('data-se-lead-id="eon-heat-pump"'),'LG review must retain
 assert(!lgHtml.includes('120000 až 400000'),'LG review must not keep stale undated installation-price range');
 assert(!lgHtml.includes('patří k nejlepším na trhu'),'LG review must avoid unsupported best-on-market claims');
 assert(lgHtml.includes('nejde o placenou recenzi LG'),'LG review must disclose methodology and independence');
+
+
+const viessmannSlug='recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady';
+const viessmannItem=manifest.items.find(x=>x.slug===viessmannSlug);
+assert(viessmannItem&&viessmannItem.preserve_status===true,'Viessmann review near-win must remain managed');
+assert(viessmannItem.file&&fs.existsSync(path.join(__dirname,'..',viessmannItem.file)),'Viessmann review rewrite file missing');
+assert(seoCore.includes("'"+viessmannSlug+"' => array("),'Viessmann review near-win must have dedicated SEO metadata');
+const viessmannHtml=fs.readFileSync(path.join(__dirname,'..',viessmannItem.file),'utf8');
+assert(viessmannHtml.includes('Vitocal 250-A'),'Viessmann review must focus on the current Vitocal 250-A platform');
+assert(viessmannHtml.includes('R290'),'Viessmann review must cover current R290 platform');
+assert(viessmannHtml.includes('data-se-lead-id="eon-heat-pump"'),'Viessmann review must retain bounded comparison lead CTA');
+assert(!viessmannHtml.includes('Renewable Heat Incentive'),'Viessmann review must not keep obsolete UK RHI guidance');
+assert(!viessmannHtml.includes('120 000 korun do více než 350 000'),'Viessmann review must not keep stale undated price range');
+assert(viessmannHtml.includes('nejde o placenou recenzi Viessmannu'),'Viessmann review must disclose methodology and independence');
