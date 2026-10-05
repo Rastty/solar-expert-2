@@ -512,4 +512,9 @@ assert(heatPumpConsumptionItem&&heatPumpConsumptionItem.preserve_status===true,'
 assert(heatPumpConsumptionItem.file&&fs.existsSync(path.join(__dirname,'..',heatPumpConsumptionItem.file)),'Heat-pump consumption rewrite file missing');
 assert(seoCore.includes("'prumerna-spotreba-tepelneho-cerpadla' => array("),'Heat-pump consumption canonical must have dedicated SEO metadata');
 assert(seoCore.includes("'spotreba-tepelneho-cerpadla-v-kwh' => 'prumerna-spotreba-tepelneho-cerpadla'"),'Duplicate heat-pump consumption URL must 301 to the canonical guide');
+const daikinSlug='prehled-vzduchovych-tepelnych-cerpadel-daikin';
+const daikinItem=manifest.items.find(x=>x.slug===daikinSlug);
+assert(daikinItem&&daikinItem.preserve_status===true,'Daikin buyer guide must be managed without changing publication status');
+assert(daikinItem.file&&fs.existsSync(path.join(__dirname,'..',daikinItem.file)),'Daikin buyer guide rewrite file missing');
+assert(seoCore.includes("'prehled-vzduchovych-tepelnych-cerpadel-daikin' => array("),'Daikin buyer guide must have dedicated SEO metadata');
 
