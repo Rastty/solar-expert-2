@@ -459,3 +459,12 @@ assert(groundPvHtml.includes('/mppt-kalkulacka/'),'Ground-mounted PV guide must 
 assert(groundPvHtml.includes('/solarni-sestava-na-chatu/'),'Ground-mounted PV guide must route into Builder');
 assert(!groundPvHtml.includes('do 100 kW bez povolení'),'Ground-mounted PV guide must not claim a universal no-permit rule');
 assert(groundPvHtml.includes('Limit 100 kW je důležitý, ale sám o sobě nestačí'),'Ground-mounted PV guide must explicitly reject simplistic 100kW permitting advice');
+
+
+const wiringHtml=fs.readFileSync(path.join(__dirname,'..','content','rewrites','jak-zapojit-solarni-panely.html'),'utf8');
+assert(wiringHtml.includes('Schéma zapojení solárních panelů pro 12V systém'),'12V wiring query intent must remain explicit');
+assert(wiringHtml.includes('Varianta 2S'),'12V wiring guide must show a series example');
+assert(wiringHtml.includes('Varianta 2P'),'12V wiring guide must show a parallel example');
+assert(wiringHtml.includes('panely se běžně nepřipojují „jen tak“ přímo na 12V baterii'),'12V wiring guide must reject direct-panel-to-battery interpretation');
+assert(wiringHtml.includes('/mppt-kalkulacka/'),'12V wiring guide must route into MPPT calculator');
+assert(css.includes('.se-code'),'Technical wiring diagrams must have readable responsive styling');
