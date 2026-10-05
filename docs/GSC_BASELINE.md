@@ -89,3 +89,7 @@ Fresh 28-day `/castecne-zastineni-a-solarni-panely/`: **8 impressions, average p
 
 Fresh GSC shows two competing cleaning URLs: `/cisteni-solarnich-panelu-proc-kdy-jak/` with **27 impressions / avg. position 55.19** over 90 days and `/jak-vycistit-solarni-panely-pruvodce-cistenim-solaru/` with **22 impressions / avg. position 56.23**. Both target `čištění solárních panelů`. Decision: keep the first URL as canonical managed guide, rewrite it comprehensively, and 301 the second URL into it.
 
+### Samsung review near-win
+
+Fresh 28-day query evidence: `tepelné čerpadlo Samsung recenze` has **11 impressions at average position 10.45**. The legacy 2023 article contained obsolete UK RHI guidance and stale product/cost claims. Decision: preserve the indexed URL but replace the body with a 2026 technical buyer guide based on current Samsung EHS R290 documentation, explicit model-condition caveats and an owned-first comparison funnel.
+
