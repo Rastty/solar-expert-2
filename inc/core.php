@@ -213,7 +213,14 @@ function solar_expert_run_async_content_sync() {
   if ( empty($state['required']) ) {
     return;
   }
+
+  if ( get_transient('solar_expert_content_sync_lock') ) {
+    return;
+  }
+
+  set_transient('solar_expert_content_sync_lock', 1, 5 * MINUTE_IN_SECONDS);
   solar_expert_sync_managed_content(false);
+  delete_transient('solar_expert_content_sync_lock');
 }
 add_action('solar_expert_async_content_sync', 'solar_expert_run_async_content_sync');
 
@@ -378,6 +385,12 @@ function solar_expert_settings_page() {
   <div class="wrap">
     <h1>Solar Expert</h1>
     <p><strong>Build <code>dev-rc-0.9.1</code></strong></p>
+    <?php $content_sync_state = solar_expert_content_sync_state(); ?>
+    <?php if ( ! empty($content_sync_state['required']) ) : ?>
+      <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
+    <?php else : ?>
+      <div class="notice notice-success"><p><strong>Managed content: CURRENT</strong> — WordPress obsah odpovídá aktuálnímu manifestu.</p></div>
+    <?php endif; ?>
     <p>Affiliate deeplinky jsou uložené ve WordPress databázi a nejsou součástí veřejného GitHub repozitáře.</p>
     <?php settings_errors('solar_expert_affiliate_map'); ?>
     <?php if ( ! empty($_GET['solar_expert_saved']) ) : ?>
@@ -517,6 +530,7 @@ function solar_expert_health_payload() {
 
   $theme = wp_get_theme();
   $last_sync = get_option('solar_expert_last_content_sync', array());
+  $sync_state = solar_expert_content_sync_state();
 
   return array(
     'status' => 'ok',
@@ -526,6 +540,9 @@ function solar_expert_health_payload() {
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
     'manifest_schema_version' => (string) ($manifest['schemaVersion'] ?? '0'),
     'managed_content_items' => isset($manifest['items']) && is_array($manifest['items']) ? count($manifest['items']) : 0,
+    'content_sync_status' => (string) ($sync_state['status'] ?? 'unknown'),
+    'content_sync_required' => ! empty($sync_state['required']),
+    'content_sync_errors' => (int) ($sync_state['errors'] ?? 0),
     'affiliate_product_mappings' => isset($map['products']) && is_array($map['products']) ? count($map['products']) : 0,
     'affiliate_merchant_bases' => count($bases),
     'affiliate_lead_mappings' => isset($map['leads']) && is_array($map['leads']) ? count($map['leads']) : 0,
