@@ -20,6 +20,28 @@ function walk(value,where='root'){
 }
 walk(source,'catalog');
 
+const merchantRegistry=JSON.parse(fs.readFileSync(path.join(__dirname,'..','data','merchant-registry.json'),'utf8'));
+const merchantIds=new Set((merchantRegistry.merchants||[]).map(m=>m.id));
+assert(merchantIds.size>0,'Merchant registry must not be empty');
+
+for(const product of source.products||[]){
+  assert(product.id&&typeof product.id==='string','Product is missing id');
+  assert(merchantIds.has(product.merchant),'Unknown primary merchant '+product.merchant+' for '+product.id);
+  if(Array.isArray(product.offers)){
+    const offerMerchants=new Set();
+    for(const offer of product.offers){
+      assert(merchantIds.has(offer.merchant),'Unknown offer merchant '+offer.merchant+' for '+product.id);
+      assert(!offerMerchants.has(offer.merchant),'Duplicate offer merchant '+offer.merchant+' for '+product.id);
+      offerMerchants.add(offer.merchant);
+      assert(/^https:\/\//.test(offer.source_url||''),'Offer source must be HTTPS for '+product.id+'@'+offer.merchant);
+      assert(Number(offer.price_czk)>0,'Offer price must be positive for '+product.id+'@'+offer.merchant);
+    }
+    const primary=product.offers.find(o=>o.merchant===product.merchant);
+    assert(primary,'Primary merchant must exist in offers for '+product.id);
+    assert(Number(product.price_czk)===Number(primary.price_czk),'Primary price must match primary offer for '+product.id);
+  }
+}
+
 const manifestPath=path.join(__dirname,'..','content','manifest.json');
 const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
 assert(Array.isArray(manifest.items),'content/manifest.json must expose items[]');
