@@ -48,6 +48,7 @@ Git-first development active on `dev`.
 - WordPress diagnostics: `eon-heat-pump` lead mapping status visible in Solar Expert settings
 - Combined FVE + heat-pump decision page: fresh-GSC near-win rewritten with October 2026 price benchmark, Builder + Quote Checker routing and E.ON lead CTA
 - E.ON solar lead lane: bounded CTA on 7 GSC-backed installation/planning articles using the active shared `eon-cz` base, with public fallback
+- Owned-first solar funnel: GSC-backed FVE planning pages now route visitors through Quote Checker before the monetized E.ON comparison CTA
 - Heat-pump boundary near-win: fresh-GSC P1 rewrite using MMR April 2026 methodology; no fake universal setback distance
 - Shading CTR protection: top-5 page gets title/meta refinement only, body untouched
 - Tracker CTR protection: `/nataceni-solarnich-panelu-za-sluncem/` is a fresh top-10 / recent top-5 near-win; title/meta refined while body remains untouched
@@ -56,6 +57,7 @@ Git-first development active on `dev`.
 - Cleaning cannibalization cleanup: two competing cleaning URLs consolidated into one managed guide with 301 redirect
 - Heat-pump consumption cannibalization: `/spotreba-tepelneho-cerpadla-v-kwh/` 301s to a rebuilt `/prumerna-spotreba-tepelneho-cerpadla/` guide; two overlapping high-impression URLs now consolidate into one SCOP/kWh intent owner
 - Owned-first heat-pump funnel: legacy traffic is internally routed to the FVE + heat-pump decision page before the outbound E.ON CTA
+- Heat-pump topical cluster: all bounded TČ legacy pages receive contextual internal links to the 2026 comparison hub, consumption guide and FVE + TČ decision page, excluding self-links
 - Shared E.ON base: one optional `eon-cz` eHub base automatically monetizes both `eon-solar` and `eon-heat-pump`; explicit lead mappings remain overrides
 - E.ON lead monetization due diligence: E.ON is confirmed approved for Solar Expert; current public eHUB campaign pays 300 Kč per valid lead for electricity/gas/FVE/heat pumps. Shared `eon-cz` base can monetize both solar and heat-pump CTAs.
 - E.ON private base link: ACTIVE in WordPress as `eon-cz` from the approved eHUB account; the private URL is intentionally kept out of GitHub. Live health confirms 3 merchant bases.
