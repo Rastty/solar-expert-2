@@ -16,6 +16,7 @@ window.solarExpertBuilder=function(){return{
   get runningWatts(){return Math.round(this.selectedAppliances.reduce((s,a)=>s+a.watts*a.qty,0));},
   get estimatedPeak(){if(!this.selectedAppliances.length)return 0;const b=this.runningWatts;return Math.round(Math.max(b,...this.selectedAppliances.map(a=>b-a.watts*a.qty+a.surge*a.qty)));},
   get completeBundles(){return this.bundles.filter(b=>b&&b.complete);},
+  get incompleteBundles(){return this.bundles.filter(b=>b&&!b.complete);},
   get primaryBundle(){return this.completeBundles.find(b=>b.tier==='best')||this.completeBundles[0]||null;},
   pctReserve(actual,target){if(!Number(target))return 0;return Math.round(((Number(actual)-Number(target))/Number(target))*100);},
   comparisonFor(bundle){
