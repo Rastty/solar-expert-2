@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.0</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.1</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -602,7 +602,7 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-0.10.4',
+    'build_marker' => 'dev-rc-0.11.1',
     'theme_version' => (string) $theme->get('Version'),
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
@@ -734,6 +734,10 @@ function solar_expert_seo_meta() {
     'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady' => array(
       'title' => 'Samsung tepelné čerpadlo recenze 2026: EHS R290 | Solar Expert',
       'description' => 'Technická recenze Samsung EHS 2026: R290 Mono, hlučnost, COP, teplota vody, výhody, nevýhody a co ověřit před nákupem.'
+    ),
+    'tepelna-cerpadla-mitsubishi-vyhody-nevyhody-ceny-vlastnosti' => array(
+      'title' => 'Mitsubishi Ecodan Ultra Quiet: hlučnost a výběr | Solar Expert',
+      'description' => 'Mitsubishi Ecodan Ultra Quiet a současná řada Ecodan: hlučnost, výkon v chladu, vysoká teplota vody a co ověřit před výběrem.'
     ),
     'tepelne-cerpadla-lg-vyhody-nevyhody-ceny' => array(
       'title' => 'LG tepelné čerpadlo recenze 2026: THERMA V R290 | Solar Expert',
