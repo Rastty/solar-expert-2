@@ -598,6 +598,13 @@ function solar_expert_seo_meta() {
     return $map['front'];
   }
 
+  if ( is_category('baterie') ) {
+    return array(
+      'title' => 'Solární baterie: výběr, kapacita a LiFePO4 | Solar Expert',
+      'description' => 'Průvodce solárními bateriemi: 12/24/48 V, kWh, Ah, LiFePO4, BMS a kompatibilita s měničem. Články + Battery Selector.'
+    );
+  }
+
   if ( is_singular(array('page','post')) ) {
     $post = get_queried_object();
     if ( $post && isset($map[$post->post_name]) ) {
@@ -769,6 +776,46 @@ function solar_expert_schema_graph() {
       'about' => array('@id' => $home . '#organization'),
       'inLanguage' => 'cs-CZ',
     );
+  }
+
+  if ( is_category() ) {
+    $term = get_queried_object();
+    $url = $term ? get_term_link($term) : '';
+    if ( $term && ! is_wp_error($url) ) {
+      $meta = solar_expert_seo_meta();
+      $breadcrumb_id = $url . '#breadcrumb';
+      $graph[] = array(
+        '@type' => 'BreadcrumbList',
+        '@id' => $breadcrumb_id,
+        'itemListElement' => array(
+          array(
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'Solar Expert',
+            'item' => $home,
+          ),
+          array(
+            '@type' => 'ListItem',
+            'position' => 2,
+            'name' => single_cat_title('', false),
+            'item' => $url,
+          ),
+        ),
+      );
+      $collection = array(
+        '@type' => 'CollectionPage',
+        '@id' => $url . '#collection',
+        'url' => $url,
+        'name' => wp_get_document_title(),
+        'isPartOf' => array('@id' => $home . '#website'),
+        'breadcrumb' => array('@id' => $breadcrumb_id),
+        'inLanguage' => 'cs-CZ',
+      );
+      if ( is_array($meta) && ! empty($meta['description']) ) {
+        $collection['description'] = $meta['description'];
+      }
+      $graph[] = $collection;
+    }
   }
 
   if ( is_singular(array('page','post')) ) {
