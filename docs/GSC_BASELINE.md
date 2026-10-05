@@ -189,3 +189,14 @@ Decision:
 - rebuild `solarni-panel-definice-a-fakta` as the clear owner of the basic photovoltaic-effect intent;
 - rebuild the PVT URL as a distinct hybrid electricity+heat guide, removing stale UK incentives and unsupported efficiency claims instead of merging the two intents.
 
+### Winter PV cannibalization cleanup
+
+Fresh raw 90-day GSC page-query evidence from the 2026-10-05 Prometheus artifact:
+- `/vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih/`: 21 disclosed impressions, including `účinnost solárních panelů v zimě` (10) and `sklon fotovoltaických panelů v zimě` (9).
+- `/co-dela-fotovoltaika-kdyz-je-zima/`: 15 disclosed impressions, including the same `účinnost solárních panelů v zimě` intent (11).
+
+Decision:
+- keep the more specific winter-performance URL as the canonical owner;
+- rebuild it around winter irradiation, module temperature, PVGIS monthly output, snow cover, tilt and safe snow-removal guidance;
+- 301 the weaker duplicate `co-dela-fotovoltaika-kdyz-je-zima` URL into the canonical guide.
+
