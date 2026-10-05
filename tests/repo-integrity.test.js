@@ -494,3 +494,13 @@ for(const product of source.products||[]){
     assert(product.availability!=='on_request','Active recommended catalog products must not use on_request availability: '+product.id);
   }
 }
+
+
+assert(seoCore.includes("function solar_expert_catalog_price_freshness("),'Server diagnostics must aggregate catalog price freshness');
+assert(seoCore.includes("'catalog_price_stale'"),'Health payload must expose stale catalog price count');
+assert(seoCore.includes("'catalog_price_verification_unknown'"),'Health payload must expose unknown-verification price count');
+assert(settingsCore.includes('<h2>Price freshness</h2>'),'Solar Expert admin must show catalog price freshness');
+assert(settingsCore.includes('Známě starší snapshot než 30 dní'),'Admin diagnostics must explain stale-price behavior');
+assert(affiliateAdapter.includes("price_freshness: freshness"),'Affiliate offers must expose price freshness state');
+assert(affiliateAdapter.includes("freshness === 'stale' ? null"),'Affiliate offer UI must suppress known stale prices');
+assert(composerJs.includes("verificationState(deal.verified_at) === 'stale'"),'Bundle composer must ignore known stale set prices');
