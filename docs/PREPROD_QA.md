@@ -10,6 +10,7 @@ This is the release gate for Solar Expert 2.0. Production stays untouched until 
 - [ ] Homepage renders without PHP warnings/fatal errors.
 - [ ] No blocking JavaScript console errors.
 - [ ] Current production theme/version is available as a rollback path.
+- [ ] `/wp-json/solar-expert/v1/health` returns `status: ok` and the expected catalog/manifest counts.
 
 ### Builder — core scenarios
 - [ ] Cottage preset produces a sensible **24 V** Best Value bundle.
