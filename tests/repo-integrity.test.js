@@ -653,3 +653,17 @@ assert(batterySelectorTpl.includes('x-show="catalogLoading"'),'Battery Selector 
 assert(batterySelectorTpl.includes('x-show="catalogError"'),'Battery Selector must show catalog error feedback');
 assert(batterySelectorTpl.includes("!catalogLoading && !catalogError && !matches.length"),'Battery Selector must distinguish no-match from loading/error state');
 
+const mpptSelectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
+const mpptSelectorTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','mppt-selector.php'),'utf8');
+assert(mpptSelectorJs.includes('catalogLoading:true,catalogError:false'),'MPPT Selector must expose explicit catalog loading state');
+assert(mpptSelectorJs.includes('get requiredChargeA()'),'MPPT Selector must expose required charge current');
+assert(mpptSelectorJs.includes('get inputValid()'),'MPPT Selector must validate Voc/Vmp and positive inputs');
+for(const id of ['se-mppt-voltage','se-mppt-panel-wp','se-mppt-panel-voc','se-mppt-panel-vmp','se-mppt-series-count']){
+  assert(mpptSelectorTpl.includes('for="'+id+'"'),'MPPT Selector label must target '+id);
+  assert(mpptSelectorTpl.includes('id="'+id+'"'),'MPPT Selector control id missing: '+id);
+}
+assert(mpptSelectorTpl.includes('x-show="!inputValid"'),'MPPT Selector must show invalid-input feedback');
+assert(mpptSelectorTpl.includes('x-show="catalogLoading"'),'MPPT Selector must show catalog loading feedback');
+assert(mpptSelectorTpl.includes('x-show="catalogError"'),'MPPT Selector must show catalog error feedback');
+assert(mpptSelectorTpl.includes("!catalogLoading && !catalogError && inputValid && !matches.length"),'MPPT Selector must distinguish catalog gap from loading/error/invalid input');
+
