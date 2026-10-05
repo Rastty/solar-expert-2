@@ -253,7 +253,6 @@
       "title": "Fotovoltaika na pozemku: konstrukce, návrh a povolení",
       "status_if_new": "publish",
       "status": "publish",
-      "publish_ready": true,
       "file": "content/rewrites/fotovoltaika-na-pozemku.html",
       "create_if_missing": true
     }
