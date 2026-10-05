@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.31`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.32`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -127,3 +127,4 @@ Next:
 - Photovoltaic topical hub refresh: `/vse-o-solarnich-panelech-a-fotovoltaice/` rebuilt from a stale 2023 mega-article into an intent-preserving hub for panels, sizing, string/MPPT, inverter, battery, roof, maintenance, Builder and Quote Checker; stale universal pricing/payback claims removed
 - Catalog MPPT coverage: added verified in-stock Victron SmartSolar MPPT 250/100-Tr VE.Can (100A, 250V, 24V PV limit 2.9kWp), unlocking year-round 24V Best Value cottage/off-grid bundles that previously failed MPPT coverage
 - Default-bundle freshness: REP1500-24 is now correctly on-request and excluded from complete bundles; in-stock REP2000-24 (2000/4000W) becomes the Best Value 24V inverter with Battery.cz + Solar-Import merchant offers
+- Default-bundle offer freshness: Victron 190W panel, GOOWEI 24V100 battery, MPPT 150/70 and MPPT 250/100 now carry fresh merchant evidence; Battery.cz/Solar-Import comparison offers added and MPPT 250/100 refreshed to 14,246 CZK
