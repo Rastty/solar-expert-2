@@ -3,7 +3,7 @@ on:
   push:
     branches: [dev, main]
   pull_request:
-    branches: [main]
+    branches: [dev, main]
 
 concurrency:
   group: solar-expert-validate-${{ github.workflow }}-${{ github.ref }}
