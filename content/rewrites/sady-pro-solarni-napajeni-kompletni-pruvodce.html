@@ -1,0 +1,44 @@
+<p>Kompletní solární sada dává smysl jen tehdy, když jsou její části navržené jako <strong>jeden systém</strong>. Označení „1000W sada“ samo o sobě neříká, kolik energie budete mít večer, zda měnič zvládne rozběh čerpadla ani jestli panelový string sedí do MPPT okna.</p>
+
+<p>Než koupíte hotový kit, spočítejte si vlastní potřebu v <a href="/solarni-sestava-na-chatu/">Solar Setup Builderu</a>. Dostanete cílový PV výkon, velikost baterie, systémové napětí, trvalý výkon měniče i rozběhovou špičku.</p>
+
+<h2>Co má kompletní solární sada obsahovat</h2>
+<p>Základ ostrovní sestavy obvykle tvoří fotovoltaické panely, MPPT regulátor nebo hybridní měnič s integrovaným MPPT, baterie, měnič 230 V a správně dimenzované ochranné a spojovací prvky. „Kompletní“ nabídka, která neřeší kabeláž, jištění a odpojování, není z pohledu instalace skutečně kompletní.</p>
+
+<h2>1. Panely: kolik Wp potřebujete</h2>
+<p>Výkon panelů musí vycházet z denní spotřeby a období používání. Letní víkendová chata může fungovat s výrazně menším polem než objekt, který má být energeticky soběstačný i v zimě. Samotný součet Wp navíc nestačí: kontroluje se Voc, Vmp a možné zapojení stringů vůči MPPT.</p>
+
+<h2>2. Baterie: kolik kWh, ne jen Ah</h2>
+<p>Kapacitu porovnávejte v kWh a s ohledem na využitelnou hloubku vybití. Dále musí BMS zvládnout proud, který bude požadovat měnič. U větších systémů se navíc ověřuje komunikace baterie a měniče.</p>
+
+<p>Podrobněji: <a href="/vyber-baterii/">jak vybrat LiFePO₄ baterii</a>.</p>
+
+<h2>3. Měnič: trvalý výkon a rozběhová špička jsou dvě různé věci</h2>
+<p>Lednice, čerpadla a elektrické nářadí mohou při startu krátce požadovat násobek běžného příkonu. Proto nevolíme systémové napětí ani velikost měniče pouze podle jednoho „maximálního“ čísla. Měnič musí mít dostatečný trvalý výkon pro souběžné zatížení a zároveň doložený špičkový výkon pro rozběh.</p>
+
+<p>Podrobněji: <a href="/vyber-menice/">výběr měniče</a>.</p>
+
+<h2>4. MPPT: nejčastější skrytá nekompatibilita</h2>
+<p>Regulátor musí podporovat napětí baterie, požadovaný nabíjecí proud a výkon panelů. Současně musí celé sérioparalelní zapojení zůstat v povoleném napěťovém okně. Nestačí tedy tvrzení „regulátor je 100 V“; rozhoduje i startovací MPPT napětí a maximální Voc stringu v chladu.</p>
+
+<p>Podrobněji: <a href="/mppt-kalkulacka/">MPPT kalkulačka a selector</a>.</p>
+
+<h2>5. 12 V, 24 V nebo 48 V</h2>
+<p>Malé sady mohou být jednoduché na 12 V. S rostoucím trvalým výkonem se často vyplatí 24 V a u větších systémů 48 V, protože nižší proudy usnadňují rozumné dimenzování vodičů a omezují ztráty. Všechny hlavní DC komponenty ale musí patřit do stejné napěťové třídy.</p>
+
+<h2>Jak poznat špatně sestavený kit</h2>
+<ul>
+<li>uvádí jen výkon měniče, ale ne jeho špičkový výkon a dobu špičky,</li>
+<li>kapacitu baterie prezentuje jen v Ah bez systémového napětí,</li>
+<li>chybí limit BMS pro vybíjení,</li>
+<li>není uvedeno plánované zapojení panelů S/P,</li>
+<li>nikdo nekontroloval cold-Voc proti MPPT maximu,</li>
+<li>cena „kompletu“ nezahrnuje důležité ochranné prvky,</li>
+<li>dodavatel neumí vysvětlit, proč zvolil právě 12/24/48 V.</li>
+</ul>
+
+<h2>Nechte si sestavu složit podle spotřeby</h2>
+[solar_expert_builder]
+
+<h2>Porovnáváte nabídku dodavatele?</h2>
+<p>Vložte její základní parametry do <a href="/quote-checker/">Quote Checkeru</a>. Nástroj odděleně posoudí PV výkon, baterii, trvalý výkon měniče, rozběhovou rezervu a systémové napětí. Nehodnotí provizi ani značku jako technické kritérium; princip doporučování popisujeme na stránce <a href="/jak-doporucujeme/">Jak doporučujeme</a>.</p>
