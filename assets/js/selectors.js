@@ -69,11 +69,20 @@ window.solarExpertMpptSelector=function(){return{
 };};
 
 window.solarExpertInverterSelector=function(){return{
-  voltage:48,continuousW:2000,peakW:4000,catalog:[],matches:[],engagementTracked:false,
-  async init(){this.catalog=await seCatalog();this.run(false);},
+  voltage:48,continuousW:2000,peakW:4000,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,
+  get inputValid(){return Number(this.voltage)>0&&Number(this.continuousW)>0&&Number(this.peakW)>=Number(this.continuousW);},
+  get requiredDcA(){return Math.max(1,Math.ceil(Number(this.continuousW)/Math.max(1,Number(this.voltage))));},
+  get peakDcA(){return Math.max(1,Math.ceil(Number(this.peakW)/Math.max(1,Number(this.voltage))));},
+  async init(){
+    this.catalogLoading=true;this.catalogError=false;
+    try{this.catalog=await seCatalog();this.run(false);}
+    catch(_){this.catalog=[];this.matches=[];this.catalogError=true;}
+    finally{this.catalogLoading=false;}
+  },
   run(track=true){
+    if(!this.catalog.length||!this.inputValid){this.matches=[];return;}
     const s={voltage:Number(this.voltage),inverterW:Number(this.continuousW),peak:Number(this.peakW)};
     this.matches=window.SolarExpertProductMatcher.rank(this.catalog.filter(p=>p.type==='inverter'||p.type==='inverter_hybrid'),s).slice(0,5);
-    if(track) seTrackSelectorOnce(this,'inverter',{voltage:s.voltage,continuousW:s.inverterW,peakW:s.peak});
+    if(track) seTrackSelectorOnce(this,'inverter',{voltage:s.voltage,continuousW:s.inverterW,peakW:s.peak,requiredDcA:this.requiredDcA,peakDcA:this.peakDcA});
   }
 };};
