@@ -30,3 +30,13 @@ Do not fill an incomplete tier with discontinued or weakly evidenced products me
 - Battery Selector shares the same parallel-bank engine as the Builder, so high-capacity standalone battery sizing no longer falsely reports “no match” when a verified multi-module bank is available.
 - A multi-module bank may use one verified battery+inverter set when it is cheaper; only one battery is covered by the set and all extra modules are added at verified unit price.
 
+## 2026-10-05 approved-merchant gap audit
+
+Current approved-merchant evidence confirms that the remaining 12V/24V Premium gaps should stay intentionally empty:
+
+- 12V: GOOWEI CNLFP100-12.8 and CNLFP200-12.8 are verified in-stock Budget/Best Value choices. Higher-spec smart alternatives found in the approved merchant inventory are not consistently in stock.
+- 24V: GOOWEI CNLFP50-25.6 and CNLFP100-25.6 are verified in stock. Voltium VE-SPBT-24100 and VE-SPBT-2450 are currently listed **on request**, so they do not qualify for an active Premium recommendation.
+- 48V already has verified Best/Premium coverage through SEPLOS and Pylontech.
+
+Decision: do not create a Premium tier merely for visual symmetry. A tier may be shown as complete only when every required product is technically evidenced and currently recommendable.
+
