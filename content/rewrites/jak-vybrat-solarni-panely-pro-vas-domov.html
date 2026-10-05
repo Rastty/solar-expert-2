@@ -1,6 +1,6 @@
-<p>Nejlepší solární panel není automaticky ten s nejvyšším výkonem nebo účinností. Správný výběr začíná tím, <strong>kolik energie potřebujete, kdy ji potřebujete a k jakému MPPT nebo měniči budou panely připojené</strong>.</p>
+<p class="se-lead"><strong>Nejlepší solární panel není automaticky ten s nejvyšším výkonem, účinností ani nejznámější značkou.</strong> Správný výběr začíná tím, kolik energie potřebujete, kolik máte místa, jaké jsou limity MPPT/měniče a zda konkrétní modul dává smysl z hlediska spolehlivosti, záruk a reálného provozu.</p>
 
-<p>Pro ostrovní systém nebo chatu můžete přeskočit obecné tabulky a použít <a href="/solarni-sestava-na-chatu/">Solar Setup Builder</a>. Níže vysvětlujeme, co přesně při výběru kontrolovat.</p>
+<p>Pro ostrovní systém nebo chatu můžete rovnou použít <a href="/solarni-sestava-na-chatu/">Solar Setup Builder</a>. Pokud porovnáváte panely do domovní FVE, níže najdete technický i „review“ checklist bez marketingového žebříčku značek.</p>
 
 <h2>Wp není totéž co kWh</h2>
 <p>Wp (watt-peak) je jmenovitý výkon panelu za standardizovaných podmínek. kWh je množství energie. Panel 500 Wp tedy nevyrábí „500 W celý den“. Skutečná výroba závisí na lokalitě, roční době, orientaci, sklonu, teplotě, zastínění a ztrátách systému.</p>
@@ -33,6 +33,43 @@
 <h2>6. Kdy vybírat 190 Wp a kdy 500+ Wp panel</h2>
 <p>Menší panely mohou být praktičtější na členité střeše, karavanu nebo malé chatě a umožní jemnější sizing. Velkoformátové panely dávají dobrý výkon na kus a často nižší cenu za Wp, ale jejich vyšší Voc a rozměry mohou omezit možné stringy nebo fyzické rozmístění.</p>
 
+<h2>7. Jak číst recenze solárních panelů</h2>
+<p>U recenzí dávejte větší váhu dlouhodobým datům a konkrétnímu modelu než obecnému dojmu ze značky. Uživatel, který má panel rok na střeše, může popsat servis nebo reklamaci, ale z domácí zkušenosti obvykle nezjistí PID, LID/LETID, odolnost proti tepelným cyklům nebo mechanickému namáhání.</p>
+<p>Proto kombinujte tři vrstvy:</p>
+<ul>
+<li><strong>uživatelské zkušenosti:</strong> komunikace dodavatele, servis, reklamace, viditelné vady,</li>
+<li><strong>technický datasheet a záruky:</strong> výkon, teplotní koeficient, mechanické zatížení, produktová a výkonová záruka,</li>
+<li><strong>nezávislé laboratorní testy:</strong> chování konkrétního modelu/BOM při tepelném cyklování, vlhkosti, PID, mechanickém namáhání, kroupách a dalších zkouškách.</li>
+</ul>
+
+<h2>8. IEC 61215 a IEC 61730 jsou základ, ne automatická známka „nejlepší panel“</h2>
+<p><strong>IEC 61215</strong> řeší design qualification a typové zkoušky PV modulů pro dlouhodobý provoz ve venkovním prostředí. Samotná norma výslovně neříká, že test je kvantitativní předpověď životnosti konkrétního panelu.</p>
+<p><strong>IEC 61730</strong> řeší bezpečnostní kvalifikaci konstrukce a zkoušky proti elektrickým, požárním a mechanickým rizikům. Při výběru moderního modulu proto berte splnění těchto standardů jako základní filtr, ne jako důkaz, že všechny certifikované modely mají stejnou spolehlivost.</p>
+
+<h2>9. Nezávislé reliability testy: sledujte konkrétní model/BOM</h2>
+<p>Kiwa PVEL ve svém <strong>2026 PV Module Reliability Scorecard</strong> ukazuje, proč nestačí vybírat jen podle loga výrobce. V aktuálním souboru testů mělo 87 % výrobců alespoň jedno PQP selhání a pouze několik konkrétních BOM kombinací dosáhlo Top Performer výsledku ve všech reliability testech.</p>
+<p>Praktický závěr není „vyřaďte výrobce, který někdy selhal“. Důležitější je, zda <strong>konkrétní model a konkrétní výrobní konfigurace</strong> mají dostupná nezávislá testovací data a jak si vedly v relevantních zkouškách.</p>
+
+<h2>10. Produktová vs. výkonová záruka</h2>
+<p>Tyto dvě záruky nejsou totéž:</p>
+<ul>
+<li><strong>produktová záruka</strong> se týká vad materiálu a zpracování,</li>
+<li><strong>výkonová záruka</strong> stanovuje, jaký minimální podíl jmenovitého výkonu výrobce garantuje po určité době.</li>
+</ul>
+<p>Dlouhá výkonová záruka sama o sobě neřeší logistiku reklamace ani finanční sílu výrobce. Posuzujte také, kdo reklamaci řeší v ČR/EU a zda je dostupný místní distribuční či servisní kanál.</p>
+
+<h2>11. Degradace a dlouhodobý výkon</h2>
+<p>Marketingové „30 let záruky“ není totéž jako stejnoměrný výkon po 30 let. U modulů existují různé degradační mechanismy — například počáteční LID/LETID, PID, tepelné cyklování a stárnutí materiálů. Proto je užitečné porovnat nejen garantovaný konečný výkon, ale i průběh garantované degradace a nezávislé testy.</p>
+<p><a class="se-btn" href="/rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu/">Jak porovnávat degradaci panelů →</a></p>
+
+<h2>12. Mechanické parametry: sníh, vítr, kroupy a sklo</h2>
+<p>U střechy v reálném světě není výkon jediný parametr. Kontrolujte deklarované mechanické zatížení, konstrukci skla/rámu a montážní zóny. Výsledek laboratorního testu modulu navíc nenahrazuje statický návrh střechy a konstrukce.</p>
+<p>Kiwa PVEL 2026 znovu ukazuje, že mechanické poruchy a rozbití modulů při stress testech stále patří mezi důležité failure modes. Proto u rizikové lokality nebo velkoformátových modulů dává mechanická část datasheetu větší váhu, než jakou jí dává běžné marketingové porovnání.</p>
+
+<h2>13. Reálný výkon je víc než Wp na štítku</h2>
+<p>Dva panely se stejným Wp mohou mít jiný výkon při vyšší teplotě, jiné rozměry, odlišný teplotní koeficient nebo jinou toleranci výkonu. Proto před nákupem porovnejte také reálné provozní podmínky.</p>
+<p><a class="se-btn" href="/realny-vykon-solarnich-panelu/">Co určuje reálný výkon panelu →</a></p>
+
 <h2>Kontrolní seznam před objednávkou</h2>
 <ul>
 <li>potřebný celkový výkon panelů podle spotřeby a sezóny,</li>
@@ -47,3 +84,11 @@
 <p>Pokud už máte nabídku s konkrétním počtem Wp, baterií a měničem, porovnejte ji v <a href="/quote-checker/">Quote Checkeru</a>.</p>
 
 <div class="se-note"><strong>Výkon panelu nestačí.</strong> Pro kontrolu Voc, Vmp a MPPT okna použijte <a href="/mppt-kalkulacka/">MPPT kalkulačku</a>. Kompletní sizing spočítá <a href="/solarni-sestava-na-chatu/">Solar Setup Builder</a>.</div>
+
+
+<h2>Zdroje pro nezávislé hodnocení</h2>
+<ul>
+<li><a href="https://scorecard.pvel.com/" rel="noopener">Kiwa PVEL — 2026 PV Module Reliability Scorecard</a></li>
+<li><a href="https://webstore.iec.ch/en/publication/61345" rel="noopener">IEC 61215-1:2021 — design qualification and type approval</a></li>
+<li><a href="https://webstore.iec.ch/en/publication/59803" rel="noopener">IEC 61730-1:2023 — PV module safety qualification</a></li>
+</ul>
