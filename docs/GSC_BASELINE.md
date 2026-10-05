@@ -177,3 +177,15 @@ Decision:
 - keep `/jak-funguje-tepelne-cerpadlo/` separate because its query set is clearly principle-focused;
 - keep the lifespan URL separate because its query set is clearly durability-focused.
 
+### Lifespan and solar-principle refresh
+
+Fresh raw 90-day GSC page-query evidence from the 2026-10-05 Prometheus artifact:
+- `/jak-dlouho-vydrzi-tepelna-cerpadla/`: 43 disclosed page-query impressions, led by `životnost tepelného čerpadla` (24 impressions) and `jak často spíná tepelné čerpadlo` (10 impressions).
+- `/solarni-panel-definice-a-fakta/`: 18 disclosed page-query impressions, including `jak funguje solární panel` (12 impressions).
+- `/vysvetleni-solarnich-panelu-pv-t/`: 37 disclosed page-query impressions. Its query mix is genuinely PVT / transparent / solar-technology oriented, so it remains a separate URL rather than being redirected into the basic PV guide.
+
+Decision:
+- rebuild the lifespan URL around compressor starts, cycling, sizing, service and replace-vs-repair intent, then include it in the owned-first heat-pump funnel;
+- rebuild `solarni-panel-definice-a-fakta` as the clear owner of the basic photovoltaic-effect intent;
+- rebuild the PVT URL as a distinct hybrid electricity+heat guide, removing stale UK incentives and unsupported efficiency claims instead of merging the two intents.
+
