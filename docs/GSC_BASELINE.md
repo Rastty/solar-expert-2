@@ -97,3 +97,7 @@ Fresh 28-day query evidence: `tepelné čerpadlo Samsung recenze` has **11 impre
 
 Fresh near-win data: `/proc-se-solarni-panely-neprehrivaji/` has **14 impressions / avg. position 7.07** over 90 days; `/chlazeni-fotovoltaickych-panelu/` has **14 impressions / avg. position 7.14 and 1 click**. Historical query evidence does not establish the same intent. Decision: do **not** consolidate. Protect both URLs; apply title/meta refinement only to the zero-click overheating page and leave the clicked cooling page body untouched.
 
+### Battery category hub
+
+Fresh 90-day GSC near-win: `/category/baterie/` has **10 impressions at average position 18.5**. Decision: preserve the indexed category URL, replace the generic archive presentation with a battery decision hub, route users into Battery Selector, keep the article archive below it, add dedicated title/meta and CollectionPage schema, and strengthen discovery with a sitewide footer link.
+
