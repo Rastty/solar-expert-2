@@ -20,7 +20,7 @@ function solar_expert_assets() {
   wp_enqueue_script('solar-expert-bundles',$uri.'/assets/js/bundle-composer.js',array('solar-expert-matcher'),filemtime($dir.'/assets/js/bundle-composer.js'),true);
   wp_enqueue_script('solar-expert-builder',$uri.'/assets/js/builder.js',array('solar-expert-bundles'),filemtime($dir.'/assets/js/builder.js'),true);
   wp_enqueue_script('solar-expert-selectors',$uri.'/assets/js/selectors.js',array('solar-expert-builder'),filemtime($dir.'/assets/js/selectors.js'),true);
-  wp_enqueue_script('solar-expert-quote-checker',$uri.'/assets/js/quote-checker.js',array(),filemtime($dir.'/assets/js/quote-checker.js'),true);
+  wp_enqueue_script('solar-expert-quote-checker',$uri.'/assets/js/quote-checker.js',array('solar-expert-analytics'),filemtime($dir.'/assets/js/quote-checker.js'),true);
   wp_enqueue_script('alpine','https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js',array('solar-expert-selectors','solar-expert-quote-checker'),'3.14.9',true);
   wp_script_add_data('alpine','defer',true);
   $affiliate_map = get_option('solar_expert_affiliate_map', array());
