@@ -602,7 +602,7 @@
     {
       "id": "inverter-rogerele-rep1500-24",
       "type": "inverter",
-      "merchant": "solar-import-cz",
+      "merchant": "battery-cz",
       "sku": "E7934",
       "tier": "best",
       "name": "ROGERELE REP1500-24 24V 1500W",
@@ -610,28 +610,55 @@
       "continuous_w": 1500,
       "peak_w": 3000,
       "waveform": "pure_sine",
-      "price_czk_snapshot": 4990,
-      "price_czk": 4990,
+      "price_czk_snapshot": 4190,
+      "price_czk": 4190,
       "price_mode": "snapshot",
-      "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1500-24--1500w/"
+      "availability": "on_request",
+      "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep1500-24--1500w/",
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 4190,
+          "availability": "on_request",
+          "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep1500-24--1500w/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     },
     {
       "id": "inverter-rogerele-rep2000-24",
       "type": "inverter",
-      "merchant": "solar-import-cz",
+      "merchant": "battery-cz",
       "sku": "E7935",
-      "tier": "premium",
+      "tier": "best",
       "name": "ROGERELE REP2000-24 24V 2000W",
       "dc_voltage": 24,
       "continuous_w": 2000,
       "peak_w": 4000,
       "waveform": "pure_sine",
-      "price_czk_snapshot": 6950,
-      "price_czk": 6950,
+      "price_czk_snapshot": 4990,
+      "price_czk": 4990,
       "price_mode": "snapshot",
       "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/"
+      "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/",
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 4990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 6950,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/",
+          "verified_at": "2026-10-05"
+        }
+      ]
     }
   ],
   "bundle_deals": [
