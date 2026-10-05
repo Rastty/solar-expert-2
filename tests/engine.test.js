@@ -24,6 +24,9 @@ const batteryOffer=A.offers(multiProduct).find(o=>o.merchantId==='battery-cz');
 const solarOffer=A.offers(multiProduct).find(o=>o.merchantId==='solar-import-cz');
 assert(batteryOffer.monetized&&batteryOffer.href==='https://example.com/battery-affiliate','Merchant-specific affiliate URL must resolve for matching merchant');
 assert(!solarOffer.monetized,'Merchant-specific affiliate URL must not leak to another merchant');
+assert(M.effectivePrice(multiProduct)===3899,'Matcher should use cheapest in-stock merchant offer');
+const temporarilyExpensive={...multiProduct,price_czk:99999};
+assert(M.effectivePrice(temporarilyExpensive)===3899,'Offer price should override stale product-level price for ranking');
 
 
 const battery24Sizing = { voltage:24, batteryKwh:1.5, inverterW:1000 };
