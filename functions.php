@@ -25,11 +25,16 @@ function solar_expert_assets() {
   if ( ! is_array($affiliate_map) ) {
     $affiliate_map = array();
   }
+  $affiliate_bases = get_option('solar_expert_affiliate_bases', array());
+  if ( ! is_array($affiliate_bases) ) {
+    $affiliate_bases = array();
+  }
 
   wp_localize_script('solar-expert-builder','SolarExpertConfig',array(
     'catalogUrl'=>$uri.'/assets/data/product-seed.json',
     'homeUrl'=>home_url('/'),
     'affiliateMap'=>$affiliate_map,
+    'affiliateBases'=>$affiliate_bases,
   ));
 }
 add_action('wp_enqueue_scripts','solar_expert_assets');
