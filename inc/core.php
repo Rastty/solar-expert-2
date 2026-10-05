@@ -882,12 +882,15 @@ function solar_expert_append_solar_lead_cta($content) {
   }
 
   $fallback = 'https://www.eon.cz/domacnosti/usporne-technologie/solar/';
+  $quote_url = home_url('/quote-checker/');
   $cta = '<aside class="se-note se-lead-cta">'
     . '<strong>Chcete porovnat vlastní návrh s nabídkou na klíč?</strong> '
-    . 'Nechte si připravit nezávaznou nabídku fotovoltaiky od E.ON a porovnejte výkon, baterii i cenu s návrhem Solar Expertu.'
-    . '<p><a class="se-btn se-btn-primary" href="' . esc_url($fallback) . '" '
+    . 'Nejdřív si nabídku projděte v našem <a href="' . esc_url($quote_url) . '">Quote Checkeru</a>. '
+    . 'Pak si můžete nechat připravit druhou nezávaznou nabídku od E.ON a porovnat výkon, baterii i cenu.'
+    . '<p><a class="se-btn" href="' . esc_url($quote_url) . '">Prověřit nabídku →</a> '
+    . '<a class="se-btn se-btn-primary" href="' . esc_url($fallback) . '" '
     . 'data-se-lead-id="eon-solar" data-se-placement="solar_legacy_article" '
-    . 'data-se-fallback="' . esc_attr($fallback) . '" rel="nofollow noopener">Nezávazně poptat fotovoltaiku →</a></p>'
+    . 'data-se-fallback="' . esc_attr($fallback) . '" rel="nofollow noopener">Získat druhou nabídku FVE →</a></p>'
     . '<small>Partnerský odkaz může Solar Expertu přinést provizi. Technický obsah článku ani pořadí doporučení tím není ovlivněno.</small>'
     . '</aside>';
 
