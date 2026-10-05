@@ -576,6 +576,10 @@ function solar_expert_seo_meta() {
       'title' => 'Zastínění solárních panelů: výkon, bypass diody a MPPT | Solar Expert',
       'description' => 'Jak částečné zastínění ovlivní výkon fotovoltaických panelů a stringu, kdy pomůže MPPT nebo optimizér a co ověřit v návrhu.'
     ),
+    'kolik-vyrobi-fotovoltaika-za-hodinu' => array(
+      'title' => 'Kolik vyrobí fotovoltaika za hodinu? kW vs. kWh | Solar Expert',
+      'description' => 'Kolik energie vyrobí 1, 5 nebo 10 kWp fotovoltaika za hodinu, rozdíl kW a kWh a proč se skutečný výkon během dne mění.'
+    ),
   );
 
   if ( is_front_page() ) {
