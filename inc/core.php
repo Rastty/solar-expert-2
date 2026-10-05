@@ -545,6 +545,14 @@ function solar_expert_seo_meta() {
       'title' => 'Jak zapojit solární panely: série, paralelně a MPPT | Solar Expert',
       'description' => 'Sériové a paralelní zapojení solárních panelů, co se sčítá, jak hlídat Voc, Vmp a proud a jak ověřit string proti MPPT.'
     ),
+    'kolik-panelu-je-potreba-na-jeden-string' => array(
+      'title' => 'Kolik panelů na jeden string? Voc, Vmp a MPPT | Solar Expert',
+      'description' => 'Jak určit minimální a maximální počet panelů v jednom stringu podle Vmp, cold Voc a pracovního okna MPPT regulátoru.'
+    ),
+    'fotovoltaika-na-eternitovou-strechu' => array(
+      'title' => 'Fotovoltaika na eternitovou střechu: co ověřit | Solar Expert',
+      'description' => 'Co zkontrolovat před montáží FVE na starší eternitovou nebo vláknocementovou střechu: azbest, statiku, kotvení, stav krytiny a string.'
+    ),
   );
 
   if ( is_front_page() ) {
