@@ -377,3 +377,19 @@ assert(hpVsBoilerHtml.includes('data-se-lead-id="eon-heat-pump"'),'Heating compa
 assert(hpVsBoilerHtml.includes('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/'),'Heating comparison must link into the combined FVE + heat-pump decision page');
 assert(!hpVsBoilerHtml.includes('třikrát levnější v provozních nákladech'),'Heating comparison must not keep the old universal 3x-cheaper claim');
 assert(!hpVsBoilerHtml.includes('v zimě záložní zdroj tepla'),'Heating comparison must not claim every heat pump always requires backup heating');
+
+
+const bestHpSlug='nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu';
+const bestHpItem=manifest.items.find(x=>x.slug===bestHpSlug);
+assert(bestHpItem&&bestHpItem.preserve_status===true,'Best heat-pumps guide must remain managed');
+assert(bestHpItem.file&&fs.existsSync(path.join(__dirname,'..',bestHpItem.file)),'Best heat-pumps guide file missing');
+assert(seoCore.includes("'"+bestHpSlug+"' => array("),'Best heat-pumps guide must have dedicated SEO metadata');
+const bestHpHtml=fs.readFileSync(path.join(__dirname,'..',bestHpItem.file),'utf8');
+for(const family of ['Altherma 4 H','aroTHERM plus 2026','S2125','Vitocal 250-A','THERMA V R290']){
+  assert(bestHpHtml.includes(family),'Best heat-pumps guide must include current verified family: '+family);
+}
+assert(bestHpHtml.includes('nejspolehlivější tepelné čerpadlo'),'Best heat-pumps guide must address reliability intent explicitly');
+assert(bestHpHtml.includes('data-se-lead-id="eon-heat-pump"'),'Best heat-pumps guide must retain bounded comparison lead CTA');
+assert(bestHpHtml.includes('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/'),'Best heat-pumps guide must route into combined FVE decision page');
+assert(!bestHpHtml.includes('výběr 10 nejlepších'),'Best heat-pumps guide must not revert to the stale unmethodical Top-10 framing');
+assert(!bestHpHtml.includes('ve Velké Británii'),'Best heat-pumps guide must not retain UK-market framing');
