@@ -989,3 +989,108 @@ function solar_expert_schema_graph() {
   echo '<script type="application/ld+json">' . wp_json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>' . "\n";
 }
 add_action('wp_head', 'solar_expert_schema_graph', 30);
+
+
+function solar_expert_remove_matching_hook_callbacks($tag, $matcher) {
+  global $wp_filter;
+
+  if ( empty($wp_filter[$tag]) || ! ($wp_filter[$tag] instanceof WP_Hook) ) {
+    return 0;
+  }
+
+  $removed = 0;
+  $callbacks = $wp_filter[$tag]->callbacks;
+
+  foreach ( $callbacks as $priority => $items ) {
+    foreach ( $items as $item ) {
+      $function = $item['function'] ?? null;
+      if ( ! $function || ! call_user_func($matcher, $function) ) {
+        continue;
+      }
+
+      remove_filter($tag, $function, $priority);
+      $removed++;
+    }
+  }
+
+  return $removed;
+}
+
+function solar_expert_quarantine_legacy_frontend_plugins() {
+  if ( is_admin() ) {
+    return;
+  }
+
+  // Legacy Ninja Popups output causes stale marketing UI and PHP warnings on PHP 8.
+  if ( function_exists('snp_footer') ) {
+    remove_action('wp_footer', 'snp_footer', 10);
+  }
+
+  // Old Simple Author Box was attached to imported content and does not represent
+  // the editorial identity of Solar Expert 2.0.
+  solar_expert_remove_matching_hook_callbacks('the_content', function($callback) {
+    if ( is_string($callback) ) {
+      return $callback === 'wpsabox_author_box';
+    }
+    if ( is_array($callback) && isset($callback[1]) ) {
+      return in_array((string) $callback[1], array('wpsabox_author_box','append_author_box'), true);
+    }
+    return false;
+  });
+
+  // MyThemeShop Notification Bar registers object callbacks, so remove only the
+  // two known frontend render methods on its shared object.
+  solar_expert_remove_matching_hook_callbacks('wp_footer', function($callback) {
+    if ( ! is_array($callback) || ! isset($callback[0], $callback[1]) || ! is_object($callback[0]) ) {
+      return false;
+    }
+
+    $class = get_class($callback[0]);
+    $method = (string) $callback[1];
+
+    return $class === 'MTSNB_Shared'
+      && in_array($method, array('display_bar','display_hidden_bars'), true);
+  });
+}
+add_action('wp', 'solar_expert_quarantine_legacy_frontend_plugins', PHP_INT_MAX);
+
+function solar_expert_dequeue_legacy_frontend_assets() {
+  if ( is_admin() ) {
+    return;
+  }
+
+  $legacy_paths = array(
+    '/plugins/mts-wp-notification-bar/',
+    '/plugins/arscode-ninja-popups/',
+    '/plugins/simple-author-box/',
+  );
+
+  global $wp_scripts, $wp_styles;
+
+  if ( $wp_scripts instanceof WP_Scripts ) {
+    foreach ( (array) $wp_scripts->queue as $handle ) {
+      $registered = $wp_scripts->registered[$handle] ?? null;
+      $src = $registered ? (string) $registered->src : '';
+      foreach ( $legacy_paths as $path ) {
+        if ( $src && strpos($src, $path) !== false ) {
+          wp_dequeue_script($handle);
+          break;
+        }
+      }
+    }
+  }
+
+  if ( $wp_styles instanceof WP_Styles ) {
+    foreach ( (array) $wp_styles->queue as $handle ) {
+      $registered = $wp_styles->registered[$handle] ?? null;
+      $src = $registered ? (string) $registered->src : '';
+      foreach ( $legacy_paths as $path ) {
+        if ( $src && strpos($src, $path) !== false ) {
+          wp_dequeue_style($handle);
+          break;
+        }
+      }
+    }
+  }
+}
+add_action('wp_enqueue_scripts', 'solar_expert_dequeue_legacy_frontend_assets', PHP_INT_MAX);
