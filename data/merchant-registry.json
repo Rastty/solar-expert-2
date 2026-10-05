@@ -39,12 +39,11 @@
     {
       "id": "eon-cz",
       "name": "E.ON.cz",
-      "status": "pending_approval",
+      "status": "approved",
       "roles": [
         "installer-lead"
       ],
-      "priority": "secondary",
-      "notes": "Public eHUB campaign verified 2026-10-05; account approval not yet confirmed. Activate only after a real eHUB base link is stored in WordPress."
+      "priority": "secondary"
     },
     {
       "id": "vselektro-eu",
