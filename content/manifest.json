@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.9.0",
+  "schemaVersion": "3.0.0",
   "items": [
     {
       "type": "page",
@@ -294,6 +294,14 @@
       "title": "Jak funguje tepelné čerpadlo: princip krok za krokem",
       "preserve_status": true,
       "file": "content/rewrites/jak-funguje-tepelne-cerpadlo.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "jak-dlouho-vydrzi-tepelna-cerpadla",
+      "title": "Životnost tepelného čerpadla: kolik let vydrží a co ji zkracuje",
+      "preserve_status": true,
+      "file": "content/rewrites/jak-dlouho-vydrzi-tepelna-cerpadla.html",
       "create_if_missing": false
     }
   ]
