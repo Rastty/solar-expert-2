@@ -152,6 +152,19 @@ const cottageBest = builder.bundles.find(b=>b.tier==='best');
 assert(cottageBest && cottageBest.complete, 'Default cottage scenario should produce a complete Best Value bundle');
 assert(cottageBest.inverter.id==='inverter-rogerele-rep1500-24', 'Default cottage should select the verified 24V 1500W inverter');
 assert(cottageBest.inverter.peak_w>=builder.result.peak, 'Selected inverter must cover estimated surge');
+const cottageComparison=builder.comparisonFor(cottageBest);
+assert(cottageComparison&&cottageComparison.batteryKwh>=builder.result.batteryKwh,'Comparison must expose battery capacity that meets sizing target');
+assert(cottageComparison.inverterW>=builder.result.inverterW,'Comparison must expose continuous inverter reserve');
+assert(cottageComparison.surgeW>=builder.result.peak,'Comparison must expose surge reserve');
+assert(cottageComparison.panelWp>=builder.result.panelWp,'Comparison must expose PV reserve');
+assert(cottageComparison.reasons.length>=5,'Comparison should explain why the variant fits');
+
+const cottageChecklist=builder.checklistFor(cottageBest);
+assert(cottageChecklist.some(x=>x.group==='included'&&x.label==='Baterie'),'Completion checklist must show battery as included');
+assert(cottageChecklist.some(x=>x.group==='included'&&x.label==='MPPT regulátor'),'Completion checklist must show MPPT coverage');
+assert(cottageChecklist.some(x=>x.group==='extra'&&x.label.includes('DC jištění')),'Completion checklist must surface battery DC protection');
+assert(cottageChecklist.some(x=>x.group==='extra'&&x.label.includes('Kabely')),'Completion checklist must surface cabling');
+assert(builder.primaryBundle===cottageBest,'Best Value should be the primary completeness checklist when available');
 
 const quoteGood = global.window.solarExpertQuoteChecker();
 quoteGood.dailyKwh=2;
