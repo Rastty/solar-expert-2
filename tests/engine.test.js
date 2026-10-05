@@ -153,6 +153,15 @@ assert(budget12Verified.inverter.id==='inverter-rogerele-rep1000-12', '12V Budge
 assert(budget12Verified.inverter.peak_w>=bundle12Sizing.peak, '12V Budget inverter must cover requested surge');
 assert(budget12Verified.mppt.id==='mppt-victron-100-20', 'Small 12V Budget bundle should use verified SmartSolar 100/20');
 
+const battery12LargerSizing={voltage:12,batteryKwh:2,inverterW:800};
+const larger12Batteries=M.rank(catalog.products.filter(p=>p.type==='battery'),battery12LargerSizing);
+assert(larger12Batteries.some(x=>x.product.id==='battery-goowei-12-200'),'12V 2kWh scenario should find verified GOOWEI 200Ah battery');
+assert(!larger12Batteries.some(x=>x.product.id==='battery-goowei-12-100'),'12V 100Ah battery must not pass a 2kWh nominal target');
+
+const kosun48Sizing={voltage:48,inverterW:2500,peak:5000};
+const kosun48Matches=M.rank(catalog.products.filter(p=>p.type==='inverter'||p.type==='inverter_hybrid'),kosun48Sizing);
+assert(kosun48Matches.some(x=>x.product.id==='inverter-kosun-48-3000'),'48V selector should include verified KOSUN 3000W budget inverter');
+
 const kosunSizing = {
   voltage:12,
   batteryKwh:1,
