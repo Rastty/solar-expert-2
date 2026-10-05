@@ -397,7 +397,9 @@ function solar_expert_settings_page() {
       $eon_heat_pump_mapped = ! empty($lead_map['eon-heat-pump']);
     ?>
     <p><code>eon-heat-pump</code>: <?php echo $eon_heat_pump_mapped ? '<strong style="color:#16733b">AFFILIATE AKTIVNÍ</strong>' : '<span style="color:#8a5b00">veřejný E.ON fallback</span>'; ?></p>
-    <p class="description">Pro monetizaci GSC-prokázané návštěvnosti tepelných čerpadel vložte partnerský link do <code>leads.eon-heat-pump</code>. Bez něj CTA zůstává funkční, ale nemonetizované.</p>
+    <?php $eon_solar_mapped = ! empty($lead_map['eon-solar']); ?>
+    <p><code>eon-solar</code>: <?php echo $eon_solar_mapped ? '<strong style="color:#16733b">AFFILIATE AKTIVNÍ</strong>' : '<span style="color:#8a5b00">veřejný E.ON fallback</span>'; ?></p>
+    <p class="description">Pro monetizaci GSC-prokázané návštěvnosti vložte partnerské linky do <code>leads.eon-heat-pump</code> a <code>leads.eon-solar</code>. Bez nich CTA zůstávají funkční, ale nemonetizované.</p>
 
     <hr>
     <h2>Affiliate coverage</h2>
@@ -644,6 +646,44 @@ function solar_expert_append_heat_pump_lead_cta($content) {
   return $content . $cta;
 }
 add_filter('the_content', 'solar_expert_append_heat_pump_lead_cta', 25);
+
+function solar_expert_solar_lead_slugs() {
+  return array(
+    'fve-panely-na-strechu',
+    'fotovoltaika-na-eternitovou-strechu',
+    'kotveni-fotovoltaickych-panelu-na-ploche-strese',
+    'velikost-rozmery-a-hmotnost-solarnich-panelu'
+  );
+}
+
+function solar_expert_append_solar_lead_cta($content) {
+  if ( is_admin() || ! is_singular('post') || ! in_the_loop() || ! is_main_query() ) {
+    return $content;
+  }
+
+  $post = get_queried_object();
+  $slug = $post && ! empty($post->post_name) ? $post->post_name : '';
+  if ( ! $slug || ! in_array($slug, solar_expert_solar_lead_slugs(), true) ) {
+    return $content;
+  }
+
+  if ( strpos($content, 'data-se-lead-id="eon-solar"') !== false ) {
+    return $content;
+  }
+
+  $fallback = 'https://www.eon.cz/domacnosti/usporne-technologie/solar/';
+  $cta = '<aside class="se-note se-lead-cta">'
+    . '<strong>Chcete porovnat vlastní návrh s nabídkou na klíč?</strong> '
+    . 'Nechte si připravit nezávaznou nabídku fotovoltaiky od E.ON a porovnejte výkon, baterii i cenu s návrhem Solar Expertu.'
+    . '<p><a class="se-btn se-btn-primary" href="' . esc_url($fallback) . '" '
+    . 'data-se-lead-id="eon-solar" data-se-placement="solar_legacy_article" '
+    . 'data-se-fallback="' . esc_attr($fallback) . '" rel="nofollow noopener">Nezávazně poptat fotovoltaiku →</a></p>'
+    . '<small>Partnerský odkaz může Solar Expertu přinést provizi. Technický obsah článku ani pořadí doporučení tím není ovlivněno.</small>'
+    . '</aside>';
+
+  return $content . $cta;
+}
+add_filter('the_content', 'solar_expert_append_solar_lead_cta', 26);
 
 
 function solar_expert_legacy_redirects() {
