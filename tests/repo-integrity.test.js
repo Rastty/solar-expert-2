@@ -38,6 +38,7 @@ for(const deal of source.bundle_deals){
 const merchantRegistry=JSON.parse(fs.readFileSync(path.join(__dirname,'..','data','merchant-registry.json'),'utf8'));
 const merchantIds=new Set((merchantRegistry.merchants||[]).map(m=>m.id));
 assert(merchantIds.size>0,'Merchant registry must not be empty');
+const verifiedDate=/^\d{4}-\d{2}-\d{2}$/;
 
 for(const product of source.products||[]){
   assert(product.id&&typeof product.id==='string','Product is missing id');
@@ -45,7 +46,7 @@ for(const product of source.products||[]){
     assert(product.type==='battery','Only battery products may declare parallel_max_units: '+product.id);
     assert(Number.isInteger(Number(product.parallel_max_units))&&Number(product.parallel_max_units)>=2,'parallel_max_units must be an integer >=2: '+product.id);
     assert(/^https:\/\//.test(product.parallel_evidence_url||''),'Parallel battery evidence URL must be HTTPS: '+product.id);
-    assert(/^\d{4}-\d{2}-\d{2}$/.test(product.parallel_verified_at||''),'Parallel battery evidence must be date-stamped: '+product.id);
+    assert(verifiedDate.test(product.parallel_verified_at||''),'Parallel battery evidence must be date-stamped: '+product.id);
   }
   assert(merchantIds.has(product.merchant),'Unknown primary merchant '+product.merchant+' for '+product.id);
   if(Array.isArray(product.offers)){
@@ -56,10 +57,15 @@ for(const product of source.products||[]){
       offerMerchants.add(offer.merchant);
       assert(/^https:\/\//.test(offer.source_url||''),'Offer source must be HTTPS for '+product.id+'@'+offer.merchant);
       assert(Number(offer.price_czk)>0,'Offer price must be positive for '+product.id+'@'+offer.merchant);
+      if((offer.availability||product.availability)!=='discontinued'){
+        assert(verifiedDate.test(offer.verified_at||product.verified_at||''),'Active priced offer must be date-verified: '+product.id+'@'+offer.merchant);
+      }
     }
     const primary=product.offers.find(o=>o.merchant===product.merchant);
     assert(primary,'Primary merchant must exist in offers for '+product.id);
     assert(Number(product.price_czk)===Number(primary.price_czk),'Primary price must match primary offer for '+product.id);
+  }else if(Number(product.price_czk)>0 && product.availability!=='discontinued'){
+    assert(verifiedDate.test(product.verified_at||''),'Active priced product must be date-verified: '+product.id);
   }
 }
 
