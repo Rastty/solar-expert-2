@@ -12,9 +12,9 @@
     <a class="se-brand" href="<?php echo esc_url(home_url('/')); ?>"><span class="se-logo"></span><span>Solar Expert</span></a>
     <nav class="se-menu">
       <a href="<?php echo esc_url(home_url('/#builder')); ?>">Navrhnout sestavu</a>
-      <a href="<?php echo esc_url(home_url('/vyber-baterii/')); ?>">Baterie</a>
-      <a href="<?php echo esc_url(home_url('/mppt-kalkulacka/')); ?>">MPPT</a>
-      <a href="<?php echo esc_url(home_url('/vyber-menice/')); ?>">Měnič</a>
+      <a href="<?php echo esc_url(solar_expert_public_url('vyber-baterii')); ?>">Baterie</a>
+      <a href="<?php echo esc_url(solar_expert_public_url('mppt-kalkulacka')); ?>">MPPT</a>
+      <a href="<?php echo esc_url(solar_expert_public_url('vyber-menice')); ?>">Měnič</a>
     </nav>
     <a class="se-btn se-btn-primary" href="<?php echo esc_url(home_url('/#builder')); ?>">Spustit Builder</a>
   </div>
