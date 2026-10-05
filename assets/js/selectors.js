@@ -1,4 +1,4 @@
-async function seCatalog(){const r=await fetch(window.SolarExpertConfig.catalogUrl,{credentials:'same-origin'});return(await r.json()).products||[];}
+async function seCatalog(){const r=await fetch(window.SolarExpertConfig.catalogUrl,{credentials:'same-origin'});if(!r.ok)throw new Error('catalog_http_'+r.status);return(await r.json()).products||[];}
 
 function seTrackSelectorOnce(ctx,selector,detail){
   if(!ctx || ctx.engagementTracked) return;
@@ -11,10 +11,18 @@ function seTrackSelectorOnce(ctx,selector,detail){
 }
 
 window.solarExpertBatterySelector=function(){return{
-  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,catalog:[],matches:[],engagementTracked:false,
-  async init(){this.catalog=await seCatalog();this.run(false);},
+  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,
+  get requiredBatteryKwh(){return Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/.85)*10)/10;},
+  get requiredDischargeA(){return Math.max(1,Math.ceil(Number(this.inverterW)/Math.max(1,Number(this.voltage))));},
+  async init(){
+    this.catalogLoading=true;this.catalogError=false;
+    try{this.catalog=await seCatalog();this.run(false);}
+    catch(_){this.catalog=[];this.matches=[];this.catalogError=true;}
+    finally{this.catalogLoading=false;}
+  },
   run(track=true){
-    const batteryKwh=Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/.85)*10)/10;
+    if(!this.catalog.length){this.matches=[];return;}
+    const batteryKwh=this.requiredBatteryKwh;
     const s={voltage:Number(this.voltage),batteryKwh,inverterW:Number(this.inverterW)};
     const batteries=this.catalog.filter(p=>p.type==='battery');
     this.matches=window.SolarExpertBundleComposer
