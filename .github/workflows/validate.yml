@@ -1,0 +1,21 @@
+name: Validate Solar Expert
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP syntax
+        run: |
+          find . -name '*.php' -not -path './theme/*' -not -path './plugin/*' -print0 | xargs -0 -n1 php -l
+      - name: JavaScript syntax
+        run: |
+          find assets/js -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: JSON validity
+        run: |
+          find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
