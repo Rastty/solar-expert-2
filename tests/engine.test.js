@@ -56,6 +56,17 @@ const temporarilyExpensive={...multiProduct,price_czk:99999};
 assert(M.effectivePrice(temporarilyExpensive)===3899,'Offer price should override stale product-level price for ranking');
 
 
+window.dataLayer=[];
+const selectorAnalytics=global.window.solarExpertBatterySelector();
+selectorAnalytics.catalog=catalog.products;
+selectorAnalytics.run(true);
+selectorAnalytics.dailyKwh=2;
+selectorAnalytics.run(true);
+const selectorEvents=window.dataLayer.filter(e=>e.event==='selector_engaged'&&e.selector==='battery');
+assert(selectorEvents.length===1,'Selector engagement should emit exactly once per tool instance');
+assert(selectorEvents[0].matchCount>=0,'Selector engagement should include match count');
+window.dataLayer=[];
+
 const batterySelectorReserve=global.window.solarExpertBatterySelector();
 batterySelectorReserve.catalog=catalog.products;
 batterySelectorReserve.voltage=24;
