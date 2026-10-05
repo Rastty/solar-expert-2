@@ -28,5 +28,18 @@
       <template x-for="c in checks" :key="c.key"><div class="se-check" :class="c.status"><div><strong x-text="c.label"></strong><p x-text="c.message"></p></div><span x-text="c.status==='pass'?'OK':(c.status==='fail'?'PROBLÉM':(c.status==='warn'?'OVĚŘIT':'INFO'))"></span></div></template>
     </div>
     <div class="se-note">Quote Checker není revize projektu ani elektroinstalační návrh. Před objednávkou stále ověřte přesné datasheety, jištění, kabeláž, Voc při nízké teplotě a kompatibilitu BMS ↔ měnič.</div>
+    <div class="se-note" style="margin-top:14px">
+      <strong>Řešíte domovní FVE na klíč?</strong> Výsledek výše použijte jako kontrolní seznam a porovnejte původní nabídku ještě s druhým dodavatelem.
+      <div class="se-actions" style="margin-top:12px">
+        <a class="se-btn se-btn-primary" target="_blank"
+           href="https://www.eon.cz/domacnosti/usporne-technologie/solar/"
+           data-se-lead-id="eon-solar"
+           data-se-placement="quote_checker_result"
+           data-se-fallback="https://www.eon.cz/domacnosti/usporne-technologie/solar/"
+           rel="nofollow noopener">Získat druhou nabídku FVE →</a>
+        <a class="se-btn" href="/solarni-sestava-na-chatu/">Spočítat vlastní variantu →</a>
+      </div>
+      <small>Partnerský odkaz může Solar Expertu přinést provizi. Výsledek Quote Checkeru ani technické hodnocení tím není ovlivněno.</small>
+    </div>
   </div>
 </div>
