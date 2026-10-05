@@ -11,6 +11,7 @@ add_shortcode('solar_expert_builder', fn()=>solar_expert_render_part('solar-buil
 add_shortcode('solar_expert_battery_selector', fn()=>solar_expert_render_part('battery-selector'));
 add_shortcode('solar_expert_mppt_selector', fn()=>solar_expert_render_part('mppt-selector'));
 add_shortcode('solar_expert_inverter_selector', fn()=>solar_expert_render_part('inverter-selector'));
+add_shortcode('solar_expert_quote_checker', fn()=>solar_expert_render_part('quote-checker'));
 
 function solar_expert_content_root() {
   return trailingslashit(get_template_directory()) . 'content/';
@@ -160,3 +161,75 @@ function solar_expert_sync_after_theme_update($upgrader, $options) {
   solar_expert_sync_managed_content(false);
 }
 add_action('upgrader_process_complete', 'solar_expert_sync_after_theme_update', 20, 2);
+
+function solar_expert_sanitize_affiliate_map($input) {
+  $existing = get_option('solar_expert_affiliate_map', array());
+
+  if ( is_string($input) ) {
+    $decoded = json_decode(wp_unslash($input), true);
+    if ( ! is_array($decoded) ) {
+      add_settings_error('solar_expert_affiliate_map','invalid_json','Affiliate mapa nebyla uložena: JSON není platný.','error');
+      return is_array($existing) ? $existing : array();
+    }
+    $input = $decoded;
+  }
+
+  if ( ! is_array($input) ) {
+    return array();
+  }
+
+  $clean = array('products'=>array(),'leads'=>array());
+  foreach ( array('products','leads') as $bucket ) {
+    if ( empty($input[$bucket]) || ! is_array($input[$bucket]) ) {
+      continue;
+    }
+    foreach ( $input[$bucket] as $key => $url ) {
+      $id = sanitize_key($key);
+      $safe = esc_url_raw($url, array('http','https'));
+      if ( $id && $safe ) {
+        $clean[$bucket][$id] = $safe;
+      }
+    }
+  }
+
+  return $clean;
+}
+
+function solar_expert_register_settings() {
+  register_setting('solar_expert_settings','solar_expert_affiliate_map',array(
+    'sanitize_callback'=>'solar_expert_sanitize_affiliate_map',
+    'default'=>array('products'=>array(),'leads'=>array()),
+  ));
+}
+add_action('admin_init','solar_expert_register_settings');
+
+function solar_expert_settings_menu() {
+  add_options_page('Solar Expert','Solar Expert','manage_options','solar-expert-settings','solar_expert_settings_page');
+}
+add_action('admin_menu','solar_expert_settings_menu');
+
+function solar_expert_settings_page() {
+  if ( ! current_user_can('manage_options') ) {
+    return;
+  }
+
+  $map = get_option('solar_expert_affiliate_map', array('products'=>array(),'leads'=>array()));
+  if ( ! is_array($map) ) {
+    $map = array('products'=>array(),'leads'=>array());
+  }
+  $json = wp_json_encode($map, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  ?>
+  <div class="wrap">
+    <h1>Solar Expert</h1>
+    <p>Affiliate deeplinky jsou uložené ve WordPress databázi a nejsou součástí veřejného GitHub repozitáře.</p>
+    <?php settings_errors('solar_expert_affiliate_map'); ?>
+    <form method="post" action="options.php">
+      <?php settings_fields('solar_expert_settings'); ?>
+      <h2>Affiliate mapa</h2>
+      <p>Klíč v <code>products</code> musí odpovídat ID produktu v katalogu. <code>leads</code> je určené pro lead-gen odkazy.</p>
+      <textarea name="solar_expert_affiliate_map" rows="22" class="large-text code"><?php echo esc_textarea($json); ?></textarea>
+      <?php submit_button('Uložit affiliate mapu'); ?>
+    </form>
+  </div>
+  <?php
+}
