@@ -1,1 +1,12 @@
-{"theme_path":"theme/solar-expert-2","plugin_path":"plugin/solar-expert-core","production_domain":"solar-expert.cz","production_requires_manual_approval":true,"secrets_in_repo":false}
+{
+  "schemaVersion": "1.1.0",
+  "repository": "Rastty/solar-expert-2",
+  "branch": "dev",
+  "package_type": "theme",
+  "theme_path": ".",
+  "plugin_path": "plugin/solar-expert-core",
+  "plugin_required_for_mvp": false,
+  "production_domain": "solar-expert.cz",
+  "production_requires_manual_approval": true,
+  "secrets_in_repo": false
+}
