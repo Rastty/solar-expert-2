@@ -70,6 +70,7 @@ Git-first development active on `dev`.
 - Heat-pump shortlist near-win: stale UK Top-10 replaced with 2026 use-case shortlist using current Daikin/Vaillant/NIBE/Viessmann/LG R290 families and explicit methodology
 - LG review refresh: legacy 2023 R32/Split article replaced with 2026 THERMA V R290 buyer guide and current manufacturer-backed specs
 - Viessmann review refresh: legacy multi-generation/RHI article replaced with 2026 Vitocal 250-A / 252-A buyer guide and current Czech manufacturer-backed specs
+- Legacy frontend quarantine: old Notification Bar, Ninja Popups, Simple Author Box and SEO Automated Link Building are removed from public rendering without deleting or deactivating plugins
 - Production deploy: active RC with manual Git pull/update
 
 High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
