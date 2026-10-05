@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "3.0.0",
+  "schemaVersion": "3.1.0",
   "items": [
     {
       "type": "page",
@@ -302,6 +302,22 @@
       "title": "Životnost tepelného čerpadla: kolik let vydrží a co ji zkracuje",
       "preserve_status": true,
       "file": "content/rewrites/jak-dlouho-vydrzi-tepelna-cerpadla.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "solarni-panel-definice-a-fakta",
+      "title": "Jak funguje solární panel: fotovoltaický efekt, Wp a výroba elektřiny",
+      "preserve_status": true,
+      "file": "content/rewrites/solarni-panel-definice-a-fakta.html",
+      "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "vysvetleni-solarnich-panelu-pv-t",
+      "title": "PVT panely: fotovoltaika a teplo v jednom hybridním kolektoru",
+      "preserve_status": true,
+      "file": "content/rewrites/vysvetleni-solarnich-panelu-pv-t.html",
       "create_if_missing": false
     }
   ]
