@@ -817,6 +817,8 @@ assert(firstPartyCore.includes("'merchants'=>$merchants"),'Funnel summary must r
 assert(firstPartyCore.includes("'placements'=>$placements"),'Funnel summary must retain placement attribution');
 assert(firstPartyCore.includes("Outbound clicks by merchant"),'Admin diagnostics must expose merchant click attribution');
 assert(firstPartyCore.includes("Outbound clicks by placement"),'Admin diagnostics must expose placement click attribution');
+const builderOfferTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
+assert(builderOfferTpl.includes('se-offer-best'),'Builder must visibly distinguish a verified cheaper merchant offer');
 assert(firstPartyCore.includes("'funnel_tracking' => 'first_party_v1'"),'Health payload must expose first-party funnel tracking state');
 for(const eventName of ['tool_view','tool_start','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click']){
   assert(firstPartyAnalytics.includes("'"+eventName+"'"),'Analytics collector must whitelist '+eventName);

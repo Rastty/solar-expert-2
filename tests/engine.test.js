@@ -306,6 +306,11 @@ const pusung48=catalog.products.find(p=>p.id==='battery-seplos-pusung-48');
 assert(kosun48&&kosun48.lifepo4_charge_supported===false,'KOSUN 48V charger must declare LiFePO4 incompatibility');
 assert(pusung48&&pusung48.chemistry==='LiFePO4','Regression fixture must use a LiFePO4 battery');
 assert(!B.batteryInverterCompatible(pusung48,kosun48),'Builder must reject LiFePO4 bank with lead-acid-only KOSUN AC charger');
+const kosun48Offers=A.offers(kosun48);
+assert(kosun48Offers.length===2,'KOSUN 48V should expose two verified merchant offers');
+assert(kosun48Offers[0].merchantId==='battery-cz','KOSUN 48V cheapest verified offer should be Battery.cz');
+assert(kosun48Offers[0].is_best_price===true,'Cheapest verified in-stock offer should be marked best');
+assert(kosun48Offers[0].savings_vs_next_czk===1573,'KOSUN best-offer saving should equal the verified merchant price gap');
 
 const kosunSizing = {
   voltage:12,
