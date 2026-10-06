@@ -846,3 +846,11 @@ assert(firstPartyAnalytics.includes("keepalive:true"),'Funnel POST must survive 
 assert(!firstPartyAnalytics.includes('localStorage'),'First-party funnel collector must not use localStorage');
 assert(!firstPartyAnalytics.includes('document.cookie'),'First-party funnel collector must not set or read cookies');
 
+
+const lgReviewPath=path.join(__dirname,'..','content','rewrites','tepelna-cerpadla-lg-vyhody-nevyhody-ceny.html');
+assert(fs.existsSync(lgReviewPath),'LG heat-pump review near-win must exist');
+
+const lgReview=fs.readFileSync(path.join(__dirname,'..','content','rewrites','tepelna-cerpadla-lg-vyhody-nevyhody-ceny.html'),'utf8');
+assert(lgReview.includes('LG THERMA V'),'LG review must identify the current THERMA V platform');
+assert(lgReview.includes('forum.tzb-info.cz'),'LG review must preserve independent owner-experience context');
+assert(lgReview.includes('data-se-lead-id="eon-heat-pump"'),'LG review must retain the comparison lead path');

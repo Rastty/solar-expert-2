@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.42`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.43`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -141,3 +141,4 @@ Next:
 - Managed SEO coverage gate: all 50 managed items now require a slug-level SEO entry; missing coverage fails repository validation
 - Machine-readable affiliate health: public health now reports active/recommendable offer coverage, product coverage and monetized merchant count using the same private base/product mappings that power outbound deeplinks
 - Lead-gen health: public health now reports E.ON FVE/heat-pump monetized target coverage, so zero explicit lead overrides no longer looks like a monetization failure when the private eon-cz base link is active
+- LG near-win recovery: the historical `tepelna-cerpadla-lg-vyhody-nevyhody-ceny` URL is now managed and forced publish with a 2026 THERMA V R290 buyer guide; current LG documentation is separated from anecdotal owner reports about older generations, and the page ends in a comparison-first E.ON lead path
