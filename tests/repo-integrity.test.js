@@ -384,7 +384,7 @@ assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_title'"),'M
 assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_metadesc'"),'Managed content sync must persist SEO descriptions into Yoast meta');
 assert(contentSyncCore.includes("add_action('init', 'solar_expert_schedule_content_sync'"),'Git deploys must schedule a bounded managed-content sync');
 assert(contentSyncCore.includes("wp_next_scheduled('solar_expert_async_content_sync')"),'Async content sync must not be scheduled repeatedly');
-assert(contentSyncCore.includes("wp_schedule_single_event(time() + 60, 'solar_expert_async_content_sync')"),'Async content sync must use a one-shot delayed event');
+assert(contentSyncCore.includes("wp_schedule_single_event(time() + 10, 'solar_expert_async_content_sync')"),'Async content sync must use a prompt one-shot delayed event');
 assert(contentSyncCore.includes("get_transient('solar_expert_content_sync_lock')"),'Async content sync must use a concurrency lock');
 assert(contentSyncCore.includes("delete_transient('solar_expert_content_sync_lock')"),'Async content sync lock must be released');
 assert(contentSyncCore.includes("'content_sync_status'"),'Public health payload must expose content sync status');
