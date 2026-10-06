@@ -89,7 +89,24 @@ window.SolarExpertAffiliate = {
   },
 
   offers(product) {
-    return this.rawOffers(product).map(offer => this.resolveOffer(product, offer));
+    const resolved = this.rawOffers(product).map(offer => this.resolveOffer(product, offer));
+    const freshInStockPrices = resolved
+      .filter(o => o.availability === 'in_stock' && Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
+      .map(o => Number(o.price_czk));
+    if (freshInStockPrices.length < 2) return resolved;
+
+    const minPrice = Math.min(...freshInStockPrices);
+    const higherPrices = freshInStockPrices.filter(price => price > minPrice);
+    if (!higherPrices.length) return resolved;
+    const nextPrice = Math.min(...higherPrices);
+
+    return resolved.map(o => ({
+      ...o,
+      is_best_price: o.availability === 'in_stock' && Number(o.price_czk) === minPrice,
+      savings_vs_next_czk: o.availability === 'in_stock' && Number(o.price_czk) === minPrice
+        ? Math.max(0, Math.round(nextPrice - minPrice))
+        : null
+    }));
   },
 
   resolve(product) {
