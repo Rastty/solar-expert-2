@@ -278,6 +278,13 @@ for(const slug of ['fve-panely-na-strechu','fotovoltaika-na-eternitovou-strechu'
   assert(leadCore.includes("'"+slug+"'"),'Solar lead allowlist must include GSC-backed planning page: '+slug);
 }
 
+assert(leadCore.includes("function solar_expert_append_solar_related_links"),'Solar cluster must expose a dedicated related-links renderer');
+assert(leadCore.includes('data-se-related="solar-cluster"'),'Solar cluster must expose related-guide marker');
+assert(leadCore.includes("home_url('/fotovoltaika-vykon-na-m2/')"),'Solar cluster must strengthen the Wp/m2 near-win');
+assert(leadCore.includes("home_url('/co-je-1-kwp/')"),'Solar cluster must strengthen the kWp/Wp explainer near-win');
+assert(leadCore.includes("home_url('/kolik-vyrobi-fotovoltaika-za-rok/')"),'Solar cluster must strengthen the annual-output near-win');
+assert(leadCore.includes("home_url('/quote-checker/')"),'Solar cluster must retain an owned decision-tool path');
+
 
 const boundarySlug='umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda';
 const boundaryItem=manifest.items.find(x=>x.slug===boundarySlug);
