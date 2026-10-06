@@ -899,3 +899,6 @@ assert(corePhp.includes("hash_equals($live_version, $expected_version)"),'Deploy
 assert(autoDeploy.includes('name: Converge managed content'),'Auto-deploy must explicitly converge managed content after the Deployer trigger');
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/deploy-sync'),'Auto-deploy must call the deterministic managed-content sync endpoint');
 assert(autoDeploy.includes("'.ok == true and .content_sync_required == false and .content_sync_errors == 0'"),'Auto-deploy must require a clean sync result before health verification');
+
+assert(!autoDeploy.includes(".content_sync_required // true"),'Health verification must not use jq // on a boolean false value');
+assert(autoDeploy.includes('has("content_sync_required")'),'Health verification must preserve an explicit false content_sync_required value');

@@ -247,7 +247,7 @@ jobs:
 
             status="$(jq -r '.status // empty' <<<"$health")"
             live_version="$(jq -r '.theme_version // empty' <<<"$health")"
-            sync_required="$(jq -r '.content_sync_required // true' <<<"$health")"
+            sync_required="$(jq -r 'if has("content_sync_required") then (.content_sync_required|tostring) else "true" end' <<<"$health")"
             sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health")"
 
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors}"
