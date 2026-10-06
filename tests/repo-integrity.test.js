@@ -884,3 +884,5 @@ assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Auto
 assert(autoDeploy.includes('timeout-minutes: 15'),'Auto-deploy must leave enough time for asynchronous managed-content convergence');
 assert(autoDeploy.includes('sleep 5'),'Auto-deploy must allow a short deploy switchover grace period');
 assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped to the dev branch');
+
+assert(!autoDeploy.includes("python - <<'PY'"),'Auto-deploy workflow must avoid unindented heredocs that break YAML parsing');

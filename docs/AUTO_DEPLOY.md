@@ -63,3 +63,5 @@ The production host returned HTTP 422 for POST even though the plugin endpoint s
 ## Canonical endpoint normalization
 
 The GitHub secret may contain the full URL copied from Deployer for Git. CI extracts only its `secret` query value in-memory and rebuilds the documented Solar Expert endpoint `/wp-json/dfg/v1/package_update?secret=…&type=theme&package=solar-expert-2`. The secret and reconstructed URL are never printed. No-cache request headers are used instead of adding unsupported query parameters.
+
+The canonical endpoint is constructed in-memory inside the shell step without YAML heredocs; the reconstructed secret URL is masked before use.
