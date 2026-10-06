@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.36`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.37`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -134,3 +134,4 @@ Next:
 - Price-evidence guardrail: repository validation now rejects any active priced product/offer that loses its verification date
 - Merchant diversity expansion: six more core components now compare verified Battery.cz and Solar-Import.cz offers; KOSUN 48V/3000W exposes the cheaper 7,990 Kč Battery.cz offer against 9,563 Kč at Solar-Import without changing compatibility ranking
 - Charger-chemistry safety: KOSUN 48V/3000W remains valid as a standalone inverter, but Builder excludes it from LiFePO4 battery bundles because its integrated AC charger is verified for lead-acid chemistries only
+- Funnel attribution reporting: existing privacy-safe first-party counters now expose 7/28-day outbound clicks by merchant and CTA placement in Solar Expert admin, so monetization can be optimized from measured behavior rather than total clicks only
