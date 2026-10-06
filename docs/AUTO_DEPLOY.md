@@ -59,3 +59,7 @@ Although Deployer for Git accepts both GET and POST, Solar Expert uses POST with
 ## Production host method
 
 The production host returned HTTP 422 for POST even though the plugin endpoint supports it in general. Solar Expert therefore uses GET, which is accepted by this host, plus the per-release `ci_nonce` to prevent cached webhook responses.
+
+## Canonical endpoint normalization
+
+The GitHub secret may contain the full URL copied from Deployer for Git. CI extracts only its `secret` query value in-memory and rebuilds the documented Solar Expert endpoint `/wp-json/dfg/v1/package_update?secret=…&type=theme&package=solar-expert-2`. The secret and reconstructed URL are never printed. No-cache request headers are used instead of adding unsupported query parameters.
