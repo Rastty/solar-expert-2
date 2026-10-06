@@ -177,3 +177,5 @@ Next:
 - COP/SCOP funnel coverage: the canonical heat-pump efficiency guide now joins the bounded owned-first cluster and E.ON comparison path without changing its ranking body; fresh GSC shows 48 impressions / 90d on the canonical page.
 
 - Solar topical-link cluster: GSC-backed FVE planning articles now append bounded related links to the Wp/m² near-win, kWp/Wp explainer, annual-output guide and Quote Checker before the outbound E.ON CTA; self-links are skipped.
+
+- Flexible-solar emerging near-win: fresh 28-day GSC shows 7 impressions at avg. position 12.43 with zero clicks on the preserved legacy URL. Replaced the duplicated 2023/MCS-era article with a 2026 use-case guide covering modern monocrystalline flexible modules, ETFE/glassless reliability, airflow/heat, Voc/Vmp/MPPT sizing and owned Battery/MPPT tool paths; no generic E.ON rooftop lead CTA is forced onto the mobile/curved-surface intent.
