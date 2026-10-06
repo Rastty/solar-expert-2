@@ -17,11 +17,12 @@ Every push to `dev` starts **Auto Deploy Solar Expert Dev**.
 
 The workflow:
 
-1. waits until both **Validate Solar Expert** (`validate`) and **WordPress Playground Preview** (`preview`) are successful for the same commit;
-2. refuses deployment if either check fails or does not complete in time;
-3. calls the secret Deployer for Git Push-to-Deploy URL;
-4. polls `/wp-json/solar-expert/v1/health`;
-5. succeeds only when the live theme version matches `style.css`, managed content is current and sync errors are zero.
+1. verifies the `dev` commit came from a merged pull request; direct pushes to `dev` are not auto-deployed;
+2. waits for **Validate Solar Expert** (`validate`) on the merge commit;
+3. resolves the merged PR head and requires its **WordPress Playground Preview** (`preview`) to be successful;
+4. calls the secret Deployer for Git Push-to-Deploy URL;
+5. polls `/wp-json/solar-expert/v1/health`;
+6. succeeds only when the live theme version matches `style.css`, managed content is current and sync errors are zero.
 
 If `SOLAR_EXPERT_DEPLOY_URL` is not configured, the workflow exits safely without deploying.
 
@@ -30,3 +31,7 @@ If `SOLAR_EXPERT_DEPLOY_URL` is not configured, the workflow exits safely withou
 Production remains repo-driven. If a release is bad, revert the offending commit(s) on `dev`. The same gated auto-deploy path will ship the reverted state after CI passes.
 
 For an urgent manual fallback, use Deployer for Git's normal Pull/Update action.
+
+## Safety rule
+
+Production auto-deploy is intentionally PR-only. A direct push to `dev` can still run validation, but the deployment workflow refuses to call production because there is no reviewed/previewed PR to prove the WordPress preview gate passed.

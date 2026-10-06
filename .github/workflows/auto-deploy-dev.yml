@@ -8,6 +8,7 @@ on:
 permissions:
   contents: read
   checks: read
+  pull-requests: read
 
 concurrency:
   group: solar-expert-dev-auto-deploy
@@ -37,7 +38,33 @@ jobs:
         if: steps.config.outputs.enabled == 'true'
         uses: actions/checkout@v5
 
-      - name: Wait for validate and preview
+      - name: Verify merge came from a previewed PR
+        if: steps.config.outputs.enabled == 'true'
+        id: pr
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          pulls_api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls"
+          pulls="$(curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$pulls_api")"
+
+          pr_number="$(jq -r '[.[] | select(.base.ref=="dev" and .merged_at!=null)] | first | (.number // empty)' <<<"$pulls")"
+          pr_head_sha="$(jq -r '[.[] | select(.base.ref=="dev" and .merged_at!=null)] | first | (.head.sha // empty)' <<<"$pulls")"
+
+          if [ -z "$pr_number" ] || [ -z "$pr_head_sha" ]; then
+            echo "::error::No merged pull request into dev is associated with this commit; automatic production deploy blocked."
+            exit 1
+          fi
+
+          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$pr_head_sha" >> "$GITHUB_OUTPUT"
+          echo "Resolved merged PR #$pr_number with head $pr_head_sha."
+
+      - name: Wait for merge-commit validation
         if: steps.config.outputs.enabled == 'true'
         shell: bash
         run: |
@@ -52,24 +79,16 @@ jobs:
               -H "X-GitHub-Api-Version: 2022-11-28" \
               "$api")"
 
-            validate_status="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.status // "missing")' <<<"$json")"
-            validate_conclusion="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.conclusion // "")' <<<"$json")"
-            preview_status="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.status // "missing")' <<<"$json")"
-            preview_conclusion="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.conclusion // "")' <<<"$json")"
+            status="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.status // "missing")' <<<"$json")"
+            conclusion="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.conclusion // "")' <<<"$json")"
+            echo "merge validate=${status}/${conclusion:-pending}"
 
-            echo "validate=${validate_status}/${validate_conclusion:-pending} preview=${preview_status}/${preview_conclusion:-pending}"
-
-            if [ "$validate_status" = "completed" ] && [ -n "$validate_conclusion" ] && [ "$validate_conclusion" != "success" ]; then
-              echo "::error::Validate Solar Expert failed; production deploy blocked."
-              exit 1
-            fi
-            if [ "$preview_status" = "completed" ] && [ -n "$preview_conclusion" ] && [ "$preview_conclusion" != "success" ]; then
-              echo "::error::WordPress Playground Preview failed; production deploy blocked."
+            if [ "$status" = "completed" ] && [ -n "$conclusion" ] && [ "$conclusion" != "success" ]; then
+              echo "::error::Validate Solar Expert failed on the dev merge commit; production deploy blocked."
               exit 1
             fi
 
-            if [ "$validate_status" = "completed" ] && [ "$validate_conclusion" = "success" ] \
-              && [ "$preview_status" = "completed" ] && [ "$preview_conclusion" = "success" ]; then
+            if [ "$status" = "completed" ] && [ "$conclusion" = "success" ]; then
               ready=1
               break
             fi
@@ -78,7 +97,31 @@ jobs:
           done
 
           if [ "$ready" != "1" ]; then
-            echo "::error::Timed out waiting for validate + preview; production deploy blocked."
+            echo "::error::Timed out waiting for merge-commit validation; production deploy blocked."
+            exit 1
+          fi
+
+      - name: Verify PR WordPress preview
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        env:
+          PR_HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${PR_HEAD_SHA}/check-runs"
+          json="$(curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$api")"
+
+          preview_status="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.status // "missing")' <<<"$json")"
+          preview_conclusion="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.conclusion // "")' <<<"$json")"
+
+          echo "PR preview=${preview_status}/${preview_conclusion:-missing}"
+
+          if [ "$preview_status" != "completed" ] || [ "$preview_conclusion" != "success" ]; then
+            echo "::error::The merged PR does not have a successful WordPress Playground preview; production deploy blocked."
             exit 1
           fi
 
