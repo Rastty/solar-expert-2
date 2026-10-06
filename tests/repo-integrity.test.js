@@ -147,6 +147,15 @@ assert(indexabilityCore.includes("solar_expert_sync_managed_content($repair_inde
 assert(indexabilityCore.includes("'managed_indexability_ready'"),'Deploy-sync response must report indexability readiness');
 assert(deployWorkflow.includes("managed_indexability_ready"),'Managed-content convergence must require indexability readiness');
 
+
+assert(autoDeploy.includes('name: Verify crawler discovery surfaces'),'Auto-deploy must verify public crawler discovery surfaces');
+assert(autoDeploy.includes('$base/robots.txt'),'Crawler guard must verify robots.txt');
+assert(autoDeploy.includes('$base/sitemap_index.xml'),'Crawler guard must verify sitemap index');
+assert(autoDeploy.includes('$base/page-sitemap.xml'),'Crawler guard must verify page sitemap');
+assert(autoDeploy.includes("select(.indexable == true)"),'Crawler guard must derive targets from manifest indexability');
+assert(autoDeploy.includes('X-Robots-Tag noindex'),'Crawler guard must reject header-level noindex');
+assert(autoDeploy.includes('robots noindex meta tag'),'Crawler guard must reject HTML meta noindex');
+
 console.log('Solar Expert repository integrity checks passed');
 
 
