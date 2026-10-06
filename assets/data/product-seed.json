@@ -639,7 +639,11 @@
           "source_url": "https://www.battery.cz/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
           "verified_at": "2026-10-06"
         }
-      ]
+      ],
+      "lifepo4_charge_supported": false,
+      "charger_note": "Integrovaná AC nabíječka je ověřena pro olověné baterie WET/GEL/AGM/EFB; pro Li-ion/LiFePO4 nabíjení ji Battery.cz ani Solar-Import nedoporučují.",
+      "charger_evidence_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
+      "charger_verified_at": "2026-10-06"
     },
     {
       "id": "inverter-growatt-48-3500",
