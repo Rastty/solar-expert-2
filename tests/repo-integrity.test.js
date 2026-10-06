@@ -861,6 +861,8 @@ assert(fs.existsSync(autoDeployPath),'Gated Solar Expert auto-deploy workflow mu
 const autoDeploy=fs.readFileSync(autoDeployPath,'utf8');
 assert(autoDeploy.includes('SOLAR_EXPERT_DEPLOY_URL'),'Auto-deploy must use a repository secret for the Push-to-Deploy URL');
 assert(autoDeploy.includes('sleep 15'),'Auto-deploy must allow GitHub branch ZIP generation to settle before calling Deployer');
+assert(autoDeploy.includes('-X POST'),'Auto-deploy must use POST so intermediary GET caches cannot swallow the deploy trigger');
+assert(autoDeploy.includes('ci_nonce=${GITHUB_SHA}'),'Auto-deploy must cache-bust the Deployer trigger URL per release');
 assert(autoDeploy.includes('-w "%{http_code}"'),'Auto-deploy must validate Deployer HTTP status');
 assert(autoDeploy.includes("jq -r '.success // true'"),'Auto-deploy should honor an explicit JSON failure when the plugin returns JSON');
 assert(autoDeploy.includes('Deployer for Git failed with HTTP'),'Auto-deploy must fail on a non-200 Deployer response');
