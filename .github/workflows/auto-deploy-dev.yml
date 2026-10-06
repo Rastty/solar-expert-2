@@ -154,7 +154,11 @@ jobs:
           sleep 5
 
           for attempt in {1..36}; do
-            health="$(curl -fsS --max-time 15 "$health_url" 2>/dev/null || true)"
+            probe_url="${health_url}?deploy_probe=${GITHUB_SHA}&attempt=${attempt}&ts=$(date +%s)"
+            health="$(curl -fsS --max-time 15 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -H "Pragma: no-cache" \
+              "$probe_url" 2>/dev/null || true)"
 
             if [ -z "$health" ] || ! jq -e . >/dev/null 2>&1 <<<"$health"; then
               echo "Health endpoint temporarily unavailable or returned invalid JSON; retrying (${attempt}/36)."
