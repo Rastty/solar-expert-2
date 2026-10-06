@@ -1,0 +1,136 @@
+name: Auto Deploy Solar Expert Dev
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+  checks: read
+
+concurrency:
+  group: solar-expert-dev-auto-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DEPLOY_URL: ${{ secrets.SOLAR_EXPERT_DEPLOY_URL }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Detect deploy configuration
+        id: config
+        shell: bash
+        run: |
+          if [ -n "$DEPLOY_URL" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SOLAR_EXPERT_DEPLOY_URL is not configured; auto-deploy skipped."
+          fi
+
+      - name: Check out release
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/checkout@v5
+
+      - name: Wait for validate and preview
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs"
+          ready=0
+
+          for attempt in {1..36}; do
+            json="$(curl -fsS \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "$api")"
+
+            validate_status="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.status // "missing")' <<<"$json")"
+            validate_conclusion="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.conclusion // "")' <<<"$json")"
+            preview_status="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.status // "missing")' <<<"$json")"
+            preview_conclusion="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.conclusion // "")' <<<"$json")"
+
+            echo "validate=${validate_status}/${validate_conclusion:-pending} preview=${preview_status}/${preview_conclusion:-pending}"
+
+            if [ "$validate_status" = "completed" ] && [ -n "$validate_conclusion" ] && [ "$validate_conclusion" != "success" ]; then
+              echo "::error::Validate Solar Expert failed; production deploy blocked."
+              exit 1
+            fi
+            if [ "$preview_status" = "completed" ] && [ -n "$preview_conclusion" ] && [ "$preview_conclusion" != "success" ]; then
+              echo "::error::WordPress Playground Preview failed; production deploy blocked."
+              exit 1
+            fi
+
+            if [ "$validate_status" = "completed" ] && [ "$validate_conclusion" = "success" ] \
+              && [ "$preview_status" = "completed" ] && [ "$preview_conclusion" = "success" ]; then
+              ready=1
+              break
+            fi
+
+            sleep 10
+          done
+
+          if [ "$ready" != "1" ]; then
+            echo "::error::Timed out waiting for validate + preview; production deploy blocked."
+            exit 1
+          fi
+
+      - name: Trigger Deployer for Git
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$DEPLOY_URL"
+          curl -fsSL --max-time 180 --retry 2 --retry-delay 3 "$DEPLOY_URL" >/dev/null
+          echo "Push-to-Deploy trigger accepted."
+
+      - name: Verify live release and managed-content sync
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
+          if [ -z "$expected" ]; then
+            echo "::error::Could not read expected theme version from style.css."
+            exit 1
+          fi
+
+          health_url="https://solar-expert.cz/wp-json/solar-expert/v1/health"
+          verified=0
+
+          for attempt in {1..36}; do
+            health="$(curl -fsS --max-time 15 "$health_url" || true)"
+            status="$(jq -r '.status // empty' <<<"$health" 2>/dev/null || true)"
+            live_version="$(jq -r '.theme_version // empty' <<<"$health" 2>/dev/null || true)"
+            sync_required="$(jq -r '.content_sync_required // true' <<<"$health" 2>/dev/null || true)"
+            sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health" 2>/dev/null || true)"
+
+            echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors}"
+
+            if [ "$sync_errors" != "0" ] && [ "$sync_errors" != "999" ]; then
+              echo "::error::Managed-content sync reported errors."
+              exit 1
+            fi
+
+            if [ "$status" = "ok" ] && [ "$live_version" = "$expected" ] \
+              && [ "$sync_required" = "false" ] && [ "$sync_errors" = "0" ]; then
+              verified=1
+              break
+            fi
+
+            sleep 10
+          done
+
+          if [ "$verified" != "1" ]; then
+            echo "::error::Production health did not converge to the expected release."
+            exit 1
+          fi
+
+          echo "Production deploy verified: Solar Expert ${expected} is live and content sync is current."
