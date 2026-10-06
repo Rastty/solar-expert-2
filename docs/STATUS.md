@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.52`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.53`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -169,3 +169,5 @@ Next:
 - Deployer URL-shape diagnostic: workflow logs only scheme/host/path/query-key names from the stored webhook URL, never query values, so the current plugin URL format can be identified without exposing its token.
 
 - Managed-content deploy sync fix: async sync is scheduled after 10 s and CI invokes `wp-cron.php` without forging WordPress's internal `doing_wp_cron` lock token, fixing the condition where the release deployed successfully but content remained `sync_required`.
+
+- Deterministic deploy convergence: CI now POSTs only the expected release version + fixed intent to `/solar-expert/v1/deploy-sync`; the endpoint can only apply repository-managed content from the deployed theme, is no-op when current, rejects version mismatches, and uses the existing concurrency lock. WP-Cron remains fallback rather than a release-critical dependency.
