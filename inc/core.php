@@ -450,7 +450,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.43</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.44</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -887,6 +887,16 @@ function solar_expert_health_payload() {
   }
 
   $theme = wp_get_theme();
+  $theme_version = '';
+  $style_file = trailingslashit(get_template_directory()) . 'style.css';
+  if ( file_exists($style_file) ) {
+    $style_headers = get_file_data($style_file, array('Version'=>'Version'), 'theme');
+    $theme_version = isset($style_headers['Version']) ? trim((string) $style_headers['Version']) : '';
+  }
+  if ( ! $theme_version ) {
+    $theme_version = (string) $theme->get('Version');
+  }
+
   $last_sync = get_option('solar_expert_last_content_sync', array());
   $sync_state = solar_expert_content_sync_state();
   $price_freshness = solar_expert_catalog_price_freshness($catalog, 30);
@@ -895,8 +905,8 @@ function solar_expert_health_payload() {
 
   return array(
     'status' => 'ok',
-    'build_marker' => 'dev-rc-' . (string) $theme->get('Version'),
-    'theme_version' => (string) $theme->get('Version'),
+    'build_marker' => 'dev-rc-' . $theme_version,
+    'theme_version' => $theme_version,
     'catalog_schema_version' => (string) ($catalog['schemaVersion'] ?? '0'),
     'catalog_products' => isset($catalog['products']) && is_array($catalog['products']) ? count($catalog['products']) : 0,
     'catalog_price_max_age_days' => (int) ($price_freshness['max_age_days'] ?? 30),
