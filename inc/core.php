@@ -224,6 +224,13 @@ function solar_expert_sync_managed_content($force = false) {
         update_post_meta($id, '_yoast_wpseo_metadesc', sanitize_text_field($seo_meta['description']));
       }
     }
+
+    // Public managed pages are explicit SEO assets. Do not let an inherited
+    // Yoast Page default accidentally keep tools/trust pages out of search.
+    if ( ! empty($item['indexable']) ) {
+      update_post_meta($id, '_yoast_wpseo_meta-robots-noindex', '2');
+      update_post_meta($id, '_yoast_wpseo_meta-robots-nofollow', '0');
+    }
   }
 
   if ( empty($result['errors']) && $fingerprint ) {
@@ -1864,3 +1871,14 @@ function solar_expert_robots_txt($output, $public) {
     . "Sitemap: " . home_url('/sitemap_index.xml') . "\n";
 }
 add_filter('robots_txt', 'solar_expert_robots_txt', 99, 2);
+
+// Solar Expert intentionally uses public WordPress Pages for calculators,
+// selectors and trust pages. Keep Pages eligible for the Yoast sitemap;
+// individual noindex pages can still be excluded normally.
+function solar_expert_keep_pages_in_yoast_sitemap($excluded, $post_type) {
+  if ( $post_type === 'page' ) {
+    return false;
+  }
+  return $excluded;
+}
+add_filter('wpseo_sitemap_exclude_post_type', 'solar_expert_keep_pages_in_yoast_sitemap', 10, 2);
