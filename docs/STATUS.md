@@ -133,3 +133,4 @@ Next:
 - Price evidence refresh: all 32 active priced snapshots now carry current verification evidence (32 fresh / 0 stale / 0 unknown); no technical compatibility ranking was changed
 - Price-evidence guardrail: repository validation now rejects any active priced product/offer that loses its verification date
 - Merchant diversity expansion: six more core components now compare verified Battery.cz and Solar-Import.cz offers; KOSUN 48V/3000W exposes the cheaper 7,990 Kč Battery.cz offer against 9,563 Kč at Solar-Import without changing compatibility ranking
+- Charger-chemistry safety: KOSUN 48V/3000W remains valid as a standalone inverter, but Builder excludes it from LiFePO4 battery bundles because its integrated AC charger is verified for lead-acid chemistries only
