@@ -6,6 +6,19 @@ window.SolarExpertBundleComposer = {
     return [];
   },
 
+  batteryInverterCompatible(battery, inverter) {
+    const chemistry = String((battery && battery.chemistry) || '').toLowerCase();
+    if (
+      inverter &&
+      inverter.charger === true &&
+      inverter.lifepo4_charge_supported === false &&
+      chemistry.includes('lifepo4')
+    ) {
+      return false;
+    }
+    return true;
+  },
+
   batteryBankCandidatesAll(products, sizing) {
     const matcher = window.SolarExpertProductMatcher;
     const all = [];
@@ -196,6 +209,7 @@ window.SolarExpertBundleComposer = {
       for (const batteryBank of batteryCandidates) {
         const battery = batteryBank.product;
         for (const inverter of inverterCandidates) {
+          if (!this.batteryInverterCompatible(battery, inverter)) continue;
           const integrated = inverter.type === 'inverter_hybrid' && Boolean(inverter.integrated_mppt);
 
           if (integrated) {
