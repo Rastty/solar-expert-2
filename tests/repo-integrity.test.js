@@ -384,7 +384,7 @@ assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_title'"),'M
 assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_metadesc'"),'Managed content sync must persist SEO descriptions into Yoast meta');
 assert(contentSyncCore.includes("add_action('init', 'solar_expert_schedule_content_sync'"),'Git deploys must schedule a bounded managed-content sync');
 assert(contentSyncCore.includes("wp_next_scheduled('solar_expert_async_content_sync')"),'Async content sync must not be scheduled repeatedly');
-assert(contentSyncCore.includes("wp_schedule_single_event(time() + 60, 'solar_expert_async_content_sync')"),'Async content sync must use a one-shot delayed event');
+assert(contentSyncCore.includes("wp_schedule_single_event(time() + 10, 'solar_expert_async_content_sync')"),'Async content sync must use a prompt one-shot delayed event');
 assert(contentSyncCore.includes("get_transient('solar_expert_content_sync_lock')"),'Async content sync must use a concurrency lock');
 assert(contentSyncCore.includes("delete_transient('solar_expert_content_sync_lock')"),'Async content sync lock must be released');
 assert(contentSyncCore.includes("'content_sync_status'"),'Public health payload must expose content sync status');
@@ -878,7 +878,8 @@ assert(autoDeploy.includes('No merged pull request into dev'),'Auto-deploy must 
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/health'),'Auto-deploy must verify production health');
 assert(autoDeploy.includes('content_sync_required'),'Auto-deploy must wait for managed-content sync to become current');
 assert(autoDeploy.includes('Health endpoint temporarily unavailable or returned invalid JSON'),'Auto-deploy must retry transient health transport failures');
-assert(autoDeploy.includes('wp-cron.php?doing_wp_cron='),'Auto-deploy must nudge WordPress cron when managed content is pending');
+assert(autoDeploy.includes('wp-cron.php?solar_expert_deploy=${GITHUB_SHA}'),'Auto-deploy must invoke WordPress cron without supplying the internal doing_wp_cron lock token');
+assert(!autoDeploy.includes('doing_wp_cron=$(date'),'Auto-deploy must not forge the WordPress cron lock token');
 assert(autoDeploy.includes('deploy_probe=${GITHUB_SHA}'),'Auto-deploy health probes must use a unique release cache-buster');
 assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Auto-deploy health probes must explicitly bypass intermediary caches');
 assert(autoDeploy.includes('timeout-minutes: 15'),'Auto-deploy must leave enough time for asynchronous managed-content convergence');
@@ -888,3 +889,5 @@ assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped
 assert(!autoDeploy.includes("python - <<'PY'"),'Auto-deploy workflow must avoid unindented heredocs that break YAML parsing');
 
 assert(autoDeploy.includes('Deployer URL shape:'),'Auto-deploy diagnostics must expose only non-secret URL shape metadata');
+
+assert(corePhp.includes("wp_schedule_single_event(time() + 10, 'solar_expert_async_content_sync')"),'Managed content sync should be scheduled promptly after deploy');
