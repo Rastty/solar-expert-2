@@ -450,7 +450,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.54</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.55</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -1291,6 +1291,7 @@ add_action('wp_head', 'solar_expert_meta_description', 1);
 function solar_expert_heat_pump_lead_slugs() {
   return array(
     'prumerna-spotreba-tepelneho-cerpadla',
+    'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla',
     'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady',
     'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu',
     'recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady',
