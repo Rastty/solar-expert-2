@@ -126,6 +126,7 @@ function solar_expert_safe_content_file($relative_path) {
 
 function solar_expert_manifest_fingerprint($manifest) {
   $ctx = hash_init('sha256');
+  hash_update($ctx, 'managed-content-sync-v2-yoast-meta');
   $manifest_path = solar_expert_content_root() . 'manifest.json';
 
   if ( file_exists($manifest_path) ) {
@@ -212,6 +213,16 @@ function solar_expert_sync_managed_content($force = false) {
       update_post_meta($id, '_solar_expert_managed', 1);
       update_post_meta($id, '_solar_expert_source_file', sanitize_text_field($item['file']));
       $result['created']++;
+    }
+
+    $seo_meta = solar_expert_seo_meta($slug);
+    if ( is_array($seo_meta) ) {
+      if ( ! empty($seo_meta['title']) ) {
+        update_post_meta($id, '_yoast_wpseo_title', sanitize_text_field($seo_meta['title']));
+      }
+      if ( ! empty($seo_meta['description']) ) {
+        update_post_meta($id, '_yoast_wpseo_metadesc', sanitize_text_field($seo_meta['description']));
+      }
     }
   }
 
@@ -439,7 +450,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.39</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.40</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -814,7 +825,7 @@ function solar_expert_register_health_route() {
 add_action('rest_api_init', 'solar_expert_register_health_route');
 
 
-function solar_expert_seo_meta() {
+function solar_expert_seo_meta($slug_override = '') {
   $map = array(
     'front' => array(
       'title' => 'Solární kalkulačka: panely, baterie a měnič | Solar Expert',
@@ -1013,6 +1024,10 @@ function solar_expert_seo_meta() {
       'description' => 'Pasivní, aktivní a vodní chlazení fotovoltaických panelů. Kdy zvýšení výkonu stojí za ventilátory, vodu nebo PVT a kdy je lepší jen správná montáž.'
     ),
   );
+
+  if ( $slug_override && isset($map[$slug_override]) ) {
+    return $map[$slug_override];
+  }
 
   if ( is_front_page() ) {
     return $map['front'];
