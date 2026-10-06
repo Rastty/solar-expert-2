@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.50`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.51`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -163,3 +163,5 @@ Next:
 - Deploy verification v7: production host rejects POST with HTTP 422, so Push-to-Deploy now uses host-compatible GET plus the unique release nonce and 15 s GitHub ZIP propagation delay.
 
 - Deploy verification v8: workflow now derives the canonical documented `/wp-json/dfg/v1/package_update` endpoint from the stored secret token, tolerates an HTML-escaped UI copy, forces `type=theme&package=solar-expert-2`, and bypasses caches with request headers rather than unsupported query parameters.
+
+- Deploy verification v9: canonical Deployer URL normalization now uses a single-line Python expression inside the YAML block, eliminating the invalid heredoc indentation discovered in 0.11.50.
