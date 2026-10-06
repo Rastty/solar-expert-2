@@ -860,7 +860,9 @@ assert(fs.existsSync(autoDeployPath),'Gated Solar Expert auto-deploy workflow mu
 const autoDeploy=fs.readFileSync(autoDeployPath,'utf8');
 assert(autoDeploy.includes('SOLAR_EXPERT_DEPLOY_URL'),'Auto-deploy must use a repository secret for the Push-to-Deploy URL');
 assert(autoDeploy.includes('select(.name=="validate")'),'Auto-deploy must wait for the validate check');
-assert(autoDeploy.includes('select(.name=="preview")'),'Auto-deploy must wait for the WordPress preview check');
+assert(autoDeploy.includes('/commits/${GITHUB_SHA}/pulls'),'Auto-deploy must resolve the merged PR for the dev commit');
+assert(autoDeploy.includes('select(.name=="preview")'),'Auto-deploy must require the merged PR WordPress preview check');
+assert(autoDeploy.includes('No merged pull request into dev'),'Auto-deploy must block direct pushes that bypass PR preview');
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/health'),'Auto-deploy must verify production health');
 assert(autoDeploy.includes('content_sync_required'),'Auto-deploy must wait for managed-content sync to become current');
 assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped to the dev branch');
