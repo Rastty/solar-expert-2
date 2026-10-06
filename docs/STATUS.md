@@ -165,3 +165,5 @@ Next:
 - Deploy verification v8: workflow now derives the canonical documented `/wp-json/dfg/v1/package_update` endpoint from the stored secret token, tolerates an HTML-escaped UI copy, forces `type=theme&package=solar-expert-2`, and bypasses caches with request headers rather than unsupported query parameters.
 
 - Deploy verification v9: canonical Deployer URL normalization now uses a single-line Python expression inside the YAML block, eliminating the invalid heredoc indentation discovered in 0.11.50.
+
+- Deployer URL-shape diagnostic: workflow logs only scheme/host/path/query-key names from the stored webhook URL, never query values, so the current plugin URL format can be identified without exposing its token.
