@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "4.2.0",
+  "schemaVersion": "4.3.0",
   "items": [
     {
       "type": "page",
@@ -415,6 +415,16 @@
       "preserve_status": true,
       "file": "content/rewrites/vse-o-solarnich-panelech-a-fotovoltaice.html",
       "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "tepelna-cerpadla-lg-vyhody-nevyhody-ceny",
+      "title": "LG tepelné čerpadlo: recenze, zkušenosti a THERMA V R290 2026",
+      "preserve_status": false,
+      "status": "publish",
+      "status_if_new": "publish",
+      "file": "content/rewrites/tepelna-cerpadla-lg-vyhody-nevyhody-ceny.html",
+      "create_if_missing": true
     }
   ]
 }
