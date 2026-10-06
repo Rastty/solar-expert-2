@@ -43,3 +43,7 @@ Deployer for Git may make the public site or health endpoint unreachable for a f
 ## Reliable release verification
 
 The health endpoint reads the deployed version directly from the active theme's `style.css`, avoiding stale WordPress theme-header cache after file replacement. If the new release is live but managed content is still pending, CI calls `wp-cron.php` to process due sync events and keeps polling until health is current or the guarded timeout is reached.
+
+## Deployer response contract
+
+The webhook endpoint returns JSON. CI now requires `success=true` and logs only the non-secret response fields (`message`, `package_type`, `package_slug`). A HTTP 200 carrying `success=false` is treated as a failed deployment.

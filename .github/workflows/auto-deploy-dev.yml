@@ -131,8 +131,24 @@ jobs:
         run: |
           set -euo pipefail
           echo "::add-mask::$DEPLOY_URL"
-          curl -fsSL --max-time 180 --retry 2 --retry-delay 3 "$DEPLOY_URL" >/dev/null
-          echo "Push-to-Deploy trigger accepted."
+          response="$(curl -fsSL --max-time 180 --retry 2 --retry-delay 3 "$DEPLOY_URL")"
+
+          if ! jq -e . >/dev/null 2>&1 <<<"$response"; then
+            echo "::error::Deployer for Git returned a non-JSON response."
+            exit 1
+          fi
+
+          success="$(jq -r '.success // false' <<<"$response")"
+          message="$(jq -r '.message // ""' <<<"$response")"
+          package_type="$(jq -r '.package_type // ""' <<<"$response")"
+          package_slug="$(jq -r '.package_slug // ""' <<<"$response")"
+
+          echo "Deployer response: success=${success} package_type=${package_type:-unknown} package_slug=${package_slug:-unknown} message=${message:-none}"
+
+          if [ "$success" != "true" ]; then
+            echo "::error::Deployer for Git rejected the deployment: ${message:-unknown error}"
+            exit 1
+          fi
 
       - name: Verify live release and managed-content sync
         if: steps.config.outputs.enabled == 'true'
