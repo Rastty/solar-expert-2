@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.40`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.41`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -139,3 +139,4 @@ Next:
 - Release diagnostics: public health build marker now derives from the active theme version instead of a separate hardcoded RC string, preventing false deploy-version mismatches
 - SEO source-of-truth sync: managed content now writes the same slug-based title/description map into Yoast meta during deterministic content sync; sync fingerprint v2 guarantees one post-deploy refresh without touching unmanaged content
 - Managed SEO coverage gate: all 50 managed items now require a slug-level SEO entry; missing coverage fails repository validation
+- Machine-readable affiliate health: public health now reports active/recommendable offer coverage, product coverage and monetized merchant count using the same private base/product mappings that power outbound deeplinks
