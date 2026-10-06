@@ -433,6 +433,14 @@
       "preserve_status": true,
       "file": "content/rewrites/flexibilni-solarni-panely-vyhody-nevyhody-a-naklady.html",
       "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu",
+      "title": "Jak rozšířit stávající FVE o další panely: stringy, MPPT a limity",
+      "preserve_status": true,
+      "file": "content/rewrites/pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu.html",
+      "create_if_missing": false
     }
   ]
 }
