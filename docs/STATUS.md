@@ -138,3 +138,4 @@ Next:
 - Best-offer UX: when two fresh in-stock merchant prices differ, Builder/selectors label the verified cheapest offer and show the savings versus the next fresh offer; equal, stale or single prices receive no badge
 - Release diagnostics: public health build marker now derives from the active theme version instead of a separate hardcoded RC string, preventing false deploy-version mismatches
 - SEO source-of-truth sync: managed content now writes the same slug-based title/description map into Yoast meta during deterministic content sync; sync fingerprint v2 guarantees one post-deploy refresh without touching unmanaged content
+- Managed SEO coverage gate: all 50 managed items now require a slug-level SEO entry; missing coverage fails repository validation
