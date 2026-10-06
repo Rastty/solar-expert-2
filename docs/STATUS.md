@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.38`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.39`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -136,3 +136,4 @@ Next:
 - Charger-chemistry safety: KOSUN 48V/3000W remains valid as a standalone inverter, but Builder excludes it from LiFePO4 battery bundles because its integrated AC charger is verified for lead-acid chemistries only
 - Funnel attribution reporting: existing privacy-safe first-party counters now expose 7/28-day outbound clicks by merchant and CTA placement in Solar Expert admin, so monetization can be optimized from measured behavior rather than total clicks only
 - Best-offer UX: when two fresh in-stock merchant prices differ, Builder/selectors label the verified cheapest offer and show the savings versus the next fresh offer; equal, stale or single prices receive no badge
+- Release diagnostics: public health build marker now derives from the active theme version instead of a separate hardcoded RC string, preventing false deploy-version mismatches

@@ -143,6 +143,7 @@ for(const item of manifest.items.filter(x=>x.publish_ready&&x.file)){
 const corePhp=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
 assert(corePhp.includes("get_option('solar_expert_affiliate_bases'"),'Health/settings core must load affiliate bases');
 assert(corePhp.includes("'affiliate_merchant_bases' => count($bases)"),'Health payload must expose affiliate merchant base count');
+assert(corePhp.includes("'build_marker' => 'dev-rc-' . (string) $theme->get('Version')"),'Health build marker must derive from active theme version');
 assert(corePhp.includes("register_setting('solar_expert_settings','solar_expert_affiliate_bases'"),'Affiliate bases must be registered as a WordPress setting');
 
 
