@@ -17,7 +17,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       DEPLOY_URL: ${{ secrets.SOLAR_EXPERT_DEPLOY_URL }}
       GH_TOKEN: ${{ github.token }}
@@ -168,6 +168,12 @@ jobs:
             sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health")"
 
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors}"
+
+            if [ "$status" = "ok" ] && [ "$live_version" = "$expected" ] && [ "$sync_required" = "true" ] && [ "$sync_errors" = "0" ]; then
+              cron_url="https://solar-expert.cz/wp-cron.php?doing_wp_cron=$(date +%s%N)"
+              curl -fsS --max-time 15 "$cron_url" >/dev/null 2>&1 || true
+              echo "Release is live but managed content is pending; nudged WP-Cron."
+            fi
 
             if [ "$status" = "ok" ] && [ "$sync_errors" != "0" ] && [ "$sync_errors" != "999" ]; then
               echo "::error::Managed-content sync reported errors."

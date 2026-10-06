@@ -150,7 +150,8 @@ assert(corePhp.includes("'affiliate_monetized_merchants'"),'Health payload must 
 assert(corePhp.includes("function solar_expert_lead_coverage("),'Lead-gen coverage must account for base-link monetization');
 assert(corePhp.includes("'affiliate_monetized_lead_targets'"),'Health payload must expose monetized lead target count');
 assert(corePhp.includes("'affiliate_lead_coverage_pct'"),'Health payload must expose lead-gen monetization coverage');
-assert(corePhp.includes("'build_marker' => 'dev-rc-' . (string) $theme->get('Version')"),'Health build marker must derive from active theme version');
+assert(corePhp.includes("get_file_data($style_file"),'Health must read release metadata directly from deployed style.css');
+assert(corePhp.includes("'build_marker' => 'dev-rc-' . $theme_version"),'Health build marker must use the directly-read deployed theme version');
 assert(corePhp.includes("register_setting('solar_expert_settings','solar_expert_affiliate_bases'"),'Affiliate bases must be registered as a WordPress setting');
 
 
@@ -866,5 +867,7 @@ assert(autoDeploy.includes('No merged pull request into dev'),'Auto-deploy must 
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/health'),'Auto-deploy must verify production health');
 assert(autoDeploy.includes('content_sync_required'),'Auto-deploy must wait for managed-content sync to become current');
 assert(autoDeploy.includes('Health endpoint temporarily unavailable or returned invalid JSON'),'Auto-deploy must retry transient health transport failures');
+assert(autoDeploy.includes('wp-cron.php?doing_wp_cron='),'Auto-deploy must nudge WordPress cron when managed content is pending');
+assert(autoDeploy.includes('timeout-minutes: 15'),'Auto-deploy must leave enough time for asynchronous managed-content convergence');
 assert(autoDeploy.includes('sleep 5'),'Auto-deploy must allow a short deploy switchover grace period');
 assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped to the dev branch');
