@@ -10,7 +10,6 @@ window.SolarExpertBundleComposer = {
     const chemistry = String((battery && battery.chemistry) || '').toLowerCase();
     if (
       inverter &&
-      inverter.charger === true &&
       inverter.lifepo4_charge_supported === false &&
       chemistry.includes('lifepo4')
     ) {
