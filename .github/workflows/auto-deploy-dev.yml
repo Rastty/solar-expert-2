@@ -137,10 +137,11 @@ jobs:
           sleep 15
 
           body_file="$(mktemp)"
-          http_code="$(curl -sSL --max-time 180 --retry 2 --retry-delay 3 \
+          trigger_url="${DEPLOY_URL}&ci_nonce=${GITHUB_SHA}-$(date +%s)"
+          http_code="$(curl -sSL -X POST --max-time 180 --retry 2 --retry-delay 3 \
             -o "$body_file" \
             -w "%{http_code}" \
-            "$DEPLOY_URL")"
+            "$trigger_url")"
 
           echo "Deployer HTTP status: $http_code"
           if [ "$http_code" != "200" ]; then
