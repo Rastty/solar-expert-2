@@ -9,7 +9,8 @@
       "file": "content/pages/solarni-sestava-na-chatu.html",
       "create_if_missing": true,
       "status": "publish",
-      "publish_ready": true
+      "publish_ready": true,
+      "indexable": true
     },
     {
       "type": "page",
@@ -19,7 +20,8 @@
       "file": "content/pages/vyber-baterii.html",
       "create_if_missing": true,
       "status": "publish",
-      "publish_ready": true
+      "publish_ready": true,
+      "indexable": true
     },
     {
       "type": "page",
@@ -29,7 +31,8 @@
       "file": "content/pages/mppt-kalkulacka.html",
       "create_if_missing": true,
       "status": "publish",
-      "publish_ready": true
+      "publish_ready": true,
+      "indexable": true
     },
     {
       "type": "page",
@@ -39,7 +42,8 @@
       "file": "content/pages/vyber-menice.html",
       "create_if_missing": true,
       "status": "publish",
-      "publish_ready": true
+      "publish_ready": true,
+      "indexable": true
     },
     {
       "type": "page",
@@ -49,7 +53,8 @@
       "file": "content/pages/quote-checker.html",
       "create_if_missing": true,
       "status": "publish",
-      "publish_ready": true
+      "publish_ready": true,
+      "indexable": true
     },
     {
       "type": "post",
@@ -91,7 +96,8 @@
       "create_if_missing": true,
       "file": "content/pages/jak-doporucujeme.html",
       "status": "publish",
-      "publish_ready": true
+      "publish_ready": true,
+      "indexable": true
     },
     {
       "type": "page",
@@ -101,7 +107,8 @@
       "create_if_missing": true,
       "file": "content/pages/affiliate-transparentnost.html",
       "status": "publish",
-      "publish_ready": true
+      "publish_ready": true,
+      "indexable": true
     },
     {
       "type": "post",
