@@ -253,7 +253,24 @@ jobs:
             index_ready="$(jq -r '.managed_indexability_ready // 0' <<<"$health")"
             index_errors="$(jq -r '.managed_indexability_errors // 999' <<<"$health")"
 
+            active_offer_cov="$(jq -r '.affiliate_active_offer_coverage_pct // 0' <<<"$health")"
+            recommendable_offer_cov="$(jq -r '.affiliate_recommendable_offer_coverage_pct // 0' <<<"$health")"
+            recommendable_product_cov="$(jq -r '.affiliate_recommendable_product_coverage_pct // 0' <<<"$health")"
+            monetized_merchants="$(jq -r '.affiliate_monetized_merchants // 0' <<<"$health")"
+            lead_targets="$(jq -r '.affiliate_lead_targets // 0' <<<"$health")"
+            monetized_lead_targets="$(jq -r '.affiliate_monetized_lead_targets // 0' <<<"$health")"
+            lead_cov="$(jq -r '.affiliate_lead_coverage_pct // 0' <<<"$health")"
+
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
+            echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
+
+            if [ "$lead_targets" -gt "0" ] && [ "$monetized_lead_targets" -lt "$lead_targets" ]; then
+              echo "::warning::Lead monetization coverage is incomplete (${monetized_lead_targets}/${lead_targets})."
+            fi
+
+            if [ "$recommendable_product_cov" != "100" ] && [ "$recommendable_product_cov" != "100.0" ]; then
+              echo "::warning::Not every recommendable product currently has an affiliate path (${recommendable_product_cov}%)."
+            fi
 
             if [ "$status" = "ok" ] && [ "$sync_errors" != "0" ] && [ "$sync_errors" != "999" ]; then
               echo "::error::Managed-content sync reported errors."
