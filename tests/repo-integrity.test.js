@@ -370,6 +370,10 @@ assert(builderTemplate.includes('Raději nezobrazíme neověřenou kombinaci'),'
 
 
 assert(contentSyncCore.includes("function solar_expert_content_sync_state()"),'Managed content sync must expose deterministic drift state');
+assert(contentSyncCore.includes("managed-content-sync-v2-yoast-meta"),'Managed content fingerprint must change when Yoast sync semantics change');
+assert(contentSyncCore.includes("solar_expert_seo_meta($slug)"),'Managed content sync must resolve the shared SEO map by slug');
+assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_title'"),'Managed content sync must persist SEO titles into Yoast meta');
+assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_metadesc'"),'Managed content sync must persist SEO descriptions into Yoast meta');
 assert(contentSyncCore.includes("add_action('init', 'solar_expert_schedule_content_sync'"),'Git deploys must schedule a bounded managed-content sync');
 assert(contentSyncCore.includes("wp_next_scheduled('solar_expert_async_content_sync')"),'Async content sync must not be scheduled repeatedly');
 assert(contentSyncCore.includes("wp_schedule_single_event(time() + 60, 'solar_expert_async_content_sync')"),'Async content sync must use a one-shot delayed event');
@@ -650,6 +654,13 @@ assert(builderUxTpl.includes('x-show="catalogLoading"'),'Builder template must d
 assert(builderUxTpl.includes('x-show="catalogError"'),'Builder template must display catalog error feedback');
 assert(seoCore.includes("add_filter('wpseo_metadesc', 'solar_expert_wpseo_metadesc', 20)"),'Solar Expert metadata must pass through Yoast');
 assert(seoCore.includes("add_filter('wpseo_title', 'solar_expert_wpseo_title', 20)"),'Solar Expert titles must pass through Yoast');
+assert(seoCore.includes("function solar_expert_seo_meta($slug_override = '')"),'SEO map must support deterministic slug lookup for managed sync');
+const seoMapStart=seoCore.indexOf("function solar_expert_seo_meta(");
+const seoMapEnd=seoCore.indexOf("function solar_expert_document_title",seoMapStart);
+const managedSeoBlock=seoCore.slice(seoMapStart,seoMapEnd);
+for(const item of manifest.items){
+  assert(managedSeoBlock.includes("'"+item.slug+"' => array("),'Managed content SEO map missing slug: '+item.slug);
+}
 
 const batterySelectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
 const batterySelectorTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','battery-selector.php'),'utf8');
