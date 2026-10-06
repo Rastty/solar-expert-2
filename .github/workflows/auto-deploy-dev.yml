@@ -148,16 +148,28 @@ jobs:
           health_url="https://solar-expert.cz/wp-json/solar-expert/v1/health"
           verified=0
 
+          # Deployer may make the site unreachable for a few seconds while files switch.
+          # Treat transport/invalid-JSON failures as transient, but fail fast once a valid
+          # health payload explicitly reports managed-content errors.
+          sleep 5
+
           for attempt in {1..36}; do
-            health="$(curl -fsS --max-time 15 "$health_url" || true)"
-            status="$(jq -r '.status // empty' <<<"$health" 2>/dev/null || true)"
-            live_version="$(jq -r '.theme_version // empty' <<<"$health" 2>/dev/null || true)"
-            sync_required="$(jq -r '.content_sync_required // true' <<<"$health" 2>/dev/null || true)"
-            sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health" 2>/dev/null || true)"
+            health="$(curl -fsS --max-time 15 "$health_url" 2>/dev/null || true)"
+
+            if [ -z "$health" ] || ! jq -e . >/dev/null 2>&1 <<<"$health"; then
+              echo "Health endpoint temporarily unavailable or returned invalid JSON; retrying (${attempt}/36)."
+              sleep 10
+              continue
+            fi
+
+            status="$(jq -r '.status // empty' <<<"$health")"
+            live_version="$(jq -r '.theme_version // empty' <<<"$health")"
+            sync_required="$(jq -r '.content_sync_required // true' <<<"$health")"
+            sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health")"
 
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors}"
 
-            if [ "$sync_errors" != "0" ] && [ "$sync_errors" != "999" ]; then
+            if [ "$status" = "ok" ] && [ "$sync_errors" != "0" ] && [ "$sync_errors" != "999" ]; then
               echo "::error::Managed-content sync reported errors."
               exit 1
             fi

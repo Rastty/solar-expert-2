@@ -35,3 +35,7 @@ For an urgent manual fallback, use Deployer for Git's normal Pull/Update action.
 ## Safety rule
 
 Production auto-deploy is intentionally PR-only. A direct push to `dev` can still run validation, but the deployment workflow refuses to call production because there is no reviewed/previewed PR to prove the WordPress preview gate passed.
+
+## Deployment switchover
+
+Deployer for Git may make the public site or health endpoint unreachable for a few seconds while theme files are switched. The verifier therefore waits briefly and retries transport/invalid-JSON failures. A valid health payload that reports managed-content errors still fails the deployment immediately.

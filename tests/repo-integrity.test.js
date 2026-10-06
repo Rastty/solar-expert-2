@@ -865,4 +865,6 @@ assert(autoDeploy.includes('select(.name=="preview")'),'Auto-deploy must require
 assert(autoDeploy.includes('No merged pull request into dev'),'Auto-deploy must block direct pushes that bypass PR preview');
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/health'),'Auto-deploy must verify production health');
 assert(autoDeploy.includes('content_sync_required'),'Auto-deploy must wait for managed-content sync to become current');
+assert(autoDeploy.includes('Health endpoint temporarily unavailable or returned invalid JSON'),'Auto-deploy must retry transient health transport failures');
+assert(autoDeploy.includes('sleep 5'),'Auto-deploy must allow a short deploy switchover grace period');
 assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped to the dev branch');

@@ -147,3 +147,5 @@ Next:
 - Auto-deploy gate hardening: production deployment now resolves the merged PR behind each `dev` commit, requires its successful WordPress preview, validates the resulting merge commit separately, and blocks direct pushes that bypass PR preview.
 
 - Auto-deploy activation canary: repository secret wiring is being verified with a documentation-only PR; no production behavior changes are included in this canary.
+
+- Auto-deploy health retry: production verification now tolerates the brief HTTPS/JSON gap while Deployer swaps files, but still fails immediately when a valid health payload reports managed-content errors.
