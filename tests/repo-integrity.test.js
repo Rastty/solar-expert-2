@@ -813,6 +813,10 @@ assert(firstPartyCore.includes("register_rest_route('solar-expert/v1', '/funnel-
 assert(firstPartyCore.includes("get_option('solar_expert_funnel_daily'"),'Funnel collector must use aggregate daily storage');
 assert(firstPartyCore.includes("34 * DAY_IN_SECONDS"),'Funnel collector must prune storage to a 35-day rolling window');
 assert(firstPartyCore.includes("<h2>Money funnel</h2>"),'Admin diagnostics must expose the money funnel summary');
+assert(firstPartyCore.includes("'merchants'=>$merchants"),'Funnel summary must retain merchant attribution');
+assert(firstPartyCore.includes("'placements'=>$placements"),'Funnel summary must retain placement attribution');
+assert(firstPartyCore.includes("Outbound clicks by merchant"),'Admin diagnostics must expose merchant click attribution');
+assert(firstPartyCore.includes("Outbound clicks by placement"),'Admin diagnostics must expose placement click attribution');
 assert(firstPartyCore.includes("'funnel_tracking' => 'first_party_v1'"),'Health payload must expose first-party funnel tracking state');
 for(const eventName of ['tool_view','tool_start','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click']){
   assert(firstPartyAnalytics.includes("'"+eventName+"'"),'Analytics collector must whitelist '+eventName);
