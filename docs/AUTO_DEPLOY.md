@@ -51,3 +51,7 @@ The webhook endpoint returns JSON. CI now requires `success=true` and logs only 
 ## Fresh branch ZIP delay
 
 Deployer for Git documents that GitHub may briefly serve a stale branch ZIP immediately after a push. The workflow therefore waits 15 seconds after CI/preview gates before calling Push-to-Deploy. HTTP 200 is the plugin's documented primary success signal; if a JSON body is returned, an explicit `success=false` still blocks deployment.
+
+## Cache-safe trigger
+
+Although Deployer for Git accepts both GET and POST, Solar Expert uses POST with a unique `ci_nonce` query value. This prevents an intermediary cache from serving a previous response to the static Push-to-Deploy URL without executing WordPress.
