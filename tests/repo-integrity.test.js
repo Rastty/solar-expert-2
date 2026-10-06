@@ -891,3 +891,11 @@ assert(!autoDeploy.includes("python - <<'PY'"),'Auto-deploy workflow must avoid 
 assert(autoDeploy.includes('Deployer URL shape:'),'Auto-deploy diagnostics must expose only non-secret URL shape metadata');
 
 assert(corePhp.includes("wp_schedule_single_event(time() + 10, 'solar_expert_async_content_sync')"),'Managed content sync should be scheduled promptly after deploy');
+
+assert(corePhp.includes("function solar_expert_deploy_sync("),'Theme must expose a deterministic deploy-sync callback');
+assert(corePhp.includes("'/deploy-sync'"),'Theme must register the managed-content deploy-sync REST route');
+assert(corePhp.includes("managed-content-sync-v1"),'Deploy-sync must require an explicit fixed intent');
+assert(corePhp.includes("hash_equals($live_version, $expected_version)"),'Deploy-sync must reject version-mismatched release requests');
+assert(autoDeploy.includes('name: Converge managed content'),'Auto-deploy must explicitly converge managed content after the Deployer trigger');
+assert(autoDeploy.includes('/wp-json/solar-expert/v1/deploy-sync'),'Auto-deploy must call the deterministic managed-content sync endpoint');
+assert(autoDeploy.includes("'.ok == true and .content_sync_required == false and .content_sync_errors == 0'"),'Auto-deploy must require a clean sync result before health verification');
