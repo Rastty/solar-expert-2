@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "mode": "verified-public-seed; affiliate URLs added separately",
-  "verifiedAt": "2026-10-05",
+  "verifiedAt": "2026-10-06",
   "products": [
     {
       "id": "battery-goowei-12-100",
@@ -18,10 +18,26 @@
       "chemistry": "LiFePO4",
       "availability": "in_stock",
       "price_czk_snapshot": 8650,
-      "source_url": "https://www.battery.cz/baterie-blokove/",
+      "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-12-8--100ah--12-8v/",
       "price_czk": 8650,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 8650,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-12-8--100ah--12-8v/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 8650,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-12-8--100ah--12-8v/",
+          "verified_at": "2026-10-06"
+        }
+      ]
     },
     {
       "id": "battery-goowei-12-200",
@@ -42,7 +58,23 @@
       "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
       "price_czk": 14690,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 14690,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 14690,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
+          "verified_at": "2026-10-06"
+        }
+      ]
     },
     {
       "id": "battery-goowei-24-50",
@@ -59,10 +91,26 @@
       "chemistry": "LiFePO4",
       "availability": "in_stock",
       "price_czk_snapshot": 8650,
-      "source_url": "https://www.battery.cz/24v-10/",
+      "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp50-25-6--50ah--25-6v/",
       "price_czk": 8650,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 8650,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp50-25-6--50ah--25-6v/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 8650,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp50-25-6--50ah--25-6v/",
+          "verified_at": "2026-10-06"
+        }
+      ]
     },
     {
       "id": "battery-goowei-24-100",
@@ -575,7 +623,23 @@
       "price_czk": 9563,
       "price_mode": "snapshot",
       "source_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 9563,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 7990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
+          "verified_at": "2026-10-06"
+        }
+      ]
     },
     {
       "id": "inverter-growatt-48-3500",
@@ -599,7 +663,23 @@
       "source_url": "https://www.solar-import.cz/hybridni/growatt-spf-3500es-menic-3-5kw-48v/",
       "price_czk": 11990,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 11990,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/hybridni/growatt-spf-3500es-menic-3-5kw-48v/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 11990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/growatt-spf-3500es-menic-3-5kw-48v/",
+          "verified_at": "2026-10-06"
+        }
+      ]
     },
     {
       "id": "inverter-growatt-48-6000",
@@ -666,7 +746,23 @@
       "price_mode": "snapshot",
       "availability": "in_stock",
       "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 2890,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 2890,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/",
+          "verified_at": "2026-10-06"
+        }
+      ]
     },
     {
       "id": "inverter-rogerele-rep1500-24",
