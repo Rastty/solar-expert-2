@@ -868,6 +868,8 @@ assert(autoDeploy.includes('/wp-json/solar-expert/v1/health'),'Auto-deploy must 
 assert(autoDeploy.includes('content_sync_required'),'Auto-deploy must wait for managed-content sync to become current');
 assert(autoDeploy.includes('Health endpoint temporarily unavailable or returned invalid JSON'),'Auto-deploy must retry transient health transport failures');
 assert(autoDeploy.includes('wp-cron.php?doing_wp_cron='),'Auto-deploy must nudge WordPress cron when managed content is pending');
+assert(autoDeploy.includes('deploy_probe=${GITHUB_SHA}'),'Auto-deploy health probes must use a unique release cache-buster');
+assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Auto-deploy health probes must explicitly bypass intermediary caches');
 assert(autoDeploy.includes('timeout-minutes: 15'),'Auto-deploy must leave enough time for asynchronous managed-content convergence');
 assert(autoDeploy.includes('sleep 5'),'Auto-deploy must allow a short deploy switchover grace period');
 assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped to the dev branch');
