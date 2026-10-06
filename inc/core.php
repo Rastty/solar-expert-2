@@ -957,6 +957,7 @@ function solar_expert_health_payload() {
   $affiliate_coverage = solar_expert_affiliate_coverage($catalog, $map, $bases);
   $lead_coverage = solar_expert_lead_coverage($map, $bases);
   $managed_indexability = solar_expert_managed_indexability_state($manifest);
+  $legacy_redirects = solar_expert_legacy_redirect_map();
 
   return array(
     'status' => 'ok',
@@ -975,6 +976,8 @@ function solar_expert_health_payload() {
     'managed_indexability_ready' => (int) ($managed_indexability['ready'] ?? 0),
     'managed_indexability_errors' => (int) ($managed_indexability['errors'] ?? 0),
     'managed_indexability_issues' => isset($managed_indexability['issues']) ? array_values($managed_indexability['issues']) : array(),
+    'legacy_redirect_count' => count($legacy_redirects),
+    'legacy_redirects' => $legacy_redirects,
     'content_sync_status' => (string) ($sync_state['status'] ?? 'unknown'),
     'content_sync_required' => ! empty($sync_state['required']),
     'content_sync_errors' => (int) ($sync_state['errors'] ?? 0),
@@ -1566,17 +1569,8 @@ function solar_expert_append_solar_lead_cta($content) {
 add_filter('the_content', 'solar_expert_append_solar_lead_cta', 26);
 
 
-function solar_expert_legacy_redirects() {
-  if ( ! is_singular('post') ) {
-    return;
-  }
-
-  $post = get_queried_object();
-  if ( ! $post || empty($post->post_name) ) {
-    return;
-  }
-
-  $redirects = array(
+function solar_expert_legacy_redirect_map() {
+  return array(
     'veda-o-ztrate-ucinnosti-solarnich-panelu-v-prubehu-casu' => 'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu',
     'jak-funguji-solarni-panely-na-plochych-strechach' => 'kotveni-fotovoltaickych-panelu-na-ploche-strese',
     'mohou-solarni-panely-pohanet-vzduchove-tepelne-cerpadlo' => 'kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem',
@@ -1589,13 +1583,39 @@ function solar_expert_legacy_redirects() {
     'ucinnost-tepelneho-cerpadla-se-zdrojem-vzduchu' => 'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla',
     'tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda' => 'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
   );
+}
 
+function solar_expert_legacy_redirects() {
+  if ( ! is_singular('post') ) {
+    return;
+  }
+
+  $post = get_queried_object();
+  if ( ! $post || empty($post->post_name) ) {
+    return;
+  }
+
+  $redirects = solar_expert_legacy_redirect_map();
   if ( isset($redirects[$post->post_name]) ) {
     wp_safe_redirect(home_url('/' . $redirects[$post->post_name] . '/'), 301);
     exit;
   }
 }
 add_action('template_redirect', 'solar_expert_legacy_redirects', 1);
+
+function solar_expert_exclude_legacy_redirects_from_sitemap($excluded_post_ids) {
+  $excluded_post_ids = is_array($excluded_post_ids) ? $excluded_post_ids : array();
+
+  foreach ( array_keys(solar_expert_legacy_redirect_map()) as $slug ) {
+    $post = get_page_by_path($slug, OBJECT, 'post');
+    if ( $post ) {
+      $excluded_post_ids[] = (int) $post->ID;
+    }
+  }
+
+  return array_values(array_unique(array_map('intval', $excluded_post_ids)));
+}
+add_filter('wpseo_exclude_from_sitemap_by_post_ids', 'solar_expert_exclude_legacy_redirects_from_sitemap');
 
 
 function solar_expert_schema_graph() {

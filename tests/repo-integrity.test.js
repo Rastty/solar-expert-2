@@ -148,6 +148,19 @@ assert(indexabilityCore.includes("'managed_indexability_ready'"),'Deploy-sync re
 assert(deployWorkflow.includes("managed_indexability_ready"),'Managed-content convergence must require indexability readiness');
 
 
+
+const redirectSitemapCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
+assert(redirectSitemapCore.includes('function solar_expert_legacy_redirect_map'),'Legacy redirects must have one shared source-of-truth map');
+assert(redirectSitemapCore.includes("add_filter('wpseo_exclude_from_sitemap_by_post_ids', 'solar_expert_exclude_legacy_redirects_from_sitemap')"),'Legacy redirect sources must be excluded from Yoast post sitemaps');
+assert(redirectSitemapCore.includes("'legacy_redirects' => $legacy_redirects"),'Health must expose the public legacy redirect contract');
+for(const slug of ["veda-o-ztrate-ucinnosti-solarnich-panelu-v-prubehu-casu","jak-funguji-solarni-panely-na-plochych-strechach","mohou-solarni-panely-pohanet-vzduchove-tepelne-cerpadlo","kotveni-fotovoltaickych-panelu-na-ploche-strese-2","jak-vycistit-solarni-panely-pruvodce-cistenim-solaru","kompletni-pruvodce-velikosti-solarnich-panelu","spotreba-tepelneho-cerpadla-v-kwh","co-dela-fotovoltaika-kdyz-je-zima","recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii","ucinnost-tepelneho-cerpadla-se-zdrojem-vzduchu","tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda"]){
+  assert(redirectSitemapCore.includes("'"+slug+"' =>"),'Legacy redirect map missing source: '+slug);
+}
+const redirectDeployWorkflow=fs.readFileSync(path.join(__dirname,'..','.github','workflows','auto-deploy-dev.yml'),'utf8');
+assert(redirectDeployWorkflow.includes('post-sitemap'),'Crawler guard must inspect Yoast post sitemap(s)');
+assert(redirectDeployWorkflow.includes('Legacy redirect source is still present in the post sitemap'),'Crawler guard must fail if a redirect source leaks into sitemap');
+assert(redirectDeployWorkflow.includes('legacy_redirects | to_entries[]'),'Crawler guard must derive redirect checks from live health');
+
 console.log('Solar Expert repository integrity checks passed');
 
 
