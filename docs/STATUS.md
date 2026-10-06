@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.44`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.45`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -151,3 +151,5 @@ Next:
 - Auto-deploy health retry: production verification now tolerates the brief HTTPS/JSON gap while Deployer swaps files, but still fails immediately when a valid health payload reports managed-content errors.
 
 - Deploy verification v2: health reads the deployed theme version directly from `style.css` instead of WordPress theme metadata cache; the gated deploy workflow nudges WP-Cron while managed content is pending and allows up to 15 minutes for convergence.
+
+- Deploy verification v3: production health polling now sends per-attempt cache-busting query parameters plus no-cache headers, preventing CDN/proxy snapshots from masking the newly deployed release.
