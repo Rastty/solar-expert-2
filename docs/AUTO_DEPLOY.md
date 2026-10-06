@@ -73,3 +73,7 @@ CI must not pass its own `doing_wp_cron` value. That parameter is WordPress's in
 ## Deterministic managed-content convergence
 
 After Deployer reports a successful theme update, CI POSTs the expected theme version and fixed intent `managed-content-sync-v1` to `/wp-json/solar-expert/v1/deploy-sync`. The endpoint accepts no content payload, URLs, post IDs or arbitrary fields; it can only apply the static managed manifest already present in the active deployed theme. A mismatched release version is rejected, concurrent syncs are locked, and an already-current site is a no-op. WP-Cron remains available only as a fallback for non-CI/manual deployments.
+
+## Boolean health parsing
+
+The verifier must preserve explicit JSON `false` values. In jq, `false // true` evaluates to `true`, so Solar Expert uses an explicit `has("content_sync_required")` check before converting the boolean to text.
