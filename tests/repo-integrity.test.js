@@ -860,6 +860,9 @@ const autoDeployPath=path.join(__dirname,'..','.github','workflows','auto-deploy
 assert(fs.existsSync(autoDeployPath),'Gated Solar Expert auto-deploy workflow must exist');
 const autoDeploy=fs.readFileSync(autoDeployPath,'utf8');
 assert(autoDeploy.includes('SOLAR_EXPERT_DEPLOY_URL'),'Auto-deploy must use a repository secret for the Push-to-Deploy URL');
+assert(autoDeploy.includes("jq -r '.success // false'"),'Auto-deploy must validate the Deployer JSON success flag');
+assert(autoDeploy.includes('Deployer for Git rejected the deployment'),'Auto-deploy must fail on a rejected Deployer response');
+assert(autoDeploy.includes('package_slug'),'Auto-deploy diagnostics must expose the returned package slug without exposing the secret');
 assert(autoDeploy.includes('select(.name=="validate")'),'Auto-deploy must wait for the validate check');
 assert(autoDeploy.includes('/commits/${GITHUB_SHA}/pulls'),'Auto-deploy must resolve the merged PR for the dev commit');
 assert(autoDeploy.includes('select(.name=="preview")'),'Auto-deploy must require the merged PR WordPress preview check');
