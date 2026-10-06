@@ -131,23 +131,37 @@ jobs:
         run: |
           set -euo pipefail
           echo "::add-mask::$DEPLOY_URL"
-          response="$(curl -fsSL --max-time 180 --retry 2 --retry-delay 3 "$DEPLOY_URL")"
 
-          if ! jq -e . >/dev/null 2>&1 <<<"$response"; then
-            echo "::error::Deployer for Git returned a non-JSON response."
+          # Deployer for Git documents that GitHub's branch ZIP may lag briefly
+          # after a push/merge, especially for larger repositories.
+          sleep 15
+
+          body_file="$(mktemp)"
+          http_code="$(curl -sSL --max-time 180 --retry 2 --retry-delay 3 \
+            -o "$body_file" \
+            -w "%{http_code}" \
+            "$DEPLOY_URL")"
+
+          echo "Deployer HTTP status: $http_code"
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Deployer for Git failed with HTTP $http_code."
             exit 1
           fi
 
-          success="$(jq -r '.success // false' <<<"$response")"
-          message="$(jq -r '.message // ""' <<<"$response")"
-          package_type="$(jq -r '.package_type // ""' <<<"$response")"
-          package_slug="$(jq -r '.package_slug // ""' <<<"$response")"
-
-          echo "Deployer response: success=${success} package_type=${package_type:-unknown} package_slug=${package_slug:-unknown} message=${message:-none}"
-
-          if [ "$success" != "true" ]; then
-            echo "::error::Deployer for Git rejected the deployment: ${message:-unknown error}"
-            exit 1
+          # Older/current plugin builds may return non-JSON bodies on success.
+          # When a JSON contract is present, still honor an explicit success=false.
+          if jq -e . >/dev/null 2>&1 <"$body_file"; then
+            success="$(jq -r '.success // true' <"$body_file")"
+            message="$(jq -r '.message // ""' <"$body_file")"
+            package_type="$(jq -r '.package_type // ""' <"$body_file")"
+            package_slug="$(jq -r '.package_slug // ""' <"$body_file")"
+            echo "Deployer JSON: success=${success} package_type=${package_type:-unknown} package_slug=${package_slug:-unknown} message=${message:-none}"
+            if [ "$success" = "false" ]; then
+              echo "::error::Deployer for Git rejected the deployment: ${message:-unknown error}"
+              exit 1
+            fi
+          else
+            echo "Deployer returned HTTP 200 with a non-JSON body; accepted per plugin documentation."
           fi
 
       - name: Verify live release and managed-content sync

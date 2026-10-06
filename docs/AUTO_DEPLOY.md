@@ -47,3 +47,7 @@ The health endpoint reads the deployed version directly from the active theme's 
 ## Deployer response contract
 
 The webhook endpoint returns JSON. CI now requires `success=true` and logs only the non-secret response fields (`message`, `package_type`, `package_slug`). A HTTP 200 carrying `success=false` is treated as a failed deployment.
+
+## Fresh branch ZIP delay
+
+Deployer for Git documents that GitHub may briefly serve a stale branch ZIP immediately after a push. The workflow therefore waits 15 seconds after CI/preview gates before calling Push-to-Deploy. HTTP 200 is the plugin's documented primary success signal; if a JSON body is returned, an explicit `success=false` still blocks deployment.
