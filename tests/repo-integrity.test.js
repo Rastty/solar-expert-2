@@ -119,6 +119,18 @@ assert(flexibleSolarHtml.includes('NREL'),'Flexible solar guide must include ind
 assert(!flexibleSolarHtml.includes('certifikátem MCS'),'Flexible solar rewrite must remove stale UK installer-copy');
 assert(!flexibleSolarHtml.includes('4 montážní'),'Flexible solar rewrite must remove stale lead-gen claims');
 
+
+const indexablePageSlugs=['solarni-sestava-na-chatu','vyber-baterii','mppt-kalkulacka','vyber-menice','quote-checker','jak-doporucujeme','affiliate-transparentnost'];
+for(const slug of indexablePageSlugs){
+  const item=manifest.items.find(x=>x.type==='page'&&x.slug===slug);
+  assert(item&&item.status==='publish'&&item.publish_ready===true,'Managed public page must stay publish-ready: '+slug);
+  assert(item&&item.indexable===true,'Managed public page must explicitly opt into indexing: '+slug);
+}
+const indexabilityCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
+assert(indexabilityCore.includes("update_post_meta($id, '_yoast_wpseo_meta-robots-noindex', '2')"),'Managed indexable pages must explicitly force Yoast Index');
+assert(indexabilityCore.includes("update_post_meta($id, '_yoast_wpseo_meta-robots-nofollow', '0')"),'Managed indexable pages must explicitly force Yoast Follow');
+assert(indexabilityCore.includes("add_filter('wpseo_sitemap_exclude_post_type', 'solar_expert_keep_pages_in_yoast_sitemap', 10, 2)"),'WordPress Pages must remain eligible for the Yoast sitemap');
+
 console.log('Solar Expert repository integrity checks passed');
 
 
