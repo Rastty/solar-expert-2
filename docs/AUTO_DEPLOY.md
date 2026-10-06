@@ -55,3 +55,7 @@ Deployer for Git documents that GitHub may briefly serve a stale branch ZIP imme
 ## Cache-safe trigger
 
 Although Deployer for Git accepts both GET and POST, Solar Expert uses POST with a unique `ci_nonce` query value. This prevents an intermediary cache from serving a previous response to the static Push-to-Deploy URL without executing WordPress.
+
+## Production host method
+
+The production host returned HTTP 422 for POST even though the plugin endpoint supports it in general. Solar Expert therefore uses GET, which is accepted by this host, plus the per-release `ci_nonce` to prevent cached webhook responses.
