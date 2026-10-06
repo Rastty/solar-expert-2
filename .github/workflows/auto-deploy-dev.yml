@@ -322,6 +322,83 @@ jobs:
           page_sitemap="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/page-sitemap.xml")"
           mapfile -t indexable_slugs < <(jq -r '.items[] | select(.indexable == true) | .slug' content/manifest.json)
 
+          mapfile -t post_sitemap_urls < <(grep -oE 'https://solar-expert\.cz/post-sitemap[0-9]*\.xml' <<<"$sitemap_index" | sort -u)
+          if [ "${#post_sitemap_urls[@]}" -eq 0 ]; then
+            echo "::error::Yoast sitemap index does not expose a post sitemap."
+            exit 1
+          fi
+
+          post_sitemap=""
+          for sitemap_url in "${post_sitemap_urls[@]}"; do
+            post_sitemap+="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$sitemap_url")"
+          done
+
+          health="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/wp-json/solar-expert/v1/health")"
+          if ! jq -e '.legacy_redirect_count == (.legacy_redirects | length) and .legacy_redirect_count > 0' >/dev/null 2>&1 <<<"$health"; then
+            echo "::error::Health endpoint does not expose a valid legacy redirect map."
+            exit 1
+          fi
+
+          while IFS=
+          if [ "${#indexable_slugs[@]}" -eq 0 ]; then
+            echo "::error::No indexable managed pages were declared in the manifest."
+            exit 1
+          fi
+
+          for slug in "${indexable_slugs[@]}"; do
+            url="$base/$slug/"
+
+            if ! grep -Fq "<loc>$url</loc>" <<<"$page_sitemap"; then
+              echo "::error::Indexable managed page is missing from page-sitemap.xml: $url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            body_file="$(mktemp)"
+            http_code="$(curl -sSL --max-time 30               -H "Cache-Control: no-cache, no-store, max-age=0"               -D "$headers_file"               -o "$body_file"               -w "%{http_code}"               "$url")"
+
+            if [ "$http_code" != "200" ]; then
+              echo "::error::Indexable managed page returned HTTP $http_code: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '^x-robots-tag:.*noindex' "$headers_file"; then
+              echo "::error::Indexable managed page exposes X-Robots-Tag noindex: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$body_file"; then
+              echo "::error::Indexable managed page exposes a robots noindex meta tag: $url"
+              exit 1
+            fi
+
+            echo "Crawler surface OK: $url"
+          done
+
+          redirect_count="$(jq -r '.legacy_redirect_count' <<<"$health")"
+          echo "Crawler discovery verified: robots + sitemap index + page sitemap + ${#indexable_slugs[@]} managed pages + ${redirect_count} sitemap-clean 301 redirects."
+
+\t' read -r source_slug target_slug; do
+            source_url="$base/$source_slug/"
+            target_url="$base/$target_slug/"
+
+            if grep -Fq "<loc>$source_url</loc>" <<<"$post_sitemap"; then
+              echo "::error::Legacy redirect source is still present in the post sitemap: $source_url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            http_code="$(curl -sS --max-time 30 --max-redirs 0 -D "$headers_file" -o /dev/null -w "%{http_code}" "$source_url" || true)"
+            location="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]+:[[:space:]]*/, ""); sub(/\r$/, ""); print; exit}' "$headers_file")"
+
+            if [ "$http_code" != "301" ] || [ "$location" != "$target_url" ]; then
+              echo "::error::Legacy redirect contract mismatch: $source_url -> HTTP $http_code Location ${location:-missing}, expected $target_url"
+              exit 1
+            fi
+
+            echo "Legacy redirect sitemap hygiene OK: $source_url -> $target_url"
+          done < <(jq -r '.legacy_redirects | to_entries[] | [.key,.value] | @tsv' <<<"$health")
+
           if [ "${#indexable_slugs[@]}" -eq 0 ]; then
             echo "::error::No indexable managed pages were declared in the manifest."
             exit 1
