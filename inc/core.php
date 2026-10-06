@@ -450,7 +450,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.41</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.42</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -850,6 +850,29 @@ function solar_expert_affiliate_coverage($catalog, $map, $bases) {
   );
 }
 
+function solar_expert_lead_coverage($map, $bases) {
+  $lead_map = isset($map['leads']) && is_array($map['leads']) ? $map['leads'] : array();
+  $bases = is_array($bases) ? $bases : array();
+  $targets = array(
+    'eon-solar' => 'eon-cz',
+    'eon-heat-pump' => 'eon-cz',
+  );
+
+  $monetized = 0;
+  foreach ( $targets as $lead_id => $merchant_id ) {
+    if ( ! empty($lead_map[$lead_id]) || ! empty($bases[$merchant_id]) ) {
+      $monetized++;
+    }
+  }
+
+  $total = count($targets);
+  return array(
+    'targets' => $total,
+    'monetized_targets' => $monetized,
+    'coverage_pct' => $total ? round(($monetized / $total) * 100, 1) : 0,
+  );
+}
+
 function solar_expert_health_payload() {
   $catalog = solar_expert_load_catalog();
 
@@ -868,6 +891,7 @@ function solar_expert_health_payload() {
   $sync_state = solar_expert_content_sync_state();
   $price_freshness = solar_expert_catalog_price_freshness($catalog, 30);
   $affiliate_coverage = solar_expert_affiliate_coverage($catalog, $map, $bases);
+  $lead_coverage = solar_expert_lead_coverage($map, $bases);
 
   return array(
     'status' => 'ok',
@@ -898,6 +922,9 @@ function solar_expert_health_payload() {
     'affiliate_monetized_recommendable_products' => (int) ($affiliate_coverage['monetized_recommendable_products'] ?? 0),
     'affiliate_recommendable_product_coverage_pct' => (float) ($affiliate_coverage['recommendable_product_coverage_pct'] ?? 0),
     'affiliate_monetized_merchants' => (int) ($affiliate_coverage['monetized_merchants'] ?? 0),
+    'affiliate_lead_targets' => (int) ($lead_coverage['targets'] ?? 0),
+    'affiliate_monetized_lead_targets' => (int) ($lead_coverage['monetized_targets'] ?? 0),
+    'affiliate_lead_coverage_pct' => (float) ($lead_coverage['coverage_pct'] ?? 0),
     'funnel_tracking' => 'first_party_v1',
     'last_content_sync_utc' => isset($last_sync['time']) ? (string) $last_sync['time'] : null,
   );

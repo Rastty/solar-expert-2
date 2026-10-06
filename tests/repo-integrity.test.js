@@ -147,6 +147,9 @@ assert(corePhp.includes("function solar_expert_affiliate_coverage("),'Affiliate 
 assert(corePhp.includes("'affiliate_recommendable_offer_coverage_pct'"),'Health payload must expose recommendable offer monetization coverage');
 assert(corePhp.includes("'affiliate_recommendable_product_coverage_pct'"),'Health payload must expose recommendable product monetization coverage');
 assert(corePhp.includes("'affiliate_monetized_merchants'"),'Health payload must expose monetized merchant count');
+assert(corePhp.includes("function solar_expert_lead_coverage("),'Lead-gen coverage must account for base-link monetization');
+assert(corePhp.includes("'affiliate_monetized_lead_targets'"),'Health payload must expose monetized lead target count');
+assert(corePhp.includes("'affiliate_lead_coverage_pct'"),'Health payload must expose lead-gen monetization coverage');
 assert(corePhp.includes("'build_marker' => 'dev-rc-' . (string) $theme->get('Version')"),'Health build marker must derive from active theme version');
 assert(corePhp.includes("register_setting('solar_expert_settings','solar_expert_affiliate_bases'"),'Affiliate bases must be registered as a WordPress setting');
 
