@@ -861,7 +861,7 @@ assert(fs.existsSync(autoDeployPath),'Gated Solar Expert auto-deploy workflow mu
 const autoDeploy=fs.readFileSync(autoDeployPath,'utf8');
 assert(autoDeploy.includes('SOLAR_EXPERT_DEPLOY_URL'),'Auto-deploy must use a repository secret for the Push-to-Deploy URL');
 assert(autoDeploy.includes('sleep 15'),'Auto-deploy must allow GitHub branch ZIP generation to settle before calling Deployer');
-assert(!autoDeploy.includes('-X POST'),'Auto-deploy must use GET because the production host rejects POST with HTTP 422');
+assert(!autoDeploy.includes('curl -sSL -X POST'),'Deployer trigger itself must use GET because the production host rejects POST with HTTP 422');
 assert(autoDeploy.includes("https://solar-expert.cz/wp-json/dfg/v1/package_update"),'Auto-deploy must normalize to the documented Deployer REST endpoint');
 assert(autoDeploy.includes("package=solar-expert-2"),'Auto-deploy must target the installed Solar Expert theme package');
 assert(autoDeploy.includes("html.unescape"),'Auto-deploy must tolerate an HTML-escaped URL copied from the plugin UI');
