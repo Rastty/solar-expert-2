@@ -170,6 +170,49 @@ jobs:
             echo "Deployer returned HTTP 200 with a non-JSON body; accepted per plugin documentation."
           fi
 
+      - name: Converge managed content
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
+          sync_url="https://solar-expert.cz/wp-json/solar-expert/v1/deploy-sync"
+          payload="$(jq -nc --arg version "$expected" '{expected_version:$version,intent:"managed-content-sync-v1"}')"
+          converged=0
+
+          for attempt in {1..12}; do
+            body_file="$(mktemp)"
+            http_code="$(curl -sS --max-time 180 \
+              -X POST \
+              -H "Content-Type: application/json" \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -H "Pragma: no-cache" \
+              -o "$body_file" \
+              -w "%{http_code}" \
+              --data "$payload" \
+              "$sync_url" || true)"
+
+            if [ "$http_code" = "200" ] && jq -e '.ok == true and .content_sync_required == false and .content_sync_errors == 0' "$body_file" >/dev/null 2>&1; then
+              echo "Managed content converged for Solar Expert $expected."
+              converged=1
+              break
+            fi
+
+            if [ "$http_code" = "409" ] || [ "$http_code" = "404" ] || [ "$http_code" = "503" ] || [ "$http_code" = "000" ]; then
+              echo "Managed sync not ready yet (HTTP $http_code, attempt $attempt/12); retrying."
+              sleep 5
+              continue
+            fi
+
+            echo "::error::Managed-content deploy sync failed with HTTP $http_code."
+            exit 1
+          done
+
+          if [ "$converged" != "1" ]; then
+            echo "::error::Managed content did not converge after deployment."
+            exit 1
+          fi
+
       - name: Verify live release and managed-content sync
         if: steps.config.outputs.enabled == 'true'
         shell: bash
@@ -208,15 +251,6 @@ jobs:
             sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health")"
 
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors}"
-
-            if [ "$status" = "ok" ] && [ "$live_version" = "$expected" ] && [ "$sync_required" = "true" ] && [ "$sync_errors" = "0" ]; then
-              cron_url="https://solar-expert.cz/wp-cron.php?solar_expert_deploy=${GITHUB_SHA}"
-              curl -fsS --max-time 15 \
-                -H "Cache-Control: no-cache, no-store, max-age=0" \
-                -H "Pragma: no-cache" \
-                "$cron_url" >/dev/null 2>&1 || true
-              echo "Release is live but managed content is pending; invoked WP-Cron without overriding its internal lock token."
-            fi
 
             if [ "$status" = "ok" ] && [ "$sync_errors" != "0" ] && [ "$sync_errors" != "999" ]; then
               echo "::error::Managed-content sync reported errors."

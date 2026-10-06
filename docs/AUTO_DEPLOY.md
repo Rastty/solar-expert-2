@@ -69,3 +69,7 @@ The canonical endpoint is constructed in-memory inside the shell step without YA
 ## Managed-content cron lock
 
 CI must not pass its own `doing_wp_cron` value. That parameter is WordPress's internal cron-lock token and is normally created by WordPress itself. Solar Expert therefore calls `wp-cron.php` with only a harmless cache-busting release parameter; WordPress creates and validates its own cron lock, allowing the due managed-content sync event to execute.
+
+## Deterministic managed-content convergence
+
+After Deployer reports a successful theme update, CI POSTs the expected theme version and fixed intent `managed-content-sync-v1` to `/wp-json/solar-expert/v1/deploy-sync`. The endpoint accepts no content payload, URLs, post IDs or arbitrary fields; it can only apply the static managed manifest already present in the active deployed theme. A mismatched release version is rejected, concurrent syncs are locked, and an already-current site is a no-op. WP-Cron remains available only as a fallback for non-CI/manual deployments.

@@ -450,7 +450,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.52</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.53</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -873,6 +873,22 @@ function solar_expert_lead_coverage($map, $bases) {
   );
 }
 
+function solar_expert_deployed_theme_version() {
+  $theme_version = '';
+  $style_file = trailingslashit(get_template_directory()) . 'style.css';
+
+  if ( file_exists($style_file) ) {
+    $style_headers = get_file_data($style_file, array('Version'=>'Version'), 'theme');
+    $theme_version = isset($style_headers['Version']) ? trim((string) $style_headers['Version']) : '';
+  }
+
+  if ( ! $theme_version ) {
+    $theme_version = (string) wp_get_theme()->get('Version');
+  }
+
+  return $theme_version;
+}
+
 function solar_expert_health_payload() {
   $catalog = solar_expert_load_catalog();
 
@@ -886,16 +902,7 @@ function solar_expert_health_payload() {
     $bases = array();
   }
 
-  $theme = wp_get_theme();
-  $theme_version = '';
-  $style_file = trailingslashit(get_template_directory()) . 'style.css';
-  if ( file_exists($style_file) ) {
-    $style_headers = get_file_data($style_file, array('Version'=>'Version'), 'theme');
-    $theme_version = isset($style_headers['Version']) ? trim((string) $style_headers['Version']) : '';
-  }
-  if ( ! $theme_version ) {
-    $theme_version = (string) $theme->get('Version');
-  }
+  $theme_version = solar_expert_deployed_theme_version();
 
   $last_sync = get_option('solar_expert_last_content_sync', array());
   $sync_state = solar_expert_content_sync_state();
@@ -940,10 +947,71 @@ function solar_expert_health_payload() {
   );
 }
 
+function solar_expert_deploy_sync($request) {
+  $expected_version = sanitize_text_field((string) $request->get_param('expected_version'));
+  $intent = sanitize_key((string) $request->get_param('intent'));
+  $live_version = solar_expert_deployed_theme_version();
+
+  if ( $intent !== 'managed-content-sync-v1' ) {
+    return new WP_Error('solar_expert_sync_bad_intent', 'Invalid deploy-sync intent.', array('status'=>400));
+  }
+
+  if ( ! $expected_version || ! $live_version || ! hash_equals($live_version, $expected_version) ) {
+    return new WP_Error('solar_expert_sync_version_mismatch', 'Deployed theme version does not match the requested release.', array(
+      'status' => 409,
+      'live_version' => $live_version,
+    ));
+  }
+
+  $state = solar_expert_content_sync_state();
+  if ( empty($state['required']) ) {
+    return rest_ensure_response(array(
+      'ok' => true,
+      'status' => 'current',
+      'theme_version' => $live_version,
+      'content_sync_required' => false,
+      'content_sync_errors' => (int) ($state['errors'] ?? 0),
+    ));
+  }
+
+  if ( get_transient('solar_expert_content_sync_lock') ) {
+    return new WP_Error('solar_expert_sync_busy', 'Managed content sync is already running.', array('status'=>409));
+  }
+
+  set_transient('solar_expert_content_sync_lock', 1, 5 * MINUTE_IN_SECONDS);
+  try {
+    $result = solar_expert_sync_managed_content(false);
+  } catch (Throwable $e) {
+    delete_transient('solar_expert_content_sync_lock');
+    return new WP_Error('solar_expert_sync_failed', 'Managed content sync failed.', array('status'=>500));
+  }
+  delete_transient('solar_expert_content_sync_lock');
+
+  $after = solar_expert_content_sync_state();
+  $ok = empty($after['required']) && ((int) ($after['errors'] ?? 0) === 0);
+
+  return rest_ensure_response(array(
+    'ok' => $ok,
+    'status' => (string) ($after['status'] ?? 'unknown'),
+    'theme_version' => $live_version,
+    'content_sync_required' => ! empty($after['required']),
+    'content_sync_errors' => (int) ($after['errors'] ?? 0),
+    'created' => (int) ($result['created'] ?? 0),
+    'updated' => (int) ($result['updated'] ?? 0),
+    'skipped' => (int) ($result['skipped'] ?? 0),
+  ));
+}
+
 function solar_expert_register_health_route() {
   register_rest_route('solar-expert/v1', '/health', array(
     'methods' => 'GET',
     'callback' => function(){ return rest_ensure_response(solar_expert_health_payload()); },
+    'permission_callback' => '__return_true',
+  ));
+
+  register_rest_route('solar-expert/v1', '/deploy-sync', array(
+    'methods' => 'POST',
+    'callback' => 'solar_expert_deploy_sync',
     'permission_callback' => '__return_true',
   ));
 }

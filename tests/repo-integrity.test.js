@@ -861,7 +861,7 @@ assert(fs.existsSync(autoDeployPath),'Gated Solar Expert auto-deploy workflow mu
 const autoDeploy=fs.readFileSync(autoDeployPath,'utf8');
 assert(autoDeploy.includes('SOLAR_EXPERT_DEPLOY_URL'),'Auto-deploy must use a repository secret for the Push-to-Deploy URL');
 assert(autoDeploy.includes('sleep 15'),'Auto-deploy must allow GitHub branch ZIP generation to settle before calling Deployer');
-assert(!autoDeploy.includes('-X POST'),'Auto-deploy must use GET because the production host rejects POST with HTTP 422');
+assert(!autoDeploy.includes('curl -sSL -X POST'),'Deployer trigger itself must use GET because the production host rejects POST with HTTP 422');
 assert(autoDeploy.includes("https://solar-expert.cz/wp-json/dfg/v1/package_update"),'Auto-deploy must normalize to the documented Deployer REST endpoint');
 assert(autoDeploy.includes("package=solar-expert-2"),'Auto-deploy must target the installed Solar Expert theme package');
 assert(autoDeploy.includes("html.unescape"),'Auto-deploy must tolerate an HTML-escaped URL copied from the plugin UI');
@@ -878,7 +878,7 @@ assert(autoDeploy.includes('No merged pull request into dev'),'Auto-deploy must 
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/health'),'Auto-deploy must verify production health');
 assert(autoDeploy.includes('content_sync_required'),'Auto-deploy must wait for managed-content sync to become current');
 assert(autoDeploy.includes('Health endpoint temporarily unavailable or returned invalid JSON'),'Auto-deploy must retry transient health transport failures');
-assert(autoDeploy.includes('wp-cron.php?solar_expert_deploy=${GITHUB_SHA}'),'Auto-deploy must invoke WordPress cron without supplying the internal doing_wp_cron lock token');
+assert(!autoDeploy.includes('wp-cron.php?'),'Auto-deploy must not depend on WP-Cron for release-critical managed-content convergence');
 assert(!autoDeploy.includes('doing_wp_cron=$(date'),'Auto-deploy must not forge the WordPress cron lock token');
 assert(autoDeploy.includes('deploy_probe=${GITHUB_SHA}'),'Auto-deploy health probes must use a unique release cache-buster');
 assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Auto-deploy health probes must explicitly bypass intermediary caches');
@@ -891,3 +891,11 @@ assert(!autoDeploy.includes("python - <<'PY'"),'Auto-deploy workflow must avoid 
 assert(autoDeploy.includes('Deployer URL shape:'),'Auto-deploy diagnostics must expose only non-secret URL shape metadata');
 
 assert(corePhp.includes("wp_schedule_single_event(time() + 10, 'solar_expert_async_content_sync')"),'Managed content sync should be scheduled promptly after deploy');
+
+assert(corePhp.includes("function solar_expert_deploy_sync("),'Theme must expose a deterministic deploy-sync callback');
+assert(corePhp.includes("'/deploy-sync'"),'Theme must register the managed-content deploy-sync REST route');
+assert(corePhp.includes("managed-content-sync-v1"),'Deploy-sync must require an explicit fixed intent');
+assert(corePhp.includes("hash_equals($live_version, $expected_version)"),'Deploy-sync must reject version-mismatched release requests');
+assert(autoDeploy.includes('name: Converge managed content'),'Auto-deploy must explicitly converge managed content after the Deployer trigger');
+assert(autoDeploy.includes('/wp-json/solar-expert/v1/deploy-sync'),'Auto-deploy must call the deterministic managed-content sync endpoint');
+assert(autoDeploy.includes("'.ok == true and .content_sync_required == false and .content_sync_errors == 0'"),'Auto-deploy must require a clean sync result before health verification');
