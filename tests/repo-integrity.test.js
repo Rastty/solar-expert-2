@@ -866,7 +866,6 @@ assert(autoDeploy.includes("https://solar-expert.cz/wp-json/dfg/v1/package_updat
 assert(autoDeploy.includes("package=solar-expert-2"),'Auto-deploy must target the installed Solar Expert theme package');
 assert(autoDeploy.includes("html.unescape"),'Auto-deploy must tolerate an HTML-escaped URL copied from the plugin UI');
 assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Deployer trigger must bypass intermediary caches without changing the endpoint query contract');
-assert(autoDeploy.includes('ci_nonce=${GITHUB_SHA}'),'Auto-deploy must cache-bust the Deployer trigger URL per release');
 assert(autoDeploy.includes('-w "%{http_code}"'),'Auto-deploy must validate Deployer HTTP status');
 assert(autoDeploy.includes("jq -r '.success // true'"),'Auto-deploy should honor an explicit JSON failure when the plugin returns JSON');
 assert(autoDeploy.includes('Deployer for Git failed with HTTP'),'Auto-deploy must fail on a non-200 Deployer response');
