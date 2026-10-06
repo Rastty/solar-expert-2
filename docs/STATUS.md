@@ -145,3 +145,5 @@ Next:
 - Gated auto-deploy prepared: pushes to `dev` can call Deployer for Git only after validate + WordPress preview succeed, then verify live theme version and managed-content health; deployment remains safely disabled until the private `SOLAR_EXPERT_DEPLOY_URL` GitHub secret is configured
 
 - Auto-deploy gate hardening: production deployment now resolves the merged PR behind each `dev` commit, requires its successful WordPress preview, validates the resulting merge commit separately, and blocks direct pushes that bypass PR preview.
+
+- Auto-deploy activation canary: repository secret wiring is being verified with a documentation-only PR; no production behavior changes are included in this canary.
