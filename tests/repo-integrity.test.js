@@ -131,6 +131,15 @@ assert(indexabilityCore.includes("update_post_meta($id, '_yoast_wpseo_meta-robot
 assert(indexabilityCore.includes("update_post_meta($id, '_yoast_wpseo_meta-robots-nofollow', '0')"),'Managed indexable pages must explicitly force Yoast Follow');
 assert(indexabilityCore.includes("add_filter('wpseo_sitemap_exclude_post_type', 'solar_expert_keep_pages_in_yoast_sitemap', 10, 2)"),'WordPress Pages must remain eligible for the Yoast sitemap');
 
+
+assert(indexabilityCore.includes('function solar_expert_managed_indexability_state'),'Health endpoint must audit managed indexability');
+for(const field of ['managed_indexability_targets','managed_indexability_ready','managed_indexability_errors','managed_indexability_issues']){
+  assert(indexabilityCore.includes("'"+field+"'"),'Health payload missing indexability field: '+field);
+}
+const deployWorkflow=fs.readFileSync(path.join(__dirname,'..','.github','workflows','auto-deploy-dev.yml'),'utf8');
+assert(deployWorkflow.includes('managed_indexability_errors'),'Auto deploy must fail on managed indexability errors');
+assert(deployWorkflow.includes('index_ready')&&deployWorkflow.includes('index_targets'),'Auto deploy must verify every indexability target is ready');
+
 console.log('Solar Expert repository integrity checks passed');
 
 

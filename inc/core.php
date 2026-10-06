@@ -896,6 +896,46 @@ function solar_expert_deployed_theme_version() {
   return $theme_version;
 }
 
+function solar_expert_managed_indexability_state($manifest) {
+  $state = array(
+    'targets' => 0,
+    'ready' => 0,
+    'errors' => 0,
+    'issues' => array(),
+  );
+
+  $items = isset($manifest['items']) && is_array($manifest['items']) ? $manifest['items'] : array();
+  foreach ( $items as $item ) {
+    if ( empty($item['indexable']) ) {
+      continue;
+    }
+
+    $state['targets']++;
+    $type = isset($item['type']) && in_array($item['type'], array('page','post'), true) ? $item['type'] : 'page';
+    $slug = sanitize_title($item['slug'] ?? '');
+    $post = $slug ? get_page_by_path($slug, OBJECT, $type) : null;
+
+    if ( ! $post || $post->post_status !== 'publish' ) {
+      $state['errors']++;
+      $state['issues'][] = $slug ? $slug . ':not-published' : 'invalid-slug';
+      continue;
+    }
+
+    $noindex = (string) get_post_meta($post->ID, '_yoast_wpseo_meta-robots-noindex', true);
+    $nofollow = (string) get_post_meta($post->ID, '_yoast_wpseo_meta-robots-nofollow', true);
+
+    if ( $noindex !== '2' || $nofollow === '1' ) {
+      $state['errors']++;
+      $state['issues'][] = $slug . ':robots';
+      continue;
+    }
+
+    $state['ready']++;
+  }
+
+  return $state;
+}
+
 function solar_expert_health_payload() {
   $catalog = solar_expert_load_catalog();
 
@@ -916,6 +956,7 @@ function solar_expert_health_payload() {
   $price_freshness = solar_expert_catalog_price_freshness($catalog, 30);
   $affiliate_coverage = solar_expert_affiliate_coverage($catalog, $map, $bases);
   $lead_coverage = solar_expert_lead_coverage($map, $bases);
+  $managed_indexability = solar_expert_managed_indexability_state($manifest);
 
   return array(
     'status' => 'ok',
@@ -930,6 +971,10 @@ function solar_expert_health_payload() {
     'catalog_price_verification_unknown' => (int) ($price_freshness['unknown'] ?? 0),
     'manifest_schema_version' => (string) ($manifest['schemaVersion'] ?? '0'),
     'managed_content_items' => isset($manifest['items']) && is_array($manifest['items']) ? count($manifest['items']) : 0,
+    'managed_indexability_targets' => (int) ($managed_indexability['targets'] ?? 0),
+    'managed_indexability_ready' => (int) ($managed_indexability['ready'] ?? 0),
+    'managed_indexability_errors' => (int) ($managed_indexability['errors'] ?? 0),
+    'managed_indexability_issues' => isset($managed_indexability['issues']) ? array_values($managed_indexability['issues']) : array(),
     'content_sync_status' => (string) ($sync_state['status'] ?? 'unknown'),
     'content_sync_required' => ! empty($sync_state['required']),
     'content_sync_errors' => (int) ($sync_state['errors'] ?? 0),

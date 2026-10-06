@@ -249,16 +249,26 @@ jobs:
             live_version="$(jq -r '.theme_version // empty' <<<"$health")"
             sync_required="$(jq -r 'if has("content_sync_required") then (.content_sync_required|tostring) else "true" end' <<<"$health")"
             sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health")"
+            index_targets="$(jq -r '.managed_indexability_targets // 0' <<<"$health")"
+            index_ready="$(jq -r '.managed_indexability_ready // 0' <<<"$health")"
+            index_errors="$(jq -r '.managed_indexability_errors // 999' <<<"$health")"
 
-            echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors}"
+            echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
 
             if [ "$status" = "ok" ] && [ "$sync_errors" != "0" ] && [ "$sync_errors" != "999" ]; then
               echo "::error::Managed-content sync reported errors."
               exit 1
             fi
 
+            if [ "$status" = "ok" ] && [ "$index_errors" != "0" ] && [ "$index_errors" != "999" ]; then
+              echo "::error::Managed-page indexability guard reported errors."
+              jq -c '.managed_indexability_issues // []' <<<"$health"
+              exit 1
+            fi
+
             if [ "$status" = "ok" ] && [ "$live_version" = "$expected" ] \
-              && [ "$sync_required" = "false" ] && [ "$sync_errors" = "0" ]; then
+              && [ "$sync_required" = "false" ] && [ "$sync_errors" = "0" ] \
+              && [ "$index_errors" = "0" ] && [ "$index_ready" = "$index_targets" ]; then
               verified=1
               break
             fi
