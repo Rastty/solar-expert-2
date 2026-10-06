@@ -139,7 +139,7 @@ jobs:
           sleep 15
 
           body_file="$(mktemp)"
-          deploy_url_file="$(mktemp)"
+          deploy_url_file="$DEPLOY_URL_FILE"
 
           python - <<'PY'
 import html
