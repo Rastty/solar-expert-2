@@ -442,7 +442,7 @@ assert(builderTemplate.includes('Raději nezobrazíme neověřenou kombinaci'),'
 
 
 assert(contentSyncCore.includes("function solar_expert_content_sync_state()"),'Managed content sync must expose deterministic drift state');
-assert(contentSyncCore.includes("managed-content-sync-v2-yoast-meta"),'Managed content fingerprint must change when Yoast sync semantics change');
+assert(contentSyncCore.includes("managed-content-sync-v3-indexability"),'Managed content fingerprint must change when sync/indexability semantics change');
 assert(contentSyncCore.includes("solar_expert_seo_meta($slug)"),'Managed content sync must resolve the shared SEO map by slug');
 assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_title'"),'Managed content sync must persist SEO titles into Yoast meta');
 assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_metadesc'"),'Managed content sync must persist SEO descriptions into Yoast meta');
