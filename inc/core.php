@@ -450,7 +450,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.40</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.41</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -514,6 +514,7 @@ function solar_expert_settings_page() {
       }
     }
     $coverage_total = count(array_filter($coverage_rows, function($row){ return ! empty($row['active']); }));
+    $affiliate_health = solar_expert_affiliate_coverage($catalog, $map, $bases);
     ?>
     <?php
       $funnel7 = solar_expert_funnel_summary(7);
@@ -603,7 +604,8 @@ function solar_expert_settings_page() {
 
     <hr>
     <h2>Affiliate coverage</h2>
-    <p><strong><?php echo esc_html($mapped_count); ?> / <?php echo esc_html($coverage_total); ?></strong> produktových nabídek má affiliate mapování. Nezmapované nabídky bezpečně používají ověřený zdrojový odkaz.</p>
+    <p><strong><?php echo esc_html($mapped_count); ?> / <?php echo esc_html($coverage_total); ?></strong> aktivních produktových nabídek má affiliate mapování. Nezmapované nabídky bezpečně používají ověřený zdrojový odkaz.</p>
+    <p class="description">Doporučitelné nabídky: <strong><?php echo esc_html((int) ($affiliate_health['monetized_recommendable_offers'] ?? 0)); ?> / <?php echo esc_html((int) ($affiliate_health['recommendable_offers'] ?? 0)); ?></strong> monetizovaných (<?php echo esc_html((float) ($affiliate_health['recommendable_offer_coverage_pct'] ?? 0)); ?> %); produkty s alespoň jednou monetizovanou doporučitelnou nabídkou: <strong><?php echo esc_html((int) ($affiliate_health['monetized_recommendable_products'] ?? 0)); ?> / <?php echo esc_html((int) ($affiliate_health['recommendable_products'] ?? 0)); ?></strong>.</p>
     <table class="widefat striped">
       <thead><tr><th>Produkt</th><th>Obchod</th><th>Klíč</th><th>Dostupnost</th><th>Cena</th><th>Affiliate</th></tr></thead>
       <tbody>
@@ -773,6 +775,81 @@ function solar_expert_register_funnel_route() {
 add_action('rest_api_init', 'solar_expert_register_funnel_route');
 
 
+function solar_expert_affiliate_coverage($catalog, $map, $bases) {
+  $products = isset($catalog['products']) && is_array($catalog['products']) ? $catalog['products'] : array();
+  $product_map = isset($map['products']) && is_array($map['products']) ? $map['products'] : array();
+  $bases = is_array($bases) ? $bases : array();
+
+  $active_offers = 0;
+  $monetized_active_offers = 0;
+  $recommendable_offers = 0;
+  $monetized_recommendable_offers = 0;
+  $recommendable_products = 0;
+  $monetized_recommendable_products = 0;
+  $monetized_merchants = array();
+
+  foreach ( $products as $product ) {
+    $offers = ! empty($product['offers']) && is_array($product['offers'])
+      ? $product['offers']
+      : array(array(
+          'merchant' => $product['merchant'] ?? '',
+          'availability' => $product['availability'] ?? '',
+        ));
+
+    $product_recommendable = false;
+    $product_monetized = false;
+
+    foreach ( $offers as $offer ) {
+      $merchant = sanitize_key($offer['merchant'] ?? '');
+      if ( ! $merchant ) { continue; }
+
+      $availability = (string) ($offer['availability'] ?? $product['availability'] ?? '');
+      $active = ! in_array($availability, array('discontinued','unavailable'), true);
+      $recommendable = in_array($availability, array('in_stock','usually_in_stock'), true);
+
+      $exact_key = ($product['id'] ?? '') . '@' . $merchant;
+      $legacy_key = $product['id'] ?? '';
+      $mapped = isset($product_map[$exact_key]) || (
+        ($product['merchant'] ?? '') === $merchant && isset($product_map[$legacy_key])
+      ) || isset($bases[$merchant]);
+
+      if ( $active ) {
+        $active_offers++;
+        if ( $mapped ) {
+          $monetized_active_offers++;
+          $monetized_merchants[$merchant] = true;
+        }
+      }
+
+      if ( $recommendable ) {
+        $recommendable_offers++;
+        $product_recommendable = true;
+        if ( $mapped ) {
+          $monetized_recommendable_offers++;
+          $product_monetized = true;
+          $monetized_merchants[$merchant] = true;
+        }
+      }
+    }
+
+    if ( $product_recommendable ) { $recommendable_products++; }
+    if ( $product_monetized ) { $monetized_recommendable_products++; }
+  }
+
+  return array(
+    'active_offers' => $active_offers,
+    'monetized_active_offers' => $monetized_active_offers,
+    'active_offer_coverage_pct' => $active_offers ? round(($monetized_active_offers / $active_offers) * 100, 1) : 0,
+    'recommendable_offers' => $recommendable_offers,
+    'monetized_recommendable_offers' => $monetized_recommendable_offers,
+    'recommendable_offer_coverage_pct' => $recommendable_offers ? round(($monetized_recommendable_offers / $recommendable_offers) * 100, 1) : 0,
+    'recommendable_products' => $recommendable_products,
+    'monetized_recommendable_products' => $monetized_recommendable_products,
+    'recommendable_product_coverage_pct' => $recommendable_products ? round(($monetized_recommendable_products / $recommendable_products) * 100, 1) : 0,
+    'monetized_merchants' => count($monetized_merchants),
+  );
+}
+
 function solar_expert_health_payload() {
   $catalog = solar_expert_load_catalog();
 
@@ -790,6 +867,7 @@ function solar_expert_health_payload() {
   $last_sync = get_option('solar_expert_last_content_sync', array());
   $sync_state = solar_expert_content_sync_state();
   $price_freshness = solar_expert_catalog_price_freshness($catalog, 30);
+  $affiliate_coverage = solar_expert_affiliate_coverage($catalog, $map, $bases);
 
   return array(
     'status' => 'ok',
@@ -810,6 +888,16 @@ function solar_expert_health_payload() {
     'affiliate_product_mappings' => isset($map['products']) && is_array($map['products']) ? count($map['products']) : 0,
     'affiliate_merchant_bases' => count($bases),
     'affiliate_lead_mappings' => isset($map['leads']) && is_array($map['leads']) ? count($map['leads']) : 0,
+    'affiliate_active_offers' => (int) ($affiliate_coverage['active_offers'] ?? 0),
+    'affiliate_monetized_active_offers' => (int) ($affiliate_coverage['monetized_active_offers'] ?? 0),
+    'affiliate_active_offer_coverage_pct' => (float) ($affiliate_coverage['active_offer_coverage_pct'] ?? 0),
+    'affiliate_recommendable_offers' => (int) ($affiliate_coverage['recommendable_offers'] ?? 0),
+    'affiliate_monetized_recommendable_offers' => (int) ($affiliate_coverage['monetized_recommendable_offers'] ?? 0),
+    'affiliate_recommendable_offer_coverage_pct' => (float) ($affiliate_coverage['recommendable_offer_coverage_pct'] ?? 0),
+    'affiliate_recommendable_products' => (int) ($affiliate_coverage['recommendable_products'] ?? 0),
+    'affiliate_monetized_recommendable_products' => (int) ($affiliate_coverage['monetized_recommendable_products'] ?? 0),
+    'affiliate_recommendable_product_coverage_pct' => (float) ($affiliate_coverage['recommendable_product_coverage_pct'] ?? 0),
+    'affiliate_monetized_merchants' => (int) ($affiliate_coverage['monetized_merchants'] ?? 0),
     'funnel_tracking' => 'first_party_v1',
     'last_content_sync_utc' => isset($last_sync['time']) ? (string) $last_sync['time'] : null,
   );
