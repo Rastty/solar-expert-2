@@ -92,6 +92,19 @@ for(const item of manifest.items){
 }
 
 
+const expandPvSlug='pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu';
+const expandPvItem=manifest.items.find(x=>x.slug===expandPvSlug);
+assert(expandPvItem&&expandPvItem.preserve_status===true,'Existing-PV expansion near-win must preserve indexed status');
+assert(expandPvItem&&fs.existsSync(path.join(__dirname,'..',expandPvItem.file)),'Existing-PV expansion rewrite file missing');
+const expandPvCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
+assert(expandPvCore.includes("'"+expandPvSlug+"' => array("),'Existing-PV expansion near-win must have dedicated SEO metadata');
+const expandPvHtml=fs.readFileSync(path.join(__dirname,'..',expandPvItem.file),'utf8');
+for(const required of ['/mppt-kalkulacka/','/kolik-panelu-je-potreba-na-jeden-string/','/quote-checker/','Voc','Vmp','MPPT']){
+  assert(expandPvHtml.includes(required),'Existing-PV expansion guide missing required decision evidence/tool path: '+required);
+}
+assert(expandPvHtml.includes('ČEZ Distribuce'),'Existing-PV expansion guide must cover current distributor boundary');
+assert(!expandPvHtml.includes('prémiovou sazbu'),'Existing-PV expansion rewrite must remove stale foreign tariff copy');
+
 const flexibleSolarSlug='flexibilni-solarni-panely-vyhody-nevyhody-a-naklady';
 const flexibleSolarItem=manifest.items.find(x=>x.slug===flexibleSolarSlug);
 assert(flexibleSolarItem&&flexibleSolarItem.preserve_status===true,'Flexible solar near-win must preserve the indexed URL/status');
