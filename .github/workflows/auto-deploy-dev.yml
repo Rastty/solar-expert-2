@@ -128,6 +128,8 @@ jobs:
       - name: Trigger Deployer for Git
         if: steps.config.outputs.enabled == 'true'
         shell: bash
+        env:
+          DEPLOY_URL_FILE: /tmp/solar-expert-deploy-url
         run: |
           set -euo pipefail
           echo "::add-mask::$DEPLOY_URL"
@@ -137,11 +139,35 @@ jobs:
           sleep 15
 
           body_file="$(mktemp)"
-          trigger_url="${DEPLOY_URL}&ci_nonce=${GITHUB_SHA}-$(date +%s)"
+          deploy_url_file="$DEPLOY_URL_FILE"
+
+          python - <<'PY'
+import html
+import os
+from urllib.parse import parse_qs, quote, urlsplit
+
+raw = html.unescape(os.environ['DEPLOY_URL'].strip())
+parts = urlsplit(raw)
+params = parse_qs(parts.query, keep_blank_values=True)
+secret = (params.get('secret') or [''])[0]
+if not secret:
+    raise SystemExit('Push-to-Deploy URL does not contain a secret query parameter')
+
+canonical = (
+    'https://solar-expert.cz/wp-json/dfg/v1/package_update'
+    '?secret=' + quote(secret, safe='')
+    + '&type=theme&package=solar-expert-2'
+)
+with open(os.environ['DEPLOY_URL_FILE'], 'w', encoding='utf-8') as fh:
+    fh.write(canonical)
+PY
+
           http_code="$(curl -sSL --max-time 180 --retry 2 --retry-delay 3 \
+            -H "Cache-Control: no-cache, no-store, max-age=0" \
+            -H "Pragma: no-cache" \
             -o "$body_file" \
             -w "%{http_code}" \
-            "$trigger_url")"
+            "$(cat "$deploy_url_file")")"
 
           echo "Deployer HTTP status: $http_code"
           if [ "$http_code" != "200" ]; then
