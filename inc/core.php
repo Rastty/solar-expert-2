@@ -875,6 +875,18 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'Výkon fotovoltaiky na m²: Wp/m² a výpočet | Solar Expert',
       'description' => 'Jak spočítat výkon fotovoltaického panelu na m², rozdíl Wp a kWh a kolik plochy potřebujete pro požadovaný výkon.'
     ),
+    'fve-panely-na-strechu' => array(
+      'title' => 'Fotovoltaické panely na střechu: výkon a návrh | Solar Expert',
+      'description' => 'Jak spočítat potřebný výkon FVE na střeše podle spotřeby, plochy, orientace a stínu. Wp, kWp, počet panelů a kontrola stringu a MPPT.'
+    ),
+    'jak-funguji-solarni-baterie-pruvodce-skladovanim-energie' => array(
+      'title' => 'Solární baterie: kWh, BMS a 12/24/48 V | Solar Expert',
+      'description' => 'Jak funguje baterie pro fotovoltaiku, co znamená kWh a Ah, jakou roli má BMS a proč musí kapacita, proud i napětí sedět k měniči.'
+    ),
+    'sady-pro-solarni-napajeni-kompletni-pruvodce' => array(
+      'title' => 'Solární sady: panely, baterie, měnič a MPPT | Solar Expert',
+      'description' => 'Jak vybrat solární sadu jako kompatibilní celek. Zkontrolujte výkon panelů, baterii, měnič, MPPT, napětí, proudy a rozběhové špičky.'
+    ),
     'co-je-1-kwp' => array(
       'title' => 'Co je kWp a Wp: rozdíl proti kWh a příklady | Solar Expert',
       'description' => 'Co znamená Wp a kWp u fotovoltaiky, jak se liší od kWh a jak převést požadovaný kWp na počet solárních panelů.'
