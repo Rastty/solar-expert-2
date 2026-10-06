@@ -48,7 +48,7 @@ for(const product of source.products||[]){
     assert(/^https:\/\//.test(product.parallel_evidence_url||''),'Parallel battery evidence URL must be HTTPS: '+product.id);
     assert(verifiedDate.test(product.parallel_verified_at||''),'Parallel battery evidence must be date-stamped: '+product.id);
   }
-  if(product.charger===true && product.lifepo4_charge_supported===false){
+  if(product.lifepo4_charge_supported===false){
     assert(String(product.charger_note||'').trim().length>20,'Lead-acid-only charger must document the chemistry limitation: '+product.id);
     assert(/^https:\/\//.test(product.charger_evidence_url||''),'Charger chemistry evidence URL must be HTTPS: '+product.id);
     assert(verifiedDate.test(product.charger_verified_at||''),'Charger chemistry evidence must be date-stamped: '+product.id);
