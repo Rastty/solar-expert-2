@@ -126,7 +126,7 @@ function solar_expert_safe_content_file($relative_path) {
 
 function solar_expert_manifest_fingerprint($manifest) {
   $ctx = hash_init('sha256');
-  hash_update($ctx, 'managed-content-sync-v2-yoast-meta');
+  hash_update($ctx, 'managed-content-sync-v3-indexability');
   $manifest_path = solar_expert_content_root() . 'manifest.json';
 
   if ( file_exists($manifest_path) ) {
@@ -1016,13 +1016,18 @@ function solar_expert_deploy_sync($request) {
   }
 
   $state = solar_expert_content_sync_state();
-  if ( empty($state['required']) ) {
+  $manifest = solar_expert_load_manifest();
+  $indexability_before = solar_expert_managed_indexability_state($manifest);
+  $repair_indexability = ((int) ($indexability_before['errors'] ?? 0) > 0);
+
+  if ( empty($state['required']) && ! $repair_indexability ) {
     return rest_ensure_response(array(
       'ok' => true,
       'status' => 'current',
       'theme_version' => $live_version,
       'content_sync_required' => false,
       'content_sync_errors' => (int) ($state['errors'] ?? 0),
+      'managed_indexability_errors' => 0,
     ));
   }
 
@@ -1032,7 +1037,7 @@ function solar_expert_deploy_sync($request) {
 
   set_transient('solar_expert_content_sync_lock', 1, 5 * MINUTE_IN_SECONDS);
   try {
-    $result = solar_expert_sync_managed_content(false);
+    $result = solar_expert_sync_managed_content($repair_indexability);
   } catch (Throwable $e) {
     delete_transient('solar_expert_content_sync_lock');
     return new WP_Error('solar_expert_sync_failed', 'Managed content sync failed.', array('status'=>500));
@@ -1040,7 +1045,11 @@ function solar_expert_deploy_sync($request) {
   delete_transient('solar_expert_content_sync_lock');
 
   $after = solar_expert_content_sync_state();
-  $ok = empty($after['required']) && ((int) ($after['errors'] ?? 0) === 0);
+  $indexability_after = solar_expert_managed_indexability_state(solar_expert_load_manifest());
+  $ok = empty($after['required'])
+    && ((int) ($after['errors'] ?? 0) === 0)
+    && ((int) ($indexability_after['errors'] ?? 0) === 0)
+    && ((int) ($indexability_after['ready'] ?? 0) === (int) ($indexability_after['targets'] ?? 0));
 
   return rest_ensure_response(array(
     'ok' => $ok,
@@ -1048,6 +1057,10 @@ function solar_expert_deploy_sync($request) {
     'theme_version' => $live_version,
     'content_sync_required' => ! empty($after['required']),
     'content_sync_errors' => (int) ($after['errors'] ?? 0),
+    'managed_indexability_targets' => (int) ($indexability_after['targets'] ?? 0),
+    'managed_indexability_ready' => (int) ($indexability_after['ready'] ?? 0),
+    'managed_indexability_errors' => (int) ($indexability_after['errors'] ?? 0),
+    'managed_indexability_issues' => isset($indexability_after['issues']) ? array_values($indexability_after['issues']) : array(),
     'created' => (int) ($result['created'] ?? 0),
     'updated' => (int) ($result['updated'] ?? 0),
     'skipped' => (int) ($result['skipped'] ?? 0),
