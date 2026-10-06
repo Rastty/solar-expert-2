@@ -886,3 +886,5 @@ assert(autoDeploy.includes('sleep 5'),'Auto-deploy must allow a short deploy swi
 assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped to the dev branch');
 
 assert(!autoDeploy.includes("python - <<'PY'"),'Auto-deploy workflow must avoid unindented heredocs that break YAML parsing');
+
+assert(autoDeploy.includes('Deployer URL shape:'),'Auto-deploy diagnostics must expose only non-secret URL shape metadata');

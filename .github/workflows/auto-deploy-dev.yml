@@ -137,6 +137,7 @@ jobs:
           sleep 15
 
           body_file="$(mktemp)"
+          python -c 'import html, os; from urllib.parse import parse_qs, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); p=urlsplit(raw); q=parse_qs(p.query, keep_blank_values=True); print("Deployer URL shape: scheme="+(p.scheme or "none")+" host="+(p.hostname or "none")+" path="+(p.path or "/")+" query_keys="+(",".join(sorted(q.keys())) or "none"))'
           trigger_url="$(python -c 'import html, os; from urllib.parse import parse_qs, quote, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); params=parse_qs(urlsplit(raw).query, keep_blank_values=True); secret=(params.get("secret") or [""])[0]; assert secret, "Push-to-Deploy URL does not contain a secret query parameter"; print("https://solar-expert.cz/wp-json/dfg/v1/package_update?secret="+quote(secret, safe="")+"&type=theme&package=solar-expert-2")')"
           echo "::add-mask::$trigger_url"
 
