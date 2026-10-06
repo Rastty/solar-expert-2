@@ -147,6 +147,7 @@ assert(indexabilityCore.includes("solar_expert_sync_managed_content($repair_inde
 assert(indexabilityCore.includes("'managed_indexability_ready'"),'Deploy-sync response must report indexability readiness');
 assert(deployWorkflow.includes("managed_indexability_ready"),'Managed-content convergence must require indexability readiness');
 
+
 console.log('Solar Expert repository integrity checks passed');
 
 
@@ -964,6 +965,14 @@ assert(autoDeploy.includes('name: Converge managed content'),'Auto-deploy must e
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/deploy-sync'),'Auto-deploy must call the deterministic managed-content sync endpoint');
 assert(autoDeploy.includes(".ok == true and .content_sync_required == false and .content_sync_errors == 0"),'Auto-deploy must require a clean sync result before health verification');
 assert(autoDeploy.includes("managed_indexability_errors"),'Auto-deploy convergence must also require clean managed indexability');
+
+assert(autoDeploy.includes('name: Verify crawler discovery surfaces'),'Auto-deploy must verify public crawler discovery surfaces');
+assert(autoDeploy.includes('$base/robots.txt'),'Crawler guard must verify robots.txt');
+assert(autoDeploy.includes('$base/sitemap_index.xml'),'Crawler guard must verify sitemap index');
+assert(autoDeploy.includes('$base/page-sitemap.xml'),'Crawler guard must verify page sitemap');
+assert(autoDeploy.includes("select(.indexable == true)"),'Crawler guard must derive targets from manifest indexability');
+assert(autoDeploy.includes('X-Robots-Tag noindex'),'Crawler guard must reject header-level noindex');
+assert(autoDeploy.includes('robots noindex meta tag'),'Crawler guard must reject HTML meta noindex');
 
 assert(!autoDeploy.includes(".content_sync_required // true"),'Health verification must not use jq // on a boolean false value');
 assert(autoDeploy.includes('has("content_sync_required")'),'Health verification must preserve an explicit false content_sync_required value');
