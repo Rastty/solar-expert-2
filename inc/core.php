@@ -439,7 +439,7 @@ function solar_expert_settings_page() {
   ?>
   <div class="wrap">
     <h1>Solar Expert</h1>
-    <p><strong>Build <code>dev-rc-0.11.36</code></strong></p>
+    <p><strong>Build <code>dev-rc-0.11.37</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
       <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
@@ -533,6 +533,40 @@ function solar_expert_settings_page() {
       <?php endforeach; ?>
       </tbody>
     </table>
+
+    <?php
+      $merchant_keys = array_values(array_unique(array_merge(array_keys($funnel7['merchants'] ?? array()), array_keys($funnel28['merchants'] ?? array()))));
+      usort($merchant_keys, function($a, $b) use ($funnel28) {
+        return (int) ($funnel28['merchants'][$b] ?? 0) <=> (int) ($funnel28['merchants'][$a] ?? 0);
+      });
+      $placement_keys = array_values(array_unique(array_merge(array_keys($funnel7['placements'] ?? array()), array_keys($funnel28['placements'] ?? array()))));
+      usort($placement_keys, function($a, $b) use ($funnel28) {
+        return (int) ($funnel28['placements'][$b] ?? 0) <=> (int) ($funnel28['placements'][$a] ?? 0);
+      });
+    ?>
+    <?php if ( ! empty($merchant_keys) ) : ?>
+      <h3>Outbound clicks by merchant</h3>
+      <table class="widefat striped" style="max-width:720px">
+        <thead><tr><th>Merchant</th><th>7 dní</th><th>28 dní</th></tr></thead>
+        <tbody>
+        <?php foreach ( $merchant_keys as $merchant_key ) : ?>
+          <tr><td><code><?php echo esc_html($merchant_key); ?></code></td><td><?php echo esc_html((int) ($funnel7['merchants'][$merchant_key] ?? 0)); ?></td><td><?php echo esc_html((int) ($funnel28['merchants'][$merchant_key] ?? 0)); ?></td></tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+
+    <?php if ( ! empty($placement_keys) ) : ?>
+      <h3>Outbound clicks by placement</h3>
+      <table class="widefat striped" style="max-width:720px">
+        <thead><tr><th>Placement</th><th>7 dní</th><th>28 dní</th></tr></thead>
+        <tbody>
+        <?php foreach ( $placement_keys as $placement_key ) : ?>
+          <tr><td><code><?php echo esc_html($placement_key); ?></code></td><td><?php echo esc_html((int) ($funnel7['placements'][$placement_key] ?? 0)); ?></td><td><?php echo esc_html((int) ($funnel28['placements'][$placement_key] ?? 0)); ?></td></tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
 
     <hr>
     <h2>Price freshness</h2>
@@ -633,6 +667,8 @@ function solar_expert_funnel_summary($days = 28) {
   $cutoff = gmdate('Y-m-d', time() - (($days - 1) * DAY_IN_SECONDS));
   $events = array();
   $tools = array();
+  $merchants = array();
+  $placements = array();
 
   foreach ( $data as $date => $buckets ) {
     if ( (string) $date < $cutoff || ! is_array($buckets) ) { continue; }
@@ -647,12 +683,20 @@ function solar_expert_funnel_summary($days = 28) {
         if ( strpos($part, 'tool=') === 0 ) {
           $tool = sanitize_key(substr($part, 5));
           if ( $tool ) { $tools[$tool] = ($tools[$tool] ?? 0) + $count; }
+        } elseif ( strpos($part, 'merchant=') === 0 ) {
+          $merchant = sanitize_key(substr($part, 9));
+          if ( $merchant ) { $merchants[$merchant] = ($merchants[$merchant] ?? 0) + $count; }
+        } elseif ( strpos($part, 'placement=') === 0 ) {
+          $placement = sanitize_key(substr($part, 10));
+          if ( $placement ) { $placements[$placement] = ($placements[$placement] ?? 0) + $count; }
         }
       }
     }
   }
 
-  return array('events'=>$events, 'tools'=>$tools);
+  arsort($merchants);
+  arsort($placements);
+  return array('events'=>$events, 'tools'=>$tools, 'merchants'=>$merchants, 'placements'=>$placements);
 }
 
 function solar_expert_record_funnel_event(WP_REST_Request $request) {
