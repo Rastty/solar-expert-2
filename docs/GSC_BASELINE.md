@@ -245,3 +245,13 @@ Decision:
 - distinguish flexible construction from cell technology, cover ETFE/glassless reliability and manufacturer-required airflow/heat dissipation;
 - route electrical intent into MPPT Calculator + Battery Selector and panel-selection intent into the owned buyer guide;
 - do not force the generic residential E.ON lead CTA onto this predominantly mobile/off-grid intent.
+
+### Emerging existing-FVE expansion near-win
+
+Fresh 28-day page evidence for `/pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu/`: **4 impressions, average position 14.25, 0 clicks**. The legacy 2023 article mixed foreign feed-in-tariff assumptions with oversimplified guidance that adding panels is relatively simple.
+
+Decision:
+- preserve the URL/status and rebuild it around the actual engineering decision: cold Voc, Vmp/MPPT range, max input/Isc, string topology and mismatch;
+- distinguish DC-panel oversizing from inverter electrical limits;
+- add current Czech distributor boundary guidance without claiming one universal permitting path;
+- route users into MPPT Calculator, string-sizing guide, Battery/Inverter selectors and Quote Checker before any installer decision.

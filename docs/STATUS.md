@@ -179,3 +179,5 @@ Next:
 - Solar topical-link cluster: GSC-backed FVE planning articles now append bounded related links to the Wp/m² near-win, kWp/Wp explainer, annual-output guide and Quote Checker before the outbound E.ON CTA; self-links are skipped.
 
 - Flexible-solar emerging near-win: fresh 28-day GSC shows 7 impressions at avg. position 12.43 with zero clicks on the preserved legacy URL. Replaced the duplicated 2023/MCS-era article with a 2026 use-case guide covering modern monocrystalline flexible modules, ETFE/glassless reliability, airflow/heat, Voc/Vmp/MPPT sizing and owned Battery/MPPT tool paths; no generic E.ON rooftop lead CTA is forced onto the mobile/curved-surface intent.
+
+- Existing-PV expansion emerging near-win: fresh 28-day GSC shows 4 impressions at avg. position 14.25 with zero clicks on the preserved legacy URL. Replaced the translated 2023 tariff/installer copy with a current engineering decision guide covering cold Voc, Vmp/MPPT windows, current/Isc limits, mixed modules, DC/AC sizing, battery/inverter paths, distributor-change boundary and owned MPPT/String/Quote Checker tools.
