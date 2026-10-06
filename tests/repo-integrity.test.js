@@ -974,5 +974,11 @@ assert(autoDeploy.includes("select(.indexable == true)"),'Crawler guard must der
 assert(autoDeploy.includes('X-Robots-Tag noindex'),'Crawler guard must reject header-level noindex');
 assert(autoDeploy.includes('robots noindex meta tag'),'Crawler guard must reject HTML meta noindex');
 
+assert(autoDeploy.includes('monetization active_offer_coverage='),'Auto-deploy must log live monetization coverage');
+assert(autoDeploy.includes('affiliate_recommendable_product_coverage_pct'),'Auto-deploy must expose recommendable product affiliate coverage');
+assert(autoDeploy.includes('affiliate_monetized_merchants'),'Auto-deploy must expose live monetized merchant count');
+assert(autoDeploy.includes('affiliate_lead_coverage_pct'),'Auto-deploy must expose lead-gen coverage');
+assert(autoDeploy.includes('Lead monetization coverage is incomplete'),'Auto-deploy must warn when lead coverage drops');
+
 assert(!autoDeploy.includes(".content_sync_required // true"),'Health verification must not use jq // on a boolean false value');
 assert(autoDeploy.includes('has("content_sync_required")'),'Health verification must preserve an explicit false content_sync_required value');
