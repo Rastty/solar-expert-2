@@ -854,3 +854,13 @@ const lgReview=fs.readFileSync(path.join(__dirname,'..','content','rewrites','te
 assert(lgReview.includes('LG THERMA V'),'LG review must identify the current THERMA V platform');
 assert(lgReview.includes('forum.tzb-info.cz'),'LG review must preserve independent owner-experience context');
 assert(lgReview.includes('data-se-lead-id="eon-heat-pump"'),'LG review must retain the comparison lead path');
+
+const autoDeployPath=path.join(__dirname,'..','.github','workflows','auto-deploy-dev.yml');
+assert(fs.existsSync(autoDeployPath),'Gated Solar Expert auto-deploy workflow must exist');
+const autoDeploy=fs.readFileSync(autoDeployPath,'utf8');
+assert(autoDeploy.includes('SOLAR_EXPERT_DEPLOY_URL'),'Auto-deploy must use a repository secret for the Push-to-Deploy URL');
+assert(autoDeploy.includes('select(.name=="validate")'),'Auto-deploy must wait for the validate check');
+assert(autoDeploy.includes('select(.name=="preview")'),'Auto-deploy must wait for the WordPress preview check');
+assert(autoDeploy.includes('/wp-json/solar-expert/v1/health'),'Auto-deploy must verify production health');
+assert(autoDeploy.includes('content_sync_required'),'Auto-deploy must wait for managed-content sync to become current');
+assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped to the dev branch');
