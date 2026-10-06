@@ -234,3 +234,14 @@ Decision:
 - reposition the page around the 2026 market: monocrystalline dominance, N-type/TOPCon context, efficiency per m², temperature coefficient, Voc/Vmp and warranties;
 - route users into the owned panel buyer guide and MPPT calculator.
 
+
+### Emerging flexible-solar near-win
+
+Fresh 28-day page evidence for `/flexibilni-solarni-panely-vyhody-nevyhody-a-naklady/`: **7 impressions, average position 12.43, 0 clicks**. The legacy 2023 article duplicated sections, treated flexible panels as inherently thin-film, mixed contradictory price/efficiency claims and retained UK MCS/installer lead-generation copy.
+
+Decision:
+- preserve the existing indexed URL and publication state;
+- rebuild it as a 2026 use-case guide for campervan/boat/light or curved surfaces vs. rigid residential modules;
+- distinguish flexible construction from cell technology, cover ETFE/glassless reliability and manufacturer-required airflow/heat dissipation;
+- route electrical intent into MPPT Calculator + Battery Selector and panel-selection intent into the owned buyer guide;
+- do not force the generic residential E.ON lead CTA onto this predominantly mobile/off-grid intent.

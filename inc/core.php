@@ -1156,6 +1156,10 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'Fotovoltaika na plechové střeše: kotvení bez zatékání | Solar Expert',
       'description' => 'Jak kotvit FVE na falc, trapézový plech a plechovou tašku. Prostupy, EPDM, statika, vítr, sníh, koroze a co požadovat v nabídce.'
     ),
+    'flexibilni-solarni-panely-vyhody-nevyhody-a-naklady' => array(
+      'title' => 'Flexibilní solární panely 2026: kdy ano a kdy ne | Solar Expert',
+      'description' => 'Flexibilní solární panely pro karavan, loď i lehkou střechu: výhody, rizika, ETFE, chlazení, životnost, Voc/Vmp a správný výběr MPPT.'
+    ),
     'monokrystalicke-vs-polykrystalicke-solarni-panely' => array(
       'title' => 'Monokrystalické vs. polykrystalické panely 2026 | Solar Expert',
       'description' => 'Mono vs. poly v roce 2026: proč dnes rozhodují účinnost na m², TOPCon/N-type, teplotní koeficient, Voc/Vmp a záruky víc než staré dělení panelů.'
