@@ -20,7 +20,8 @@
       "price_czk_snapshot": 8650,
       "source_url": "https://www.battery.cz/baterie-blokove/",
       "price_czk": 8650,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "battery-goowei-12-200",
@@ -40,7 +41,8 @@
       "price_czk_snapshot": 14690,
       "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
       "price_czk": 14690,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "battery-goowei-24-50",
@@ -59,7 +61,8 @@
       "price_czk_snapshot": 8650,
       "source_url": "https://www.battery.cz/24v-10/",
       "price_czk": 8650,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "battery-goowei-24-100",
@@ -203,7 +206,8 @@
       "price_czk_snapshot": 20990,
       "source_url": "https://www.battery.cz/seplos-lithiova-nastenna-baterie-polo-w--48v-5kwh-s-bms/",
       "price_czk": 20990,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "panel-victron-190",
@@ -423,7 +427,8 @@
         "24": 29,
         "48": 53
       },
-      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking."
+      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "mppt-victron-150-70",
@@ -547,9 +552,10 @@
       "peak_w": 2200,
       "price_czk_snapshot": 7623,
       "availability": "usually_in_stock",
-      "source_url": "https://www.battery.cz/48v-2/",
+      "source_url": "https://www.solar-import.cz/menice-napeti/",
       "price_czk": 7623,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-kosun-48-3000",
@@ -568,7 +574,8 @@
       "price_czk_snapshot": 9563,
       "price_czk": 9563,
       "price_mode": "snapshot",
-      "source_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/"
+      "source_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-growatt-48-3500",
@@ -591,7 +598,8 @@
       },
       "source_url": "https://www.solar-import.cz/hybridni/growatt-spf-3500es-menic-3-5kw-48v/",
       "price_czk": 11990,
-      "price_mode": "snapshot"
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-growatt-48-6000",
@@ -614,7 +622,8 @@
         "mppt_v_min": 120,
         "mppt_v_max": 450,
         "charge_a_max": 100
-      }
+      },
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-kosun-12-1000",
@@ -638,7 +647,8 @@
         "evidence_note": "15–70V PV input and 20A solar charge current verified; maximum recommended PV array power not yet explicitly verified."
       },
       "lifepo4_charge_supported": true,
-      "source_url": "https://www.solar-import.cz/kosun-menic-napeti-s-nabijeckou-a-mppt-regulatorem-dc12v-ac230v--1000w/"
+      "source_url": "https://www.solar-import.cz/kosun-menic-napeti-s-nabijeckou-a-mppt-regulatorem-dc12v-ac230v--1000w/",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-rogerele-rep1000-12",
@@ -655,7 +665,8 @@
       "price_czk": 2890,
       "price_mode": "snapshot",
       "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/"
+      "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/",
+      "verified_at": "2026-10-05"
     },
     {
       "id": "inverter-rogerele-rep1500-24",

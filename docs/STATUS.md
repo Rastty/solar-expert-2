@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.34`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.35`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -130,3 +130,5 @@ Next:
 - Default-bundle offer freshness: Victron 190W panel, GOOWEI 24V100 battery, MPPT 150/70 and MPPT 250/100 now carry fresh merchant evidence; Battery.cz/Solar-Import comparison offers added and MPPT 250/100 refreshed to 14,246 CZK
 - Catalog integrity hotfix: on-request ROGERELE REP1500-24 moved to non-recommendation `reference` tier; strict guardrail stays intact and in-stock REP2000-24 remains the active Best Value choice
 - First-party money-funnel measurement: cookie-free theme collector now aggregates tool views/starts, Builder/selector/Quote Checker completions and affiliate/bundle/E.ON lead clicks for 35 days; 7/28-day counts are visible in Solar Expert admin and no free-form user inputs are stored
+- Price evidence refresh: all 32 active priced snapshots now carry current verification evidence (32 fresh / 0 stale / 0 unknown); no technical compatibility ranking was changed
+- Price-evidence guardrail: repository validation now rejects any active priced product/offer that loses its verification date
