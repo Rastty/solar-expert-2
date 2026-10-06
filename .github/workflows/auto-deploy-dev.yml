@@ -192,7 +192,7 @@ jobs:
               --data "$payload" \
               "$sync_url" || true)"
 
-            if [ "$http_code" = "200" ] && jq -e '.ok == true and .content_sync_required == false and .content_sync_errors == 0' "$body_file" >/dev/null 2>&1; then
+            if [ "$http_code" = "200" ] && jq -e '.ok == true and .content_sync_required == false and .content_sync_errors == 0 and (.managed_indexability_errors // 0) == 0 and (.managed_indexability_ready // 0) == (.managed_indexability_targets // 0)' "$body_file" >/dev/null 2>&1; then
               echo "Managed content converged for Solar Expert $expected."
               converged=1
               break

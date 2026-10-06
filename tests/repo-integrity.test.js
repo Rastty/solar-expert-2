@@ -140,6 +140,13 @@ const deployWorkflow=fs.readFileSync(path.join(__dirname,'..','.github','workflo
 assert(deployWorkflow.includes('managed_indexability_errors'),'Auto deploy must fail on managed indexability errors');
 assert(deployWorkflow.includes('index_ready')&&deployWorkflow.includes('index_targets'),'Auto deploy must verify every indexability target is ready');
 
+
+assert(indexabilityCore.includes("managed-content-sync-v3-indexability"),'Managed-content fingerprint schema must advance when indexability DB semantics change');
+assert(indexabilityCore.includes("$repair_indexability"),'Deploy sync must self-heal indexability drift even when the content fingerprint is current');
+assert(indexabilityCore.includes("solar_expert_sync_managed_content($repair_indexability)"),'Deploy sync must force a managed rewrite when indexability drift is detected');
+assert(indexabilityCore.includes("'managed_indexability_ready'"),'Deploy-sync response must report indexability readiness');
+assert(deployWorkflow.includes("managed_indexability_ready"),'Managed-content convergence must require indexability readiness');
+
 console.log('Solar Expert repository integrity checks passed');
 
 
@@ -435,7 +442,7 @@ assert(builderTemplate.includes('Raději nezobrazíme neověřenou kombinaci'),'
 
 
 assert(contentSyncCore.includes("function solar_expert_content_sync_state()"),'Managed content sync must expose deterministic drift state');
-assert(contentSyncCore.includes("managed-content-sync-v2-yoast-meta"),'Managed content fingerprint must change when Yoast sync semantics change');
+assert(contentSyncCore.includes("managed-content-sync-v3-indexability"),'Managed content fingerprint must change when sync/indexability semantics change');
 assert(contentSyncCore.includes("solar_expert_seo_meta($slug)"),'Managed content sync must resolve the shared SEO map by slug');
 assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_title'"),'Managed content sync must persist SEO titles into Yoast meta');
 assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_metadesc'"),'Managed content sync must persist SEO descriptions into Yoast meta');
@@ -955,7 +962,8 @@ assert(corePhp.includes("managed-content-sync-v1"),'Deploy-sync must require an 
 assert(corePhp.includes("hash_equals($live_version, $expected_version)"),'Deploy-sync must reject version-mismatched release requests');
 assert(autoDeploy.includes('name: Converge managed content'),'Auto-deploy must explicitly converge managed content after the Deployer trigger');
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/deploy-sync'),'Auto-deploy must call the deterministic managed-content sync endpoint');
-assert(autoDeploy.includes("'.ok == true and .content_sync_required == false and .content_sync_errors == 0'"),'Auto-deploy must require a clean sync result before health verification');
+assert(autoDeploy.includes(".ok == true and .content_sync_required == false and .content_sync_errors == 0"),'Auto-deploy must require a clean sync result before health verification');
+assert(autoDeploy.includes("managed_indexability_errors"),'Auto-deploy convergence must also require clean managed indexability');
 
 assert(!autoDeploy.includes(".content_sync_required // true"),'Health verification must not use jq // on a boolean false value');
 assert(autoDeploy.includes('has("content_sync_required")'),'Health verification must preserve an explicit false content_sync_required value');
