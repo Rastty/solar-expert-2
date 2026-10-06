@@ -143,3 +143,5 @@ Next:
 - Lead-gen health: public health now reports E.ON FVE/heat-pump monetized target coverage, so zero explicit lead overrides no longer looks like a monetization failure when the private eon-cz base link is active
 - LG near-win recovery: the historical `tepelna-cerpadla-lg-vyhody-nevyhody-ceny` URL is now managed and forced publish with a 2026 THERMA V R290 buyer guide; current LG documentation is separated from anecdotal owner reports about older generations, and the page ends in a comparison-first E.ON lead path
 - Gated auto-deploy prepared: pushes to `dev` can call Deployer for Git only after validate + WordPress preview succeed, then verify live theme version and managed-content health; deployment remains safely disabled until the private `SOLAR_EXPERT_DEPLOY_URL` GitHub secret is configured
+
+- Auto-deploy gate hardening: production deployment now resolves the merged PR behind each `dev` commit, requires its successful WordPress preview, validates the resulting merge commit separately, and blocks direct pushes that bypass PR preview.
