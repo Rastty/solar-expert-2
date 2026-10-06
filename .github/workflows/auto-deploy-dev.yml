@@ -282,3 +282,63 @@ jobs:
           fi
 
           echo "Production deploy verified: Solar Expert ${expected} is live and content sync is current."
+
+      - name: Verify crawler discovery surfaces
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz"
+
+          robots="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/robots.txt")"
+          if ! grep -Fq "Sitemap: $base/sitemap_index.xml" <<<"$robots"; then
+            echo "::error::robots.txt does not advertise the canonical sitemap index."
+            exit 1
+          fi
+
+          sitemap_index="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/sitemap_index.xml")"
+          if ! grep -Fq "$base/page-sitemap.xml" <<<"$sitemap_index"; then
+            echo "::error::Yoast sitemap index does not expose page-sitemap.xml."
+            exit 1
+          fi
+
+          page_sitemap="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/page-sitemap.xml")"
+          mapfile -t indexable_slugs < <(jq -r '.items[] | select(.indexable == true) | .slug' content/manifest.json)
+
+          if [ "${#indexable_slugs[@]}" -eq 0 ]; then
+            echo "::error::No indexable managed pages were declared in the manifest."
+            exit 1
+          fi
+
+          for slug in "${indexable_slugs[@]}"; do
+            url="$base/$slug/"
+
+            if ! grep -Fq "<loc>$url</loc>" <<<"$page_sitemap"; then
+              echo "::error::Indexable managed page is missing from page-sitemap.xml: $url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            body_file="$(mktemp)"
+            http_code="$(curl -sSL --max-time 30               -H "Cache-Control: no-cache, no-store, max-age=0"               -D "$headers_file"               -o "$body_file"               -w "%{http_code}"               "$url")"
+
+            if [ "$http_code" != "200" ]; then
+              echo "::error::Indexable managed page returned HTTP $http_code: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '^x-robots-tag:.*noindex' "$headers_file"; then
+              echo "::error::Indexable managed page exposes X-Robots-Tag noindex: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$body_file"; then
+              echo "::error::Indexable managed page exposes a robots noindex meta tag: $url"
+              exit 1
+            fi
+
+            echo "Crawler surface OK: $url"
+          done
+
+          echo "Crawler discovery verified: robots + sitemap index + page sitemap + ${#indexable_slugs[@]} managed pages."
+
