@@ -24,7 +24,7 @@ Git-first development active on `dev`.
 - Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
 - Pre-production QA gate + rollback runbook: added
 - Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
-- RC build marker: `dev-rc-0.11.54`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- RC build marker: `dev-rc-0.11.55`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
 - Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
 - 7 reviewed tool/transparency pages: publish-ready via managed manifest
 - Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
@@ -173,3 +173,5 @@ Next:
 - Deterministic deploy convergence: CI now POSTs only the expected release version + fixed intent to `/solar-expert/v1/deploy-sync`; the endpoint can only apply repository-managed content from the deployed theme, is no-op when current, rejects version mismatches, and uses the existing concurrency lock. WP-Cron remains fallback rather than a release-critical dependency.
 
 - Final health verifier fix: jq boolean parsing now preserves `content_sync_required=false`; the previous `// true` expression treated explicit false as fallback true and could never let a healthy synchronized release pass the final gate.
+
+- COP/SCOP funnel coverage: the canonical heat-pump efficiency guide now joins the bounded owned-first cluster and E.ON comparison path without changing its ranking body; fresh GSC shows 48 impressions / 90d on the canonical page.

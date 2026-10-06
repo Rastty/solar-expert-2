@@ -234,6 +234,7 @@ assert(freshGscDoc.includes('/kolik-panelu-je-potreba-na-jeden-string/'),'Fresh 
 
 const leadCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
 assert(leadCore.includes("function solar_expert_heat_pump_lead_slugs()"),'Heat-pump lead CTA must be bounded by an explicit allowlist');
+assert(leadCore.includes("'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla'"),'Canonical COP/SCOP guide must feed the owned-first heat-pump funnel');
 assert(leadCore.includes("'eon-heat-pump'"),'Heat-pump lead CTA must use the canonical lead key');
 assert(leadCore.includes("https://www.eon.cz/domacnosti/usporne-technologie/tepelne-cerpadlo/"),'Heat-pump CTA must retain a safe public fallback');
 assert(leadCore.includes("data-se-placement=\"heat_pump_legacy_article\""),'Heat-pump lead CTA must expose a stable measurement placement');
