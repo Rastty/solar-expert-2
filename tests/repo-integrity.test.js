@@ -91,6 +91,20 @@ for(const item of manifest.items){
   assert(fs.existsSync(filePath),'Managed content file does not exist: '+item.file);
 }
 
+
+const flexibleSolarSlug='flexibilni-solarni-panely-vyhody-nevyhody-a-naklady';
+const flexibleSolarItem=manifest.items.find(x=>x.slug===flexibleSolarSlug);
+assert(flexibleSolarItem&&flexibleSolarItem.preserve_status===true,'Flexible solar near-win must preserve the indexed URL/status');
+assert(flexibleSolarItem&&flexibleSolarItem.file&&fs.existsSync(path.join(__dirname,'..',flexibleSolarItem.file)),'Flexible solar rewrite file missing');
+assert(seoCore.includes("'"+flexibleSolarSlug+"' => array("),'Flexible solar near-win must have dedicated SEO metadata');
+const flexibleSolarHtml=fs.readFileSync(path.join(__dirname,'..',flexibleSolarItem.file),'utf8');
+assert(flexibleSolarHtml.includes('ETFE'),'Flexible solar guide must explain current frontsheet material context');
+assert(flexibleSolarHtml.includes('/mppt-kalkulacka/'),'Flexible solar guide must route electrical sizing into the owned MPPT tool');
+assert(flexibleSolarHtml.includes('/vyber-baterii/'),'Flexible solar guide must route mobile-system sizing into the owned battery tool');
+assert(flexibleSolarHtml.includes('NREL'),'Flexible solar guide must include independent reliability evidence');
+assert(!flexibleSolarHtml.includes('certifikátem MCS'),'Flexible solar rewrite must remove stale UK installer-copy');
+assert(!flexibleSolarHtml.includes('4 montážní'),'Flexible solar rewrite must remove stale lead-gen claims');
+
 console.log('Solar Expert repository integrity checks passed');
 
 
