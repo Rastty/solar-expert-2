@@ -140,6 +140,13 @@ const deployWorkflow=fs.readFileSync(path.join(__dirname,'..','.github','workflo
 assert(deployWorkflow.includes('managed_indexability_errors'),'Auto deploy must fail on managed indexability errors');
 assert(deployWorkflow.includes('index_ready')&&deployWorkflow.includes('index_targets'),'Auto deploy must verify every indexability target is ready');
 
+
+assert(indexabilityCore.includes("managed-content-sync-v3-indexability"),'Managed-content fingerprint schema must advance when indexability DB semantics change');
+assert(indexabilityCore.includes("$repair_indexability"),'Deploy sync must self-heal indexability drift even when the content fingerprint is current');
+assert(indexabilityCore.includes("solar_expert_sync_managed_content($repair_indexability)"),'Deploy sync must force a managed rewrite when indexability drift is detected');
+assert(indexabilityCore.includes("'managed_indexability_ready'"),'Deploy-sync response must report indexability readiness');
+assert(deployWorkflow.includes("managed_indexability_ready"),'Managed-content convergence must require indexability readiness');
+
 console.log('Solar Expert repository integrity checks passed');
 
 
