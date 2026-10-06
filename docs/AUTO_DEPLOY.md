@@ -39,3 +39,7 @@ Production auto-deploy is intentionally PR-only. A direct push to `dev` can stil
 ## Deployment switchover
 
 Deployer for Git may make the public site or health endpoint unreachable for a few seconds while theme files are switched. The verifier therefore waits briefly and retries transport/invalid-JSON failures. A valid health payload that reports managed-content errors still fails the deployment immediately.
+
+## Reliable release verification
+
+The health endpoint reads the deployed version directly from the active theme's `style.css`, avoiding stale WordPress theme-header cache after file replacement. If the new release is live but managed content is still pending, CI calls `wp-cron.php` to process due sync events and keeps polling until health is current or the guarded timeout is reached.
