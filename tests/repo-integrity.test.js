@@ -655,6 +655,12 @@ assert(builderUxTpl.includes('x-show="catalogError"'),'Builder template must dis
 assert(seoCore.includes("add_filter('wpseo_metadesc', 'solar_expert_wpseo_metadesc', 20)"),'Solar Expert metadata must pass through Yoast');
 assert(seoCore.includes("add_filter('wpseo_title', 'solar_expert_wpseo_title', 20)"),'Solar Expert titles must pass through Yoast');
 assert(seoCore.includes("function solar_expert_seo_meta($slug_override = '')"),'SEO map must support deterministic slug lookup for managed sync');
+const seoMapStart=seoCore.indexOf("function solar_expert_seo_meta(");
+const seoMapEnd=seoCore.indexOf("function solar_expert_document_title",seoMapStart);
+const managedSeoBlock=seoCore.slice(seoMapStart,seoMapEnd);
+for(const item of manifest.items){
+  assert(managedSeoBlock.includes("'"+item.slug+"' => array("),'Managed content SEO map missing slug: '+item.slug);
+}
 
 const batterySelectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
 const batterySelectorTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','battery-selector.php'),'utf8');
