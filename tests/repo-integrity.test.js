@@ -1007,6 +1007,9 @@ assert(seoCore.includes('function solar_expert_funnel_outcome_summary'),'Health 
 assert(seoCore.includes("'outcome_scoreboard' => array("),'Health endpoint must expose the outcome scoreboard');
 assert(seoCore.includes("'aggregate_event_counts_not_unique_users'"),'Outcome scoreboard must clearly state event-count semantics');
 assert(seoCore.includes("'outbound_clicks_per_100_tool_views'"),'Outcome scoreboard must expose a normalized outbound intent metric');
+assert(seoCore.includes('function solar_expert_indexnow_state'),'Health layer must expose IndexNow provider state');
+assert(seoCore.includes("WPSEO_Options::get('enable_index_now'"),'IndexNow diagnostic must read the official Yoast feature flag');
+assert(seoCore.includes("defined('WPSEO_PREMIUM_FILE')"),'IndexNow diagnostic must distinguish Yoast Premium');
 assert(seoCore.includes('function solar_expert_funnel_tool_breakdown'),'Outcome scoreboard must expose per-tool view/start breakdown');
 assert(seoCore.includes("'by_tool' => solar_expert_funnel_tool_breakdown($days)"),'Outcome summary must include per-tool breakdown');
 assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d per-tool breakdown');
