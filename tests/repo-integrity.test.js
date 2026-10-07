@@ -1010,6 +1010,15 @@ assert(seoCore.includes("'outbound_clicks_per_100_tool_views'"),'Outcome scorebo
 assert(seoCore.includes('function solar_expert_indexnow_state'),'Health layer must expose IndexNow provider state');
 assert(seoCore.includes("WPSEO_Options::get('enable_index_now'"),'IndexNow diagnostic must read the official Yoast feature flag');
 assert(seoCore.includes("defined('WPSEO_PREMIUM_FILE')"),'IndexNow diagnostic must distinguish Yoast Premium');
+assert(seoCore.includes("function solar_expert_indexnow_key()"),'IndexNow fallback must expose a stable verification key');
+assert(seoCore.includes("api.indexnow.org/indexnow"),'IndexNow fallback must use the protocol bulk endpoint');
+assert(seoCore.includes("solar_expert_indexnow_queue_url"),'IndexNow fallback must queue changed URLs');
+assert(seoCore.includes("solar_expert_indexnow_bootstrap_managed_pages"),'IndexNow fallback must bootstrap managed indexable pages once');
+assert(seoCore.includes("solar_expert_indexnow_flush_route"),'IndexNow fallback must expose a bounded deploy flush route');
+assert(seoCore.includes("'effective_provider' => $native ? 'yoast_premium' : 'solar_expert_fallback'"),'IndexNow provider state must prefer native Yoast Premium');
+assert(autoDeploy.includes('name: Flush IndexNow discovery queue'),'Auto-deploy must non-blockingly flush IndexNow after a healthy release');
+assert(autoDeploy.includes('/wp-json/solar-expert/v1/indexnow-flush'),'Auto-deploy must call the bounded IndexNow flush endpoint');
+assert(autoDeploy.includes('IndexNow flush was not accepted; production remains healthy'),'IndexNow outage must not fail production deployment');
 assert(seoCore.includes('function solar_expert_funnel_tool_breakdown'),'Outcome scoreboard must expose per-tool view/start breakdown');
 assert(seoCore.includes("'by_tool' => solar_expert_funnel_tool_breakdown($days)"),'Outcome summary must include per-tool breakdown');
 assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d per-tool breakdown');

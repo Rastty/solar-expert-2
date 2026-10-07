@@ -312,6 +312,41 @@ jobs:
 
           echo "Production deploy verified: Solar Expert ${expected} is live and content sync is current."
 
+      - name: Flush IndexNow discovery queue
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz"
+          expected="$(awk -F': ' '/^Version:/ {gsub(/\r/,"",$2); print $2; exit}' style.css)"
+          health="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/wp-json/solar-expert/v1/health")"
+          provider="$(jq -r '.indexnow.effective_provider // "unknown"' <<<"$health")"
+          key_location="$(jq -r '.indexnow.key_location // empty' <<<"$health")"
+
+          if [ "$provider" = "solar_expert_fallback" ] && [ -n "$key_location" ]; then
+            key_expected="$(basename "$key_location" .txt)"
+            key_live="$(curl -fsSL --max-time 20 -H "Cache-Control: no-cache, no-store, max-age=0" "$key_location" || true)"
+            if [ "$key_live" != "$key_expected" ]; then
+              echo "::warning::IndexNow key endpoint is not publicly verifiable; queue left pending."
+              exit 0
+            fi
+          fi
+
+          body_file="$(mktemp)"
+          http_code="$(curl -sS --max-time 25 \
+            -H "Content-Type: application/json" \
+            -o "$body_file" \
+            -w "%{http_code}" \
+            -X POST \
+            --data "{\"expected_version\":\"${expected}\",\"intent\":\"indexnow-flush-v1\"}" \
+            "$base/wp-json/solar-expert/v1/indexnow-flush" || true)"
+
+          if [ "$http_code" = "200" ] && jq -e '.ok == true' "$body_file" >/dev/null 2>&1; then
+            echo "IndexNow flush OK: $(jq -c '{provider,submitted,pending,http_code}' "$body_file")"
+          else
+            echo "::warning::IndexNow flush was not accepted; production remains healthy. HTTP ${http_code} $(cat "$body_file" 2>/dev/null || true)"
+          fi
+
       - name: Verify crawler discovery surfaces
         if: steps.config.outputs.enabled == 'true'
         shell: bash

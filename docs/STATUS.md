@@ -209,3 +209,5 @@ Next:
 - Per-tool outcome baseline: `/health` now breaks tool views and starts down by Builder, Battery, MPPT, Inverter and Quote Checker, and production deploy logs the 28-day breakdown. This lets us distinguish a global traffic problem from a tool-specific activation problem before changing UX.
 
 - IndexNow discovery diagnostic: `/health` now reports whether Yoast is active, whether Premium is active, whether Yoast's `enable_index_now` feature flag is on, and the effective provider. This prevents duplicate IndexNow integrations before adding a fallback for Bing/Seznam discovery.
+
+- IndexNow fallback: live diagnostics confirmed Yoast Free (`yoast_premium_active=false`), so Solar Expert now provides its own bounded IndexNow provider for Bing/Seznam-compatible discovery. It serves a root verification key, queues published/unpublished post/page URLs, bootstraps the 7 managed indexable pages once, batches up to 100 URLs, records delivery health, retries failures, and the deploy flush is explicitly non-blocking.
