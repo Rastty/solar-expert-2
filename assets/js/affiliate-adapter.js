@@ -113,29 +113,78 @@ window.SolarExpertAffiliate = {
     return this.offers(product)[0] || {href:'#', monetized:false, merchant:null, price_czk:null, raw:null};
   },
 
-  resolveBundleDeal(deal) {
-    if (!deal) return {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null};
-    const generated = this.merchantDeepLink(deal.merchant, deal.source_url);
+  rawBundleDealOffers(deal) {
+    if (!deal) return [];
+    const offers = Array.isArray(deal.offers) && deal.offers.length
+      ? deal.offers
+      : [{
+          merchant: deal.merchant,
+          price_czk: deal.price_czk,
+          availability: deal.availability,
+          source_url: deal.source_url,
+          verified_at: deal.verified_at
+        }];
+    return offers
+      .filter(o => o && o.merchant)
+      .sort((a,b) => {
+        const aStock = a.availability === 'in_stock' ? 1 : 0;
+        const bStock = b.availability === 'in_stock' ? 1 : 0;
+        if (aStock !== bStock) return bStock - aStock;
+        const ap = Number(a.price_czk || Number.MAX_SAFE_INTEGER);
+        const bp = Number(b.price_czk || Number.MAX_SAFE_INTEGER);
+        return ap - bp;
+      });
+  },
+
+  resolveBundleDealOffer(deal, offer) {
+    if (!deal || !offer) return {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null, raw:null};
+    const target = offer.source_url || deal.source_url || null;
+    const generated = this.merchantDeepLink(offer.merchant, target);
+    const verifiedAt = offer.verified_at || deal.verified_at || null;
     const freshness = window.SolarExpertProductMatcher
-      ? window.SolarExpertProductMatcher.verificationState(deal.verified_at)
+      ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
     return {
-      href: generated || deal.source_url || '#',
+      href: generated || target || '#',
       monetized: Boolean(generated),
-      merchant: this.merchants[deal.merchant] || {label:deal.merchant, approved:false},
-      merchantId: deal.merchant || null,
-      price_czk: freshness === 'stale' ? null : (Number(deal.price_czk || 0) || null),
-      verified_at: deal.verified_at || null,
+      merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
+      merchantId: offer.merchant || null,
+      price_czk: freshness === 'stale' ? null : (Number(offer.price_czk || 0) || null),
+      availability: offer.availability || deal.availability || null,
+      verified_at: verifiedAt,
       price_freshness: freshness,
       savings_czk: Number(deal.savings_czk || 0) || null,
       bank_savings_czk: Number(deal.bankSavingsCzk || deal.savings_czk || 0) || null,
       extra_battery_units: Number(deal.extraBatteryUnits || 0),
-      raw: deal
+      raw: offer
     };
   },
 
-  trackBundleDeal(deal, placement) {
-    const resolved = this.resolveBundleDeal(deal);
+  bundleDealOffers(deal) {
+    const resolved = this.rawBundleDealOffers(deal).map(offer => this.resolveBundleDealOffer(deal, offer));
+    const freshInStockPrices = resolved
+      .filter(o => o.availability === 'in_stock' && Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
+      .map(o => Number(o.price_czk));
+    if (freshInStockPrices.length < 2) return resolved;
+    const minPrice = Math.min(...freshInStockPrices);
+    const higherPrices = freshInStockPrices.filter(price => price > minPrice);
+    if (!higherPrices.length) return resolved;
+    const nextPrice = Math.min(...higherPrices);
+    return resolved.map(o => ({
+      ...o,
+      is_best_price: o.availability === 'in_stock' && Number(o.price_czk) === minPrice,
+      savings_vs_next_czk: o.availability === 'in_stock' && Number(o.price_czk) === minPrice
+        ? Math.max(0, Math.round(nextPrice - minPrice))
+        : null
+    }));
+  },
+
+  resolveBundleDeal(deal) {
+    return this.bundleDealOffers(deal)[0] || {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null, raw:null};
+  },
+
+  trackBundleDealOffer(deal, offer, placement) {
+    const resolved = this.resolveBundleDealOffer(deal, offer);
     const detail = {
       dealId: deal?.id || null,
       merchant: resolved.merchantId,
@@ -154,6 +203,11 @@ window.SolarExpertAffiliate = {
       window.dispatchEvent(new CustomEvent('solar-expert-bundle-deal-click', {detail}));
     }
     return resolved;
+  },
+
+  trackBundleDeal(deal, placement) {
+    const offer = this.rawBundleDealOffers(deal)[0];
+    return offer ? this.trackBundleDealOffer(deal, offer, placement) : this.resolveBundleDeal(deal);
   },
 
   resolveLead(id, fallback) {

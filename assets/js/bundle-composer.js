@@ -161,15 +161,37 @@ window.SolarExpertBundleComposer = {
 
   findBundleDeal(bundleDeals, componentIds, separatePrice) {
     const ids = [...componentIds].sort();
+    const matcher = window.SolarExpertProductMatcher;
     const candidates = (Array.isArray(bundleDeals) ? bundleDeals : [])
-      .filter(deal => {
-        if (!deal || deal.availability !== 'in_stock' || !Array.isArray(deal.components)) return false;
-        if (window.SolarExpertProductMatcher && window.SolarExpertProductMatcher.verificationState(deal.verified_at) === 'stale') return false;
+      .map(deal => {
+        if (!deal || !Array.isArray(deal.components)) return null;
         const dealIds = [...deal.components].sort();
-        if (dealIds.length !== ids.length || dealIds.some((id,i)=>id!==ids[i])) return false;
-        const price = Number(deal.price_czk || 0);
-        return price > 0 && Number.isFinite(price) && price < Number(separatePrice);
+        if (dealIds.length !== ids.length || dealIds.some((id,i)=>id!==ids[i])) return null;
+
+        const offers = Array.isArray(deal.offers) && deal.offers.length
+          ? deal.offers
+          : [{
+              merchant:deal.merchant,
+              price_czk:deal.price_czk,
+              availability:deal.availability,
+              verified_at:deal.verified_at,
+              source_url:deal.source_url
+            }];
+        const validOffers = offers
+          .filter(o => o && o.availability === 'in_stock')
+          .filter(o => !matcher || matcher.verificationState(o.verified_at || deal.verified_at) !== 'stale')
+          .filter(o => Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
+          .sort((a,b)=>Number(a.price_czk)-Number(b.price_czk));
+        const bestOffer = validOffers[0] || null;
+        if (!bestOffer || Number(bestOffer.price_czk) >= Number(separatePrice)) return null;
+        return {
+          ...deal,
+          price_czk:Number(bestOffer.price_czk),
+          availability:bestOffer.availability,
+          effective_offer:bestOffer
+        };
       })
+      .filter(Boolean)
       .sort((a,b)=>Number(a.price_czk)-Number(b.price_czk));
     const deal = candidates[0] || null;
     if (!deal) return null;

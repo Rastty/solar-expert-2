@@ -181,17 +181,43 @@ assert(withDeal.battery.id==='battery-seplos-pusung-48','Deal scenario should us
 assert(withDeal.inverter.id==='inverter-growatt-48-6000','Deal scenario should use verified Growatt 6000 inverter');
 assert(withDeal.bundleDeal&&withDeal.bundleDeal.id==='deal-battery-pusung-growatt6000','Verified PUSUNG + Growatt deal must attach');
 assert(withDeal.bundleDeal.savings_czk===1490,'Verified bundle deal should save 1490 CZK versus separate battery + inverter prices');
+assert(Array.isArray(withDeal.bundleDeal.offers)&&withDeal.bundleDeal.offers.length===2,'Verified bundle deal should expose two merchant offers');
+const bundleMerchantOffers=A.bundleDealOffers(withDeal.bundleDeal);
+assert(bundleMerchantOffers.length===2,'Bundle affiliate adapter should resolve two merchant offers');
+assert(bundleMerchantOffers.some(o=>o.merchantId==='battery-cz')&&bundleMerchantOffers.some(o=>o.merchantId==='solar-import-cz'),'Bundle deal must compare Battery.cz and Solar-Import');
+assert(bundleMerchantOffers.every(o=>o.price_czk===32990),'Both verified bundle merchants should expose the same 32990 CZK snapshot');
 assert(withDeal.totalPrice===Number(withDeal.bundleDeal.price_czk)+M.effectivePrice(withDeal.panel.product)*withDeal.panel.count,'Bundle total should use deal price plus panel cost');
 assert(withDeal.totalPrice===withoutDeal.totalPrice-withDeal.bundleDeal.savings_czk,'Bundle deal must lower total only by verified savings');
 assert(B.findBundleDeal([{id:'too-expensive',availability:'in_stock',components:['battery-seplos-pusung-48','inverter-growatt-48-6000'],price_czk:99999}],['battery-seplos-pusung-48','inverter-growatt-48-6000'],34480)===null,'A bundle deal must be ignored when it is not cheaper');
+const syntheticMultiDeal=B.findBundleDeal([{
+  id:'multi-merchant-test',
+  merchant:'battery-cz',
+  availability:'in_stock',
+  verified_at:'2026-10-07',
+  components:['battery-seplos-pusung-48','inverter-growatt-48-6000'],
+  price_czk:34000,
+  offers:[
+    {merchant:'battery-cz',price_czk:34000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://example.com/battery'},
+    {merchant:'solar-import-cz',price_czk:33000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://example.com/solar'}
+  ]
+}],['battery-seplos-pusung-48','inverter-growatt-48-6000'],34480);
+assert(syntheticMultiDeal&&syntheticMultiDeal.price_czk===33000,'Bundle composer should use the cheapest fresh in-stock merchant offer');
 
-window.SolarExpertConfig.affiliateBases={'battery-cz':'https://ehub.cz/system/scripts/click.php?a_aid=testpub&a_bid=testbattery'};
+window.SolarExpertConfig.affiliateBases={
+  'battery-cz':'https://ehub.cz/system/scripts/click.php?a_aid=testpub&a_bid=testbattery',
+  'solar-import-cz':'https://ehub.cz/system/scripts/click.php?a_aid=testpub&a_bid=testsolar'
+};
 const resolvedDeal=A.resolveBundleDeal(withDeal.bundleDeal);
 assert(resolvedDeal.monetized,'Verified bundle deal should use merchant affiliate base when available');
 assert(new URL(resolvedDeal.href).searchParams.get('desturl')===withDeal.bundleDeal.source_url,'Bundle affiliate deeplink must target exact set URL');
 window.dataLayer=[];
 A.trackBundleDeal(withDeal.bundleDeal,'builder-best');
 assert(window.dataLayer.some(e=>e.event==='bundle_deal_click'&&e.dealId===withDeal.bundleDeal.id),'Bundle deal click must emit dedicated analytics event');
+const solarBundleOffer=A.bundleDealOffers(withDeal.bundleDeal).find(o=>o.merchantId==='solar-import-cz');
+assert(solarBundleOffer&&solarBundleOffer.monetized,'Second bundle merchant should resolve through its approved base');
+window.dataLayer=[];
+A.trackBundleDealOffer(withDeal.bundleDeal,solarBundleOffer.raw,'builder-best');
+assert(window.dataLayer.some(e=>e.event==='bundle_deal_click'&&e.merchant==='solar-import-cz'),'Bundle click analytics must preserve the selected merchant');
 window.SolarExpertConfig.affiliateBases={};
 window.dataLayer=[];
 

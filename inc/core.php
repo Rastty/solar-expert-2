@@ -90,6 +90,44 @@ function solar_expert_catalog_price_freshness($catalog, $max_days = 30) {
     }
   }
 
+  $bundle_deals = isset($catalog['bundle_deals']) && is_array($catalog['bundle_deals']) ? $catalog['bundle_deals'] : array();
+  foreach ( $bundle_deals as $deal ) {
+    $offers = ! empty($deal['offers']) && is_array($deal['offers'])
+      ? $deal['offers']
+      : array($deal);
+
+    foreach ( $offers as $snapshot ) {
+      $price = isset($snapshot['price_czk']) ? (float) $snapshot['price_czk'] : 0;
+      $availability = (string) ($snapshot['availability'] ?? $deal['availability'] ?? '');
+      if ( $price <= 0 || $availability === 'discontinued' || $availability === 'unavailable' ) {
+        continue;
+      }
+
+      $stats['total']++;
+      $verified_at = isset($snapshot['verified_at'])
+        ? (string) $snapshot['verified_at']
+        : (isset($deal['verified_at']) ? (string) $deal['verified_at'] : '');
+
+      if ( ! $verified_at ) {
+        $stats['unknown']++;
+        continue;
+      }
+
+      $ts = strtotime($verified_at . ' 00:00:00 UTC');
+      if ( ! $ts ) {
+        $stats['unknown']++;
+        continue;
+      }
+
+      $age_days = (int) floor(max(0, $now - $ts) / DAY_IN_SECONDS);
+      if ( $age_days > (int) $max_days ) {
+        $stats['stale']++;
+      } else {
+        $stats['fresh']++;
+      }
+    }
+  }
+
   return $stats;
 }
 
