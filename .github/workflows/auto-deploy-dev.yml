@@ -403,6 +403,38 @@ jobs:
             post_sitemap+="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$sitemap_url")"
           done
 
+          mapfile -t managed_publish_post_slugs < <(jq -r '.items[] | select(.type == "post" and .create_if_missing == true and ((.status // .status_if_new) == "publish")) | .slug' content/manifest.json)
+          for slug in "${managed_publish_post_slugs[@]}"; do
+            url="$base/$slug/"
+
+            if ! grep -Fq "<loc>$url</loc>" <<<"$post_sitemap"; then
+              echo "::error::Managed publish post is missing from Yoast post sitemap: $url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            body_file="$(mktemp)"
+            http_code="$(curl -sSL --max-time 30 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -D "$headers_file" \
+              -o "$body_file" \
+              -w "%{http_code}" \
+              "$url")"
+
+            if [ "$http_code" != "200" ]; then
+              echo "::error::Managed publish post returned HTTP $http_code: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '^x-robots-tag:.*noindex' "$headers_file" || \
+               grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$body_file"; then
+              echo "::error::Managed publish post exposes noindex: $url"
+              exit 1
+            fi
+
+            echo "Managed publish post crawler surface OK: $url"
+          done
+
           for slug in "${indexable_slugs[@]}"; do
             url="$base/$slug/"
 
@@ -487,4 +519,4 @@ jobs:
           echo "Paginated archive noindex OK: $paged_url"
 
           redirect_count="$(jq -r '.legacy_redirect_count' <<<"$health")"
-          echo "Crawler discovery verified: robots + sitemap index + page sitemap + ${#indexable_slugs[@]} managed pages + ${redirect_count} sitemap-clean 301 redirects + paginated archive noindex."
+          echo "Crawler discovery verified: robots + sitemap index + page sitemap + ${#indexable_slugs[@]} managed pages + ${#managed_publish_post_slugs[@]} managed publish posts + ${redirect_count} sitemap-clean 301 redirects + paginated archive noindex."

@@ -159,6 +159,9 @@ for(const field of ['managed_indexability_targets','managed_indexability_ready',
 const deployWorkflow=fs.readFileSync(path.join(__dirname,'..','.github','workflows','auto-deploy-dev.yml'),'utf8');
 assert(deployWorkflow.includes('managed_indexability_errors'),'Auto deploy must fail on managed indexability errors');
 assert(deployWorkflow.includes('index_ready')&&deployWorkflow.includes('index_targets'),'Auto deploy must verify every indexability target is ready');
+assert(deployWorkflow.includes('managed_publish_post_slugs'),'Crawler guard must enumerate repo-created public posts');
+assert(deployWorkflow.includes('Managed publish post is missing from Yoast post sitemap'),'Crawler guard must fail when a repo-created public post is absent from the post sitemap');
+assert(deployWorkflow.includes('Managed publish post exposes noindex'),'Crawler guard must reject noindex on repo-created public posts');
 
 
 assert(indexabilityCore.includes("managed-content-sync-v3-indexability"),'Managed-content fingerprint schema must advance when indexability DB semantics change');
@@ -675,6 +678,22 @@ const airWaterItem=manifest.items.find(x=>x.slug===airWaterSlug);
 assert(airWaterItem&&airWaterItem.preserve_status===true,'Air-water canonical guide must be managed and preserve status');
 assert(airWaterItem.file&&fs.existsSync(path.join(__dirname,'..',airWaterItem.file)),'Air-water rewrite file missing');
 assert(seoCore.includes("'tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda' => 'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji'"),'Overlapping air-air vs air-water URL must redirect to the canonical air-water guide');
+
+const airAirSlug='tepelne-cerpadlo-vzduch-vzduch';
+const airAirItem=manifest.items.find(x=>x.slug===airAirSlug);
+assert(airAirItem&&airAirItem.create_if_missing===true,'Air-air demand gap must be managed as a new public post');
+assert(airAirItem.status==='publish'&&airAirItem.status_if_new==='publish','Air-air decision guide must publish on first sync');
+assert(airAirItem.file&&fs.existsSync(path.join(__dirname,'..',airAirItem.file)),'Air-air decision guide file missing');
+assert(seoCore.includes("'"+airAirSlug+"' => array("),'Air-air decision guide must have dedicated SEO metadata');
+assert(leadCore.includes("'tepelne-cerpadlo-vzduch-vzduch'"),'Air-air guide must participate in bounded related-guide handling');
+const airAirHtml=fs.readFileSync(path.join(__dirname,'..',airAirItem.file),'utf8');
+for(const required of ['SCOP','Single-split','Multi-split','/tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji/','/minimalni-a-maximalni-teploty-tepelneho-cerpadla/','/cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla/']){
+  assert(airAirHtml.includes(required),'Air-air decision guide missing required decision evidence/path: '+required);
+}
+assert(airAirHtml.includes('energy-efficient-products.ec.europa.eu'),'Air-air guide must cite EU energy-label evidence');
+assert(airAirHtml.includes('data-se-lead-id="eon-heat-pump"'),'Air-air guide must keep the conditional air-water comparison monetizable');
+assert(airAirHtml.includes('data-se-placement="air_air_to_air_water_decision"'),'Air-air lead path must have a dedicated measurement placement');
+assert(airAirHtml.indexOf('data-se-lead-id="eon-heat-pump"')>airAirHtml.indexOf('Vyšlo vám z porovnání'),'Air-water affiliate path must remain after the air-air decision, not before it');
 
 const copSlug='cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla';
 const copItem=manifest.items.find(x=>x.slug===copSlug);
