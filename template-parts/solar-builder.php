@@ -79,12 +79,16 @@
                   Set obsahuje 1× baterii + měnič. Pro celý bank dokupte ještě <strong x-text="b.bundleDeal?.extraBatteryUnits+'× '+b.battery?.name"></strong> přes nabídku baterie níže.
                 </span>
               </div>
-              <a class="se-btn se-btn-primary" target="_blank"
-                 :href="SolarExpertAffiliate.resolveBundleDeal(b.bundleDeal).href"
-                 :rel="SolarExpertAffiliate.resolveBundleDeal(b.bundleDeal).monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
-                 @click="SolarExpertAffiliate.trackBundleDeal(b.bundleDeal,'builder-'+b.tier)">
-                 Koupit jako set →
-              </a>
+              <div class="se-offer-links">
+                <template x-for="o in SolarExpertAffiliate.bundleDealOffers(b.bundleDeal).slice(0,2)" :key="b.bundleDeal?.id+'-'+o.merchantId">
+                  <a class="se-btn se-btn-primary" target="_blank" :href="o.href"
+                     :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                     @click="SolarExpertAffiliate.trackBundleDealOffer(b.bundleDeal,o.raw,'builder-'+b.tier)">
+                    <span x-text="o.merchant?.label"></span>
+                    <strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                  </a>
+                </template>
+              </div>
             </div>
 
             <div class="se-offer-groups">
