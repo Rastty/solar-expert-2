@@ -2230,6 +2230,10 @@ function solar_expert_append_heat_pump_related_links($content) {
       'label' => 'Monoblok vs. split',
       'url' => home_url('/tepelne-cerpadlo-monoblok/'),
     ),
+    'tepelne-cerpadlo-vzduch-vzduch' => array(
+      'label' => 'Vzduch–vzduch: výběr a použití',
+      'url' => home_url('/tepelne-cerpadlo-vzduch-vzduch/'),
+    ),
     'kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem' => array(
       'label' => 'FVE + tepelné čerpadlo',
       'url' => home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/'),

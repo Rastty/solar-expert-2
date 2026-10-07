@@ -247,3 +247,5 @@ Next:
 - Solar cluster distribution (2026-10-07): added the new high-intent `/kolik-stoji-fotovoltaika/` guide to the dynamic related-guide block across the bounded solar cluster. This strengthens crawl discovery and internal authority without rewriting protected article bodies or creating new `save_post` churn.
 
 - Per-release sync observability (2026-10-07): deploy logs now distinguish current-release managed-content work from the last persisted sync result. The deploy-sync response explicitly reports `sync_performed` plus current-release updated/created/meta/skipped counts, preventing a no-op core release from being misread as fresh content churn.
+
+- Heat-pump cluster distribution (2026-10-07): added the new GSC-backed `/tepelne-cerpadlo-vzduch-vzduch/` guide to the dynamic related-guide block across the bounded heat-pump cluster. This strengthens crawl discovery and internal authority without rewriting protected article bodies or creating new content-sync churn.

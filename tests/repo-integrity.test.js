@@ -720,6 +720,7 @@ assert(monoblockHtml.includes('climate.ec.europa.eu/areas-action/fluorinated-gre
 assert(monoblockHtml.includes('data-se-lead-id="eon-heat-pump"'),'Monoblock guide must expose bounded E.ON heat-pump comparison lead');
 assert(monoblockHtml.includes('data-se-placement="monoblock_decision_guide"'),'Monoblock guide must expose dedicated lead attribution');
 assert(leadCore.includes("home_url('/tepelne-cerpadlo-monoblok/')"),'Heat-pump cluster must internally link the new monoblock guide');
+assert(leadCore.includes("home_url('/tepelne-cerpadlo-vzduch-vzduch/')"),'Heat-pump cluster must internally link the new air-air decision guide');
 
 const airAirSlug='tepelne-cerpadlo-vzduch-vzduch';
 const airAirItem=manifest.items.find(x=>x.slug===airAirSlug);
