@@ -122,7 +122,7 @@ window.SolarExpertProductMatcher={
     const priceScore=comparablePrice&&Number.isFinite(minPrice)&&minPrice>0
       ? Math.max(0,Math.min(100,Math.round((minPrice/price)*100)))
       : 0;
-    const score=Math.round(fitScore*.60+evidence.score*.25+priceScore*.15);
+    const score=Math.round(fitScore*.80+priceScore*.20);
     const metrics=this.fitMetrics(product,sizing);
     const reasons=metrics.map(m=>({
       code:m.key+'_reserve',
@@ -135,6 +135,7 @@ window.SolarExpertProductMatcher={
       fitScore,
       evidenceScore:evidence.score,
       evidenceLevel:evidence.level,
+      availabilityRank:this.availabilityRank(product),
       priceScore,
       priceCzk:comparablePrice?price:null,
       reasons
@@ -151,9 +152,10 @@ window.SolarExpertProductMatcher={
     const minPrice=prices.length?Math.min(...prices):null;
     for(const row of rows)row.decision=this.decision(row.product,sizing,minPrice);
     return rows.sort((a,b)=>{
-      const sa=this.availabilityRank(a.product),sb=this.availabilityRank(b.product);
-      if(sa!==sb)return sb-sa;
-      if(a.decision.score!==b.decision.score)return b.decision.score-a.decision.score;
+      if(a.decision.evidenceScore!==b.decision.evidenceScore)return b.decision.evidenceScore-a.decision.evidenceScore;
+      if(a.decision.availabilityRank!==b.decision.availabilityRank)return b.decision.availabilityRank-a.decision.availabilityRank;
+      if(a.decision.fitScore!==b.decision.fitScore)return b.decision.fitScore-a.decision.fitScore;
+      if(a.decision.priceScore!==b.decision.priceScore)return b.decision.priceScore-a.decision.priceScore;
       const pa=this.effectivePrice(a.product),pb=this.effectivePrice(b.product);
       if(pa!==pb)return pa-pb;
       return String(a.product.id||'').localeCompare(String(b.product.id||''));
