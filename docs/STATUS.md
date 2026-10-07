@@ -201,3 +201,5 @@ Next:
 - Battery hub internal-link boost: fresh GSC shows `/category/baterie/` at 11 impressions / avg. position 17.1; the battery fundamentals and solar-kit guides now feed that hub plus the Battery Selector through a bounded related-links block.
 
 - Pagination live guard: Auto Deploy now probes `/page/2/` after release and fails if the archive loses its live `noindex`; this turns the 0.11.66 pagination cleanup into a production invariant without changing page content.
+
+- Pagination noindex hotfix: the new production crawler guard exposed that `/page/2/` did not match the overly narrow `is_paged() && (is_home() || is_archive())` condition. The robots guard now uses WordPress `is_paged()` directly, preserving `noindex, follow` for paginated result sets while leaving singular content untouched.

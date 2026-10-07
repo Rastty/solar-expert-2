@@ -1989,7 +1989,7 @@ add_filter('robots_txt', 'solar_expert_robots_txt', 99, 2);
 // individual noindex pages can still be excluded normally.
 
 function solar_expert_noindex_paged_archives($robots) {
-  if ( is_paged() && ( is_home() || is_archive() ) ) {
+  if ( is_paged() ) {
     return 'noindex, follow';
   }
   return $robots;
