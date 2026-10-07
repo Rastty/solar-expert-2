@@ -435,6 +435,15 @@ assert(cleaningItem.file&&fs.existsSync(path.join(__dirname,'..',cleaningItem.fi
 assert(seoCore.includes("'"+cleaningSlug+"' => array("),'Canonical cleaning guide must have dedicated SEO metadata');
 assert(seoCore.includes("'jak-vycistit-solarni-panely-pruvodce-cistenim-solaru' => 'cisteni-solarnich-panelu-proc-kdy-jak'"),'Solar-panel cleaning duplicate redirect must be registered');
 assert('jak-vycistit-solarni-panely-pruvodce-cistenim-solaru'!==cleaningSlug,'Cleaning redirect must not loop');
+assert(seoCore.includes("function solar_expert_pv_maintenance_slugs"),'PV maintenance mini-cluster allowlist must exist');
+assert(seoCore.includes("function solar_expert_append_pv_maintenance_related_links"),'PV maintenance mini-cluster renderer must exist');
+assert(seoCore.includes('data-se-related="pv-maintenance-cluster"'),'PV maintenance mini-cluster must expose a stable marker');
+assert(seoCore.includes("home_url('/cisteni-solarnich-panelu-proc-kdy-jak/')"),'PV maintenance cluster must strengthen the canonical cleaning guide');
+assert(seoCore.includes("home_url('/vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih/')"),'PV maintenance cluster must connect winter operation');
+assert(seoCore.includes("home_url('/rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu/')"),'PV maintenance cluster must connect degradation and lifetime');
+for(const slug of ['cisteni-solarnich-panelu-proc-kdy-jak','vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih','rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu']){
+  assert(seoCore.includes("'"+slug+"'"),'PV maintenance cluster allowlist must include: '+slug);
+}
 
 
 assert(leadCore.includes("home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/')"),'Heat-pump legacy CTA must route through owned combined-system page before outbound lead');
