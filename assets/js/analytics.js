@@ -4,7 +4,7 @@
   const config=window.SolarExpertAnalyticsConfig||{};
   const endpoint=config.endpoint||'';
   const allowedEvents=new Set([
-    'tool_view','tool_start','tool_exposure','tool_activation','solar_builder_complete','selector_engaged',
+    'tool_view','tool_start','tool_exposure','tool_activation','builder_step','solar_builder_complete','selector_engaged',
     'quote_checker_complete','affiliate_click','bundle_deal_click','lead_click',
     'tool_referral_click'
   ]);
