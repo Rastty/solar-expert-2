@@ -1823,6 +1823,11 @@ function solar_expert_deploy_sync($request) {
       'content_sync_required' => false,
       'content_sync_errors' => (int) ($state['errors'] ?? 0),
       'managed_indexability_errors' => 0,
+      'sync_performed' => false,
+      'created' => 0,
+      'updated' => 0,
+      'meta_updated' => 0,
+      'skipped' => 0,
     ));
   }
 
@@ -1856,6 +1861,7 @@ function solar_expert_deploy_sync($request) {
     'managed_indexability_ready' => (int) ($indexability_after['ready'] ?? 0),
     'managed_indexability_errors' => (int) ($indexability_after['errors'] ?? 0),
     'managed_indexability_issues' => isset($indexability_after['issues']) ? array_values($indexability_after['issues']) : array(),
+    'sync_performed' => true,
     'created' => (int) ($result['created'] ?? 0),
     'updated' => (int) ($result['updated'] ?? 0),
     'meta_updated' => (int) ($result['meta_updated'] ?? 0),
