@@ -1474,6 +1474,7 @@ function solar_expert_solar_lead_slugs() {
     'fotovoltaika-vykon-na-m2',
     'kolik-vyrobi-fotovoltaika-za-rok',
     'fotovoltaika-na-pozemku',
+    'castecne-zastineni-a-solarni-panely',
     'polohovani-solarnich-panelu',
     'vse-o-solarnich-panelech-a-fotovoltaice',
     'jak-vybrat-solarni-panely-pro-vas-domov',
