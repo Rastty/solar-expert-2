@@ -5,6 +5,21 @@ window.solarExpertQuoteChecker=function(){return{
     const vals=[this.dailyKwh,this.loadW,this.surgeNeedW,this.panelWp,this.batteryKwh,this.inverterW,this.inverterPeakW,this.systemVoltage];
     return vals.every(v=>Number(v)>=0)&&Number(this.dailyKwh)>0&&Number(this.systemVoltage)>0&&Number(this.inverterPeakW)>=Number(this.inverterW);
   },
+  get resultNextTitle(){
+    if(!this.result) return '';
+    if(this.result.status==='fail') return 'Nejdřív rozpor vysvětlete — a srovnejte druhý návrh';
+    if(this.result.status==='warn') return 'Nejasnosti si nechte potvrdit před podpisem';
+    return 'Sizing vychází — teď porovnejte cenu, záruku a servis';
+  },
+  get resultNextCopy(){
+    if(!this.result) return '';
+    if(this.result.status==='fail') return 'Nechte původního dodavatele vysvětlit červené body. Druhá nabídka vám dá další srovnání sizingu, záruky a rozsahu dodávky.';
+    if(this.result.status==='warn') return 'Žluté body mohou být v pořádku, ale chtějí datasheet nebo vysvětlení. Druhá nabídka pomůže ověřit, zda je návrh přiměřený.';
+    return 'Technický základ vypadá dobře. Před podpisem má smysl porovnat ještě rozsah dodávky, záruky, servis a cenu s druhou nabídkou.';
+  },
+  get resultLeadLabel(){
+    return this.result?.status==='pass'?'Získat srovnávací nabídku FVE →':'Porovnat s druhou nabídkou FVE →';
+  },
   evaluate(){
     this.inputError='';
     if(!this.inputValid){
