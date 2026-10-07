@@ -486,3 +486,29 @@ const selectorCoreUnsafe={
   dc_voltage:24
 };
 assert(!M.rank([selectorCoreUnsafe],selectorCoreSizing).length,'Core v1 scoring must never promote a technically incompatible product');
+
+
+const selectorCoreStaleCheap={
+  ...selectorCoreRightSized,
+  id:'selector-core-stale-cheap',
+  offers:[{merchant:'test-stale',price_czk:5000,availability:'in_stock',verified_at:'2000-01-01'}]
+};
+const selectorCoreEvidenceOrder=M.rank([selectorCoreStaleCheap,selectorCoreRightSized],selectorCoreSizing);
+assert(selectorCoreEvidenceOrder[0].product.id==='selector-core-right-size','Current verified evidence must outrank a much cheaper stale offer');
+assert(selectorCoreEvidenceOrder[0].decision.evidenceScore>selectorCoreEvidenceOrder[1].decision.evidenceScore,'Core v1 must expose the evidence-quality difference used by ranking');
+
+const selectorCoreOneMerchant={
+  ...selectorCoreCheap,
+  id:'selector-core-one-merchant'
+};
+const selectorCoreTwoMerchants={
+  ...selectorCoreCheap,
+  id:'selector-core-two-merchants',
+  offers:[
+    {merchant:'test-c',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07'},
+    {merchant:'test-d',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07'}
+  ]
+};
+const selectorCoreMerchantTie=M.rank([selectorCoreOneMerchant,selectorCoreTwoMerchants],selectorCoreSizing);
+assert(selectorCoreMerchantTie[0].product.id==='selector-core-two-merchants','Merchant diversity must break an otherwise exact ranking tie');
+assert(selectorCoreMerchantTie[0].decision.merchantDiversity===2,'Core v1 must expose verified fresh merchant diversity');
