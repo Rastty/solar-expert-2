@@ -2089,10 +2089,6 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'Samsung tepelné čerpadlo recenze 2026: EHS R290 | Solar Expert',
       'description' => 'Technická recenze Samsung EHS 2026: R290 Mono, hlučnost, COP, teplota vody, výhody, nevýhody a co ověřit před nákupem.'
     ),
-    'tepelna-cerpadla-lg-vyhody-nevyhody-ceny' => array(
-      'title' => 'LG tepelné čerpadlo recenze 2026: THERMA V R290 | Solar Expert',
-      'description' => 'Nezávislá recenze LG THERMA V 2026: R290, hlučnost, SCOP, 75 °C, zkušenosti se staršími modely, výhody, rizika a co ověřit před koupí.'
-    ),
     'tepelna-cerpadla-mitsubishi-vyhody-nevyhody-ceny-vlastnosti' => array(
       'title' => 'Mitsubishi Ecodan Ultra Quiet: hlučnost a výběr | Solar Expert',
       'description' => 'Mitsubishi Ecodan Ultra Quiet a současná řada Ecodan: hlučnost, výkon v chladu, vysoká teplota vody a co ověřit před výběrem.'
@@ -2103,7 +2099,7 @@ function solar_expert_seo_meta($slug_override = '') {
     ),
     'tepelne-cerpadla-lg-vyhody-nevyhody-ceny' => array(
       'title' => 'LG tepelné čerpadlo recenze 2026: THERMA V R290 | Solar Expert',
-      'description' => 'Technická recenze LG THERMA V 2026: R290 Monobloc, výkon v mrazu, hlučnost, teplota vody, výhody a nevýhody.'
+      'description' => 'Nezávislá recenze LG THERMA V 2026: R290, hlučnost, SCOP, 75 °C, zkušenosti se staršími modely, výhody, rizika a co ověřit před koupí.'
     ),
     'recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady' => array(
       'title' => 'Viessmann tepelné čerpadlo recenze 2026: Vitocal 250-A | Solar Expert',
@@ -2574,6 +2570,7 @@ function solar_expert_legacy_redirect_map() {
     'recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii' => 'jak-vybrat-solarni-panely-pro-vas-domov',
     'ucinnost-tepelneho-cerpadla-se-zdrojem-vzduchu' => 'cop-tepelneho-cerpadla-se-zdrojem-vzduchu-vysvetleni-zdroj-tepelneho-cerpadla',
     'tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda' => 'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
+    'tepelna-cerpadla-lg-vyhody-nevyhody-ceny' => 'tepelne-cerpadla-lg-vyhody-nevyhody-ceny',
   );
 }
 
