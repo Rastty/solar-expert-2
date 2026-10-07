@@ -74,14 +74,23 @@ window.SolarExpertProductMatcher={
     const fresh=offers.filter(o=>this.verificationState(o.verified_at)==='fresh');
     const freshInStock=fresh.filter(o=>o.availability==='in_stock');
     const freshUsually=fresh.filter(o=>o.availability==='usually_in_stock');
-    if(freshInStock.length>=2)return{score:100,level:'strong',freshOffers:freshInStock.length};
-    if(freshInStock.length===1)return{score:90,level:'verified',freshOffers:1};
+    if(freshInStock.length)return{score:90,level:'verified_current',freshOffers:freshInStock.length};
     if(freshUsually.length)return{score:75,level:'verified_limited_stock',freshOffers:freshUsually.length};
     if(offers.length)return{score:45,level:'stale_or_unavailable_offer_evidence',freshOffers:0};
     const state=this.verificationState(product.verified_at);
     if(state==='fresh')return{score:80,level:'verified_product_snapshot',freshOffers:0};
     if(state==='stale')return{score:40,level:'stale_product_snapshot',freshOffers:0};
     return{score:25,level:'unknown',freshOffers:0};
+  },
+
+  merchantDiversity(product){
+    const offers=Array.isArray(product.offers)?product.offers:[];
+    return new Set(
+      offers
+        .filter(o=>o.availability==='in_stock'&&this.verificationState(o.verified_at)==='fresh')
+        .map(o=>String(o.merchant||''))
+        .filter(Boolean)
+    ).size;
   },
 
   fitMetrics(product,sizing){
@@ -136,6 +145,7 @@ window.SolarExpertProductMatcher={
       evidenceScore:evidence.score,
       evidenceLevel:evidence.level,
       availabilityRank:this.availabilityRank(product),
+      merchantDiversity:this.merchantDiversity(product),
       priceScore,
       priceCzk:comparablePrice?price:null,
       reasons
@@ -158,6 +168,7 @@ window.SolarExpertProductMatcher={
       if(a.decision.priceScore!==b.decision.priceScore)return b.decision.priceScore-a.decision.priceScore;
       const pa=this.effectivePrice(a.product),pb=this.effectivePrice(b.product);
       if(pa!==pb)return pa-pb;
+      if(a.decision.merchantDiversity!==b.decision.merchantDiversity)return b.decision.merchantDiversity-a.decision.merchantDiversity;
       return String(a.product.id||'').localeCompare(String(b.product.id||''));
     });
   }
