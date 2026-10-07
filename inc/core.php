@@ -2361,6 +2361,10 @@ function solar_expert_append_solar_related_links($content) {
       'label' => 'Roční výroba FVE',
       'url' => home_url('/kolik-vyrobi-fotovoltaika-za-rok/'),
     ),
+    'kolik-stoji-fotovoltaika' => array(
+      'label' => 'Cena fotovoltaiky 2026',
+      'url' => home_url('/kolik-stoji-fotovoltaika/'),
+    ),
     'quote-checker' => array(
       'label' => 'Quote Checker',
       'url' => home_url('/quote-checker/'),
