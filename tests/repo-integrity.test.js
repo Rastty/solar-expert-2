@@ -1099,6 +1099,8 @@ assert(autoDeploy.includes('outcome 28d builder_steps='),'Auto-deploy must log t
 assert(autoDeploy.includes('.outcome_scoreboard.days_28.builder_steps // {}'),'Auto-deploy must read Builder step funnel from health');
 assert(autoDeploy.includes('outcome 28d by_page='),'Auto-deploy must log the 28d page-attribution breakdown');
 assert(autoDeploy.includes('outcome 28d tool_referrals='),'Auto-deploy must log article-to-tool referral breakdown');
+assert(autoDeploy.includes('outcome 28d offers='),'Auto-deploy must log offer exposure-to-click breakdown');
+assert(autoDeploy.includes('.outcome_scoreboard.days_28.offers // {}'),'Auto-deploy must read offer exposure breakdown from health');
 assert(autoDeploy.includes('outcome 7d tool_views='),'Auto-deploy must log the live 7d/28d outcome scoreboard');
 assert(autoDeploy.includes('tool_exposures=${outcome7_exposures}'),'Auto-deploy must log viewport exposures');
 assert(autoDeploy.includes('tool_activations=${outcome7_activations}'),'Auto-deploy must log v2 activations');
