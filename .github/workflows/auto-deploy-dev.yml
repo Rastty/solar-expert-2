@@ -171,6 +171,7 @@ jobs:
           fi
 
       - name: Converge managed content
+        id: content-sync
         if: steps.config.outputs.enabled == 'true'
         shell: bash
         run: |
@@ -194,6 +195,11 @@ jobs:
 
             if [ "$http_code" = "200" ] && jq -e '.ok == true and .content_sync_required == false and .content_sync_errors == 0 and (.managed_indexability_errors // 0) == 0 and (.managed_indexability_ready // 0) == (.managed_indexability_targets // 0)' "$body_file" >/dev/null 2>&1; then
               echo "Managed content converged for Solar Expert $expected."
+              echo "performed=$(jq -r '.sync_performed // false' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "updated=$(jq -r '.updated // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "created=$(jq -r '.created // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "meta_updated=$(jq -r '.meta_updated // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "skipped=$(jq -r '.skipped // 0' "$body_file")" >> "$GITHUB_OUTPUT"
               converged=1
               break
             fi
@@ -284,7 +290,8 @@ jobs:
             outcome28_offers="$(jq -c '.outcome_scoreboard.days_28.offers // {}' <<<"$health")"
 
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
-            echo "content sync churn updated=${sync_last_updated} created=${sync_last_created} meta_updated=${sync_last_meta_updated} skipped=${sync_last_skipped}"
+            echo "release content sync performed=${{ steps.content-sync.outputs.performed || 'false' }} updated=${{ steps.content-sync.outputs.updated || '0' }} created=${{ steps.content-sync.outputs.created || '0' }} meta_updated=${{ steps.content-sync.outputs.meta_updated || '0' }} skipped=${{ steps.content-sync.outputs.skipped || '0' }}"
+            echo "last persisted content sync updated=${sync_last_updated} created=${sync_last_created} meta_updated=${sync_last_meta_updated} skipped=${sync_last_skipped}"
             echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
             echo "outcome 7d tool_views=${outcome7_views} tool_starts=${outcome7_starts} tool_exposures=${outcome7_exposures} tool_activations=${outcome7_activations} outcome_events=${outcome7_events} outbound_clicks=${outcome7_outbound}; 28d tool_views=${outcome28_views} tool_starts=${outcome28_starts} tool_exposures=${outcome28_exposures} tool_activations=${outcome28_activations} outcome_events=${outcome28_events} outbound_clicks=${outcome28_outbound}"
             echo "outcome 28d by_tool=${outcome28_by_tool}"
