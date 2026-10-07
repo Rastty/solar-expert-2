@@ -1107,13 +1107,19 @@ assert(!firstPartyAnalytics.includes('localStorage'),'First-party funnel collect
 assert(!firstPartyAnalytics.includes('document.cookie'),'First-party funnel collector must not set or read cookies');
 
 
-const lgReviewPath=path.join(__dirname,'..','content','rewrites','tepelna-cerpadla-lg-vyhody-nevyhody-ceny.html');
-assert(fs.existsSync(lgReviewPath),'LG heat-pump review near-win must exist');
-
-const lgReview=fs.readFileSync(path.join(__dirname,'..','content','rewrites','tepelna-cerpadla-lg-vyhody-nevyhody-ceny.html'),'utf8');
+const lgReviewSlug='tepelne-cerpadla-lg-vyhody-nevyhody-ceny';
+const lgDuplicateSlug='tepelna-cerpadla-lg-vyhody-nevyhody-ceny';
+const lgReviewItem=manifest.items.find(x=>x.slug===lgReviewSlug);
+assert(lgReviewItem&&lgReviewItem.preserve_status===true,'Indexed LG review must remain the managed canonical URL');
+assert(!manifest.items.some(x=>x.slug===lgDuplicateSlug),'Duplicate LG review URL must not remain managed');
+assert(seoCore.includes("'"+lgDuplicateSlug+"' => '"+lgReviewSlug+"'"),'Duplicate LG review URL must 301 to the indexed canonical');
+const lgReviewPath=path.join(__dirname,'..','content','rewrites','tepelne-cerpadla-lg-vyhody-nevyhody-ceny.html');
+assert(fs.existsSync(lgReviewPath),'Canonical LG heat-pump review near-win must exist');
+const lgReview=fs.readFileSync(lgReviewPath,'utf8');
 assert(lgReview.includes('LG THERMA V'),'LG review must identify the current THERMA V platform');
 assert(lgReview.includes('forum.tzb-info.cz'),'LG review must preserve independent owner-experience context');
 assert(lgReview.includes('data-se-lead-id="eon-heat-pump"'),'LG review must retain the comparison lead path');
+assert(seoCore.includes("'"+lgReviewSlug+"' => array("),'Canonical LG review must retain dedicated SEO metadata');
 
 const autoDeployPath=path.join(__dirname,'..','.github','workflows','auto-deploy-dev.yml');
 assert(fs.existsSync(autoDeployPath),'Gated Solar Expert auto-deploy workflow must exist');

@@ -461,16 +461,6 @@
     },
     {
       "type": "post",
-      "slug": "tepelna-cerpadla-lg-vyhody-nevyhody-ceny",
-      "title": "LG tepelné čerpadlo: recenze, zkušenosti a THERMA V R290 2026",
-      "preserve_status": false,
-      "status": "publish",
-      "status_if_new": "publish",
-      "file": "content/rewrites/tepelna-cerpadla-lg-vyhody-nevyhody-ceny.html",
-      "create_if_missing": true
-    },
-    {
-      "type": "post",
       "slug": "flexibilni-solarni-panely-vyhody-nevyhody-a-naklady",
       "title": "Flexibilní solární panely 2026: výhody, nevýhody a použití",
       "preserve_status": true,

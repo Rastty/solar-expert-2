@@ -257,3 +257,6 @@ Next:
 
 
 - Samsung review internal-authority reinforcement (2026-10-07): the fresh Prometheus GSC daily monitor shows `tepelné čerpadlo Samsung recenze` at 30 impressions / avg. position 11.03 plus `tepelné čerpadlo Samsung recenzia` at 18 impressions / avg. position 15. The Samsung EHS article was already rewritten recently, so its body remains protected. Added the canonical Samsung review to the bounded heat-pump related-guide block, allowing relevant TČ pages to pass internal authority while the Samsung page automatically excludes its own self-link.
+
+
+- LG review cannibalization cleanup (2026-10-07): fresh Prometheus GSC evidence continues to rank the indexed `/tepelne-cerpadla-lg-vyhody-nevyhody-ceny/` URL for LG review queries, while the newly created near-duplicate `/tepelna-cerpadla-lg-vyhody-nevyhody-ceny/` remains unknown to Google. Kept the indexed `tepelne-` URL as canonical, moved the stronger 2026 R290 + owner-experience buyer-guide body onto it, removed the duplicate from managed publishing, and added a sitemap-clean 301 from the duplicate to the indexed canonical.
