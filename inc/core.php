@@ -1933,6 +1933,10 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'Spotřeba tepelného čerpadla: kWh za den a rok | Solar Expert',
       'description' => 'Jak odhadnout spotřebu tepelného čerpadla z potřeby tepla a SCOP. Příklady kWh za den a rok, TUV, elektrokotel, mráz a FVE.'
     ),
+    'tepelne-cerpadlo-vzduch-vzduch' => array(
+      'title' => 'Tepelné čerpadlo vzduch–vzduch: výběr 2026 | Solar Expert',
+      'description' => 'Jak vybrat nejlepší tepelné čerpadlo vzduch–vzduch podle SCOP, výkonu v mrazu, hlučnosti a dispozice. Single vs. multi-split a jak porovnat ceník.'
+    ),
     'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji' => array(
       'title' => 'Tepelné čerpadlo vzduch–voda: jak funguje a výběr 2026 | Solar Expert',
       'description' => 'Jak funguje tepelné čerpadlo vzduch–voda, jak ho dimenzovat, co znamená COP/SCOP, radiátory vs. podlahovka, mráz, hlučnost a cena celé instalace.'
@@ -2126,6 +2130,7 @@ function solar_expert_heat_pump_lead_slugs() {
     'recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady',
     'prehled-vzduchovych-tepelnych-cerpadel-daikin',
     'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
+    'tepelne-cerpadlo-vzduch-vzduch',
     'jak-funguje-tepelne-cerpadlo',
     'jak-dlouho-vydrzi-tepelna-cerpadla',
     'minimalni-a-maximalni-teploty-tepelneho-cerpadla',
