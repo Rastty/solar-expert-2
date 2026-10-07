@@ -757,6 +757,11 @@ assert(builderUxTpl.includes('x-show="catalogLoading"'),'Builder template must d
 assert(builderUxTpl.includes('x-show="catalogError"'),'Builder template must display catalog error feedback');
 assert(builderUxTpl.includes('Začněte jedním kliknutím.'),'Builder first step must make the activation action explicit');
 assert(builderUxTpl.includes('Návrh solární sestavy'),'Builder kicker must stay Czech and task-oriented');
+assert(builderUxJs.includes("event:'builder_step'"),'Builder must emit bounded step milestones');
+assert(builderUxJs.includes("this.trackStep('step_2')"),'Builder scenario selection must record step 2');
+assert(builderUxJs.includes("advanceToUsage(){this.step=3;this.trackStep('step_3');}"),'Builder continuation must record step 3');
+assert(builderUxJs.includes("this.trackStep('result')"),'Builder calculation must record result milestone');
+assert(builderUxTpl.includes('@click="advanceToUsage()"'),'Builder template must route step 3 through the tracked milestone');
 assert(seoCore.includes("add_filter('wpseo_metadesc', 'solar_expert_wpseo_metadesc', 20)"),'Solar Expert metadata must pass through Yoast');
 assert(seoCore.includes("add_filter('wpseo_title', 'solar_expert_wpseo_title', 20)"),'Solar Expert titles must pass through Yoast');
 assert(seoCore.includes("function solar_expert_seo_meta($slug_override = '')"),'SEO map must support deterministic slug lookup for managed sync');
@@ -951,7 +956,7 @@ const builderOfferTpl=fs.readFileSync(path.join(__dirname,'..','template-parts',
 assert(builderOfferTpl.includes('se-offer-best'),'Builder must visibly distinguish a verified cheaper merchant offer');
 assert(firstPartyCore.includes("'funnel_tracking' => 'first_party_v2'"),'Health payload must expose first-party funnel tracking state');
 assert(firstPartyCore.includes("'activation_measurement' => 'viewport_exposure_v2_from_0_11_79'"),'Health payload must mark the clean exposure/activation measurement era');
-for(const eventName of ['tool_view','tool_start','tool_exposure','tool_activation','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click','tool_referral_click']){
+for(const eventName of ['tool_view','tool_start','tool_exposure','tool_activation','builder_step','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click','tool_referral_click']){
   assert(firstPartyAnalytics.includes("'"+eventName+"'"),'Analytics collector must whitelist '+eventName);
 }
 assert(firstPartyAnalytics.includes("keepalive:true"),'Funnel POST must survive outbound navigation when possible');
@@ -1063,12 +1068,18 @@ assert(seoCore.includes("$event === 'solar_builder_complete'"),'Builder completi
 assert(seoCore.includes("$event === 'quote_checker_complete'"),'Quote completion must map to Quote Checker');
 assert(seoCore.includes("array('battery','mppt','inverter')"),'Selector engagement must map to the matching selector tool');
 assert(seoCore.includes("'by_tool' => solar_expert_funnel_tool_breakdown($days)"),'Outcome summary must include per-tool breakdown');
+assert(seoCore.includes('function solar_expert_funnel_builder_steps'),'Outcome scoreboard must expose Builder step funnel');
+assert(seoCore.includes("array('step_2'=>0, 'step_3'=>0, 'result'=>0)"),'Builder step funnel must stay bounded to three milestones');
+assert(seoCore.includes("'builder_steps' => solar_expert_funnel_builder_steps($days)"),'Outcome summary must include Builder step funnel');
+assert(seoCore.includes("'step_2_to_result_pct'"),'Builder step funnel must expose end-to-end completion rate');
 assert(seoCore.includes('function solar_expert_funnel_page_breakdown'),'Outcome scoreboard must expose page-level attribution');
 assert(seoCore.includes("'by_page' => solar_expert_funnel_page_breakdown($days)"),'Outcome summary must include page-level attribution');
 assert(seoCore.includes('function solar_expert_funnel_referral_breakdown'),'Outcome scoreboard must expose article-to-tool referrals');
 assert(seoCore.includes("'tool_referrals' => solar_expert_funnel_referral_breakdown($days)"),'Outcome summary must include referral breakdown');
 assert(seoCore.includes("'dealId','page'"),'Funnel endpoint must accept the bounded page dimension');
 assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d per-tool breakdown');
+assert(autoDeploy.includes('outcome 28d builder_steps='),'Auto-deploy must log the 28d Builder step funnel');
+assert(autoDeploy.includes('.outcome_scoreboard.days_28.builder_steps // {}'),'Auto-deploy must read Builder step funnel from health');
 assert(autoDeploy.includes('outcome 28d by_page='),'Auto-deploy must log the 28d page-attribution breakdown');
 assert(autoDeploy.includes('outcome 28d tool_referrals='),'Auto-deploy must log article-to-tool referral breakdown');
 assert(autoDeploy.includes('outcome 7d tool_views='),'Auto-deploy must log the live 7d/28d outcome scoreboard');
