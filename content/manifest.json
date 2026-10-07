@@ -281,6 +281,15 @@
     },
     {
       "type": "post",
+      "slug": "tepelne-cerpadlo-vzduch-vzduch",
+      "title": "Nejlepší tepelné čerpadlo vzduch–vzduch: jak vybrat v roce 2026",
+      "status_if_new": "publish",
+      "status": "publish",
+      "file": "content/rewrites/tepelne-cerpadlo-vzduch-vzduch.html",
+      "create_if_missing": true
+    },
+    {
+      "type": "post",
       "slug": "tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji",
       "title": "Tepelné čerpadlo vzduch–voda: jak funguje, cena a výběr 2026",
       "preserve_status": true,
