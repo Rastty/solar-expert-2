@@ -762,6 +762,10 @@ assert(builderUxJs.includes("this.trackStep('step_2')"),'Builder scenario select
 assert(builderUxJs.includes("advanceToUsage(){this.step=3;this.trackStep('step_3');}"),'Builder continuation must record step 3');
 assert(builderUxJs.includes("this.trackStep('result')"),'Builder calculation must record result milestone');
 assert(builderUxTpl.includes('@click="advanceToUsage()"'),'Builder template must route step 3 through the tracked milestone');
+assert(builderUxTpl.includes(':data-se-product-id="b.battery?.id"'),'Builder battery offers must expose bounded product ids for visibility tracking');
+assert(builderUxTpl.includes(':data-se-product-id="b.inverter?.id"'),'Builder inverter offers must expose bounded product ids for visibility tracking');
+assert(builderUxTpl.includes(':data-se-product-id="b.panel?.product?.id"'),'Builder panel offers must expose bounded product ids for visibility tracking');
+assert(builderUxTpl.includes(':data-se-product-id="b.mppt?.id"'),'Builder MPPT offers must expose bounded product ids for visibility tracking');
 assert(seoCore.includes("add_filter('wpseo_metadesc', 'solar_expert_wpseo_metadesc', 20)"),'Solar Expert metadata must pass through Yoast');
 assert(seoCore.includes("add_filter('wpseo_title', 'solar_expert_wpseo_title', 20)"),'Solar Expert titles must pass through Yoast');
 assert(seoCore.includes("function solar_expert_seo_meta($slug_override = '')"),'SEO map must support deterministic slug lookup for managed sync');
@@ -787,6 +791,7 @@ assert(batterySelectorTpl.includes('x-show="catalogError"'),'Battery Selector mu
 assert(batterySelectorTpl.includes("!catalogLoading && !catalogError && !matches.length"),'Battery Selector must distinguish no-match from loading/error state');
 assert(batterySelectorTpl.includes('Čísla níže jsou jen výchozí příklad'),'Battery Selector must explain that defaults are only an example');
 assert(batterySelectorTpl.includes('Doporučené baterie'),'Battery Selector must label its result area');
+assert(batterySelectorTpl.includes(':data-se-product-id="r.product.id"'),'Battery Selector offers must expose product ids for visibility tracking');
 
 const mpptSelectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
 const mpptSelectorTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','mppt-selector.php'),'utf8');
@@ -803,6 +808,7 @@ assert(mpptSelectorTpl.includes('x-show="catalogError"'),'MPPT Selector must sho
 assert(mpptSelectorTpl.includes("!catalogLoading && !catalogError && inputValid && !matches.length"),'MPPT Selector must distinguish catalog gap from loading/error/invalid input');
 assert(mpptSelectorTpl.includes('Hodnoty níže jsou jen výchozí příklad'),'MPPT Selector must explain that defaults are only an example');
 assert(mpptSelectorTpl.includes('Doporučené MPPT regulátory'),'MPPT Selector must label its result area');
+assert(mpptSelectorTpl.includes(':data-se-product-id="r.product.id"'),'MPPT Selector offers must expose product ids for visibility tracking');
 
 const inverterSelectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
 const inverterSelectorTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','inverter-selector.php'),'utf8');
@@ -819,6 +825,7 @@ assert(inverterSelectorTpl.includes('x-show="catalogLoading"'),'Inverter Selecto
 assert(inverterSelectorTpl.includes('x-show="catalogError"'),'Inverter Selector must show catalog error feedback');
 assert(inverterSelectorTpl.includes('Hodnoty níže jsou jen výchozí příklad'),'Inverter Selector must explain that defaults are only an example');
 assert(inverterSelectorTpl.includes('Doporučené měniče'),'Inverter Selector must label its result area');
+assert(inverterSelectorTpl.includes(':data-se-product-id="r.product.id"'),'Inverter Selector offers must expose product ids for visibility tracking');
 assert(inverterSelectorTpl.includes("!catalogLoading && !catalogError && inputValid && !matches.length"),'Inverter Selector must distinguish no-match from loading/error/invalid input');
 
 const quoteCheckerJsUx=fs.readFileSync(path.join(__dirname,'..','assets','js','quote-checker.js'),'utf8');
@@ -956,7 +963,7 @@ const builderOfferTpl=fs.readFileSync(path.join(__dirname,'..','template-parts',
 assert(builderOfferTpl.includes('se-offer-best'),'Builder must visibly distinguish a verified cheaper merchant offer');
 assert(firstPartyCore.includes("'funnel_tracking' => 'first_party_v2'"),'Health payload must expose first-party funnel tracking state');
 assert(firstPartyCore.includes("'activation_measurement' => 'viewport_exposure_v2_from_0_11_79'"),'Health payload must mark the clean exposure/activation measurement era');
-for(const eventName of ['tool_view','tool_start','tool_exposure','tool_activation','builder_step','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click','tool_referral_click']){
+for(const eventName of ['tool_view','tool_start','tool_exposure','tool_activation','builder_step','solar_builder_complete','selector_engaged','quote_checker_complete','offer_exposure','affiliate_click','bundle_deal_click','lead_click','tool_referral_click']){
   assert(firstPartyAnalytics.includes("'"+eventName+"'"),'Analytics collector must whitelist '+eventName);
 }
 assert(firstPartyAnalytics.includes("keepalive:true"),'Funnel POST must survive outbound navigation when possible');
@@ -971,6 +978,11 @@ assert(firstPartyAnalytics.includes('entry.intersectionRatio>=0.15'),'Tool expos
 assert(firstPartyAnalytics.includes('setTimeout(expose,600)'),'Tool exposure must ignore brief scroll fly-bys');
 assert(firstPartyAnalytics.includes("track('tool_exposure',{tool})"),'Tool exposure v2 must emit a dedicated event');
 assert(firstPartyAnalytics.includes("track('tool_activation',{tool})"),'Tool activation v2 must emit a dedicated event');
+assert(firstPartyAnalytics.includes("track('offer_exposure',detail)"),'Offer observer must emit a dedicated exposure event');
+assert(firstPartyAnalytics.includes('entry.intersectionRatio>=0.5'),'Offer exposure must require at least half of the offer link to be visible');
+assert(firstPartyAnalytics.includes('timers.set(link,setTimeout(()=>expose(link),600))'),'Offer exposure must ignore brief scroll fly-bys');
+assert(firstPartyAnalytics.includes("attributeFilter:['data-se-product-id','data-se-merchant','data-se-placement']"),'Offer observer must handle Alpine-rendered data attributes');
+assert(firstPartyAnalytics.includes("closest('.se-offer[data-se-product-id][data-se-merchant][data-se-placement]')"),'Offer click must backfill exposure before outbound navigation');
 assert(!firstPartyAnalytics.includes('localStorage'),'First-party funnel collector must not use localStorage');
 assert(!firstPartyAnalytics.includes('document.cookie'),'First-party funnel collector must not set or read cookies');
 
@@ -1076,6 +1088,11 @@ assert(seoCore.includes('function solar_expert_funnel_page_breakdown'),'Outcome 
 assert(seoCore.includes("'by_page' => solar_expert_funnel_page_breakdown($days)"),'Outcome summary must include page-level attribution');
 assert(seoCore.includes('function solar_expert_funnel_referral_breakdown'),'Outcome scoreboard must expose article-to-tool referrals');
 assert(seoCore.includes("'tool_referrals' => solar_expert_funnel_referral_breakdown($days)"),'Outcome summary must include referral breakdown');
+assert(seoCore.includes('function solar_expert_funnel_offer_breakdown'),'Outcome scoreboard must expose offer exposure-to-click breakdown');
+assert(seoCore.includes("'offers' => solar_expert_funnel_offer_breakdown($days)"),'Outcome summary must include offer exposure-to-click breakdown');
+assert(seoCore.includes("'offer_exposures' => $offer_exposures"),'Outcome summary must expose total offer exposures');
+assert(seoCore.includes("'offer_click_rate_pct'"),'Outcome summary must expose offer exposure-to-click rate');
+assert(seoCore.includes("in_array($event, $outbound_events, true)"),'Legacy outbound merchant/placement counters must exclude non-click exposure events');
 assert(seoCore.includes("'dealId','page'"),'Funnel endpoint must accept the bounded page dimension');
 assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d per-tool breakdown');
 assert(autoDeploy.includes('outcome 28d builder_steps='),'Auto-deploy must log the 28d Builder step funnel');
