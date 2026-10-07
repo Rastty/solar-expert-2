@@ -1,5 +1,6 @@
 <div class="se-panel" x-data="solarExpertMpptSelector()" x-init="init()">
-  <div class="se-kicker">MPPT Selector</div><h2>Vyberte regulátor podle FV pole</h2>
+  <div class="se-kicker">Výběr MPPT regulátoru</div><h2>Vyberte regulátor podle FV pole</h2>
+  <div class="se-note" style="margin-bottom:14px"><strong>Upravte parametry svého pole.</strong> Hodnoty níže jsou jen výchozí příklad; výsledek se po každé změně přepočítá automaticky.</div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-mppt-voltage">Bateriový systém</label><select id="se-mppt-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
     <div class="se-field"><label for="se-mppt-panel-wp">Výkon pole (Wp)</label><input id="se-mppt-panel-wp" class="se-input" type="number" min="50" step="50" x-model.number="panelWp" @input.debounce.200ms="run()"></div>
@@ -19,6 +20,7 @@
   <div class="se-note se-note-error" x-show="catalogError" style="margin-top:14px" role="alert">
     Katalog MPPT se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
   </div>
+  <div class="se-row" style="margin-top:20px"><h3 style="margin:0">Doporučené MPPT regulátory</h3><small class="se-muted">podle hodnot výše</small></div>
   <div class="se-bundles" :aria-busy="catalogLoading ? 'true' : 'false'" aria-live="polite">
     <template x-for="r in matches" :key="r.product.id">
       <div class="se-bundle">
