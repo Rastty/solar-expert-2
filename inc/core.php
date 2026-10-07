@@ -719,6 +719,44 @@ function solar_expert_funnel_summary($days = 28) {
   return array('events'=>$events, 'tools'=>$tools, 'merchants'=>$merchants, 'placements'=>$placements);
 }
 
+
+function solar_expert_funnel_outcome_summary($days = 28) {
+  $days = max(1, min(35, (int) $days));
+  $summary = solar_expert_funnel_summary($days);
+  $events = isset($summary['events']) && is_array($summary['events']) ? $summary['events'] : array();
+
+  $tool_views = (int) ($events['tool_view'] ?? 0);
+  $tool_starts = (int) ($events['tool_start'] ?? 0);
+  $builder_completes = (int) ($events['solar_builder_complete'] ?? 0);
+  $selector_engagements = (int) ($events['selector_engaged'] ?? 0);
+  $quote_completes = (int) ($events['quote_checker_complete'] ?? 0);
+  $affiliate_clicks = (int) ($events['affiliate_click'] ?? 0);
+  $bundle_clicks = (int) ($events['bundle_deal_click'] ?? 0);
+  $lead_clicks = (int) ($events['lead_click'] ?? 0);
+
+  $tool_outcome_events = $builder_completes + $selector_engagements + $quote_completes;
+  $commerce_clicks = $affiliate_clicks + $bundle_clicks;
+  $outbound_clicks = $commerce_clicks + $lead_clicks;
+
+  return array(
+    'days' => $days,
+    'tool_views' => $tool_views,
+    'tool_starts' => $tool_starts,
+    'tool_start_rate_pct' => $tool_views ? round(($tool_starts / $tool_views) * 100, 1) : 0,
+    'builder_completes' => $builder_completes,
+    'selector_engagements' => $selector_engagements,
+    'quote_checker_completes' => $quote_completes,
+    'tool_outcome_events' => $tool_outcome_events,
+    'tool_outcome_events_per_100_starts' => $tool_starts ? round(($tool_outcome_events / $tool_starts) * 100, 1) : 0,
+    'affiliate_clicks' => $affiliate_clicks,
+    'bundle_deal_clicks' => $bundle_clicks,
+    'commerce_clicks' => $commerce_clicks,
+    'lead_clicks' => $lead_clicks,
+    'outbound_clicks' => $outbound_clicks,
+    'outbound_clicks_per_100_tool_views' => $tool_views ? round(($outbound_clicks / $tool_views) * 100, 1) : 0,
+  );
+}
+
 function solar_expert_record_funnel_event(WP_REST_Request $request) {
   $origin = (string) $request->get_header('origin');
   if ( $origin ) {
@@ -958,6 +996,8 @@ function solar_expert_health_payload() {
   $lead_coverage = solar_expert_lead_coverage($map, $bases);
   $managed_indexability = solar_expert_managed_indexability_state($manifest);
   $legacy_redirects = solar_expert_legacy_redirect_map();
+  $outcome7 = solar_expert_funnel_outcome_summary(7);
+  $outcome28 = solar_expert_funnel_outcome_summary(28);
 
   return array(
     'status' => 'ok',
@@ -998,6 +1038,11 @@ function solar_expert_health_payload() {
     'affiliate_monetized_lead_targets' => (int) ($lead_coverage['monetized_targets'] ?? 0),
     'affiliate_lead_coverage_pct' => (float) ($lead_coverage['coverage_pct'] ?? 0),
     'funnel_tracking' => 'first_party_v1',
+    'outcome_scoreboard' => array(
+      'measurement' => 'aggregate_event_counts_not_unique_users',
+      'days_7' => $outcome7,
+      'days_28' => $outcome28,
+    ),
     'last_content_sync_utc' => isset($last_sync['time']) ? (string) $last_sync['time'] : null,
   );
 }
