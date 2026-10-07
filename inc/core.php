@@ -676,6 +676,7 @@ function solar_expert_funnel_allowed_events() {
     'affiliate_click',
     'bundle_deal_click',
     'lead_click',
+    'tool_referral_click',
   );
 }
 
@@ -846,6 +847,63 @@ function solar_expert_funnel_page_breakdown($days = 28) {
   return array_slice($pages, 0, 25, true);
 }
 
+function solar_expert_funnel_referral_breakdown($days = 28) {
+  $days = max(1, min(35, (int) $days));
+  $data = get_option('solar_expert_funnel_daily', array());
+  if ( ! is_array($data) ) { $data = array(); }
+
+  $cutoff = gmdate('Y-m-d', time() - (($days - 1) * DAY_IN_SECONDS));
+  $pages = array();
+  $tools = array();
+
+  foreach ( $data as $date => $buckets ) {
+    if ( (string) $date < $cutoff || ! is_array($buckets) ) { continue; }
+    foreach ( $buckets as $bucket => $count ) {
+      $count = max(0, (int) $count);
+      if ( ! $count ) { continue; }
+
+      $parts = explode('|', (string) $bucket);
+      $event = sanitize_key(array_shift($parts));
+      if ( $event !== 'tool_referral_click' ) { continue; }
+
+      $page = '';
+      $tool = '';
+      foreach ( $parts as $part ) {
+        if ( strpos($part, 'page=') === 0 ) {
+          $page = sanitize_key(substr($part, 5));
+        } elseif ( strpos($part, 'tool=') === 0 ) {
+          $tool = sanitize_key(substr($part, 5));
+        }
+      }
+
+      if ( $page ) {
+        if ( ! isset($pages[$page]) ) { $pages[$page] = array('clicks'=>0, 'by_tool'=>array()); }
+        $pages[$page]['clicks'] += $count;
+        if ( $tool ) {
+          $pages[$page]['by_tool'][$tool] = ($pages[$page]['by_tool'][$tool] ?? 0) + $count;
+        }
+      }
+      if ( $tool ) {
+        $tools[$tool] = ($tools[$tool] ?? 0) + $count;
+      }
+    }
+  }
+
+  uasort($pages, function($a, $b) {
+    return ((int) ($b['clicks'] ?? 0)) <=> ((int) ($a['clicks'] ?? 0));
+  });
+  foreach ( $pages as $page => $row ) {
+    if ( ! empty($pages[$page]['by_tool']) ) { arsort($pages[$page]['by_tool']); }
+  }
+  arsort($tools);
+
+  return array(
+    'total_clicks' => array_sum($tools),
+    'by_page' => array_slice($pages, 0, 25, true),
+    'by_tool' => $tools,
+  );
+}
+
 function solar_expert_funnel_outcome_summary($days = 28) {
   $days = max(1, min(35, (int) $days));
   $summary = solar_expert_funnel_summary($days);
@@ -859,6 +917,7 @@ function solar_expert_funnel_outcome_summary($days = 28) {
   $affiliate_clicks = (int) ($events['affiliate_click'] ?? 0);
   $bundle_clicks = (int) ($events['bundle_deal_click'] ?? 0);
   $lead_clicks = (int) ($events['lead_click'] ?? 0);
+  $tool_referral_clicks = (int) ($events['tool_referral_click'] ?? 0);
 
   $tool_outcome_events = $builder_completes + $selector_engagements + $quote_completes;
   $commerce_clicks = $affiliate_clicks + $bundle_clicks;
@@ -878,10 +937,12 @@ function solar_expert_funnel_outcome_summary($days = 28) {
     'bundle_deal_clicks' => $bundle_clicks,
     'commerce_clicks' => $commerce_clicks,
     'lead_clicks' => $lead_clicks,
+    'tool_referral_clicks' => $tool_referral_clicks,
     'outbound_clicks' => $outbound_clicks,
     'outbound_clicks_per_100_tool_views' => $tool_views ? round(($outbound_clicks / $tool_views) * 100, 1) : 0,
     'by_tool' => solar_expert_funnel_tool_breakdown($days),
     'by_page' => solar_expert_funnel_page_breakdown($days),
+    'tool_referrals' => solar_expert_funnel_referral_breakdown($days),
   );
 }
 
