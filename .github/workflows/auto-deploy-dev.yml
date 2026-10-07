@@ -249,6 +249,10 @@ jobs:
             live_version="$(jq -r '.theme_version // empty' <<<"$health")"
             sync_required="$(jq -r 'if has("content_sync_required") then (.content_sync_required|tostring) else "true" end' <<<"$health")"
             sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health")"
+            sync_last_updated="$(jq -r '.content_sync_last_updated_posts // 0' <<<"$health")"
+            sync_last_created="$(jq -r '.content_sync_last_created_posts // 0' <<<"$health")"
+            sync_last_meta_updated="$(jq -r '.content_sync_last_meta_updated_posts // 0' <<<"$health")"
+            sync_last_skipped="$(jq -r '.content_sync_last_skipped_items // 0' <<<"$health")"
             index_targets="$(jq -r '.managed_indexability_targets // 0' <<<"$health")"
             index_ready="$(jq -r '.managed_indexability_ready // 0' <<<"$health")"
             index_errors="$(jq -r '.managed_indexability_errors // 999' <<<"$health")"
@@ -280,6 +284,7 @@ jobs:
             outcome28_offers="$(jq -c '.outcome_scoreboard.days_28.offers // {}' <<<"$health")"
 
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
+            echo "content sync churn updated=${sync_last_updated} created=${sync_last_created} meta_updated=${sync_last_meta_updated} skipped=${sync_last_skipped}"
             echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
             echo "outcome 7d tool_views=${outcome7_views} tool_starts=${outcome7_starts} tool_exposures=${outcome7_exposures} tool_activations=${outcome7_activations} outcome_events=${outcome7_events} outbound_clicks=${outcome7_outbound}; 28d tool_views=${outcome28_views} tool_starts=${outcome28_starts} tool_exposures=${outcome28_exposures} tool_activations=${outcome28_activations} outcome_events=${outcome28_events} outbound_clicks=${outcome28_outbound}"
             echo "outcome 28d by_tool=${outcome28_by_tool}"
