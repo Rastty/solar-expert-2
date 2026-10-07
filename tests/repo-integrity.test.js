@@ -766,6 +766,32 @@ assert(seoCore.includes("'"+solarPrincipleSlug+"' => array("),'Solar principle g
 const solarPrincipleHtml=fs.readFileSync(path.join(__dirname,'..',solarPrincipleItem.file),'utf8');
 assert(!solarPrincipleHtml.includes('Britannica'),'Solar principle guide must not retain copied Britannica-style legacy content');
 
+const transparentPvSlug='pruhledne-solarni-panely';
+const transparentPvItem=manifest.items.find(x=>x.slug===transparentPvSlug);
+assert(transparentPvItem&&transparentPvItem.create_if_missing===true,'Transparent PV demand gap must be managed as a new public post');
+assert(transparentPvItem.status==='publish'&&transparentPvItem.status_if_new==='publish','Transparent PV guide must publish on first sync');
+assert(transparentPvItem.file&&fs.existsSync(path.join(__dirname,'..',transparentPvItem.file)),'Transparent PV guide file missing');
+assert(seoCore.includes("'"+transparentPvSlug+"' => array("),'Transparent PV guide must have dedicated SEO metadata');
+const transparentPvHtml=fs.readFileSync(path.join(__dirname,'..',transparentPvItem.file),'utf8');
+for(const required of ['BIPV','43,2 %','9,26 %','/vysvetleni-solarnich-panelu-pv-t/','/jak-vybrat-solarni-panely-pro-vas-domov/','/quote-checker/']){
+  assert(transparentPvHtml.includes(required),'Transparent PV guide missing required decision evidence/path: '+required);
+}
+assert(transparentPvHtml.includes('ise.fraunhofer.de/de/presse-und-medien/presseinformationen/2026/'),'Transparent PV guide must cite the current 2026 Fraunhofer evidence');
+assert(transparentPvHtml.includes('iea-pvps.org/wp-content/uploads/2025/02/'),'Transparent PV guide must cite BIPV glazing evidence');
+assert(transparentPvHtml.includes('energy.gov/cmei/systems/articles/expanding-solar-energy-opportunities-rooftops-building-integration'),'Transparent PV guide must cite a BIPV building-integration reference');
+assert(transparentPvHtml.includes('data-se-lead-id="eon-solar"'),'Transparent PV guide must expose a bounded conventional-FVE comparison lead');
+assert(transparentPvHtml.includes('data-se-placement="transparent_pv_to_conventional_fve"'),'Transparent PV lead must use dedicated attribution');
+assert(transparentPvHtml.indexOf('/quote-checker/')<transparentPvHtml.indexOf('data-se-lead-id="eon-solar"'),'Owned Quote Checker must appear before outbound comparison');
+assert(seoCore.includes("function solar_expert_emerging_pv_slugs"),'Emerging-PV mini-cluster allowlist must exist');
+assert(seoCore.includes("function solar_expert_append_emerging_pv_related_links"),'Emerging-PV mini-cluster renderer must exist');
+assert(seoCore.includes('data-se-related="emerging-pv-cluster"'),'Emerging-PV mini-cluster must expose a stable marker');
+assert(seoCore.includes("home_url('/pruhledne-solarni-panely/')"),'Emerging-PV cluster must internally link the transparent PV guide');
+assert(seoCore.includes("home_url('/vysvetleni-solarnich-panelu-pv-t/')"),'Emerging-PV cluster must retain the PVT comparison path');
+assert(seoCore.includes("home_url('/jak-vybrat-solarni-panely-pro-vas-domov/')"),'Emerging-PV cluster must retain the conventional-panel decision path');
+for(const slug of ['solarni-panel-definice-a-fakta','vysvetleni-solarnich-panelu-pv-t','pruhledne-solarni-panely']){
+  assert(seoCore.includes("'"+slug+"'"),'Emerging-PV cluster allowlist must include: '+slug);
+}
+
 const pvtSlug='vysvetleni-solarnich-panelu-pv-t';
 const pvtItem=manifest.items.find(x=>x.slug===pvtSlug);
 assert(pvtItem&&pvtItem.preserve_status===true,'PVT guide must remain managed and preserve status');
