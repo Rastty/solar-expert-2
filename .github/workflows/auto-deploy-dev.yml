@@ -277,6 +277,7 @@ jobs:
             outcome28_builder_steps="$(jq -c '.outcome_scoreboard.days_28.builder_steps // {}' <<<"$health")"
             outcome28_by_page="$(jq -c '.outcome_scoreboard.days_28.by_page // {}' <<<"$health")"
             outcome28_tool_referrals="$(jq -c '.outcome_scoreboard.days_28.tool_referrals // {}' <<<"$health")"
+            outcome28_offers="$(jq -c '.outcome_scoreboard.days_28.offers // {}' <<<"$health")"
 
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
             echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
@@ -285,6 +286,7 @@ jobs:
             echo "outcome 28d builder_steps=${outcome28_builder_steps}"
             echo "outcome 28d by_page=${outcome28_by_page}"
             echo "outcome 28d tool_referrals=${outcome28_tool_referrals}"
+            echo "outcome 28d offers=${outcome28_offers}"
 
             if [ "$lead_targets" -gt "0" ] && [ "$monetized_lead_targets" -lt "$lead_targets" ]; then
               echo "::warning::Lead monetization coverage is incomplete (${monetized_lead_targets}/${lead_targets})."
