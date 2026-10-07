@@ -727,6 +727,34 @@ function solar_expert_funnel_summary($days = 28) {
 
 
 
+function solar_expert_funnel_infer_tool($event, $dimensions) {
+  $event = sanitize_key((string) $event);
+  $dimensions = is_array($dimensions) ? $dimensions : array();
+
+  $tool = sanitize_key((string) ($dimensions['tool'] ?? ''));
+  if ( $tool ) { return $tool; }
+
+  if ( $event === 'solar_builder_complete' ) { return 'builder'; }
+  if ( $event === 'quote_checker_complete' ) { return 'quote'; }
+
+  if ( $event === 'selector_engaged' ) {
+    $selector = sanitize_key((string) ($dimensions['selector'] ?? ''));
+    if ( in_array($selector, array('battery','mppt','inverter'), true) ) {
+      return $selector;
+    }
+  }
+
+  $page = sanitize_key((string) ($dimensions['page'] ?? ''));
+  $page_tools = array(
+    'solarni-sestava-na-chatu' => 'builder',
+    'quote-checker' => 'quote',
+    'vyber-baterii' => 'battery',
+    'mppt-kalkulacka' => 'mppt',
+    'vyber-menice' => 'inverter',
+  );
+  return isset($page_tools[$page]) ? $page_tools[$page] : '';
+}
+
 function solar_expert_funnel_tool_breakdown($days = 28) {
   $days = max(1, min(35, (int) $days));
   $data = get_option('solar_expert_funnel_daily', array());
@@ -734,6 +762,9 @@ function solar_expert_funnel_tool_breakdown($days = 28) {
 
   $cutoff = gmdate('Y-m-d', time() - (($days - 1) * DAY_IN_SECONDS));
   $tools = array();
+  $outcome_events = array('solar_builder_complete','selector_engaged','quote_checker_complete');
+  $outbound_events = array('affiliate_click','bundle_deal_click','lead_click');
+  $relevant_events = array_merge(array('tool_view','tool_start'), $outcome_events, $outbound_events);
 
   foreach ( $data as $date => $buckets ) {
     if ( (string) $date < $cutoff || ! is_array($buckets) ) { continue; }
@@ -743,25 +774,40 @@ function solar_expert_funnel_tool_breakdown($days = 28) {
 
       $parts = explode('|', (string) $bucket);
       $event = sanitize_key(array_shift($parts));
-      if ( ! in_array($event, array('tool_view','tool_start'), true) ) { continue; }
+      if ( ! in_array($event, $relevant_events, true) ) { continue; }
 
-      $tool = '';
+      $dimensions = array();
       foreach ( $parts as $part ) {
-        if ( strpos($part, 'tool=') === 0 ) {
-          $tool = sanitize_key(substr($part, 5));
-          break;
-        }
+        $pos = strpos($part, '=');
+        if ( $pos === false ) { continue; }
+        $key = sanitize_key(substr($part, 0, $pos));
+        $value = sanitize_key(substr($part, $pos + 1));
+        if ( $key && $value ) { $dimensions[$key] = $value; }
       }
+
+      $tool = solar_expert_funnel_infer_tool($event, $dimensions);
       if ( ! $tool ) { continue; }
 
       if ( ! isset($tools[$tool]) ) {
-        $tools[$tool] = array('views'=>0, 'starts'=>0, 'start_rate_pct'=>0);
+        $tools[$tool] = array(
+          'views'=>0,
+          'starts'=>0,
+          'outcome_events'=>0,
+          'outbound_clicks'=>0,
+          'start_rate_pct'=>0,
+          'outcome_events_per_100_starts'=>0,
+          'outbound_clicks_per_100_views'=>0,
+        );
       }
 
       if ( $event === 'tool_view' ) {
         $tools[$tool]['views'] += $count;
       } elseif ( $event === 'tool_start' ) {
         $tools[$tool]['starts'] += $count;
+      } elseif ( in_array($event, $outcome_events, true) ) {
+        $tools[$tool]['outcome_events'] += $count;
+      } elseif ( in_array($event, $outbound_events, true) ) {
+        $tools[$tool]['outbound_clicks'] += $count;
       }
     }
   }
@@ -769,7 +815,11 @@ function solar_expert_funnel_tool_breakdown($days = 28) {
   foreach ( $tools as $tool => $row ) {
     $views = (int) ($row['views'] ?? 0);
     $starts = (int) ($row['starts'] ?? 0);
+    $outcomes = (int) ($row['outcome_events'] ?? 0);
+    $outbound = (int) ($row['outbound_clicks'] ?? 0);
     $tools[$tool]['start_rate_pct'] = $views ? round(($starts / $views) * 100, 1) : 0;
+    $tools[$tool]['outcome_events_per_100_starts'] = $starts ? round(($outcomes / $starts) * 100, 1) : 0;
+    $tools[$tool]['outbound_clicks_per_100_views'] = $views ? round(($outbound / $views) * 100, 1) : 0;
   }
 
   ksort($tools);

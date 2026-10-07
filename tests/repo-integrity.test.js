@@ -1030,7 +1030,13 @@ assert(seoCore.includes("'effective_provider' => $native ? 'yoast_premium' : 'so
 assert(autoDeploy.includes('name: Flush IndexNow discovery queue'),'Auto-deploy must non-blockingly flush IndexNow after a healthy release');
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/indexnow-flush'),'Auto-deploy must call the bounded IndexNow flush endpoint');
 assert(autoDeploy.includes('IndexNow flush was not accepted; production remains healthy'),'IndexNow outage must not fail production deployment');
-assert(seoCore.includes('function solar_expert_funnel_tool_breakdown'),'Outcome scoreboard must expose per-tool view/start breakdown');
+assert(seoCore.includes('function solar_expert_funnel_tool_breakdown'),'Outcome scoreboard must expose per-tool funnel breakdown');
+assert(seoCore.includes('function solar_expert_funnel_infer_tool'),'Per-tool funnel must infer tools from bounded event dimensions');
+assert(seoCore.includes("'outcome_events_per_100_starts'=>0"),'Per-tool funnel must expose outcome conversion');
+assert(seoCore.includes("'outbound_clicks_per_100_views'=>0"),'Per-tool funnel must expose outbound conversion');
+assert(seoCore.includes("$event === 'solar_builder_complete'"),'Builder completion must map to Builder');
+assert(seoCore.includes("$event === 'quote_checker_complete'"),'Quote completion must map to Quote Checker');
+assert(seoCore.includes("array('battery','mppt','inverter')"),'Selector engagement must map to the matching selector tool');
 assert(seoCore.includes("'by_tool' => solar_expert_funnel_tool_breakdown($days)"),'Outcome summary must include per-tool breakdown');
 assert(seoCore.includes('function solar_expert_funnel_page_breakdown'),'Outcome scoreboard must expose page-level attribution');
 assert(seoCore.includes("'by_page' => solar_expert_funnel_page_breakdown($days)"),'Outcome summary must include page-level attribution');
