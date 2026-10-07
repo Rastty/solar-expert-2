@@ -1,5 +1,6 @@
 <div class="se-panel" x-data="solarExpertBatterySelector()" x-init="init()">
-  <div class="se-kicker">Battery Selector</div><h2>Jakou LiFePO₄ baterii potřebujete?</h2>
+  <div class="se-kicker">Výběr baterie</div><h2>Jakou LiFePO₄ baterii potřebujete?</h2>
+  <div class="se-note" style="margin-bottom:14px"><strong>Upravte své hodnoty.</strong> Čísla níže jsou jen výchozí příklad; po změně kteréhokoli pole se doporučení přepočítá automaticky.</div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-battery-voltage">Systémové napětí</label><select id="se-battery-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
     <div class="se-field"><label for="se-battery-daily-kwh">Denní spotřeba (kWh)</label><input id="se-battery-daily-kwh" class="se-input" type="number" min=".2" step=".1" x-model.number="dailyKwh" @input.debounce.200ms="run()"></div>
@@ -15,6 +16,7 @@
   <div class="se-note se-note-error" x-show="catalogError" style="margin-top:14px" role="alert">
     Katalog baterií se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
   </div>
+  <div class="se-row" style="margin-top:20px"><h3 style="margin:0">Doporučené baterie</h3><small class="se-muted">podle hodnot výše</small></div>
   <div class="se-bundles" :aria-busy="catalogLoading ? 'true' : 'false'" aria-live="polite">
     <template x-for="r in matches" :key="r.product.id">
       <div class="se-bundle">
