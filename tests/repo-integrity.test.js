@@ -146,8 +146,8 @@ for(const slug of indexablePageSlugs){
   assert(item&&item.indexable===true,'Managed public page must explicitly opt into indexing: '+slug);
 }
 const indexabilityCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
-assert(indexabilityCore.includes("update_post_meta($id, '_yoast_wpseo_meta-robots-noindex', '2')"),'Managed indexable pages must explicitly force Yoast Index');
-assert(indexabilityCore.includes("update_post_meta($id, '_yoast_wpseo_meta-robots-nofollow', '0')"),'Managed indexable pages must explicitly force Yoast Follow');
+assert(indexabilityCore.includes("solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_meta-robots-noindex', '2')"),'Managed indexable pages must explicitly force Yoast Index');
+assert(indexabilityCore.includes("solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_meta-robots-nofollow', '0')"),'Managed indexable pages must explicitly force Yoast Follow');
 assert(indexabilityCore.includes("add_filter('wpseo_sitemap_exclude_post_type', 'solar_expert_keep_pages_in_yoast_sitemap', 10, 2)"),'WordPress Pages must remain eligible for the Yoast sitemap');
 
 
@@ -164,7 +164,7 @@ assert(deployWorkflow.includes('Managed publish post is missing from Yoast post 
 assert(deployWorkflow.includes('Managed publish post exposes noindex'),'Crawler guard must reject noindex on repo-created public posts');
 
 
-assert(indexabilityCore.includes("managed-content-sync-v3-indexability"),'Managed-content fingerprint schema must advance when indexability DB semantics change');
+assert(indexabilityCore.includes("managed-content-sync-v4-incremental"),'Managed-content fingerprint schema must advance when indexability DB semantics change');
 assert(indexabilityCore.includes("$repair_indexability"),'Deploy sync must self-heal indexability drift even when the content fingerprint is current');
 assert(indexabilityCore.includes("solar_expert_sync_managed_content($repair_indexability)"),'Deploy sync must force a managed rewrite when indexability drift is detected');
 assert(indexabilityCore.includes("'managed_indexability_ready'"),'Deploy-sync response must report indexability readiness');
@@ -496,10 +496,15 @@ assert(builderTemplate.includes('Raději nezobrazíme neověřenou kombinaci'),'
 
 
 assert(contentSyncCore.includes("function solar_expert_content_sync_state()"),'Managed content sync must expose deterministic drift state');
-assert(contentSyncCore.includes("managed-content-sync-v3-indexability"),'Managed content fingerprint must change when sync/indexability semantics change');
+assert(contentSyncCore.includes("function solar_expert_update_post_meta_if_changed"),'Managed content sync must update metadata without forcing save_post churn');
+assert(contentSyncCore.includes("$post_changed ="),'Managed content sync must compare stored content before calling wp_update_post');
+assert(contentSyncCore.includes("if ( $post_changed )"),'Managed content sync must gate wp_update_post behind an actual post diff');
+assert(contentSyncCore.includes("'meta_updated'=>0"),'Managed content sync result must distinguish metadata-only repairs');
+assert(contentSyncCore.includes("hash_update($ctx, wp_json_encode(array("),'Managed content fingerprint must include SEO metadata values');
+assert(contentSyncCore.includes("managed-content-sync-v4-incremental"),'Managed content fingerprint must change when sync/indexability semantics change');
 assert(contentSyncCore.includes("solar_expert_seo_meta($slug)"),'Managed content sync must resolve the shared SEO map by slug');
-assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_title'"),'Managed content sync must persist SEO titles into Yoast meta');
-assert(contentSyncCore.includes("update_post_meta($id, '_yoast_wpseo_metadesc'"),'Managed content sync must persist SEO descriptions into Yoast meta');
+assert(contentSyncCore.includes("solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_title'"),'Managed content sync must persist SEO titles into Yoast meta');
+assert(contentSyncCore.includes("solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_metadesc'"),'Managed content sync must persist SEO descriptions into Yoast meta');
 assert(contentSyncCore.includes("add_action('init', 'solar_expert_schedule_content_sync'"),'Git deploys must schedule a bounded managed-content sync');
 assert(contentSyncCore.includes("wp_next_scheduled('solar_expert_async_content_sync')"),'Async content sync must not be scheduled repeatedly');
 assert(contentSyncCore.includes("wp_schedule_single_event(time() + 10, 'solar_expert_async_content_sync')"),'Async content sync must use a prompt one-shot delayed event');
@@ -508,6 +513,10 @@ assert(contentSyncCore.includes("delete_transient('solar_expert_content_sync_loc
 assert(contentSyncCore.includes("'content_sync_status'"),'Public health payload must expose content sync status');
 assert(contentSyncCore.includes("'content_sync_required'"),'Public health payload must expose whether managed content is stale');
 assert(contentSyncCore.includes("'content_sync_errors'"),'Public health payload must expose managed-content sync errors');
+for(const field of ['content_sync_last_updated_posts','content_sync_last_created_posts','content_sync_last_meta_updated_posts','content_sync_last_skipped_items']){
+  assert(contentSyncCore.includes("'"+field+"'"),'Public health payload missing managed-content churn field: '+field);
+}
+assert(deployWorkflow.includes('content sync churn updated='),'Auto deploy must log managed-content churn so broad accidental rewrites are visible');
 assert(settingsCore.includes('Managed content: CURRENT'),'Admin diagnostics must show a current managed-content state');
 assert(settingsCore.includes('Automatický sync je naplánovaný'),'Admin diagnostics must explain pending automatic sync');
 
