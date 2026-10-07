@@ -164,7 +164,7 @@ function solar_expert_safe_content_file($relative_path) {
 
 function solar_expert_manifest_fingerprint($manifest) {
   $ctx = hash_init('sha256');
-  hash_update($ctx, 'managed-content-sync-v3-indexability');
+  hash_update($ctx, 'managed-content-sync-v4-incremental');
   $manifest_path = solar_expert_content_root() . 'manifest.json';
 
   if ( file_exists($manifest_path) ) {
@@ -180,9 +180,31 @@ function solar_expert_manifest_fingerprint($manifest) {
     if ( $file ) {
       hash_update_file($ctx, $file);
     }
+
+    $slug = sanitize_title($item['slug'] ?? '');
+    if ( $slug ) {
+      $seo_meta = solar_expert_seo_meta($slug);
+      if ( is_array($seo_meta) ) {
+        hash_update($ctx, wp_json_encode(array(
+          'slug' => $slug,
+          'title' => (string) ($seo_meta['title'] ?? ''),
+          'description' => (string) ($seo_meta['description'] ?? ''),
+        )));
+      }
+    }
   }
 
   return hash_final($ctx);
+}
+
+function solar_expert_update_post_meta_if_changed($post_id, $key, $value) {
+  $current = get_post_meta($post_id, $key, true);
+  if ( (string) $current === (string) $value ) {
+    return false;
+  }
+
+  update_post_meta($post_id, $key, $value);
+  return true;
 }
 
 function solar_expert_sync_managed_content($force = false) {
@@ -191,10 +213,10 @@ function solar_expert_sync_managed_content($force = false) {
   $last = get_option('solar_expert_content_fingerprint', '');
 
   if ( ! $force && $fingerprint && hash_equals((string)$last, (string)$fingerprint) ) {
-    return array('updated'=>0,'created'=>0,'skipped'=>0,'errors'=>array());
+    return array('updated'=>0,'created'=>0,'meta_updated'=>0,'skipped'=>0,'errors'=>array());
   }
 
-  $result = array('updated'=>0,'created'=>0,'skipped'=>0,'errors'=>array());
+  $result = array('updated'=>0,'created'=>0,'meta_updated'=>0,'skipped'=>0,'errors'=>array());
 
   foreach ( $manifest['items'] as $item ) {
     $type = isset($item['type']) && in_array($item['type'], array('page','post'), true) ? $item['type'] : 'page';
@@ -219,26 +241,36 @@ function solar_expert_sync_managed_content($force = false) {
       continue;
     }
 
+    $desired_title = wp_strip_all_tags($item['title'] ?? $slug);
     $postarr = array(
       'post_type'    => $type,
       'post_name'    => $slug,
-      'post_title'   => wp_strip_all_tags($item['title'] ?? $slug),
+      'post_title'   => $desired_title,
       'post_content' => $content,
     );
 
+    $post_changed = false;
     if ( $existing ) {
-      $postarr['ID'] = $existing->ID;
-      $postarr['post_status'] = ! empty($item['preserve_status']) ? $existing->post_status : ($item['status'] ?? $existing->post_status);
-      $id = wp_update_post(wp_slash($postarr), true);
+      $desired_status = ! empty($item['preserve_status']) ? $existing->post_status : ($item['status'] ?? $existing->post_status);
+      $post_changed =
+        (string) $existing->post_title !== (string) $desired_title ||
+        (string) $existing->post_content !== (string) $content ||
+        (string) $existing->post_status !== (string) $desired_status;
 
-      if ( is_wp_error($id) ) {
-        $result['errors'][] = $slug . ': ' . $id->get_error_message();
-        continue;
+      if ( $post_changed ) {
+        $postarr['ID'] = $existing->ID;
+        $postarr['post_status'] = $desired_status;
+        $id = wp_update_post(wp_slash($postarr), true);
+
+        if ( is_wp_error($id) ) {
+          $result['errors'][] = $slug . ': ' . $id->get_error_message();
+          continue;
+        }
+
+        $result['updated']++;
+      } else {
+        $id = (int) $existing->ID;
       }
-
-      update_post_meta($id, '_solar_expert_managed', 1);
-      update_post_meta($id, '_solar_expert_source_file', sanitize_text_field($item['file']));
-      $result['updated']++;
     } else {
       $postarr['post_status'] = $item['status_if_new'] ?? 'draft';
       $id = wp_insert_post(wp_slash($postarr), true);
@@ -248,26 +280,35 @@ function solar_expert_sync_managed_content($force = false) {
         continue;
       }
 
-      update_post_meta($id, '_solar_expert_managed', 1);
-      update_post_meta($id, '_solar_expert_source_file', sanitize_text_field($item['file']));
       $result['created']++;
+      $post_changed = true;
     }
+
+    $meta_changed = false;
+    $meta_changed = solar_expert_update_post_meta_if_changed($id, '_solar_expert_managed', '1') || $meta_changed;
+    $meta_changed = solar_expert_update_post_meta_if_changed($id, '_solar_expert_source_file', sanitize_text_field($item['file'])) || $meta_changed;
 
     $seo_meta = solar_expert_seo_meta($slug);
     if ( is_array($seo_meta) ) {
       if ( ! empty($seo_meta['title']) ) {
-        update_post_meta($id, '_yoast_wpseo_title', sanitize_text_field($seo_meta['title']));
+        $meta_changed = solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_title', sanitize_text_field($seo_meta['title'])) || $meta_changed;
       }
       if ( ! empty($seo_meta['description']) ) {
-        update_post_meta($id, '_yoast_wpseo_metadesc', sanitize_text_field($seo_meta['description']));
+        $meta_changed = solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_metadesc', sanitize_text_field($seo_meta['description'])) || $meta_changed;
       }
     }
 
     // Public managed pages are explicit SEO assets. Do not let an inherited
     // Yoast Page default accidentally keep tools/trust pages out of search.
     if ( ! empty($item['indexable']) ) {
-      update_post_meta($id, '_yoast_wpseo_meta-robots-noindex', '2');
-      update_post_meta($id, '_yoast_wpseo_meta-robots-nofollow', '0');
+      $meta_changed = solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_meta-robots-noindex', '2') || $meta_changed;
+      $meta_changed = solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_meta-robots-nofollow', '0') || $meta_changed;
+    }
+
+    if ( $meta_changed && ! $post_changed ) {
+      $result['meta_updated']++;
+    } elseif ( ! $post_changed && ! $meta_changed ) {
+      $result['skipped']++;
     }
   }
 
@@ -1813,6 +1854,7 @@ function solar_expert_deploy_sync($request) {
     'managed_indexability_issues' => isset($indexability_after['issues']) ? array_values($indexability_after['issues']) : array(),
     'created' => (int) ($result['created'] ?? 0),
     'updated' => (int) ($result['updated'] ?? 0),
+    'meta_updated' => (int) ($result['meta_updated'] ?? 0),
     'skipped' => (int) ($result['skipped'] ?? 0),
   ));
 }
