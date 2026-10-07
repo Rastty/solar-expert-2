@@ -2356,6 +2356,65 @@ function solar_expert_append_emerging_pv_related_links($content) {
 }
 add_filter('the_content', 'solar_expert_append_emerging_pv_related_links', 23);
 
+function solar_expert_pv_maintenance_slugs() {
+  return array(
+    'cisteni-solarnich-panelu-proc-kdy-jak',
+    'vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih',
+    'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu',
+  );
+}
+
+function solar_expert_append_pv_maintenance_related_links($content) {
+  if ( is_admin() || ! is_singular('post') || ! in_the_loop() || ! is_main_query() ) {
+    return $content;
+  }
+
+  $post = get_queried_object();
+  $slug = $post && ! empty($post->post_name) ? $post->post_name : '';
+  if ( ! $slug || ! in_array($slug, solar_expert_pv_maintenance_slugs(), true) ) {
+    return $content;
+  }
+
+  if ( strpos($content, 'data-se-related="pv-maintenance-cluster"') !== false ) {
+    return $content;
+  }
+
+  $guides = array(
+    'cisteni-solarnich-panelu-proc-kdy-jak' => array(
+      'label' => 'Čištění solárních panelů',
+      'url' => home_url('/cisteni-solarnich-panelu-proc-kdy-jak/'),
+    ),
+    'vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih' => array(
+      'label' => 'Panely v zimě a sníh',
+      'url' => home_url('/vykon-solarnich-panelu-v-zime-ma-smysl-odmetat-snih/'),
+    ),
+    'rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu' => array(
+      'label' => 'Degradace a životnost panelů',
+      'url' => home_url('/rychlost-degradace-je-dulezita-pri-vyberu-solarnich-panelu/'),
+    ),
+  );
+
+  $links = array();
+  foreach ( $guides as $guide_slug => $guide ) {
+    if ( $guide_slug === $slug ) {
+      continue;
+    }
+    $links[] = '<a href="' . esc_url($guide['url']) . '">' . esc_html($guide['label']) . '</a>';
+  }
+
+  if ( empty($links) ) {
+    return $content;
+  }
+
+  $related = '<aside class="se-note se-related-guides" data-se-related="pv-maintenance-cluster">'
+    . '<strong>Údržba a životnost panelů:</strong> '
+    . implode(' · ', $links)
+    . '</aside>';
+
+  return $content . $related;
+}
+add_filter('the_content', 'solar_expert_append_pv_maintenance_related_links', 23);
+
 function solar_expert_battery_cluster_slugs() {
   return array(
     'jak-funguji-solarni-baterie-pruvodce-skladovanim-energie',
