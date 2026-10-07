@@ -5,7 +5,8 @@
   const endpoint=config.endpoint||'';
   const allowedEvents=new Set([
     'tool_view','tool_start','solar_builder_complete','selector_engaged',
-    'quote_checker_complete','affiliate_click','bundle_deal_click','lead_click'
+    'quote_checker_complete','affiliate_click','bundle_deal_click','lead_click',
+    'tool_referral_click'
   ]);
   const allowedFields=new Set([
     'tool','selector','status','merchant','placement','scenario',
@@ -71,6 +72,36 @@
     ['inverter','[x-data="solarExpertInverterSelector()"]']
   ];
 
+  const toolPaths=new Map([
+    ['/solarni-sestava-na-chatu','builder'],
+    ['/quote-checker','quote'],
+    ['/vyber-baterii','battery'],
+    ['/mppt-kalkulacka','mppt'],
+    ['/vyber-menice','inverter']
+  ]);
+
+  function toolFromLink(link){
+    if(!link||!link.href) return '';
+    try{
+      const url=new URL(link.href,window.location.href);
+      if(url.origin!==window.location.origin) return '';
+      const path=(url.pathname||'/').replace(/\/+$/,'')||'/';
+      if(path==='/'&&url.hash==='#builder') return 'builder';
+      return toolPaths.get(path)||'';
+    }catch(_){
+      return '';
+    }
+  }
+
+  function initToolReferralTracking(){
+    document.addEventListener('click',(event)=>{
+      const link=event.target&&event.target.closest?event.target.closest('a[href]'):null;
+      const tool=toolFromLink(link);
+      if(!tool) return;
+      window.SolarExpertAnalytics.track('tool_referral_click',{tool});
+    },{passive:true});
+  }
+
   function initToolTracking(){
     for(const [tool,selector] of tools){
       const root=document.querySelector(selector);
@@ -89,8 +120,9 @@
   }
 
   if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',initToolTracking,{once:true});
+    document.addEventListener('DOMContentLoaded',()=>{initToolReferralTracking();initToolTracking();},{once:true});
   }else{
+    initToolReferralTracking();
     initToolTracking();
   }
 })();
