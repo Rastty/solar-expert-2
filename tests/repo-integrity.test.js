@@ -950,7 +950,7 @@ assert(firstPartyCore.includes("Outbound clicks by placement"),'Admin diagnostic
 const builderOfferTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
 assert(builderOfferTpl.includes('se-offer-best'),'Builder must visibly distinguish a verified cheaper merchant offer');
 assert(firstPartyCore.includes("'funnel_tracking' => 'first_party_v1'"),'Health payload must expose first-party funnel tracking state');
-for(const eventName of ['tool_view','tool_start','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click','tool_referral_click']){
+for(const eventName of ['tool_view','tool_start','tool_exposure','tool_activation','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click','tool_referral_click']){
   assert(firstPartyAnalytics.includes("'"+eventName+"'"),'Analytics collector must whitelist '+eventName);
 }
 assert(firstPartyAnalytics.includes("keepalive:true"),'Funnel POST must survive outbound navigation when possible');
@@ -960,6 +960,11 @@ assert(firstPartyAnalytics.includes('window.location.pathname'),'Page attributio
 assert(firstPartyAnalytics.includes('toolPaths=new Map'),'Analytics must maintain an explicit owned-tool URL map');
 assert(firstPartyAnalytics.includes("track('tool_referral_click',{tool})"),'Internal clicks into owned tools must be measured');
 assert(firstPartyAnalytics.includes("url.origin!==window.location.origin"),'Tool referral tracking must ignore external links');
+assert(firstPartyAnalytics.includes("'IntersectionObserver' in window"),'Tool exposure v2 must use viewport observation when available');
+assert(firstPartyAnalytics.includes('entry.intersectionRatio>=0.15'),'Tool exposure must require meaningful viewport visibility');
+assert(firstPartyAnalytics.includes('setTimeout(expose,600)'),'Tool exposure must ignore brief scroll fly-bys');
+assert(firstPartyAnalytics.includes("track('tool_exposure',{tool})"),'Tool exposure v2 must emit a dedicated event');
+assert(firstPartyAnalytics.includes("track('tool_activation',{tool})"),'Tool activation v2 must emit a dedicated event');
 assert(!firstPartyAnalytics.includes('localStorage'),'First-party funnel collector must not use localStorage');
 assert(!firstPartyAnalytics.includes('document.cookie'),'First-party funnel collector must not set or read cookies');
 
@@ -1047,6 +1052,11 @@ assert(autoDeploy.includes('IndexNow flush was not accepted; production remains 
 assert(seoCore.includes('function solar_expert_funnel_tool_breakdown'),'Outcome scoreboard must expose per-tool funnel breakdown');
 assert(seoCore.includes('function solar_expert_funnel_infer_tool'),'Per-tool funnel must infer tools from bounded event dimensions');
 assert(seoCore.includes("'outcome_events_per_100_starts'=>0"),'Per-tool funnel must expose outcome conversion');
+assert(seoCore.includes("'exposures'=>0"),'Per-tool funnel must expose viewport exposure counts');
+assert(seoCore.includes("'activations'=>0"),'Per-tool funnel must expose v2 activation counts');
+assert(seoCore.includes("'activation_rate_pct'=>0"),'Per-tool funnel must expose exposure-to-activation rate');
+assert(seoCore.includes("'tool_exposures' => $tool_exposures"),'Outcome summary must expose v2 tool exposures');
+assert(seoCore.includes("'tool_activations' => $tool_activations"),'Outcome summary must expose v2 tool activations');
 assert(seoCore.includes("'outbound_clicks_per_100_views'=>0"),'Per-tool funnel must expose outbound conversion');
 assert(seoCore.includes("$event === 'solar_builder_complete'"),'Builder completion must map to Builder');
 assert(seoCore.includes("$event === 'quote_checker_complete'"),'Quote completion must map to Quote Checker');
@@ -1061,6 +1071,8 @@ assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d
 assert(autoDeploy.includes('outcome 28d by_page='),'Auto-deploy must log the 28d page-attribution breakdown');
 assert(autoDeploy.includes('outcome 28d tool_referrals='),'Auto-deploy must log article-to-tool referral breakdown');
 assert(autoDeploy.includes('outcome 7d tool_views='),'Auto-deploy must log the live 7d/28d outcome scoreboard');
+assert(autoDeploy.includes('tool_exposures=${outcome7_exposures}'),'Auto-deploy must log viewport exposures');
+assert(autoDeploy.includes('tool_activations=${outcome7_activations}'),'Auto-deploy must log v2 activations');
 assert(autoDeploy.includes('.outcome_scoreboard.days_28.outbound_clicks'),'Auto-deploy must read 28d outbound outcome data');
 
 assert(autoDeploy.includes('monetization active_offer_coverage='),'Auto-deploy must log live monetization coverage');
