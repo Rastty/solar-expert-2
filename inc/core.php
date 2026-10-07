@@ -1026,6 +1026,205 @@ function solar_expert_managed_indexability_state($manifest) {
 }
 
 
+function solar_expert_indexnow_key() {
+  return 'e2e7bb326b9b6dc7ac3285712fd9710b';
+}
+
+function solar_expert_yoast_indexnow_active() {
+  if ( ! defined('WPSEO_PREMIUM_FILE') ) {
+    return false;
+  }
+  if ( ! class_exists('WPSEO_Options') || ! method_exists('WPSEO_Options', 'get') ) {
+    return false;
+  }
+  return (bool) WPSEO_Options::get('enable_index_now', false);
+}
+
+function solar_expert_indexnow_key_location() {
+  return home_url('/' . solar_expert_indexnow_key() . '.txt');
+}
+
+function solar_expert_maybe_serve_indexnow_key($wp = null) {
+  $request_uri = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : '';
+  $path = (string) wp_parse_url($request_uri, PHP_URL_PATH);
+  $expected = '/' . solar_expert_indexnow_key() . '.txt';
+  if ( $path !== $expected ) {
+    return;
+  }
+
+  status_header(200);
+  nocache_headers();
+  header('Content-Type: text/plain; charset=utf-8');
+  echo solar_expert_indexnow_key();
+  exit;
+}
+add_action('parse_request', 'solar_expert_maybe_serve_indexnow_key', 0);
+
+function solar_expert_indexnow_queue_url($url) {
+  if ( solar_expert_yoast_indexnow_active() ) {
+    return false;
+  }
+
+  $url = esc_url_raw((string) $url, array('http','https'));
+  $home_host = strtolower((string) wp_parse_url(home_url('/'), PHP_URL_HOST));
+  $url_host = strtolower((string) wp_parse_url($url, PHP_URL_HOST));
+  if ( ! $url || ! $home_host || $url_host !== $home_host ) {
+    return false;
+  }
+
+  $queue = get_option('solar_expert_indexnow_queue', array());
+  if ( ! is_array($queue) ) { $queue = array(); }
+  $queue[$url] = time();
+
+  if ( count($queue) > 500 ) {
+    asort($queue, SORT_NUMERIC);
+    $queue = array_slice($queue, -500, null, true);
+  }
+
+  update_option('solar_expert_indexnow_queue', $queue, false);
+  if ( ! wp_next_scheduled('solar_expert_indexnow_flush') ) {
+    wp_schedule_single_event(time() + 15, 'solar_expert_indexnow_flush');
+  }
+  return true;
+}
+
+function solar_expert_queue_indexnow_on_save($post_id, $post, $update) {
+  if ( ! $post instanceof WP_Post || wp_is_post_revision($post_id) || wp_is_post_autosave($post_id) ) {
+    return;
+  }
+  if ( ! in_array($post->post_type, array('post','page'), true) || $post->post_status !== 'publish' ) {
+    return;
+  }
+  solar_expert_indexnow_queue_url(get_permalink($post_id));
+}
+add_action('save_post', 'solar_expert_queue_indexnow_on_save', 30, 3);
+
+function solar_expert_queue_indexnow_on_unpublish($new_status, $old_status, $post) {
+  if ( ! $post instanceof WP_Post || $old_status !== 'publish' || $new_status === 'publish' ) {
+    return;
+  }
+  if ( ! in_array($post->post_type, array('post','page'), true) ) {
+    return;
+  }
+  solar_expert_indexnow_queue_url(get_permalink($post));
+}
+add_action('transition_post_status', 'solar_expert_queue_indexnow_on_unpublish', 30, 3);
+
+function solar_expert_indexnow_bootstrap_managed_pages() {
+  if ( solar_expert_yoast_indexnow_active() || get_option('solar_expert_indexnow_bootstrap_v1', false) ) {
+    return;
+  }
+
+  $manifest = solar_expert_load_manifest();
+  $items = isset($manifest['items']) && is_array($manifest['items']) ? $manifest['items'] : array();
+  $targets = 0;
+  $queued = 0;
+
+  foreach ( $items as $item ) {
+    if ( empty($item['indexable']) ) { continue; }
+    $targets++;
+    $type = isset($item['type']) && in_array($item['type'], array('page','post'), true) ? $item['type'] : 'page';
+    $slug = sanitize_title($item['slug'] ?? '');
+    $post = $slug ? get_page_by_path($slug, OBJECT, $type) : null;
+    if ( $post && $post->post_status === 'publish' && solar_expert_indexnow_queue_url(get_permalink($post)) ) {
+      $queued++;
+    }
+  }
+
+  if ( $targets > 0 && $queued === $targets ) {
+    update_option('solar_expert_indexnow_bootstrap_v1', array(
+      'time' => gmdate('c'),
+      'targets' => $targets,
+      'queued' => $queued,
+    ), false);
+  }
+}
+add_action('init', 'solar_expert_indexnow_bootstrap_managed_pages', 70);
+
+function solar_expert_flush_indexnow_queue() {
+  if ( solar_expert_yoast_indexnow_active() ) {
+    delete_option('solar_expert_indexnow_queue');
+    return array('ok'=>true, 'provider'=>'yoast_premium', 'submitted'=>0, 'pending'=>0, 'http_code'=>null);
+  }
+
+  if ( get_transient('solar_expert_indexnow_flush_lock') ) {
+    return array('ok'=>false, 'provider'=>'solar_expert_fallback', 'status'=>'busy', 'submitted'=>0);
+  }
+  set_transient('solar_expert_indexnow_flush_lock', 1, MINUTE_IN_SECONDS);
+
+  $queue = get_option('solar_expert_indexnow_queue', array());
+  if ( ! is_array($queue) ) { $queue = array(); }
+  $urls = array_slice(array_keys($queue), 0, 100);
+
+  if ( empty($urls) ) {
+    delete_transient('solar_expert_indexnow_flush_lock');
+    return array('ok'=>true, 'provider'=>'solar_expert_fallback', 'submitted'=>0, 'pending'=>0, 'http_code'=>null);
+  }
+
+  $payload = array(
+    'host' => (string) wp_parse_url(home_url('/'), PHP_URL_HOST),
+    'key' => solar_expert_indexnow_key(),
+    'keyLocation' => solar_expert_indexnow_key_location(),
+    'urlList' => array_values($urls),
+  );
+
+  $response = wp_remote_post('https://api.indexnow.org/indexnow', array(
+    'timeout' => 12,
+    'redirection' => 2,
+    'headers' => array(
+      'Content-Type' => 'application/json; charset=utf-8',
+      'User-Agent' => 'Solar-Expert-IndexNow/1.0',
+    ),
+    'body' => wp_json_encode($payload),
+  ));
+
+  $delivery = get_option('solar_expert_indexnow_delivery', array());
+  if ( ! is_array($delivery) ) { $delivery = array(); }
+  $delivery['last_attempt_utc'] = gmdate('c');
+  $delivery['last_submitted_count'] = count($urls);
+
+  $ok = false;
+  $http_code = 0;
+  $error = null;
+
+  if ( is_wp_error($response) ) {
+    $error = substr((string) $response->get_error_message(), 0, 180);
+  } else {
+    $http_code = (int) wp_remote_retrieve_response_code($response);
+    $ok = in_array($http_code, array(200,202), true);
+    if ( ! $ok ) {
+      $error = 'http_' . $http_code;
+    }
+  }
+
+  $delivery['last_http_code'] = $http_code ?: null;
+  $delivery['last_error'] = $error;
+
+  if ( $ok ) {
+    foreach ( $urls as $url ) { unset($queue[$url]); }
+    update_option('solar_expert_indexnow_queue', $queue, false);
+    $delivery['last_success_utc'] = gmdate('c');
+  }
+
+  update_option('solar_expert_indexnow_delivery', $delivery, false);
+  delete_transient('solar_expert_indexnow_flush_lock');
+
+  if ( ! empty($queue) && ! wp_next_scheduled('solar_expert_indexnow_flush') ) {
+    wp_schedule_single_event(time() + ($ok ? 60 : 15 * MINUTE_IN_SECONDS), 'solar_expert_indexnow_flush');
+  }
+
+  return array(
+    'ok' => $ok,
+    'provider' => 'solar_expert_fallback',
+    'submitted' => $ok ? count($urls) : 0,
+    'attempted' => count($urls),
+    'pending' => count($queue),
+    'http_code' => $http_code ?: null,
+    'error' => $error,
+  );
+}
+add_action('solar_expert_indexnow_flush', 'solar_expert_flush_indexnow_queue');
+
 function solar_expert_indexnow_state() {
   $yoast_active = defined('WPSEO_FILE');
   $yoast_premium = defined('WPSEO_PREMIUM_FILE');
@@ -1035,12 +1234,45 @@ function solar_expert_indexnow_state() {
     $yoast_indexnow = (bool) WPSEO_Options::get('enable_index_now', false);
   }
 
+  $native = ($yoast_premium && $yoast_indexnow);
+  $queue = get_option('solar_expert_indexnow_queue', array());
+  if ( ! is_array($queue) ) { $queue = array(); }
+  $delivery = get_option('solar_expert_indexnow_delivery', array());
+  if ( ! is_array($delivery) ) { $delivery = array(); }
+  $bootstrap = get_option('solar_expert_indexnow_bootstrap_v1', false);
+
   return array(
     'yoast_active' => $yoast_active,
     'yoast_premium_active' => $yoast_premium,
     'yoast_indexnow_enabled' => $yoast_indexnow,
-    'effective_provider' => ($yoast_premium && $yoast_indexnow) ? 'yoast_premium' : 'none_detected',
+    'fallback_enabled' => ! $native,
+    'effective_provider' => $native ? 'yoast_premium' : 'solar_expert_fallback',
+    'key_location' => $native ? null : solar_expert_indexnow_key_location(),
+    'pending_count' => $native ? 0 : count($queue),
+    'bootstrap_done' => ! empty($bootstrap),
+    'last_attempt_utc' => $delivery['last_attempt_utc'] ?? null,
+    'last_success_utc' => $delivery['last_success_utc'] ?? null,
+    'last_http_code' => $delivery['last_http_code'] ?? null,
+    'last_submitted_count' => (int) ($delivery['last_submitted_count'] ?? 0),
+    'last_error' => $delivery['last_error'] ?? null,
   );
+}
+
+function solar_expert_indexnow_flush_route(WP_REST_Request $request) {
+  $expected_version = sanitize_text_field((string) $request->get_param('expected_version'));
+  $intent = sanitize_key((string) $request->get_param('intent'));
+  $live_version = solar_expert_deployed_theme_version();
+
+  if ( $intent !== 'indexnow-flush-v1' ) {
+    return new WP_Error('solar_expert_indexnow_bad_intent', 'Invalid IndexNow intent.', array('status'=>400));
+  }
+  if ( ! $expected_version || ! $live_version || ! hash_equals($live_version, $expected_version) ) {
+    return new WP_Error('solar_expert_indexnow_version_mismatch', 'Deployed theme version does not match the requested release.', array('status'=>409));
+  }
+
+  $result = solar_expert_flush_indexnow_queue();
+  $result['theme_version'] = $live_version;
+  return rest_ensure_response($result);
 }
 
 function solar_expert_health_payload() {
@@ -1196,6 +1428,12 @@ function solar_expert_register_health_route() {
   register_rest_route('solar-expert/v1', '/deploy-sync', array(
     'methods' => 'POST',
     'callback' => 'solar_expert_deploy_sync',
+    'permission_callback' => '__return_true',
+  ));
+
+  register_rest_route('solar-expert/v1', '/indexnow-flush', array(
+    'methods' => 'POST',
+    'callback' => 'solar_expert_indexnow_flush_route',
     'permission_callback' => '__return_true',
   ));
 }
