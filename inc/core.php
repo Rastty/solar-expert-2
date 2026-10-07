@@ -1967,6 +1967,10 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'Fotovoltaika na pozemku: konstrukce, povolení a návrh | Solar Expert',
       'description' => 'Jak navrhnout pozemní FVE: místo, sklon, konstrukce, stínění, kabeláž, MPPT a co ověřit u povolení na konkrétní parcele.'
     ),
+    'kolik-stoji-fotovoltaika' => array(
+      'title' => 'Kolik stojí fotovoltaika 2026: cena FVE a baterie | Solar Expert',
+      'description' => 'Aktuální cena fotovoltaiky v roce 2026: veřejné benchmarky 5–10 kWp s baterií, co mění cenu instalace, jak porovnat nabídku a podpora NZÚ.'
+    ),
     'kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem' => array(
       'title' => 'Kolik stojí fotovoltaika s tepelným čerpadlem 2026 | Solar Expert',
       'description' => 'Aktuální orientační ceny FVE s baterií a tepelného čerpadla, jak správně dimenzovat kombinaci a co porovnat v nabídce.'
@@ -2311,6 +2315,7 @@ function solar_expert_solar_lead_slugs() {
     'fotovoltaika-vykon-na-m2',
     'kolik-vyrobi-fotovoltaika-za-rok',
     'fotovoltaika-na-pozemku',
+    'kolik-stoji-fotovoltaika',
     'castecne-zastineni-a-solarni-panely',
     'polohovani-solarnich-panelu',
     'vse-o-solarnich-panelech-a-fotovoltaice',

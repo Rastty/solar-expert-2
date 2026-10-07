@@ -348,6 +348,22 @@ assert(quoteCheckerTpl.includes(":data-se-placement=\"'quote_checker_result_'+re
 assert(quoteCheckerTpl.includes('/solarni-sestava-na-chatu/'),'Quote Checker result must retain an owned Builder next step before outbound comparison');
 
 
+const fvePriceSlug='kolik-stoji-fotovoltaika';
+const fvePriceItem=manifest.items.find(x=>x.slug===fvePriceSlug);
+assert(fvePriceItem&&fvePriceItem.create_if_missing===true,'Standalone FVE price guide must be managed as a new public post');
+assert(fvePriceItem.status==='publish'&&fvePriceItem.status_if_new==='publish','Standalone FVE price guide must publish on first sync');
+assert(fvePriceItem.file&&fs.existsSync(path.join(__dirname,'..',fvePriceItem.file)),'Standalone FVE price guide file missing');
+assert(seoCore.includes("'"+fvePriceSlug+"' => array("),'Standalone FVE price guide must have dedicated SEO metadata');
+const fvePriceHtml=fs.readFileSync(path.join(__dirname,'..',fvePriceItem.file),'utf8');
+for(const required of ['329 780 Kč','369 677 Kč','399 794 Kč','25 000 Kč','15 000 Kč','/quote-checker/','/solarni-sestava-na-chatu/']){
+  assert(fvePriceHtml.includes(required),'Standalone FVE price guide missing current benchmark/decision path: '+required);
+}
+assert(fvePriceHtml.includes('data-se-lead-id="eon-solar"'),'Standalone FVE price guide must expose bounded E.ON comparison lead');
+assert(fvePriceHtml.includes('data-se-placement="fve_price_guide_compare"'),'Standalone FVE price guide must use a dedicated lead placement');
+assert(fvePriceHtml.indexOf('/quote-checker/')<fvePriceHtml.indexOf('data-se-lead-id="eon-solar"'),'Owned Quote Checker must appear before outbound comparison');
+assert(fvePriceHtml.includes('novazelenausporam.cz/bezurocny-uver-rodinne-domy/'),'FVE price guide must cite current official NZU 2026 financing rules');
+assert(fvePriceHtml.includes('cez.cz/cs/technologie/fotovoltaika/produkty/queen'),'FVE price guide must cite the dated public installed-price benchmark');
+
 const comboSlug='kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem';
 const comboItem=manifest.items.find(x=>x.slug===comboSlug);
 assert(comboItem&&comboItem.preserve_status===true,'Combined FVE + heat-pump near-win must remain managed and preserve status');
@@ -381,7 +397,7 @@ assert(leadCore.includes("'eon-solar'"),'Solar lead CTA must use the canonical E
 assert(leadCore.includes("https://www.eon.cz/domacnosti/usporne-technologie/solar/"),'Solar lead CTA must retain a safe public fallback');
 assert(leadCore.includes("data-se-placement=\"solar_legacy_article\""),'Solar lead CTA must expose a stable measurement placement');
 assert(leadCore.includes("home_url('/quote-checker/')"),'Solar lead CTA must route through Quote Checker before outbound E.ON comparison');
-for(const slug of ['fve-panely-na-strechu','fotovoltaika-na-eternitovou-strechu','kotveni-fotovoltaickych-panelu-na-ploche-strese','velikost-rozmery-a-hmotnost-solarnich-panelu','fotovoltaika-vykon-na-m2','kolik-vyrobi-fotovoltaika-za-rok','fotovoltaika-na-pozemku','castecne-zastineni-a-solarni-panely']){
+for(const slug of ['fve-panely-na-strechu','fotovoltaika-na-eternitovou-strechu','kotveni-fotovoltaickych-panelu-na-ploche-strese','velikost-rozmery-a-hmotnost-solarnich-panelu','fotovoltaika-vykon-na-m2','kolik-vyrobi-fotovoltaika-za-rok','fotovoltaika-na-pozemku','kolik-stoji-fotovoltaika','castecne-zastineni-a-solarni-panely']){
   assert(leadCore.includes("'"+slug+"'"),'Solar lead allowlist must include GSC-backed planning page: '+slug);
 }
 
