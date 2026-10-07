@@ -754,6 +754,8 @@ assert(builderUxJs.includes("if(!r.ok)throw new Error('catalog_http_'"),'Builder
 assert(builderUxJs.includes('if(this.result)this.bundles=window.SolarExpertBundleComposer.compose'),'Late catalog load must refresh an already calculated Builder result');
 assert(builderUxTpl.includes('x-show="catalogLoading"'),'Builder template must display catalog loading feedback');
 assert(builderUxTpl.includes('x-show="catalogError"'),'Builder template must display catalog error feedback');
+assert(builderUxTpl.includes('Začněte jedním kliknutím.'),'Builder first step must make the activation action explicit');
+assert(builderUxTpl.includes('Návrh solární sestavy'),'Builder kicker must stay Czech and task-oriented');
 assert(seoCore.includes("add_filter('wpseo_metadesc', 'solar_expert_wpseo_metadesc', 20)"),'Solar Expert metadata must pass through Yoast');
 assert(seoCore.includes("add_filter('wpseo_title', 'solar_expert_wpseo_title', 20)"),'Solar Expert titles must pass through Yoast');
 assert(seoCore.includes("function solar_expert_seo_meta($slug_override = '')"),'SEO map must support deterministic slug lookup for managed sync');
@@ -777,6 +779,8 @@ for(const id of ['se-battery-voltage','se-battery-daily-kwh','se-battery-autonom
 assert(batterySelectorTpl.includes('x-show="catalogLoading"'),'Battery Selector must show catalog loading feedback');
 assert(batterySelectorTpl.includes('x-show="catalogError"'),'Battery Selector must show catalog error feedback');
 assert(batterySelectorTpl.includes("!catalogLoading && !catalogError && !matches.length"),'Battery Selector must distinguish no-match from loading/error state');
+assert(batterySelectorTpl.includes('Čísla níže jsou jen výchozí příklad'),'Battery Selector must explain that defaults are only an example');
+assert(batterySelectorTpl.includes('Doporučené baterie'),'Battery Selector must label its result area');
 
 const mpptSelectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
 const mpptSelectorTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','mppt-selector.php'),'utf8');
@@ -791,6 +795,8 @@ assert(mpptSelectorTpl.includes('x-show="!inputValid"'),'MPPT Selector must show
 assert(mpptSelectorTpl.includes('x-show="catalogLoading"'),'MPPT Selector must show catalog loading feedback');
 assert(mpptSelectorTpl.includes('x-show="catalogError"'),'MPPT Selector must show catalog error feedback');
 assert(mpptSelectorTpl.includes("!catalogLoading && !catalogError && inputValid && !matches.length"),'MPPT Selector must distinguish catalog gap from loading/error/invalid input');
+assert(mpptSelectorTpl.includes('Hodnoty níže jsou jen výchozí příklad'),'MPPT Selector must explain that defaults are only an example');
+assert(mpptSelectorTpl.includes('Doporučené MPPT regulátory'),'MPPT Selector must label its result area');
 
 const inverterSelectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
 const inverterSelectorTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','inverter-selector.php'),'utf8');
@@ -805,6 +811,8 @@ for(const id of ['se-inverter-voltage','se-inverter-continuous','se-inverter-pea
 assert(inverterSelectorTpl.includes('x-show="!inputValid"'),'Inverter Selector must show invalid-input feedback');
 assert(inverterSelectorTpl.includes('x-show="catalogLoading"'),'Inverter Selector must show catalog loading feedback');
 assert(inverterSelectorTpl.includes('x-show="catalogError"'),'Inverter Selector must show catalog error feedback');
+assert(inverterSelectorTpl.includes('Hodnoty níže jsou jen výchozí příklad'),'Inverter Selector must explain that defaults are only an example');
+assert(inverterSelectorTpl.includes('Doporučené měniče'),'Inverter Selector must label its result area');
 assert(inverterSelectorTpl.includes("!catalogLoading && !catalogError && inputValid && !matches.length"),'Inverter Selector must distinguish no-match from loading/error/invalid input');
 
 const quoteCheckerJsUx=fs.readFileSync(path.join(__dirname,'..','assets','js','quote-checker.js'),'utf8');

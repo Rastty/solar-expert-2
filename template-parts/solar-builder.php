@@ -1,11 +1,12 @@
 <div id="builder" class="se-panel" x-data="solarExpertBuilder()" x-init="init()">
   <div class="se-row">
-    <div><div class="se-kicker">Solar Setup Builder</div><h2 x-text="step===1?'Co chcete napájet?':step===2?'Vyberte spotřebiče':step===3?'Kdy a jak bude systém fungovat?':'Návrh sestavy'"></h2></div>
+    <div><div class="se-kicker">Návrh solární sestavy</div><h2 x-text="step===1?'Co chcete napájet?':step===2?'Vyberte spotřebiče':step===3?'Kdy a jak bude systém fungovat?':'Návrh sestavy'"></h2></div>
     <span class="se-step" x-text="'0'+step"></span>
   </div>
   <div class="se-progress"><span :class="step>=1?'on':''"></span><span :class="step>=2?'on':''"></span><span :class="step>=3?'on':''"></span><span :class="step>=4?'on':''"></span></div>
 
   <div x-show="step===1">
+    <div class="se-note" style="margin-bottom:12px"><strong>Začněte jedním kliknutím.</strong> Vyberte situaci, která je vám nejblíž. Spotřebiče i dobu provozu upravíte v dalším kroku.</div>
     <button class="se-choice" @click="preset('chata')"><strong>Chata / zahradní domek</strong><small>Lednice, světla, čerpadlo, notebook…</small></button>
     <button class="se-choice" @click="preset('offgrid')"><strong>Ostrovní systém</strong><small>Celodenní provoz bez spolehlivé sítě.</small></button>
     <button class="se-choice" @click="preset('backup')"><strong>Záloha při výpadku</strong><small>Důležité spotřebiče a baterie.</small></button>
