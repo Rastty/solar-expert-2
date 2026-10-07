@@ -1557,9 +1557,10 @@ function solar_expert_health_payload() {
     'affiliate_monetized_lead_targets' => (int) ($lead_coverage['monetized_targets'] ?? 0),
     'affiliate_lead_coverage_pct' => (float) ($lead_coverage['coverage_pct'] ?? 0),
     'indexnow' => $indexnow_state,
-    'funnel_tracking' => 'first_party_v1',
+    'funnel_tracking' => 'first_party_v2',
     'outcome_scoreboard' => array(
       'measurement' => 'aggregate_event_counts_not_unique_users',
+      'activation_measurement' => 'viewport_exposure_v2_from_0_11_79',
       'days_7' => $outcome7,
       'days_28' => $outcome28,
     ),
