@@ -299,6 +299,15 @@
     },
     {
       "type": "post",
+      "slug": "tepelne-cerpadlo-monoblok",
+      "title": "Tepelné čerpadlo monoblok vs. split: co vybrat v roce 2026",
+      "status_if_new": "publish",
+      "status": "publish",
+      "file": "content/rewrites/tepelne-cerpadlo-monoblok.html",
+      "create_if_missing": true
+    },
+    {
+      "type": "post",
       "slug": "tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji",
       "title": "Tepelné čerpadlo vzduch–voda: jak funguje, cena a výběr 2026",
       "preserve_status": true,
