@@ -348,6 +348,15 @@
     },
     {
       "type": "post",
+      "slug": "pruhledne-solarni-panely",
+      "title": "Průhledné solární panely 2026: BIPV, výkon a realita",
+      "status_if_new": "publish",
+      "status": "publish",
+      "file": "content/rewrites/pruhledne-solarni-panely.html",
+      "create_if_missing": true
+    },
+    {
+      "type": "post",
       "slug": "vysvetleni-solarnich-panelu-pv-t",
       "title": "PVT panely: fotovoltaika a teplo v jednom hybridním kolektoru",
       "preserve_status": true,
