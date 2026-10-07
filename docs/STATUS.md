@@ -211,3 +211,5 @@ Next:
 - IndexNow discovery diagnostic: `/health` now reports whether Yoast is active, whether Premium is active, whether Yoast's `enable_index_now` feature flag is on, and the effective provider. This prevents duplicate IndexNow integrations before adding a fallback for Bing/Seznam discovery.
 
 - IndexNow fallback: live diagnostics confirmed Yoast Free (`yoast_premium_active=false`), so Solar Expert now provides its own bounded IndexNow provider for Bing/Seznam-compatible discovery. It serves a root verification key, queues published/unpublished post/page URLs, bootstraps the 7 managed indexable pages once, batches up to 100 URLs, records delivery health, retries failures, and the deploy flush is explicitly non-blocking.
+
+- Page-level outcome attribution: privacy-safe first-party funnel events now carry only a normalized pathname key (no query string, cookie ID, IP or free-form text). `/health` exposes the top 25 pages by outbound clicks/outcomes/starts/views, and deploy logs the 28-day breakdown so SEO work can be prioritized by actual activation and monetization rather than traffic alone.

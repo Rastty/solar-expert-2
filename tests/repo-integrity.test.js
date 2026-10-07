@@ -935,6 +935,9 @@ for(const eventName of ['tool_view','tool_start','solar_builder_complete','selec
   assert(firstPartyAnalytics.includes("'"+eventName+"'"),'Analytics collector must whitelist '+eventName);
 }
 assert(firstPartyAnalytics.includes("keepalive:true"),'Funnel POST must survive outbound navigation when possible');
+assert(firstPartyAnalytics.includes("'page'"),'First-party funnel collector must allow privacy-safe page attribution');
+assert(firstPartyAnalytics.includes('currentPageKey'),'First-party funnel collector must derive page attribution centrally');
+assert(firstPartyAnalytics.includes('window.location.pathname'),'Page attribution must use pathname only, not query strings');
 assert(!firstPartyAnalytics.includes('localStorage'),'First-party funnel collector must not use localStorage');
 assert(!firstPartyAnalytics.includes('document.cookie'),'First-party funnel collector must not set or read cookies');
 
@@ -1021,7 +1024,11 @@ assert(autoDeploy.includes('/wp-json/solar-expert/v1/indexnow-flush'),'Auto-depl
 assert(autoDeploy.includes('IndexNow flush was not accepted; production remains healthy'),'IndexNow outage must not fail production deployment');
 assert(seoCore.includes('function solar_expert_funnel_tool_breakdown'),'Outcome scoreboard must expose per-tool view/start breakdown');
 assert(seoCore.includes("'by_tool' => solar_expert_funnel_tool_breakdown($days)"),'Outcome summary must include per-tool breakdown');
+assert(seoCore.includes('function solar_expert_funnel_page_breakdown'),'Outcome scoreboard must expose page-level attribution');
+assert(seoCore.includes("'by_page' => solar_expert_funnel_page_breakdown($days)"),'Outcome summary must include page-level attribution');
+assert(seoCore.includes("'dealId','page'"),'Funnel endpoint must accept the bounded page dimension');
 assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d per-tool breakdown');
+assert(autoDeploy.includes('outcome 28d by_page='),'Auto-deploy must log the 28d page-attribution breakdown');
 assert(autoDeploy.includes('outcome 7d tool_views='),'Auto-deploy must log the live 7d/28d outcome scoreboard');
 assert(autoDeploy.includes('.outcome_scoreboard.days_28.outbound_clicks'),'Auto-deploy must read 28d outbound outcome data');
 
