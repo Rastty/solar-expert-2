@@ -4,7 +4,7 @@
   const config=window.SolarExpertAnalyticsConfig||{};
   const endpoint=config.endpoint||'';
   const allowedEvents=new Set([
-    'tool_view','tool_start','solar_builder_complete','selector_engaged',
+    'tool_view','tool_start','tool_exposure','tool_activation','solar_builder_complete','selector_engaged',
     'quote_checker_complete','affiliate_click','bundle_deal_click','lead_click',
     'tool_referral_click'
   ]);
@@ -106,13 +106,47 @@
     for(const [tool,selector] of tools){
       const root=document.querySelector(selector);
       if(!root) continue;
+
+      // Legacy page-presence metric kept for continuity. New decisions use
+      // exposure -> activation, both introduced together in v2.
       window.SolarExpertAnalytics.track('tool_view',{tool});
+
       let started=false;
+      let exposed=false;
+      let exposureTimer=null;
+      let observer=null;
+
+      const expose=()=>{
+        if(exposed) return;
+        exposed=true;
+        if(exposureTimer){clearTimeout(exposureTimer);exposureTimer=null;}
+        if(observer) observer.disconnect();
+        window.SolarExpertAnalytics.track('tool_exposure',{tool});
+      };
+
       const start=()=>{
+        // Interaction itself proves meaningful exposure, including browsers
+        // without IntersectionObserver.
+        expose();
         if(started) return;
         started=true;
         window.SolarExpertAnalytics.track('tool_start',{tool});
+        window.SolarExpertAnalytics.track('tool_activation',{tool});
       };
+
+      if('IntersectionObserver' in window){
+        observer=new IntersectionObserver((entries)=>{
+          const visible=entries.some(entry=>entry.isIntersecting&&entry.intersectionRatio>=0.15);
+          if(visible){
+            if(!exposed&&!exposureTimer) exposureTimer=setTimeout(expose,600);
+          }else if(exposureTimer){
+            clearTimeout(exposureTimer);
+            exposureTimer=null;
+          }
+        },{threshold:[0,0.15,0.5]});
+        observer.observe(root);
+      }
+
       root.addEventListener('pointerdown',start,{once:true,passive:true});
       root.addEventListener('keydown',start,{once:true});
       root.addEventListener('change',start,{once:true});

@@ -527,8 +527,10 @@ function solar_expert_settings_page() {
       $funnel7 = solar_expert_funnel_summary(7);
       $funnel28 = solar_expert_funnel_summary(28);
       $funnel_rows = array(
-        'tool_view' => 'Tool views',
-        'tool_start' => 'Tool starts',
+        'tool_view' => 'Tool views (legacy DOM presence)',
+        'tool_start' => 'Tool starts (legacy)',
+        'tool_exposure' => 'Tool exposures (viewport v2)',
+        'tool_activation' => 'Tool activations (v2)',
         'solar_builder_complete' => 'Builder completes',
         'selector_engaged' => 'Selector engagements',
         'quote_checker_complete' => 'Quote Checker completes',
@@ -670,6 +672,8 @@ function solar_expert_funnel_allowed_events() {
   return array(
     'tool_view',
     'tool_start',
+    'tool_exposure',
+    'tool_activation',
     'solar_builder_complete',
     'selector_engaged',
     'quote_checker_complete',
@@ -764,7 +768,7 @@ function solar_expert_funnel_tool_breakdown($days = 28) {
   $tools = array();
   $outcome_events = array('solar_builder_complete','selector_engaged','quote_checker_complete');
   $outbound_events = array('affiliate_click','bundle_deal_click','lead_click');
-  $relevant_events = array_merge(array('tool_view','tool_start'), $outcome_events, $outbound_events);
+  $relevant_events = array_merge(array('tool_view','tool_start','tool_exposure','tool_activation'), $outcome_events, $outbound_events);
 
   foreach ( $data as $date => $buckets ) {
     if ( (string) $date < $cutoff || ! is_array($buckets) ) { continue; }
@@ -792,6 +796,9 @@ function solar_expert_funnel_tool_breakdown($days = 28) {
         $tools[$tool] = array(
           'views'=>0,
           'starts'=>0,
+          'exposures'=>0,
+          'activations'=>0,
+          'activation_rate_pct'=>0,
           'outcome_events'=>0,
           'outbound_clicks'=>0,
           'start_rate_pct'=>0,
@@ -804,6 +811,10 @@ function solar_expert_funnel_tool_breakdown($days = 28) {
         $tools[$tool]['views'] += $count;
       } elseif ( $event === 'tool_start' ) {
         $tools[$tool]['starts'] += $count;
+      } elseif ( $event === 'tool_exposure' ) {
+        $tools[$tool]['exposures'] += $count;
+      } elseif ( $event === 'tool_activation' ) {
+        $tools[$tool]['activations'] += $count;
       } elseif ( in_array($event, $outcome_events, true) ) {
         $tools[$tool]['outcome_events'] += $count;
       } elseif ( in_array($event, $outbound_events, true) ) {
@@ -815,9 +826,12 @@ function solar_expert_funnel_tool_breakdown($days = 28) {
   foreach ( $tools as $tool => $row ) {
     $views = (int) ($row['views'] ?? 0);
     $starts = (int) ($row['starts'] ?? 0);
+    $exposures = (int) ($row['exposures'] ?? 0);
+    $activations = (int) ($row['activations'] ?? 0);
     $outcomes = (int) ($row['outcome_events'] ?? 0);
     $outbound = (int) ($row['outbound_clicks'] ?? 0);
     $tools[$tool]['start_rate_pct'] = $views ? round(($starts / $views) * 100, 1) : 0;
+    $tools[$tool]['activation_rate_pct'] = $exposures ? round(($activations / $exposures) * 100, 1) : 0;
     $tools[$tool]['outcome_events_per_100_starts'] = $starts ? round(($outcomes / $starts) * 100, 1) : 0;
     $tools[$tool]['outbound_clicks_per_100_views'] = $views ? round(($outbound / $views) * 100, 1) : 0;
   }
@@ -859,6 +873,9 @@ function solar_expert_funnel_page_breakdown($days = 28) {
         $pages[$page] = array(
           'views'=>0,
           'starts'=>0,
+          'exposures'=>0,
+          'activations'=>0,
+          'activation_rate_pct'=>0,
           'outcome_events'=>0,
           'outbound_clicks'=>0,
           'start_rate_pct'=>0,
@@ -870,6 +887,10 @@ function solar_expert_funnel_page_breakdown($days = 28) {
         $pages[$page]['views'] += $count;
       } elseif ( $event === 'tool_start' ) {
         $pages[$page]['starts'] += $count;
+      } elseif ( $event === 'tool_exposure' ) {
+        $pages[$page]['exposures'] += $count;
+      } elseif ( $event === 'tool_activation' ) {
+        $pages[$page]['activations'] += $count;
       } elseif ( in_array($event, $outcome_events, true) ) {
         $pages[$page]['outcome_events'] += $count;
       } elseif ( in_array($event, $outbound_events, true) ) {
@@ -881,8 +902,11 @@ function solar_expert_funnel_page_breakdown($days = 28) {
   foreach ( $pages as $page => $row ) {
     $views = (int) ($row['views'] ?? 0);
     $starts = (int) ($row['starts'] ?? 0);
+    $exposures = (int) ($row['exposures'] ?? 0);
+    $activations = (int) ($row['activations'] ?? 0);
     $outbound = (int) ($row['outbound_clicks'] ?? 0);
     $pages[$page]['start_rate_pct'] = $views ? round(($starts / $views) * 100, 1) : 0;
+    $pages[$page]['activation_rate_pct'] = $exposures ? round(($activations / $exposures) * 100, 1) : 0;
     $pages[$page]['outbound_clicks_per_100_views'] = $views ? round(($outbound / $views) * 100, 1) : 0;
   }
 
@@ -961,6 +985,8 @@ function solar_expert_funnel_outcome_summary($days = 28) {
 
   $tool_views = (int) ($events['tool_view'] ?? 0);
   $tool_starts = (int) ($events['tool_start'] ?? 0);
+  $tool_exposures = (int) ($events['tool_exposure'] ?? 0);
+  $tool_activations = (int) ($events['tool_activation'] ?? 0);
   $builder_completes = (int) ($events['solar_builder_complete'] ?? 0);
   $selector_engagements = (int) ($events['selector_engaged'] ?? 0);
   $quote_completes = (int) ($events['quote_checker_complete'] ?? 0);
@@ -978,6 +1004,9 @@ function solar_expert_funnel_outcome_summary($days = 28) {
     'tool_views' => $tool_views,
     'tool_starts' => $tool_starts,
     'tool_start_rate_pct' => $tool_views ? round(($tool_starts / $tool_views) * 100, 1) : 0,
+    'tool_exposures' => $tool_exposures,
+    'tool_activations' => $tool_activations,
+    'tool_activation_rate_pct' => $tool_exposures ? round(($tool_activations / $tool_exposures) * 100, 1) : 0,
     'builder_completes' => $builder_completes,
     'selector_engagements' => $selector_engagements,
     'quote_checker_completes' => $quote_completes,
@@ -1528,9 +1557,10 @@ function solar_expert_health_payload() {
     'affiliate_monetized_lead_targets' => (int) ($lead_coverage['monetized_targets'] ?? 0),
     'affiliate_lead_coverage_pct' => (float) ($lead_coverage['coverage_pct'] ?? 0),
     'indexnow' => $indexnow_state,
-    'funnel_tracking' => 'first_party_v1',
+    'funnel_tracking' => 'first_party_v2',
     'outcome_scoreboard' => array(
       'measurement' => 'aggregate_event_counts_not_unique_users',
+      'activation_measurement' => 'viewport_exposure_v2_from_0_11_79',
       'days_7' => $outcome7,
       'days_28' => $outcome28,
     ),
