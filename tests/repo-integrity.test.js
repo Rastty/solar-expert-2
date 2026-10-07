@@ -39,6 +39,25 @@ const merchantRegistry=JSON.parse(fs.readFileSync(path.join(__dirname,'..','data
 const merchantIds=new Set((merchantRegistry.merchants||[]).map(m=>m.id));
 assert(merchantIds.size>0,'Merchant registry must not be empty');
 const verifiedDate=/^\d{4}-\d{2}-\d{2}$/;
+for(const deal of source.bundle_deals){
+  assert(merchantIds.has(deal.merchant),'Unknown primary bundle merchant '+deal.merchant+' for '+deal.id);
+  assert(verifiedDate.test(deal.verified_at||''),'Active bundle deal must be date-verified: '+deal.id);
+  if(Array.isArray(deal.offers)){
+    const offerMerchants=new Set();
+    for(const offer of deal.offers){
+      assert(merchantIds.has(offer.merchant),'Unknown bundle offer merchant '+offer.merchant+' for '+deal.id);
+      assert(!offerMerchants.has(offer.merchant),'Duplicate bundle offer merchant '+offer.merchant+' for '+deal.id);
+      offerMerchants.add(offer.merchant);
+      assert(/^https:\/\//.test(offer.source_url||''),'Bundle offer source must be HTTPS for '+deal.id+'@'+offer.merchant);
+      assert(Number(offer.price_czk)>0,'Bundle offer price must be positive for '+deal.id+'@'+offer.merchant);
+      assert(offer.availability==='in_stock','Only in-stock bundle offers may be active: '+deal.id+'@'+offer.merchant);
+      assert(verifiedDate.test(offer.verified_at||deal.verified_at||''),'Bundle offer must be date-verified: '+deal.id+'@'+offer.merchant);
+    }
+    const primary=deal.offers.find(o=>o.merchant===deal.merchant);
+    assert(primary,'Primary bundle merchant must exist in offers for '+deal.id);
+    assert(Number(deal.price_czk)===Number(primary.price_czk),'Bundle primary price must match primary offer for '+deal.id);
+  }
+}
 
 for(const product of source.products||[]){
   assert(product.id&&typeof product.id==='string','Product is missing id');
@@ -132,6 +151,7 @@ assert(indexabilityCore.includes("update_post_meta($id, '_yoast_wpseo_meta-robot
 assert(indexabilityCore.includes("add_filter('wpseo_sitemap_exclude_post_type', 'solar_expert_keep_pages_in_yoast_sitemap', 10, 2)"),'WordPress Pages must remain eligible for the Yoast sitemap');
 
 
+assert(indexabilityCore.includes("$bundle_deals = isset($catalog['bundle_deals'])"),'Price freshness health must include bundle deal prices');
 assert(indexabilityCore.includes('function solar_expert_managed_indexability_state'),'Health endpoint must audit managed indexability');
 for(const field of ['managed_indexability_targets','managed_indexability_ready','managed_indexability_errors','managed_indexability_issues']){
   assert(indexabilityCore.includes("'"+field+"'"),'Health payload missing indexability field: '+field);
@@ -960,6 +980,8 @@ assert(firstPartyCore.includes("'placements'=>$placements"),'Funnel summary must
 assert(firstPartyCore.includes("Outbound clicks by merchant"),'Admin diagnostics must expose merchant click attribution');
 assert(firstPartyCore.includes("Outbound clicks by placement"),'Admin diagnostics must expose placement click attribution');
 const builderOfferTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
+assert(builderOfferTpl.includes('SolarExpertAffiliate.bundleDealOffers(b.bundleDeal).slice(0,2)'),'Builder must expose up to two verified bundle-deal merchants');
+assert(builderOfferTpl.includes('SolarExpertAffiliate.trackBundleDealOffer'),'Builder must attribute bundle clicks to the selected merchant');
 assert(builderOfferTpl.includes('se-offer-best'),'Builder must visibly distinguish a verified cheaper merchant offer');
 assert(firstPartyCore.includes("'funnel_tracking' => 'first_party_v2'"),'Health payload must expose first-party funnel tracking state');
 assert(firstPartyCore.includes("'activation_measurement' => 'viewport_exposure_v2_from_0_11_79'"),'Health payload must mark the clean exposure/activation measurement era');
