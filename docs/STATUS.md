@@ -207,3 +207,5 @@ Next:
 - Outcome scoreboard v1: first-party 7/28-day funnel counts are now exposed as aggregate event metrics in `/health` and logged on every production deploy (tool views, starts, outcome events and outbound clicks, plus normalized rates). This shifts the primary operating view from technical health alone toward measurable user/business outcomes without exposing user-level data.
 
 - Per-tool outcome baseline: `/health` now breaks tool views and starts down by Builder, Battery, MPPT, Inverter and Quote Checker, and production deploy logs the 28-day breakdown. This lets us distinguish a global traffic problem from a tool-specific activation problem before changing UX.
+
+- IndexNow discovery diagnostic: `/health` now reports whether Yoast is active, whether Premium is active, whether Yoast's `enable_index_now` feature flag is on, and the effective provider. This prevents duplicate IndexNow integrations before adding a fallback for Bing/Seznam discovery.
