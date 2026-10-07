@@ -199,3 +199,5 @@ Next:
 - Paginated archive hygiene: fresh GSC exposed `/page/2/` at 10 impressions / avg. position 6.3; paginated home/archive views now emit `noindex, follow`, preserving crawlable links while removing thin pagination from search results.
 
 - Battery hub internal-link boost: fresh GSC shows `/category/baterie/` at 11 impressions / avg. position 17.1; the battery fundamentals and solar-kit guides now feed that hub plus the Battery Selector through a bounded related-links block.
+
+- Pagination live guard: Auto Deploy now probes `/page/2/` after release and fails if the archive loses its live `noindex`; this turns the 0.11.66 pagination cleanup into a production invariant without changing page content.
