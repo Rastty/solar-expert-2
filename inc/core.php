@@ -2017,6 +2017,10 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'Jak funguje solární panel: fotovoltaický efekt a Wp | Solar Expert',
       'description' => 'Jak fotovoltaický panel mění světlo na stejnosměrnou elektřinu, co dělá článek, MPPT a střídač a proč reálný výkon není totéž co Wp.'
     ),
+    'pruhledne-solarni-panely' => array(
+      'title' => 'Průhledné solární panely 2026: BIPV a výkon | Solar Expert',
+      'description' => 'Jak fungují průhledné a semitransparentní solární panely, BIPV sklo, výkon vs. průhlednost, organická a perovskitová PV a kdy dávají smysl.'
+    ),
     'vysvetleni-solarnich-panelu-pv-t' => array(
       'title' => 'PVT panely: elektřina a teplo v jednom kolektoru | Solar Expert',
       'description' => 'Jak fungují hybridní PVT panely, rozdíl proti běžné FVE a solární termice, výhody, nevýhody a kdy dává PVT smysl.'
@@ -2292,6 +2296,65 @@ function solar_expert_append_heat_pump_lead_cta($content) {
 }
 add_filter('the_content', 'solar_expert_append_heat_pump_lead_cta', 25);
 
+
+function solar_expert_emerging_pv_slugs() {
+  return array(
+    'solarni-panel-definice-a-fakta',
+    'vysvetleni-solarnich-panelu-pv-t',
+    'pruhledne-solarni-panely',
+  );
+}
+
+function solar_expert_append_emerging_pv_related_links($content) {
+  if ( is_admin() || ! is_singular('post') || ! in_the_loop() || ! is_main_query() ) {
+    return $content;
+  }
+
+  $post = get_queried_object();
+  $slug = $post && ! empty($post->post_name) ? $post->post_name : '';
+  if ( ! $slug || ! in_array($slug, solar_expert_emerging_pv_slugs(), true) ) {
+    return $content;
+  }
+
+  if ( strpos($content, 'data-se-related="emerging-pv-cluster"') !== false ) {
+    return $content;
+  }
+
+  $guides = array(
+    'pruhledne-solarni-panely' => array(
+      'label' => 'Průhledné panely a BIPV',
+      'url' => home_url('/pruhledne-solarni-panely/'),
+    ),
+    'vysvetleni-solarnich-panelu-pv-t' => array(
+      'label' => 'PVT: elektřina + teplo',
+      'url' => home_url('/vysvetleni-solarnich-panelu-pv-t/'),
+    ),
+    'jak-vybrat-solarni-panely-pro-vas-domov' => array(
+      'label' => 'Výběr klasických FV panelů',
+      'url' => home_url('/jak-vybrat-solarni-panely-pro-vas-domov/'),
+    ),
+  );
+
+  $links = array();
+  foreach ( $guides as $guide_slug => $guide ) {
+    if ( $guide_slug === $slug ) {
+      continue;
+    }
+    $links[] = '<a href="' . esc_url($guide['url']) . '">' . esc_html($guide['label']) . '</a>';
+  }
+
+  if ( empty($links) ) {
+    return $content;
+  }
+
+  $related = '<aside class="se-note se-related-guides" data-se-related="emerging-pv-cluster">'
+    . '<strong>Související technologie:</strong> '
+    . implode(' · ', $links)
+    . '</aside>';
+
+  return $content . $related;
+}
+add_filter('the_content', 'solar_expert_append_emerging_pv_related_links', 23);
 
 function solar_expert_battery_cluster_slugs() {
   return array(
