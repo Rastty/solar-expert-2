@@ -197,3 +197,5 @@ Next:
 - Shading near-win funnel: fresh top-10 `/castecne-zastineni-a-solarni-panely/` keeps its ranking-safe body/title/meta untouched, but now joins the existing solar related-links + owned Quote Checker + bounded E.ON comparison path.
 
 - Paginated archive hygiene: fresh GSC exposed `/page/2/` at 10 impressions / avg. position 6.3; paginated home/archive views now emit `noindex, follow`, preserving crawlable links while removing thin pagination from search results.
+
+- Battery hub internal-link boost: fresh GSC shows `/category/baterie/` at 11 impressions / avg. position 17.1; the battery fundamentals and solar-kit guides now feed that hub plus the Battery Selector through a bounded related-links block.
