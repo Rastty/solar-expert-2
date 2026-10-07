@@ -931,13 +931,16 @@ assert(firstPartyCore.includes("Outbound clicks by placement"),'Admin diagnostic
 const builderOfferTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
 assert(builderOfferTpl.includes('se-offer-best'),'Builder must visibly distinguish a verified cheaper merchant offer');
 assert(firstPartyCore.includes("'funnel_tracking' => 'first_party_v1'"),'Health payload must expose first-party funnel tracking state');
-for(const eventName of ['tool_view','tool_start','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click']){
+for(const eventName of ['tool_view','tool_start','solar_builder_complete','selector_engaged','quote_checker_complete','affiliate_click','bundle_deal_click','lead_click','tool_referral_click']){
   assert(firstPartyAnalytics.includes("'"+eventName+"'"),'Analytics collector must whitelist '+eventName);
 }
 assert(firstPartyAnalytics.includes("keepalive:true"),'Funnel POST must survive outbound navigation when possible');
 assert(firstPartyAnalytics.includes("'page'"),'First-party funnel collector must allow privacy-safe page attribution');
 assert(firstPartyAnalytics.includes('currentPageKey'),'First-party funnel collector must derive page attribution centrally');
 assert(firstPartyAnalytics.includes('window.location.pathname'),'Page attribution must use pathname only, not query strings');
+assert(firstPartyAnalytics.includes('toolPaths=new Map'),'Analytics must maintain an explicit owned-tool URL map');
+assert(firstPartyAnalytics.includes("track('tool_referral_click',{tool})"),'Internal clicks into owned tools must be measured');
+assert(firstPartyAnalytics.includes("url.origin!==window.location.origin"),'Tool referral tracking must ignore external links');
 assert(!firstPartyAnalytics.includes('localStorage'),'First-party funnel collector must not use localStorage');
 assert(!firstPartyAnalytics.includes('document.cookie'),'First-party funnel collector must not set or read cookies');
 
@@ -1026,9 +1029,12 @@ assert(seoCore.includes('function solar_expert_funnel_tool_breakdown'),'Outcome 
 assert(seoCore.includes("'by_tool' => solar_expert_funnel_tool_breakdown($days)"),'Outcome summary must include per-tool breakdown');
 assert(seoCore.includes('function solar_expert_funnel_page_breakdown'),'Outcome scoreboard must expose page-level attribution');
 assert(seoCore.includes("'by_page' => solar_expert_funnel_page_breakdown($days)"),'Outcome summary must include page-level attribution');
+assert(seoCore.includes('function solar_expert_funnel_referral_breakdown'),'Outcome scoreboard must expose article-to-tool referrals');
+assert(seoCore.includes("'tool_referrals' => solar_expert_funnel_referral_breakdown($days)"),'Outcome summary must include referral breakdown');
 assert(seoCore.includes("'dealId','page'"),'Funnel endpoint must accept the bounded page dimension');
 assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d per-tool breakdown');
 assert(autoDeploy.includes('outcome 28d by_page='),'Auto-deploy must log the 28d page-attribution breakdown');
+assert(autoDeploy.includes('outcome 28d tool_referrals='),'Auto-deploy must log article-to-tool referral breakdown');
 assert(autoDeploy.includes('outcome 7d tool_views='),'Auto-deploy must log the live 7d/28d outcome scoreboard');
 assert(autoDeploy.includes('.outcome_scoreboard.days_28.outbound_clicks'),'Auto-deploy must read 28d outbound outcome data');
 

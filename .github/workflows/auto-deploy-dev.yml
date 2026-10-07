@@ -271,12 +271,14 @@ jobs:
             outcome28_outbound="$(jq -r '.outcome_scoreboard.days_28.outbound_clicks // 0' <<<"$health")"
             outcome28_by_tool="$(jq -c '.outcome_scoreboard.days_28.by_tool // {}' <<<"$health")"
             outcome28_by_page="$(jq -c '.outcome_scoreboard.days_28.by_page // {}' <<<"$health")"
+            outcome28_tool_referrals="$(jq -c '.outcome_scoreboard.days_28.tool_referrals // {}' <<<"$health")"
 
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
             echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
             echo "outcome 7d tool_views=${outcome7_views} tool_starts=${outcome7_starts} outcome_events=${outcome7_events} outbound_clicks=${outcome7_outbound}; 28d tool_views=${outcome28_views} tool_starts=${outcome28_starts} outcome_events=${outcome28_events} outbound_clicks=${outcome28_outbound}"
             echo "outcome 28d by_tool=${outcome28_by_tool}"
             echo "outcome 28d by_page=${outcome28_by_page}"
+            echo "outcome 28d tool_referrals=${outcome28_tool_referrals}"
 
             if [ "$lead_targets" -gt "0" ] && [ "$monetized_lead_targets" -lt "$lead_targets" ]; then
               echo "::warning::Lead monetization coverage is incomplete (${monetized_lead_targets}/${lead_targets})."
