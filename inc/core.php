@@ -1954,6 +1954,15 @@ add_filter('robots_txt', 'solar_expert_robots_txt', 99, 2);
 // Solar Expert intentionally uses public WordPress Pages for calculators,
 // selectors and trust pages. Keep Pages eligible for the Yoast sitemap;
 // individual noindex pages can still be excluded normally.
+
+function solar_expert_noindex_paged_archives($robots) {
+  if ( is_paged() && ( is_home() || is_archive() ) ) {
+    return 'noindex, follow';
+  }
+  return $robots;
+}
+add_filter('wpseo_robots', 'solar_expert_noindex_paged_archives', 20);
+
 function solar_expert_keep_pages_in_yoast_sitemap($excluded, $post_type) {
   if ( $post_type === 'page' ) {
     return false;
