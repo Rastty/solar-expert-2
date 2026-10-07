@@ -14,8 +14,8 @@
 
   function currentPageKey(){
     const path=(window.location&&window.location.pathname)||'/';
-    const trimmed=path.replace(/^\\/+|\\/+$/g,'');
-    return (trimmed||'home').replace(/\\/+/g,'--').slice(0,80);
+    const trimmed=path.replace(/^\/+|\/+$/g,'');
+    return (trimmed||'home').replace(/\/+/g,'--').slice(0,80);
   }
 
   function cleanPayload(event,detail){
