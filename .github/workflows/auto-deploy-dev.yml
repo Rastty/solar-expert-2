@@ -404,5 +404,28 @@ jobs:
             echo "Legacy redirect sitemap hygiene OK: $source_url -> $target_url"
           done < <(jq -r '.legacy_redirects | to_entries[] | [.key,.value] | @tsv' <<<"$health")
 
+          paged_url="$base/page/2/"
+          paged_headers="$(mktemp)"
+          paged_body="$(mktemp)"
+          paged_http="$(curl -sSL --max-time 30 \
+            -H "Cache-Control: no-cache, no-store, max-age=0" \
+            -D "$paged_headers" \
+            -o "$paged_body" \
+            -w "%{http_code}" \
+            "$paged_url")"
+
+          if [ "$paged_http" != "200" ]; then
+            echo "::error::Paginated archive returned HTTP $paged_http: $paged_url"
+            exit 1
+          fi
+
+          if ! grep -Eiq '^x-robots-tag:.*noindex' "$paged_headers" && \
+             ! grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$paged_body"; then
+            echo "::error::Paginated archive is missing live noindex: $paged_url"
+            exit 1
+          fi
+
+          echo "Paginated archive noindex OK: $paged_url"
+
           redirect_count="$(jq -r '.legacy_redirect_count' <<<"$health")"
-          echo "Crawler discovery verified: robots + sitemap index + page sitemap + ${#indexable_slugs[@]} managed pages + ${redirect_count} sitemap-clean 301 redirects."
+          echo "Crawler discovery verified: robots + sitemap index + page sitemap + ${#indexable_slugs[@]} managed pages + ${redirect_count} sitemap-clean 301 redirects + paginated archive noindex."
