@@ -1025,6 +1025,24 @@ function solar_expert_managed_indexability_state($manifest) {
   return $state;
 }
 
+
+function solar_expert_indexnow_state() {
+  $yoast_active = defined('WPSEO_FILE');
+  $yoast_premium = defined('WPSEO_PREMIUM_FILE');
+  $yoast_indexnow = null;
+
+  if ( $yoast_active && class_exists('WPSEO_Options') && method_exists('WPSEO_Options', 'get') ) {
+    $yoast_indexnow = (bool) WPSEO_Options::get('enable_index_now', false);
+  }
+
+  return array(
+    'yoast_active' => $yoast_active,
+    'yoast_premium_active' => $yoast_premium,
+    'yoast_indexnow_enabled' => $yoast_indexnow,
+    'effective_provider' => ($yoast_premium && $yoast_indexnow) ? 'yoast_premium' : 'none_detected',
+  );
+}
+
 function solar_expert_health_payload() {
   $catalog = solar_expert_load_catalog();
 
@@ -1047,6 +1065,7 @@ function solar_expert_health_payload() {
   $lead_coverage = solar_expert_lead_coverage($map, $bases);
   $managed_indexability = solar_expert_managed_indexability_state($manifest);
   $legacy_redirects = solar_expert_legacy_redirect_map();
+  $indexnow_state = solar_expert_indexnow_state();
   $outcome7 = solar_expert_funnel_outcome_summary(7);
   $outcome28 = solar_expert_funnel_outcome_summary(28);
 
@@ -1088,6 +1107,7 @@ function solar_expert_health_payload() {
     'affiliate_lead_targets' => (int) ($lead_coverage['targets'] ?? 0),
     'affiliate_monetized_lead_targets' => (int) ($lead_coverage['monetized_targets'] ?? 0),
     'affiliate_lead_coverage_pct' => (float) ($lead_coverage['coverage_pct'] ?? 0),
+    'indexnow' => $indexnow_state,
     'funnel_tracking' => 'first_party_v1',
     'outcome_scoreboard' => array(
       'measurement' => 'aggregate_event_counts_not_unique_users',
