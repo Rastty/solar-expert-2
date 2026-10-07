@@ -944,8 +944,24 @@
       "availability": "in_stock",
       "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-pusung-s--5kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
       "verified_price_source_url": "https://www.battery.cz/baterie-menic/",
-      "verified_at": "2026-10-05",
-      "price_mode": "snapshot"
+      "verified_at": "2026-10-07",
+      "price_mode": "snapshot",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 32990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-pusung-s--5kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 32990,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/solarni-sestavy-ac/set-lithiova-baterie-seplos-pusung-s--5kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
     },
     {
       "id": "deal-battery-polo-w-growatt6000",
@@ -960,8 +976,24 @@
       "availability": "in_stock",
       "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-polo-w--5-12kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
       "verified_price_source_url": "https://www.battery.cz/baterie-menic/",
-      "verified_at": "2026-10-05",
-      "price_mode": "snapshot"
+      "verified_at": "2026-10-07",
+      "price_mode": "snapshot",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 32990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-polo-w--5-12kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 32990,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/solarni-sestavy-ac/set-lithiova-baterie-seplos-polo-w--5-12kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
     }
   ]
 }
