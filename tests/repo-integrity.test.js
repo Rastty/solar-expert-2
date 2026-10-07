@@ -1007,6 +1007,9 @@ assert(seoCore.includes('function solar_expert_funnel_outcome_summary'),'Health 
 assert(seoCore.includes("'outcome_scoreboard' => array("),'Health endpoint must expose the outcome scoreboard');
 assert(seoCore.includes("'aggregate_event_counts_not_unique_users'"),'Outcome scoreboard must clearly state event-count semantics');
 assert(seoCore.includes("'outbound_clicks_per_100_tool_views'"),'Outcome scoreboard must expose a normalized outbound intent metric');
+assert(seoCore.includes('function solar_expert_funnel_tool_breakdown'),'Outcome scoreboard must expose per-tool view/start breakdown');
+assert(seoCore.includes("'by_tool' => solar_expert_funnel_tool_breakdown($days)"),'Outcome summary must include per-tool breakdown');
+assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d per-tool breakdown');
 assert(autoDeploy.includes('outcome 7d tool_views='),'Auto-deploy must log the live 7d/28d outcome scoreboard');
 assert(autoDeploy.includes('.outcome_scoreboard.days_28.outbound_clicks'),'Auto-deploy must read 28d outbound outcome data');
 

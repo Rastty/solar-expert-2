@@ -205,3 +205,5 @@ Next:
 - Pagination noindex hotfix: the new production crawler guard exposed that `/page/2/` did not match the overly narrow `is_paged() && (is_home() || is_archive())` condition. The robots guard now uses WordPress `is_paged()` directly, preserving `noindex, follow` for paginated result sets while leaving singular content untouched.
 
 - Outcome scoreboard v1: first-party 7/28-day funnel counts are now exposed as aggregate event metrics in `/health` and logged on every production deploy (tool views, starts, outcome events and outbound clicks, plus normalized rates). This shifts the primary operating view from technical health alone toward measurable user/business outcomes without exposing user-level data.
+
+- Per-tool outcome baseline: `/health` now breaks tool views and starts down by Builder, Battery, MPPT, Inverter and Quote Checker, and production deploy logs the 28-day breakdown. This lets us distinguish a global traffic problem from a tool-specific activation problem before changing UX.
