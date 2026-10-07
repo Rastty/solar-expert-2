@@ -1,0 +1,262 @@
+# Current status
+
+Git-first development active on `dev`.
+
+- WordPress theme root: ready
+- Builder: implemented with product comparison + completion checklist
+- Battery Selector: implemented and offer-enabled
+- MPPT Selector: implemented, offer-enabled, cold-Voc + MPPT start-window checks added
+- Inverter Selector: implemented and offer-enabled
+- Compatibility and bundle engine: implemented
+- Battery sizing: nominal target is enforced once; no double 0.85 reduction
+- Quote Checker MVP: implemented
+- Verified public product seed: 24 products
+- Multi-merchant offer layer: active for 5 verified products
+- Merchant-specific affiliate keys: `product-id@merchant-id`
+- Offer-aware ranking: compatibility first, then availability and cheapest verified in-stock offer
+- Verified small 12V bundle path: ROGERELE REP1000-12
+- Affiliate map: stored in WordPress option with admin settings UI; no deeplinks in public GitHub
+- Managed content manifest: 50 items (money pages, transparency pages and legacy rewrites)
+- Repository guardrails: catalog parity, offer/merchant integrity, no public affiliate deeplinks, manifest target validation
+- Obsolete duplicate bootstrap theme: removed
+- Product comparison: compares complete bundles on battery, continuous/surge inverter power, PV and MPPT fit
+- “Co ještě potřebuji?”: separates included core components from site-specific protection/cabling/mounting work
+- Deployment manifest: corrected to repository-root theme; obsolete nested theme path removed from release config
+- Pre-production QA gate + rollback runbook: added
+- Public health endpoint: `/wp-json/solar-expert/v1/health` exposes only safe version/count telemetry for post-deploy verification
+- RC build marker: `dev-rc-0.11.55`; WordPress theme name `Solar Expert 2.0 RC` to avoid confusion with obsolete installed copies
+- Live QA: discontinued DAH 555W panel removed from recommendations; Victron 190W price refreshed to 2,251 Kč
+- 7 reviewed tool/transparency pages: publish-ready via managed manifest
+- Legacy rewrite internal linking: all 7 high-value rewrites now feed relevant decision tools
+- WordPress admin diagnostics: affiliate coverage + managed-content status tables
+- Merchant-level affiliate bases: automatic eHub deeplinks via `desturl`; product map remains override-only
+- Dedicated Solar Expert settings save handler: posts to `admin-post.php`, not `options.php`
+- Explicit managed-content sync: admin button forces manifest → WordPress publish/update and reports created/updated/errors
+- Focused SEO titles/meta descriptions: homepage + 7 managed tool/transparency pages
+- Product coverage: added verified GOOWEI 12V/200Ah and KOSUN 48V/3000W products
+- SEO rescue batch: rewrote degradation, flat-roof mounting and panel-size pages
+- Cannibalization cleanup: 301 redirects consolidate two duplicate indexed legacy URLs into stronger managed pages
+- Flat-roof duplicate cleanup: `/kotveni-fotovoltaickych-panelu-na-ploche-strese-2/` now 301s to the managed canonical flat-roof mounting guide after GSC showed overlapping ranking queries
+- Prometheus GSC baseline: 50 URLs / 15 clicks / 1,713 impressions over 2026-04-23→2026-07-21 stored in `docs/GSC_BASELINE.md`
+- GSC-driven near-win rewrites: `fotovoltaika-vykon-na-m2`, `co-je-1-kwp`, `jak-zapojit-solarni-panely` expanded to match observed query intent
+- Fresh GSC refresh 2026-10-05: 90d 3,284 impressions / 14 clicks; 28d 908 impressions / 4 clicks
+- Fresh near-win rewrites: `kolik-panelu-je-potreba-na-jeden-string` and `fotovoltaika-na-eternitovou-strechu`
+- Crawl discovery: all five money/tool pages linked sitewide from footer
+- Heat-pump legacy monetization: bounded E.ON lead CTA on 12 fresh-GSC-proven legacy articles; public fallback if affiliate lead mapping is absent
+- Lead analytics: `lead_click` dataLayer event + `solar-expert-lead-click` browser event
+- Quote Checker conversion step: completed results now offer an owned Builder path plus a separately tracked monetized E.ON FVE comparison CTA (`quote_checker_result`)
+- WordPress diagnostics: `eon-heat-pump` lead mapping status visible in Solar Expert settings
+- Combined FVE + heat-pump decision page: fresh-GSC near-win rewritten with October 2026 price benchmark, Builder + Quote Checker routing and E.ON lead CTA
+- E.ON solar lead lane: bounded CTA on 7 GSC-backed installation/planning articles using the active shared `eon-cz` base, with public fallback
+- Owned-first solar funnel: GSC-backed FVE planning pages now route visitors through Quote Checker before the monetized E.ON comparison CTA
+- Heat-pump boundary near-win: fresh-GSC P1 rewrite using MMR April 2026 methodology; no fake universal setback distance
+- Shading CTR protection: top-5 page gets title/meta refinement only, body untouched
+- Tracker CTR protection: `/nataceni-solarnich-panelu-za-sluncem/` is a fresh top-10 / recent top-5 near-win; title/meta refined while body remains untouched
+- Mitsubishi Ecodan CTR protection: GSC query `mitsubishi ecodan ultra quiet` is already near the top (16 impressions / avg. position 4.88); title/meta refined while the legacy body remains untouched pending broader intent evidence
+- Hourly FVE output near-win: rewritten around kW vs kWh, 1/5/10 kWp examples and Builder routing
+- Cleaning cannibalization cleanup: two competing cleaning URLs consolidated into one managed guide with 301 redirect
+- Heat-pump consumption cannibalization: `/spotreba-tepelneho-cerpadla-v-kwh/` 301s to a rebuilt `/prumerna-spotreba-tepelneho-cerpadla/` guide; two overlapping high-impression URLs now consolidate into one SCOP/kWh intent owner
+- Owned-first heat-pump funnel: legacy traffic is internally routed to the FVE + heat-pump decision page before the outbound E.ON CTA
+- Heat-pump topical cluster: all bounded TČ legacy pages receive contextual internal links to the 2026 comparison hub, consumption guide and FVE + TČ decision page, excluding self-links
+- COP/SCOP consolidation: canonical COP guide rebuilt around comparable operating points and seasonal efficiency; overlapping generic efficiency URL now 301s into it
+- Heat-pump principle refresh: `/jak-funguje-tepelne-cerpadlo/` (99 fresh-GSC impressions) rebuilt as a clean four-stage thermodynamic explainer with COP and buyer-guide routing; stale UK grant/translation content removed
+- PVT intent separation: `vysvetleni-solarnich-panelu-pv-t` remains a distinct hybrid electricity+heat guide; obsolete UK incentive and unsupported legacy efficiency claims removed
+- Winter PV consolidation: two overlapping winter-efficiency URLs merged into one managed guide; `co-dela-fotovoltaika-kdyz-je-zima` now 301s to the canonical winter-performance/snow/tilt page
+- Real-world PV performance refresh: `realny-vykon-solarnich-panelu` rebuilt around STC, irradiance, cell temperature, MPPT, clipping and BOS losses; exact query already had a top-5 signal
+- Metal-roof FVE refresh: US-centric marketing article replaced with a Czech-useful guide for standing seam, trapezoidal sheet, penetrations, sealing, statics and corrosion; joins the active E.ON solar funnel
+- Mono-vs-poly refresh: legacy comparison rebuilt for the 2026 market, where monocrystalline/N-type dominates; the page now routes users toward concrete panel selection instead of stale 250–400 W assumptions
+- Residual flat-roof cleanup: `jak-funguji-solarni-panely-na-plochych-strechach` (33 GSC impressions) now 301s to the managed canonical flat-roof mounting guide
+- Builder UX audit: mobile/desktop Lighthouse 99 performance, 100 accessibility/best-practices; catalog loading/error states are now explicit, late catalog loads repopulate bundles, mobile offer targets are full-width, and Solar Expert SEO metadata now passes through Yoast
+- Battery Selector UX audit: 12/24/48 V scenarios return technically valid banks with approved merchant coverage; labels are now accessible, capacity/current requirements are explicit, and catalog loading/error/no-match states are separated
+- MPPT Selector UX audit: 12/24 V scenarios correctly enforce cold Voc, start Vmp and charge-current requirements; labels, input validation and loading/error/no-match states are now explicit, while 48 V no-match cases are documented as current catalog coverage gaps
+- Inverter Selector UX audit: matcher correctly enforces DC voltage, continuous power and surge power; labels, input validation, battery-current guidance and loading/error/no-match states are now explicit, with approved Solar-Import purchase coverage in tested 12/24/48 V scenarios
+- Quote Checker UX audit: pass/warn/fail scenarios behave correctly; labels and input validation are fixed, optional BMS-current input now catches battery/inverter current mismatches, and the result keeps the owned Builder path plus monetized E.ON comparison CTA
+- robots.txt normalization: WordPress indexing remains enabled; theme now emits a minimal valid crawler policy plus Yoast sitemap index to remove the Lighthouse site-wide robots warning
+- Mitsubishi Ecodan ranking-safe refresh: legacy 2023 translated body replaced with a 2026 guide covering Ultra Quiet legacy intent plus current R290 PUZ-WZ; URL and ranking-protection title/meta preserved
+- FVE + heat-pump duplicate cleanup: translated `mohou-solarni-panely-pohanet-vzduchove-tepelne-cerpadlo` now 301s to the stronger managed FVE + TČ decision/cost guide
+- Apartment-building FVE refresh: stale 2023 payback article replaced with a 2026 EDC-sharing/NZÚ financing guide; universal 7–15 year ROI, fixed battery-per-kWp sizing and unsupported 20% return claims removed
+- Heat-pump temperature-limit refresh: model-specific frost/output-water guide replaces fake universal limits and joins the active E.ON heat-pump funnel
+- Panel buyer-guide upgrade: added independent-review criteria (IEC 61215/61730, warranties, degradation, mechanical reliability and Kiwa PVEL 2026) and joined the active E.ON solar funnel
+- Panel review consolidation: copied Australian `recenze-solarnich-panelu-nezavisle-informace-o-solarni-energii` now 301s to the owned panel buyer guide
+- Solar principle refresh: `solarni-panel-definice-a-fakta` rebuilt as the owner of `jak funguje solární panel`, replacing copied/legacy encyclopedia-style content with an original PV-effect explainer
+- Heat-pump lifespan refresh: 43 disclosed GSC query impressions now map to a managed guide covering compressor starts, cycling, service and replace-vs-repair; the page joins the bounded E.ON/related-links funnel
+- Air-water TČ consolidation: 153-impression legacy buyer page rebuilt for 2026; overlapping `vzduch-vzduch-vs-vzduch-voda` URL now 301s into the canonical air-water guide
+- Shared E.ON base: one optional `eon-cz` eHub base automatically monetizes both `eon-solar` and `eon-heat-pump`; explicit lead mappings remain overrides
+- E.ON lead monetization due diligence: E.ON is confirmed approved for Solar Expert; current public eHUB campaign pays 300 Kč per valid lead for electricity/gas/FVE/heat pumps. Shared `eon-cz` base can monetize both solar and heat-pump CTAs.
+- E.ON private base link: ACTIVE in WordPress as `eon-cz` from the approved eHUB account; the private URL is intentionally kept out of GitHub. Live health confirms 3 merchant bases.
+- Samsung review refresh: legacy 2023 article replaced with 2026 EHS R290 buyer guide, current manufacturer-backed specs and no stale UK RHI/cost claims
+- Structured data discovery: WebSite + Organization + BreadcrumbList + WebApplication for five tools + Article for posts, disabled when a major SEO plugin owns schema
+- Overheating/cooling protection: two fresh top-10 URLs kept separate; only zero-click overheating page gets CTR-focused metadata
+- Battery knowledge hub: indexed `/category/baterie/` upgraded from generic archive to decision hub with Battery Selector CTA, SEO metadata and CollectionPage schema
+- Article freshness layer: visible modified date on all posts + direct CTA to dedicated Builder page
+- Selector conversion analytics: one-shot `selector_engaged` event for Battery/MPPT/Inverter tools; initialization excluded from engagement counts
+- Verified bundle-deal layer: Battery.cz PUSUNG/POLO-W + Growatt 6000 set offers reduce displayed purchase price when cheaper, without changing technical ranking
+- Bundle analytics: dedicated `bundle_deal_click` event; merchant-base affiliate deeplink targets exact set URL
+- Parallel battery-bank engine: verified PUSUNG-S and Pylontech modules can scale to the minimum required quantity; 48V high-power coverage is now complete
+- Catalog coverage baseline: `docs/CATALOG_COVERAGE.md` records representative 12/24/48V scenarios and remaining evidence gaps
+- Complete-only bundle UX: Builder hides incomplete Budget/Premium cards and explains why; zero-result state refuses weak recommendations
+- Git-deploy content auto-sync: manifest drift schedules one locked WordPress cron sync; health/admin expose CURRENT / SYNC_REQUIRED / ERROR
+- Annual-output near-win: stale yearly-production article replaced with locality-aware PVGIS methodology and kWp→kWh examples
+- Size-guide cannibalization: stale `kompletni-pruvodce-velikosti-solarnich-panelu` 301s to the stronger managed dimensions/weight guide
+- Heating decision near-win: `tepelne-cerpadlo-nebo-elektrokotel` rebuilt around annual heat demand, seasonal efficiency and FVE interaction; stale universal claims removed
+- Heat-pump shortlist near-win: stale UK Top-10 replaced with 2026 use-case shortlist using current Daikin/Vaillant/NIBE/Viessmann/LG R290 families and explicit methodology
+- LG review refresh: legacy 2023 R32/Split article replaced with 2026 THERMA V R290 buyer guide and current manufacturer-backed specs
+- Daikin review refresh: legacy 2023 UK/air-to-air mix replaced with a 2026 Czech buyer guide covering Altherma 4 H R290, Altherma 3 R MT/3 H HT, high-temperature retrofit fit and official current documentation
+- Viessmann review refresh: legacy multi-generation/RHI article replaced with 2026 Vitocal 250-A / 252-A buyer guide and current Czech manufacturer-backed specs
+- Legacy frontend quarantine: old Notification Bar, Ninja Popups, Simple Author Box and SEO Automated Link Building are removed from public rendering without deleting or deactivating plugins
+- Ground-mounted PV intent fix: new managed `/fotovoltaika-na-pozemku/` decision guide targets the GSC query currently leaking to an unrelated heat-pump boundary page; current 2026 permitting caveats included
+- 12V wiring intent: `jak-zapojit-solarni-panely` now includes safe 2S/2P conceptual schematics and explicit MPPT routing for the observed `schéma zapojení solárních panelů 12v` query
+- Battery Selector parallel-bank support: standalone selector now reuses the Builder's verified bank logic and can recommend 2×/3× supported modules with total kWh, BMS current and bank price
+- Multi-bank set optimization: a verified 1× battery + inverter merchant set may be used once inside a larger parallel bank; remaining battery modules are priced separately and shown explicitly
+- Intentional Premium gaps: 12V/24V Premium remains hidden until an approved-merchant battery is both technically evidenced and currently recommendable; `on_request` inventory cannot unlock a complete tier
+- Catalog price freshness: 30-day verified-price window; stale merchant prices cannot drive ranking or set discounts, stale prices are hidden, health/admin expose fresh/stale/verification-unknown counts
+- Production deploy: active RC with manual Git pull/update
+
+High-value legacy rewrites include battery fundamentals, panel selection, solar kits, kWp, Wp/m², roof sizing and series/parallel wiring.
+
+Next:
+1. deploy current `dev` RC via Deployer for Git,
+2. verify live build/health and active affiliate coverage,
+3. use GSC query/page data for the next rewrite batch,
+4. expand only verified product gaps that unlock real scenarios,
+5. optimize CTR/internal links from pages already receiving impressions.
+- Overheating ranking-safe refresh: top-10 `/proc-se-solarni-panely-neprehrivaji/` keeps URL/title/meta but replaces incorrect legacy body with temperature-coefficient, ventilation, hotspot and active-cooling guidance
+- PV cooling ranking-safe refresh: top-10 `/chlazeni-fotovoltaickych-panelu/` rebuilt as a passive-vs-active-vs-water-vs-PVT decision guide while keeping cooling intent separate from the overheating explainer
+- Solar tracker ranking-safe refresh: top-10 `/nataceni-solarnich-panelu-za-sluncem/` keeps URL/title/meta but replaces placeholder legacy body with single-axis vs dual-axis, backtracking, wind-stow, O&M and economics guidance
+- Fixed panel positioning near-win: `/polohovani-solarnich-panelu/` rebuilt around azimuth, tilt, south vs east-west, shading and PVGIS; tracker intent is separated and the page joins the bounded E.ON solar funnel
+- Photovoltaic topical hub refresh: `/vse-o-solarnich-panelech-a-fotovoltaice/` rebuilt from a stale 2023 mega-article into an intent-preserving hub for panels, sizing, string/MPPT, inverter, battery, roof, maintenance, Builder and Quote Checker; stale universal pricing/payback claims removed
+- Catalog MPPT coverage: added verified in-stock Victron SmartSolar MPPT 250/100-Tr VE.Can (100A, 250V, 24V PV limit 2.9kWp), unlocking year-round 24V Best Value cottage/off-grid bundles that previously failed MPPT coverage
+- Default-bundle freshness: REP1500-24 is now correctly on-request and excluded from complete bundles; in-stock REP2000-24 (2000/4000W) becomes the Best Value 24V inverter with Battery.cz + Solar-Import merchant offers
+- Default-bundle offer freshness: Victron 190W panel, GOOWEI 24V100 battery, MPPT 150/70 and MPPT 250/100 now carry fresh merchant evidence; Battery.cz/Solar-Import comparison offers added and MPPT 250/100 refreshed to 14,246 CZK
+- Catalog integrity hotfix: on-request ROGERELE REP1500-24 moved to non-recommendation `reference` tier; strict guardrail stays intact and in-stock REP2000-24 remains the active Best Value choice
+- First-party money-funnel measurement: cookie-free theme collector now aggregates tool views/starts, Builder/selector/Quote Checker completions and affiliate/bundle/E.ON lead clicks for 35 days; 7/28-day counts are visible in Solar Expert admin and no free-form user inputs are stored
+- Price evidence refresh: all 32 active priced snapshots now carry current verification evidence (32 fresh / 0 stale / 0 unknown); no technical compatibility ranking was changed
+- Price-evidence guardrail: repository validation now rejects any active priced product/offer that loses its verification date
+- Merchant diversity expansion: six more core components now compare verified Battery.cz and Solar-Import.cz offers; KOSUN 48V/3000W exposes the cheaper 7,990 Kč Battery.cz offer against 9,563 Kč at Solar-Import without changing compatibility ranking
+- Charger-chemistry safety: KOSUN 48V/3000W remains valid as a standalone inverter, but Builder excludes it from LiFePO4 battery bundles because its integrated AC charger is verified for lead-acid chemistries only
+- Funnel attribution reporting: existing privacy-safe first-party counters now expose 7/28-day outbound clicks by merchant and CTA placement in Solar Expert admin, so monetization can be optimized from measured behavior rather than total clicks only
+- Best-offer UX: when two fresh in-stock merchant prices differ, Builder/selectors label the verified cheapest offer and show the savings versus the next fresh offer; equal, stale or single prices receive no badge
+- Release diagnostics: public health build marker now derives from the active theme version instead of a separate hardcoded RC string, preventing false deploy-version mismatches
+- SEO source-of-truth sync: managed content now writes the same slug-based title/description map into Yoast meta during deterministic content sync; sync fingerprint v2 guarantees one post-deploy refresh without touching unmanaged content
+- Managed SEO coverage gate: all 50 managed items now require a slug-level SEO entry; missing coverage fails repository validation
+- Machine-readable affiliate health: public health now reports active/recommendable offer coverage, product coverage and monetized merchant count using the same private base/product mappings that power outbound deeplinks
+- Lead-gen health: public health now reports E.ON FVE/heat-pump monetized target coverage, so zero explicit lead overrides no longer looks like a monetization failure when the private eon-cz base link is active
+- LG near-win recovery: the historical `tepelna-cerpadla-lg-vyhody-nevyhody-ceny` URL is now managed and forced publish with a 2026 THERMA V R290 buyer guide; current LG documentation is separated from anecdotal owner reports about older generations, and the page ends in a comparison-first E.ON lead path
+- Gated auto-deploy prepared: pushes to `dev` can call Deployer for Git only after validate + WordPress preview succeed, then verify live theme version and managed-content health; deployment remains safely disabled until the private `SOLAR_EXPERT_DEPLOY_URL` GitHub secret is configured
+
+- Auto-deploy gate hardening: production deployment now resolves the merged PR behind each `dev` commit, requires its successful WordPress preview, validates the resulting merge commit separately, and blocks direct pushes that bypass PR preview.
+
+- Auto-deploy activation canary: repository secret wiring is being verified with a documentation-only PR; no production behavior changes are included in this canary.
+
+- Auto-deploy health retry: production verification now tolerates the brief HTTPS/JSON gap while Deployer swaps files, but still fails immediately when a valid health payload reports managed-content errors.
+
+- Deploy verification v2: health reads the deployed theme version directly from `style.css` instead of WordPress theme metadata cache; the gated deploy workflow nudges WP-Cron while managed content is pending and allows up to 15 minutes for convergence.
+
+- Deploy verification v3: production health polling now sends per-attempt cache-busting query parameters plus no-cache headers, preventing CDN/proxy snapshots from masking the newly deployed release.
+
+- Deploy verification v4: the workflow now parses Deployer for Git's JSON response and requires `success=true`; HTTP 200 alone no longer counts as a successful trigger, and safe diagnostics expose only message/type/package slug.
+
+- Deploy verification v5: the webhook call now follows Deployer for Git's current documented contract—15 s delay after merge so GitHub can refresh the branch ZIP, HTTP 200 as the primary success gate, and optional JSON failure parsing when available.
+
+- Deploy verification v6: Push-to-Deploy now uses POST plus a per-release nonce, so host/CDN caching of the static webhook GET cannot prevent WordPress from executing the deployment endpoint.
+
+- Deploy verification v7: production host rejects POST with HTTP 422, so Push-to-Deploy now uses host-compatible GET plus the unique release nonce and 15 s GitHub ZIP propagation delay.
+
+- Deploy verification v8: workflow now derives the canonical documented `/wp-json/dfg/v1/package_update` endpoint from the stored secret token, tolerates an HTML-escaped UI copy, forces `type=theme&package=solar-expert-2`, and bypasses caches with request headers rather than unsupported query parameters.
+
+- Deploy verification v9: canonical Deployer URL normalization now uses a single-line Python expression inside the YAML block, eliminating the invalid heredoc indentation discovered in 0.11.50.
+
+- Deployer URL-shape diagnostic: workflow logs only scheme/host/path/query-key names from the stored webhook URL, never query values, so the current plugin URL format can be identified without exposing its token.
+
+- Managed-content deploy sync fix: async sync is scheduled after 10 s and CI invokes `wp-cron.php` without forging WordPress's internal `doing_wp_cron` lock token, fixing the condition where the release deployed successfully but content remained `sync_required`.
+
+- Deterministic deploy convergence: CI now POSTs only the expected release version + fixed intent to `/solar-expert/v1/deploy-sync`; the endpoint can only apply repository-managed content from the deployed theme, is no-op when current, rejects version mismatches, and uses the existing concurrency lock. WP-Cron remains fallback rather than a release-critical dependency.
+
+- Final health verifier fix: jq boolean parsing now preserves `content_sync_required=false`; the previous `// true` expression treated explicit false as fallback true and could never let a healthy synchronized release pass the final gate.
+
+- COP/SCOP funnel coverage: the canonical heat-pump efficiency guide now joins the bounded owned-first cluster and E.ON comparison path without changing its ranking body; fresh GSC shows 48 impressions / 90d on the canonical page.
+
+- Solar topical-link cluster: GSC-backed FVE planning articles now append bounded related links to the Wp/m² near-win, kWp/Wp explainer, annual-output guide and Quote Checker before the outbound E.ON CTA; self-links are skipped.
+
+- Flexible-solar emerging near-win: fresh 28-day GSC shows 7 impressions at avg. position 12.43 with zero clicks on the preserved legacy URL. Replaced the duplicated 2023/MCS-era article with a 2026 use-case guide covering modern monocrystalline flexible modules, ETFE/glassless reliability, airflow/heat, Voc/Vmp/MPPT sizing and owned Battery/MPPT tool paths; no generic E.ON rooftop lead CTA is forced onto the mobile/curved-surface intent.
+
+- Existing-PV expansion emerging near-win: fresh 28-day GSC shows 4 impressions at avg. position 14.25 with zero clicks on the preserved legacy URL. Replaced the translated 2023 tariff/installer copy with a current engineering decision guide covering cold Voc, Vmp/MPPT windows, current/Isc limits, mixed modules, DC/AC sizing, battery/inverter paths, distributor-change boundary and owned MPPT/String/Quote Checker tools.
+
+- Managed-page indexability hardening: all seven intentional public WordPress Pages (Builder, Battery, MPPT, Inverter, Quote Checker, methodology and affiliate-transparency) now opt into `indexable:true`. Content sync explicitly sets Yoast robots to Index/Follow for those managed assets, and the theme keeps the `page` post type eligible for Yoast XML sitemaps while preserving individual noindex exclusions. This closes the main technical gap behind the 2026-10-05 GSC snapshot where newly published tools were still unknown to Google.
+
+- Indexability deploy guard: the public health payload now audits every `indexable:true` managed item for published status plus explicit Yoast Index/Follow state. Auto Deploy fails before declaring production healthy if any target is missing, unpublished, noindexed or nofollowed. This turns the 0.11.59 fix into a persistent release invariant.
+
+- Indexability sync v3 repair: the 0.11.60 live guard exposed 7/7 public managed Pages with missing explicit Yoast robots metadata. Root cause was deploy-time version skew: the theme-upgrader hook can execute the pre-update sync semantics against the newly replaced files and mark the new fingerprint current before the new code runs. Managed sync schema is bumped to `v3-indexability`, and deploy-sync now self-heals any managed indexability drift by forcing a DB rewrite even when the content fingerprint is otherwise current. The convergence step now requires indexability targets to be ready before deployment succeeds.
+
+- Crawler-facing discovery guard: Auto Deploy now verifies public `robots.txt`, Yoast `sitemap_index.xml`, `page-sitemap.xml`, and every `indexable:true` managed URL after the internal health gate. Each target must be present in the page sitemap, return HTTP 200, and expose neither an `X-Robots-Tag: noindex` header nor a robots meta noindex directive. This closes the gap between WordPress DB health and what an external crawler can actually discover.
+
+- Monetization health diagnostics: production verification now logs live active-offer, recommendable-offer and recommendable-product affiliate coverage, monetized merchant count and lead-target coverage from the same WordPress health payload that powers the site. Coverage gaps produce warnings rather than blocking unrelated releases, giving a direct business-health signal after every deploy.
+
+- Redirect/sitemap hygiene: the 11 intentional legacy 301 redirects now share one source-of-truth map that also feeds Yoast's official `wpseo_exclude_from_sitemap_by_post_ids` filter. Public health exposes the non-sensitive source→target redirect contract, and Auto Deploy verifies every source is absent from post sitemap(s) while still returning the exact expected HTTP 301 Location. This removes the sitemap-vs-redirect contradiction without deleting legacy posts.
+
+- Shading near-win funnel: fresh top-10 `/castecne-zastineni-a-solarni-panely/` keeps its ranking-safe body/title/meta untouched, but now joins the existing solar related-links + owned Quote Checker + bounded E.ON comparison path.
+
+- Paginated archive hygiene: fresh GSC exposed `/page/2/` at 10 impressions / avg. position 6.3; paginated home/archive views now emit `noindex, follow`, preserving crawlable links while removing thin pagination from search results.
+
+- Battery hub internal-link boost: fresh GSC shows `/category/baterie/` at 11 impressions / avg. position 17.1; the battery fundamentals and solar-kit guides now feed that hub plus the Battery Selector through a bounded related-links block.
+
+- Pagination live guard: Auto Deploy now probes `/page/2/` after release and fails if the archive loses its live `noindex`; this turns the 0.11.66 pagination cleanup into a production invariant without changing page content.
+
+- Pagination noindex hotfix: the new production crawler guard exposed that `/page/2/` did not match the overly narrow `is_paged() && (is_home() || is_archive())` condition. The robots guard now uses WordPress `is_paged()` directly, preserving `noindex, follow` for paginated result sets while leaving singular content untouched.
+
+- Outcome scoreboard v1: first-party 7/28-day funnel counts are now exposed as aggregate event metrics in `/health` and logged on every production deploy (tool views, starts, outcome events and outbound clicks, plus normalized rates). This shifts the primary operating view from technical health alone toward measurable user/business outcomes without exposing user-level data.
+
+- Per-tool outcome baseline: `/health` now breaks tool views and starts down by Builder, Battery, MPPT, Inverter and Quote Checker, and production deploy logs the 28-day breakdown. This lets us distinguish a global traffic problem from a tool-specific activation problem before changing UX.
+
+- IndexNow discovery diagnostic: `/health` now reports whether Yoast is active, whether Premium is active, whether Yoast's `enable_index_now` feature flag is on, and the effective provider. This prevents duplicate IndexNow integrations before adding a fallback for Bing/Seznam discovery.
+
+- IndexNow fallback: live diagnostics confirmed Yoast Free (`yoast_premium_active=false`), so Solar Expert now provides its own bounded IndexNow provider for Bing/Seznam-compatible discovery. It serves a root verification key, queues published/unpublished post/page URLs, bootstraps the 7 managed indexable pages once, batches up to 100 URLs, records delivery health, retries failures, and the deploy flush is explicitly non-blocking.
+
+- Page-level outcome attribution: privacy-safe first-party funnel events now carry only a normalized pathname key (no query string, cookie ID, IP or free-form text). `/health` exposes the top 25 pages by outbound clicks/outcomes/starts/views, and deploy logs the 28-day breakdown so SEO work can be prioritized by actual activation and monetization rather than traffic alone.
+
+- SEO → tool referral measurement: owned internal links to Builder, Quote Checker, Battery, MPPT and Inverter now emit a privacy-safe `tool_referral_click` event before navigation. The event records only the normalized source pathname and target tool, so `/health` and deploy logs can rank which SEO/content pages actually feed the decision tools without cookies or user-level tracking.
+
+- GSC-owned-tool bridge batch: kept ranking copy/title/meta unchanged on the top-ranking tracker page (28d avg. position 4.21) and added only a bounded Quote Checker bridge after the existing annual-yield CTA. The positioning guide and the eternit near-win get the same intent-matched owned-tool bridge, giving the new `tool_referral_click` metric qualified SEO→tool paths to measure without broad CTA injection.
+
+- Per-tool outcome funnel v2: the existing aggregate event stream now attributes outcomes and outbound clicks to Builder, Battery, MPPT, Inverter and Quote Checker. `/health` `by_tool` now reports views, starts, outcome events, outbound clicks plus start/outcome/outbound rates. Attribution reuses bounded `tool`, `selector` and normalized `page` dimensions already collected; no new user-level tracking or cookies were added.
+
+- Tool activation microcopy: live funnel data showed selector views with zero interactions, but the selectors intentionally render recommendations immediately from defaults. Rather than adding a redundant “calculate” button, the UI now explicitly marks defaults as an example, tells users that any field change recalculates automatically, labels the recommendation area, and makes the Builder’s first click obvious. No calculation logic or SEO article copy changed.
+
+- Quote Checker next-action funnel: the approved E.ON comparison lead now appears immediately below the PASS/WARN/FAIL summary instead of after the full diagnostic list. Copy changes by result state: FAIL asks the original supplier to explain the mismatch and suggests a second proposal; WARN asks for datasheet confirmation and comparison; PASS shifts to price/warranty/service comparison. The lower duplicate CTA was removed. Lead placement is read at click time, so aggregate analytics can distinguish quote_checker_result_pass, quote_checker_result_warn and quote_checker_result_fail without new user-level tracking.
+
+- Tool exposure funnel v2: legacy `tool_view`/`tool_start` remain for continuity, but optimization now uses a clean `tool_exposure` → `tool_activation` pair introduced together in 0.11.79. Exposure requires at least 15% of the tool to remain in the viewport for 600 ms; a real interaction also guarantees exposure before activation. This prevents DOM presence below the fold from being misread as a failed activation and gives Builder/selectors a valid denominator before further UX changes.
+
+- Builder step funnel: first-party aggregate analytics now record only three bounded milestones after activation: `step_2` (scenario chosen), `step_3` (appliance setup accepted) and `result` (sizing calculated). Health reports step-to-step and end-to-end completion rates plus scenario-level counts for chata/off-grid/backup. No appliance choices, consumption values or other free-form inputs are stored. Decision rule: diagnose the first weak transition from the new v2 cohort before making another Builder UX change.
+
+- Merchant diversity 2026-10-07: added verified Battery.cz comparison offers for Growatt SPF 6000 ES Plus, Victron SmartSolar MPPT 150/35 and KOSUN 12V/1000W + MPPT while retaining the existing Solar-Import offers. Current verified prices are equal across both approved merchants for these three products, so no false cheapest-offer badge is shown; technical compatibility/ranking logic is unchanged.
+
+- Merchant diversity batch 2 (2026-10-07): verified dual Battery.cz + Solar-Import comparison paths for SEPLOS POLO-W 48V 5.12kWh, Victron Phoenix VE.Direct 24/1200 and Victron Phoenix VE.Direct 48/1200. Fresh snapshots are 20,990 Kč, 7,431 Kč and 7,623 Kč respectively; both merchants currently match on price, so the UI provides redundancy/choice without inventing a savings claim.
+
+- Offer exposure funnel: product offer links in Builder/Battery/MPPT/Inverter now emit privacy-safe `offer_exposure` only after at least 50% of the link is visible for 600 ms; a real click backfills exposure when needed. `/health` reports exposure→affiliate-click rates by product, merchant and placement. Existing outbound merchant/placement counters remain click-only, so exposure events cannot inflate historical click diagnostics. No price, URL, cookie ID, IP or free-form input is stored.
+
+- Bundle merchant diversity: both verified Growatt SPF 6000 ES Plus sets (SEPLOS PUSUNG-S and SEPLOS POLO-W) now expose Battery.cz + Solar-Import purchase paths at the same verified 32,990 Kč snapshot. Bundle composition/savings logic still chooses the same technical components; the affiliate adapter resolves and attributes the merchant actually clicked. Bundle offer prices now participate in the same 30-day freshness health as product offers.
+
+- Air-air demand-gap guide (2026-10-07): fresh GSC evidence exposed a distinct unmet query cluster around “nejlepší tepelné čerpadlo vzduch vzduch” and air-air pricing. Added a new managed public post `/tepelne-cerpadlo-vzduch-vzduch/` rather than resurrecting the legacy air-air-vs-air-water URL, which correctly remains a 301 to the air-water canonical. The new guide is decision-first (SCOP, low-temperature capacity, sound, single/multi-split, room distribution, TUV boundary, installed-price comparison) and only exposes the E.ON air-water lead after the user reaches the air-water branch. Deploy crawler verification now also requires every repo-created published post to be HTTP 200, indexable and present in the Yoast post sitemap.
+
+- Incremental managed-content sync (2026-10-07): release 0.11.85 exposed 54 IndexNow submissions after adding one post because any manifest fingerprint change rewrote every managed post via `wp_update_post()`. Sync v4 now compares title/content/status before saving, applies SEO/indexability metadata independently, fingerprints managed SEO metadata, and reports content churn in public health + deploy logs. Unchanged managed posts no longer emit false `save_post` / IndexNow signals.
+
+- Standalone FVE price demand gap (2026-10-07): fresh GSC evidence showed `kolik stojí fotovoltaika` around position 12 landing on the unrelated hourly-production article. Added a new managed public post `/kolik-stoji-fotovoltaika/` with dated installed-price benchmarks (ČEZ 5.4/7.2/9.5 kWp + 9.6 kWh), current 2026 NZÚ zero-interest-loan unit amounts, a quote-comparison checklist, Quote Checker first, and a bounded E.ON second-offer path. Existing protected near-wins were left untouched.
+
+- Monoblock demand-gap guide (2026-10-07): GSC already tests `tepelné čerpadlo monoblok skusenosti` around position 10 but was sending the query to the LG brand review. Added a new managed public post `/tepelne-cerpadlo-monoblok/` focused on monoblock vs. split architecture, freeze protection, R290/F-gas 2027 context, radiators, service and quote checks. Existing LG and electric-boiler pages remain protected and untouched. The heat-pump related-guide renderer now links the new guide dynamically from the cluster.
+
+- Solar cluster distribution (2026-10-07): added the new high-intent `/kolik-stoji-fotovoltaika/` guide to the dynamic related-guide block across the bounded solar cluster. This strengthens crawl discovery and internal authority without rewriting protected article bodies or creating new `save_post` churn.
+
+- Per-release sync observability (2026-10-07): deploy logs now distinguish current-release managed-content work from the last persisted sync result. The deploy-sync response explicitly reports `sync_performed` plus current-release updated/created/meta/skipped counts, preventing a no-op core release from being misread as fresh content churn.
+
+- Heat-pump cluster distribution (2026-10-07): added the new GSC-backed `/tepelne-cerpadlo-vzduch-vzduch/` guide to the dynamic related-guide block across the bounded heat-pump cluster. This strengthens crawl discovery and internal authority without rewriting protected article bodies or creating new content-sync churn.
+
+- Transparent/BIPV demand-gap guide (2026-10-07): GSC showed `průhledné solární panely` with impressions but Google mapped the query to the unrelated PVT article. Added a new managed public post `/pruhledne-solarni-panely/` separating semitransparent BIPV glazing, organic/perovskite research and standard rooftop PV. The article uses current 2026 Fraunhofer evidence, keeps Quote Checker before the conditional E.ON conventional-FVE comparison, and is linked through a narrow emerging-PV mini-cluster rather than the whole solar funnel.
+
+
+- PV maintenance canonical reinforcement (2026-10-07): GSC still surfaced “mytí solárních panelů” against the legacy cleaning URL even though production already 301-redirects it to /cisteni-solarnich-panelu-proc-kdy-jak/ and keeps the source out of the sitemap. Added a narrow dynamic maintenance mini-cluster connecting canonical cleaning, winter/snow operation and degradation/lifetime. This strengthens the canonical target without creating a third overlapping article or rewriting protected post bodies.
+
+
+- Samsung review internal-authority reinforcement (2026-10-07): the fresh Prometheus GSC daily monitor shows `tepelné čerpadlo Samsung recenze` at 30 impressions / avg. position 11.03 plus `tepelné čerpadlo Samsung recenzia` at 18 impressions / avg. position 15. The Samsung EHS article was already rewritten recently, so its body remains protected. Added the canonical Samsung review to the bounded heat-pump related-guide block, allowing relevant TČ pages to pass internal authority while the Samsung page automatically excludes its own self-link.
+
+
+- LG review cannibalization cleanup (2026-10-07): fresh Prometheus GSC evidence continues to rank the indexed `/tepelne-cerpadla-lg-vyhody-nevyhody-ceny/` URL for LG review queries, while the newly created near-duplicate `/tepelna-cerpadla-lg-vyhody-nevyhody-ceny/` remains unknown to Google. Kept the indexed `tepelne-` URL as canonical, moved the stronger 2026 R290 + owner-experience buyer-guide body onto it, removed the duplicate from managed publishing, and added a sitemap-clean 301 from the duplicate to the indexed canonical.

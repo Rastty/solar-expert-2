@@ -1,0 +1,534 @@
+name: Auto Deploy Solar Expert Dev
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+  checks: read
+  pull-requests: read
+
+concurrency:
+  group: solar-expert-dev-auto-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_URL: ${{ secrets.SOLAR_EXPERT_DEPLOY_URL }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Detect deploy configuration
+        id: config
+        shell: bash
+        run: |
+          if [ -n "$DEPLOY_URL" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SOLAR_EXPERT_DEPLOY_URL is not configured; auto-deploy skipped."
+          fi
+
+      - name: Check out release
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/checkout@v5
+
+      - name: Verify merge came from a previewed PR
+        if: steps.config.outputs.enabled == 'true'
+        id: pr
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          pulls_api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls"
+          pulls="$(curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$pulls_api")"
+
+          pr_number="$(jq -r '[.[] | select(.base.ref=="dev" and .merged_at!=null)] | first | (.number // empty)' <<<"$pulls")"
+          pr_head_sha="$(jq -r '[.[] | select(.base.ref=="dev" and .merged_at!=null)] | first | (.head.sha // empty)' <<<"$pulls")"
+
+          if [ -z "$pr_number" ] || [ -z "$pr_head_sha" ]; then
+            echo "::error::No merged pull request into dev is associated with this commit; automatic production deploy blocked."
+            exit 1
+          fi
+
+          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$pr_head_sha" >> "$GITHUB_OUTPUT"
+          echo "Resolved merged PR #$pr_number with head $pr_head_sha."
+
+      - name: Wait for merge-commit validation
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs"
+          ready=0
+
+          for attempt in {1..36}; do
+            json="$(curl -fsS \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "$api")"
+
+            status="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.status // "missing")' <<<"$json")"
+            conclusion="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.conclusion // "")' <<<"$json")"
+            echo "merge validate=${status}/${conclusion:-pending}"
+
+            if [ "$status" = "completed" ] && [ -n "$conclusion" ] && [ "$conclusion" != "success" ]; then
+              echo "::error::Validate Solar Expert failed on the dev merge commit; production deploy blocked."
+              exit 1
+            fi
+
+            if [ "$status" = "completed" ] && [ "$conclusion" = "success" ]; then
+              ready=1
+              break
+            fi
+
+            sleep 10
+          done
+
+          if [ "$ready" != "1" ]; then
+            echo "::error::Timed out waiting for merge-commit validation; production deploy blocked."
+            exit 1
+          fi
+
+      - name: Verify PR WordPress preview
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        env:
+          PR_HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${PR_HEAD_SHA}/check-runs"
+          json="$(curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$api")"
+
+          preview_status="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.status // "missing")' <<<"$json")"
+          preview_conclusion="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.conclusion // "")' <<<"$json")"
+
+          echo "PR preview=${preview_status}/${preview_conclusion:-missing}"
+
+          if [ "$preview_status" != "completed" ] || [ "$preview_conclusion" != "success" ]; then
+            echo "::error::The merged PR does not have a successful WordPress Playground preview; production deploy blocked."
+            exit 1
+          fi
+
+      - name: Trigger Deployer for Git
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$DEPLOY_URL"
+
+          # Deployer for Git documents that GitHub's branch ZIP may lag briefly
+          # after a push/merge, especially for larger repositories.
+          sleep 15
+
+          body_file="$(mktemp)"
+          python -c 'import html, os; from urllib.parse import parse_qs, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); p=urlsplit(raw); q=parse_qs(p.query, keep_blank_values=True); print("Deployer URL shape: scheme="+(p.scheme or "none")+" host="+(p.hostname or "none")+" path="+(p.path or "/")+" query_keys="+(",".join(sorted(q.keys())) or "none"))'
+          trigger_url="$(python -c 'import html, os; from urllib.parse import parse_qs, quote, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); params=parse_qs(urlsplit(raw).query, keep_blank_values=True); secret=(params.get("secret") or [""])[0]; assert secret, "Push-to-Deploy URL does not contain a secret query parameter"; print("https://solar-expert.cz/wp-json/dfg/v1/package_update?secret="+quote(secret, safe="")+"&type=theme&package=solar-expert-2")')"
+          echo "::add-mask::$trigger_url"
+
+          http_code="$(curl -sSL --max-time 180 --retry 2 --retry-delay 3 \
+            -H "Cache-Control: no-cache, no-store, max-age=0" \
+            -H "Pragma: no-cache" \
+            -o "$body_file" \
+            -w "%{http_code}" \
+            "$trigger_url")"
+
+          echo "Deployer HTTP status: $http_code"
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Deployer for Git failed with HTTP $http_code."
+            exit 1
+          fi
+
+          # Older/current plugin builds may return non-JSON bodies on success.
+          # When a JSON contract is present, still honor an explicit success=false.
+          if jq -e . >/dev/null 2>&1 <"$body_file"; then
+            success="$(jq -r '.success // true' <"$body_file")"
+            message="$(jq -r '.message // ""' <"$body_file")"
+            package_type="$(jq -r '.package_type // ""' <"$body_file")"
+            package_slug="$(jq -r '.package_slug // ""' <"$body_file")"
+            echo "Deployer JSON: success=${success} package_type=${package_type:-unknown} package_slug=${package_slug:-unknown} message=${message:-none}"
+            if [ "$success" = "false" ]; then
+              echo "::error::Deployer for Git rejected the deployment: ${message:-unknown error}"
+              exit 1
+            fi
+          else
+            echo "Deployer returned HTTP 200 with a non-JSON body; accepted per plugin documentation."
+          fi
+
+      - name: Converge managed content
+        id: content-sync
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
+          sync_url="https://solar-expert.cz/wp-json/solar-expert/v1/deploy-sync"
+          payload="$(jq -nc --arg version "$expected" '{expected_version:$version,intent:"managed-content-sync-v1"}')"
+          converged=0
+
+          for attempt in {1..12}; do
+            body_file="$(mktemp)"
+            http_code="$(curl -sS --max-time 180 \
+              -X POST \
+              -H "Content-Type: application/json" \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -H "Pragma: no-cache" \
+              -o "$body_file" \
+              -w "%{http_code}" \
+              --data "$payload" \
+              "$sync_url" || true)"
+
+            if [ "$http_code" = "200" ] && jq -e '.ok == true and .content_sync_required == false and .content_sync_errors == 0 and (.managed_indexability_errors // 0) == 0 and (.managed_indexability_ready // 0) == (.managed_indexability_targets // 0)' "$body_file" >/dev/null 2>&1; then
+              echo "Managed content converged for Solar Expert $expected."
+              echo "performed=$(jq -r '.sync_performed // false' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "updated=$(jq -r '.updated // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "created=$(jq -r '.created // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "meta_updated=$(jq -r '.meta_updated // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "skipped=$(jq -r '.skipped // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              converged=1
+              break
+            fi
+
+            if [ "$http_code" = "409" ] || [ "$http_code" = "404" ] || [ "$http_code" = "503" ] || [ "$http_code" = "000" ]; then
+              echo "Managed sync not ready yet (HTTP $http_code, attempt $attempt/12); retrying."
+              sleep 5
+              continue
+            fi
+
+            echo "::error::Managed-content deploy sync failed with HTTP $http_code."
+            exit 1
+          done
+
+          if [ "$converged" != "1" ]; then
+            echo "::error::Managed content did not converge after deployment."
+            exit 1
+          fi
+
+      - name: Verify live release and managed-content sync
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
+          if [ -z "$expected" ]; then
+            echo "::error::Could not read expected theme version from style.css."
+            exit 1
+          fi
+
+          health_url="https://solar-expert.cz/wp-json/solar-expert/v1/health"
+          verified=0
+
+          # Deployer may make the site unreachable for a few seconds while files switch.
+          # Treat transport/invalid-JSON failures as transient, but fail fast once a valid
+          # health payload explicitly reports managed-content errors.
+          sleep 5
+
+          for attempt in {1..36}; do
+            probe_url="${health_url}?deploy_probe=${GITHUB_SHA}&attempt=${attempt}&ts=$(date +%s)"
+            health="$(curl -fsS --max-time 15 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -H "Pragma: no-cache" \
+              "$probe_url" 2>/dev/null || true)"
+
+            if [ -z "$health" ] || ! jq -e . >/dev/null 2>&1 <<<"$health"; then
+              echo "Health endpoint temporarily unavailable or returned invalid JSON; retrying (${attempt}/36)."
+              sleep 10
+              continue
+            fi
+
+            status="$(jq -r '.status // empty' <<<"$health")"
+            live_version="$(jq -r '.theme_version // empty' <<<"$health")"
+            sync_required="$(jq -r 'if has("content_sync_required") then (.content_sync_required|tostring) else "true" end' <<<"$health")"
+            sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health")"
+            sync_last_updated="$(jq -r '.content_sync_last_updated_posts // 0' <<<"$health")"
+            sync_last_created="$(jq -r '.content_sync_last_created_posts // 0' <<<"$health")"
+            sync_last_meta_updated="$(jq -r '.content_sync_last_meta_updated_posts // 0' <<<"$health")"
+            sync_last_skipped="$(jq -r '.content_sync_last_skipped_items // 0' <<<"$health")"
+            index_targets="$(jq -r '.managed_indexability_targets // 0' <<<"$health")"
+            index_ready="$(jq -r '.managed_indexability_ready // 0' <<<"$health")"
+            index_errors="$(jq -r '.managed_indexability_errors // 999' <<<"$health")"
+
+            active_offer_cov="$(jq -r '.affiliate_active_offer_coverage_pct // 0' <<<"$health")"
+            recommendable_offer_cov="$(jq -r '.affiliate_recommendable_offer_coverage_pct // 0' <<<"$health")"
+            recommendable_product_cov="$(jq -r '.affiliate_recommendable_product_coverage_pct // 0' <<<"$health")"
+            monetized_merchants="$(jq -r '.affiliate_monetized_merchants // 0' <<<"$health")"
+            lead_targets="$(jq -r '.affiliate_lead_targets // 0' <<<"$health")"
+            monetized_lead_targets="$(jq -r '.affiliate_monetized_lead_targets // 0' <<<"$health")"
+            lead_cov="$(jq -r '.affiliate_lead_coverage_pct // 0' <<<"$health")"
+
+            outcome7_views="$(jq -r '.outcome_scoreboard.days_7.tool_views // 0' <<<"$health")"
+            outcome7_starts="$(jq -r '.outcome_scoreboard.days_7.tool_starts // 0' <<<"$health")"
+            outcome7_exposures="$(jq -r '.outcome_scoreboard.days_7.tool_exposures // 0' <<<"$health")"
+            outcome7_activations="$(jq -r '.outcome_scoreboard.days_7.tool_activations // 0' <<<"$health")"
+            outcome7_events="$(jq -r '.outcome_scoreboard.days_7.tool_outcome_events // 0' <<<"$health")"
+            outcome7_outbound="$(jq -r '.outcome_scoreboard.days_7.outbound_clicks // 0' <<<"$health")"
+            outcome28_views="$(jq -r '.outcome_scoreboard.days_28.tool_views // 0' <<<"$health")"
+            outcome28_starts="$(jq -r '.outcome_scoreboard.days_28.tool_starts // 0' <<<"$health")"
+            outcome28_exposures="$(jq -r '.outcome_scoreboard.days_28.tool_exposures // 0' <<<"$health")"
+            outcome28_activations="$(jq -r '.outcome_scoreboard.days_28.tool_activations // 0' <<<"$health")"
+            outcome28_events="$(jq -r '.outcome_scoreboard.days_28.tool_outcome_events // 0' <<<"$health")"
+            outcome28_outbound="$(jq -r '.outcome_scoreboard.days_28.outbound_clicks // 0' <<<"$health")"
+            outcome28_by_tool="$(jq -c '.outcome_scoreboard.days_28.by_tool // {}' <<<"$health")"
+            outcome28_builder_steps="$(jq -c '.outcome_scoreboard.days_28.builder_steps // {}' <<<"$health")"
+            outcome28_by_page="$(jq -c '.outcome_scoreboard.days_28.by_page // {}' <<<"$health")"
+            outcome28_tool_referrals="$(jq -c '.outcome_scoreboard.days_28.tool_referrals // {}' <<<"$health")"
+            outcome28_offers="$(jq -c '.outcome_scoreboard.days_28.offers // {}' <<<"$health")"
+
+            echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
+            echo "release content sync performed=${{ steps.content-sync.outputs.performed || 'false' }} updated=${{ steps.content-sync.outputs.updated || '0' }} created=${{ steps.content-sync.outputs.created || '0' }} meta_updated=${{ steps.content-sync.outputs.meta_updated || '0' }} skipped=${{ steps.content-sync.outputs.skipped || '0' }}"
+            echo "last persisted content sync updated=${sync_last_updated} created=${sync_last_created} meta_updated=${sync_last_meta_updated} skipped=${sync_last_skipped}"
+            echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
+            echo "outcome 7d tool_views=${outcome7_views} tool_starts=${outcome7_starts} tool_exposures=${outcome7_exposures} tool_activations=${outcome7_activations} outcome_events=${outcome7_events} outbound_clicks=${outcome7_outbound}; 28d tool_views=${outcome28_views} tool_starts=${outcome28_starts} tool_exposures=${outcome28_exposures} tool_activations=${outcome28_activations} outcome_events=${outcome28_events} outbound_clicks=${outcome28_outbound}"
+            echo "outcome 28d by_tool=${outcome28_by_tool}"
+            echo "outcome 28d builder_steps=${outcome28_builder_steps}"
+            echo "outcome 28d by_page=${outcome28_by_page}"
+            echo "outcome 28d tool_referrals=${outcome28_tool_referrals}"
+            echo "outcome 28d offers=${outcome28_offers}"
+
+            if [ "$lead_targets" -gt "0" ] && [ "$monetized_lead_targets" -lt "$lead_targets" ]; then
+              echo "::warning::Lead monetization coverage is incomplete (${monetized_lead_targets}/${lead_targets})."
+            fi
+
+            if [ "$recommendable_product_cov" != "100" ] && [ "$recommendable_product_cov" != "100.0" ]; then
+              echo "::warning::Not every recommendable product currently has an affiliate path (${recommendable_product_cov}%)."
+            fi
+
+            if [ "$status" = "ok" ] && [ "$sync_errors" != "0" ] && [ "$sync_errors" != "999" ]; then
+              echo "::error::Managed-content sync reported errors."
+              exit 1
+            fi
+
+            if [ "$status" = "ok" ] && [ "$index_errors" != "0" ] && [ "$index_errors" != "999" ]; then
+              echo "::error::Managed-page indexability guard reported errors."
+              jq -c '.managed_indexability_issues // []' <<<"$health"
+              exit 1
+            fi
+
+            if [ "$status" = "ok" ] && [ "$live_version" = "$expected" ] \
+              && [ "$sync_required" = "false" ] && [ "$sync_errors" = "0" ] \
+              && [ "$index_errors" = "0" ] && [ "$index_ready" = "$index_targets" ]; then
+              verified=1
+              break
+            fi
+
+            sleep 10
+          done
+
+          if [ "$verified" != "1" ]; then
+            echo "::error::Production health did not converge to the expected release."
+            exit 1
+          fi
+
+          echo "Production deploy verified: Solar Expert ${expected} is live and content sync is current."
+
+      - name: Flush IndexNow discovery queue
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz"
+          expected="$(awk -F': ' '/^Version:/ {gsub(/\r/,"",$2); print $2; exit}' style.css)"
+          health="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/wp-json/solar-expert/v1/health")"
+          provider="$(jq -r '.indexnow.effective_provider // "unknown"' <<<"$health")"
+          key_location="$(jq -r '.indexnow.key_location // empty' <<<"$health")"
+
+          if [ "$provider" = "solar_expert_fallback" ] && [ -n "$key_location" ]; then
+            key_expected="$(basename "$key_location" .txt)"
+            key_live="$(curl -fsSL --max-time 20 -H "Cache-Control: no-cache, no-store, max-age=0" "$key_location" || true)"
+            if [ "$key_live" != "$key_expected" ]; then
+              echo "::warning::IndexNow key endpoint is not publicly verifiable; queue left pending."
+              exit 0
+            fi
+          fi
+
+          body_file="$(mktemp)"
+          http_code="$(curl -sS --max-time 25 \
+            -H "Content-Type: application/json" \
+            -o "$body_file" \
+            -w "%{http_code}" \
+            -X POST \
+            --data "{\"expected_version\":\"${expected}\",\"intent\":\"indexnow-flush-v1\"}" \
+            "$base/wp-json/solar-expert/v1/indexnow-flush" || true)"
+
+          if [ "$http_code" = "200" ] && jq -e '.ok == true' "$body_file" >/dev/null 2>&1; then
+            echo "IndexNow flush OK: $(jq -c '{provider,submitted,pending,http_code}' "$body_file")"
+          else
+            echo "::warning::IndexNow flush was not accepted; production remains healthy. HTTP ${http_code} $(cat "$body_file" 2>/dev/null || true)"
+          fi
+
+      - name: Verify crawler discovery surfaces
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz"
+
+          robots="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/robots.txt")"
+          if ! grep -Fq "Sitemap: $base/sitemap_index.xml" <<<"$robots"; then
+            echo "::error::robots.txt does not advertise the canonical sitemap index."
+            exit 1
+          fi
+
+          sitemap_index="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/sitemap_index.xml")"
+          if ! grep -Fq "$base/page-sitemap.xml" <<<"$sitemap_index"; then
+            echo "::error::Yoast sitemap index does not expose page-sitemap.xml."
+            exit 1
+          fi
+
+          page_sitemap="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/page-sitemap.xml")"
+          mapfile -t indexable_slugs < <(jq -r '.items[] | select(.indexable == true) | .slug' content/manifest.json)
+
+          if [ "${#indexable_slugs[@]}" -eq 0 ]; then
+            echo "::error::No indexable managed pages were declared in the manifest."
+            exit 1
+          fi
+
+          health="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/wp-json/solar-expert/v1/health")"
+          if ! jq -e '.legacy_redirect_count == (.legacy_redirects | length) and .legacy_redirect_count > 0' >/dev/null 2>&1 <<<"$health"; then
+            echo "::error::Health endpoint does not expose a valid legacy redirect map."
+            exit 1
+          fi
+
+          mapfile -t post_sitemap_urls < <(grep -oE 'https://solar-expert\.cz/post-sitemap[0-9]*\.xml' <<<"$sitemap_index" | sort -u)
+          if [ "${#post_sitemap_urls[@]}" -eq 0 ]; then
+            echo "::error::Yoast sitemap index does not expose a post sitemap."
+            exit 1
+          fi
+
+          post_sitemap=""
+          for sitemap_url in "${post_sitemap_urls[@]}"; do
+            post_sitemap+="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$sitemap_url")"
+          done
+
+          mapfile -t managed_publish_post_slugs < <(jq -r '.items[] | select(.type == "post" and .create_if_missing == true and ((.status // .status_if_new) == "publish")) | .slug' content/manifest.json)
+          for slug in "${managed_publish_post_slugs[@]}"; do
+            url="$base/$slug/"
+
+            if ! grep -Fq "<loc>$url</loc>" <<<"$post_sitemap"; then
+              echo "::error::Managed publish post is missing from Yoast post sitemap: $url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            body_file="$(mktemp)"
+            http_code="$(curl -sSL --max-time 30 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -D "$headers_file" \
+              -o "$body_file" \
+              -w "%{http_code}" \
+              "$url")"
+
+            if [ "$http_code" != "200" ]; then
+              echo "::error::Managed publish post returned HTTP $http_code: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '^x-robots-tag:.*noindex' "$headers_file" || \
+               grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$body_file"; then
+              echo "::error::Managed publish post exposes noindex: $url"
+              exit 1
+            fi
+
+            echo "Managed publish post crawler surface OK: $url"
+          done
+
+          for slug in "${indexable_slugs[@]}"; do
+            url="$base/$slug/"
+
+            if ! grep -Fq "<loc>$url</loc>" <<<"$page_sitemap"; then
+              echo "::error::Indexable managed page is missing from page-sitemap.xml: $url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            body_file="$(mktemp)"
+            http_code="$(curl -sSL --max-time 30 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -D "$headers_file" \
+              -o "$body_file" \
+              -w "%{http_code}" \
+              "$url")"
+
+            if [ "$http_code" != "200" ]; then
+              echo "::error::Indexable managed page returned HTTP $http_code: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '^x-robots-tag:.*noindex' "$headers_file"; then
+              echo "::error::Indexable managed page exposes X-Robots-Tag noindex: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$body_file"; then
+              echo "::error::Indexable managed page exposes a robots noindex meta tag: $url"
+              exit 1
+            fi
+
+            echo "Crawler surface OK: $url"
+          done
+
+          while IFS=$'\t' read -r source_slug target_slug; do
+            source_url="$base/$source_slug/"
+            target_url="$base/$target_slug/"
+
+            if grep -Fq "<loc>$source_url</loc>" <<<"$post_sitemap"; then
+              echo "::error::Legacy redirect source is still present in the post sitemap: $source_url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            http_code="$(curl -sS --max-time 30 --max-redirs 0 \
+              -D "$headers_file" \
+              -o /dev/null \
+              -w "%{http_code}" \
+              "$source_url" || true)"
+            location="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]+:[[:space:]]*/, ""); sub(/\r$/, ""); print; exit}' "$headers_file")"
+
+            if [ "$http_code" != "301" ] || [ "$location" != "$target_url" ]; then
+              echo "::error::Legacy redirect contract mismatch: $source_url -> HTTP $http_code Location ${location:-missing}, expected $target_url"
+              exit 1
+            fi
+
+            echo "Legacy redirect sitemap hygiene OK: $source_url -> $target_url"
+          done < <(jq -r '.legacy_redirects | to_entries[] | [.key,.value] | @tsv' <<<"$health")
+
+          paged_url="$base/page/2/"
+          paged_headers="$(mktemp)"
+          paged_body="$(mktemp)"
+          paged_http="$(curl -sSL --max-time 30 \
+            -H "Cache-Control: no-cache, no-store, max-age=0" \
+            -D "$paged_headers" \
+            -o "$paged_body" \
+            -w "%{http_code}" \
+            "$paged_url")"
+
+          if [ "$paged_http" != "200" ]; then
+            echo "::error::Paginated archive returned HTTP $paged_http: $paged_url"
+            exit 1
+          fi
+
+          if ! grep -Eiq '^x-robots-tag:.*noindex' "$paged_headers" && \
+             ! grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$paged_body"; then
+            echo "::error::Paginated archive is missing live noindex: $paged_url"
+            exit 1
+          fi
+
+          echo "Paginated archive noindex OK: $paged_url"
+
+          redirect_count="$(jq -r '.legacy_redirect_count' <<<"$health")"
+          echo "Crawler discovery verified: robots + sitemap index + page sitemap + ${#indexable_slugs[@]} managed pages + ${#managed_publish_post_slugs[@]} managed publish posts + ${redirect_count} sitemap-clean 301 redirects + paginated archive noindex."

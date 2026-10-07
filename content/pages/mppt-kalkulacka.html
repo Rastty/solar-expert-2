@@ -1,0 +1,41 @@
+<p class="se-lead">MPPT regulátor musí současně zvládnout bateriové napětí, výkon FV pole, nabíjecí proud a celé napěťové okno panelového stringu. Nestačí tedy zkontrolovat jen počet ampér v názvu regulátoru.</p>
+
+[solar_expert_mppt_selector]
+
+<h2>Co MPPT kalkulačka kontroluje</h2>
+<h3>Podporované napětí baterie</h3>
+<p>Regulátor musí být výrobcem určený pro systémové napětí vaší baterie, typicky 12, 24 nebo 48 V.</p>
+
+<h3>Výkon FV pole</h3>
+<p>Výrobci často uvádějí rozdílný maximální doporučený výkon panelů podle napětí baterie. Proto se stejný regulátor může hodit pro větší pole u 48V systému než u 12V systému.</p>
+
+<h3>Nabíjecí proud</h3>
+<p>Regulátor musí mít dostatečný jmenovitý výstupní proud. Nástroj porovnává požadovaný proud s ověřeným limitem konkrétního modelu.</p>
+
+<h3>Startovací napětí a pracovní Vmp</h3>
+<p>String musí mít dostatečné pracovní napětí, aby MPPT vůbec začal regulovat. Jeden panel může mít správný Voc, ale při nízkém Vmp nemusí u vyššího bateriového napětí vytvořit funkční string.</p>
+
+<h3>Cold Voc</h3>
+<p>Napětí panelu naprázdno roste při nízké teplotě. Proto počítáme konzervativní cold-Voc rezervu a string musí zůstat pod maximálním PV Voc regulátoru i za chladu.</p>
+
+<p>Nejste si jistí počtem modulů v sérii? Nejdřív si projděte <a href="/kolik-panelu-je-potreba-na-jeden-string/">jak určit počet panelů v jednom stringu</a>, potom hodnoty ověřte zde v kalkulačce.</p>
+
+<h2>Série vs. paralelní zapojení</h2>
+<p>Panely v sérii zvyšují napětí stringu, paralelní větve zvyšují proud. Cílem není maximalizovat jedno z nich, ale dostat se bezpečně do pracovního okna regulátoru a současně nepřekročit Voc, proudové ani výkonové limity.</p>
+
+<h2>Typické chyby</h2>
+<ul>
+<li>kontrola jen součtu Wp bez napětí stringu,</li>
+<li>ignorování cold Voc,</li>
+<li>příliš nízké Vmp pro start MPPT,</li>
+<li>použití stejného limitu FV výkonu pro 12 V i 48 V,</li>
+<li>záměna nabíjecího proudu do baterie za proud panelů na vstupu.</li>
+</ul>
+
+<h2>Příklad u 24V systému</h2>
+<p>Pokud má jeden panel pracovní napětí přibližně 22 V, jediný panel v sérii může být pro některé MPPT na 24V baterii příliš nízko. Dva panely v sérii už mohou vytvořit potřebné pracovní napětí, ale stále je nutné zkontrolovat cold Voc proti maximálnímu vstupnímu napětí regulátoru.</p>
+
+<h2>Kam dál</h2>
+<p>Pro kompletní sestavu začněte v <a href="/solarni-sestava-na-chatu/">Solar Setup Builderu</a>. Pokud řešíte bateriovou stranu, použijte <a href="/vyber-baterii/">Battery Selector</a>; pro AC výkon a rozběhy je určený <a href="/vyber-menice/">Inverter Selector</a>.</p>
+
+<div class="se-note">Kalkulačka používá ověřené limity katalogových produktů a konzervativní cold-Voc faktor. Pro finální instalaci vždy použijte teplotní koeficient a datasheet konkrétního panelu a regulátoru.</div>

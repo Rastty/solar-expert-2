@@ -1,0 +1,90 @@
+<p class="se-lead"><strong>Jmenovitých 450 Wp neznamená, že panel bude na střeše běžně vyrábět 450 W.</strong> Wp se měří za standardních testovacích podmínek (STC): ozáření 1 000 W/m², teplota článku 25 °C a standardní spektrum AM1.5. V reálném provozu výkon mění hlavně ozáření, teplota článku, úhel dopadu, zastínění, znečištění a ztráty zbytku systému.</p>
+
+<h2>Co přesně znamená jmenovitý výkon Wp</h2>
+<p>Wp je referenční výkon modulu za laboratorně definovaných STC. Je to důležité číslo pro porovnávání panelů, ale není to předpověď běžného okamžitého výkonu ani roční výroby.</p>
+<p>NREL uvádí pro STC ozáření 1 000 W/m², teplotu článku 25 °C a spektrum AM1.5. V běžném provozu může být článek výrazně teplejší než okolní vzduch, takže výkon se od STC přirozeně liší.</p>
+
+<h2>Jednoduchý odhad okamžitého výkonu</h2>
+<p>Pro hrubou představu lze pracovat s:</p>
+<p><strong>reálný DC výkon ≈ Wp × relativní ozáření × teplotní korekce × ostatní ztráty</strong></p>
+<p>Například panel 450 Wp při přibližně 800 W/m² nemá před dalšími vlivy k dispozici stejné podmínky jako při STC. Pokud je navíc rozpálený, výkon klesne ještě kvůli teplotnímu koeficientu.</p>
+<p>Je to orientační vztah, ne náhrada simulace celé elektrárny.</p>
+
+<h2>1. Ozáření: největší okamžitý vliv</h2>
+<p>Elektrický proud fotovoltaického modulu silně závisí na intenzitě dopadajícího světla. NREL uvádí, že při přibližném poklesu ozáření z 1 000 na 500 W/m² klesá proud modulu zhruba úměrně. Proto panel za lehkou oblačností nevyrábí stejný výkon jako v jasném poledni.</p>
+
+<h2>2. Teplota článku: proč horký panel ztrácí výkon</h2>
+<p>U křemíkových panelů s rostoucí teplotou obvykle mírně roste proud, ale výrazněji klesá napětí, takže výsledný výkon klesá. Department of Energy proto uvádí teplotu jako jeden ze zásadních faktorů výkonu.</p>
+<p>V datasheetu hledejte <strong>teplotní koeficient Pmax</strong>. Například hodnota −0,30 %/°C znamená, že při zvýšení teploty článku o 20 °C proti referenční hodnotě může samotný teplotní efekt znamenat přibližně 6% pokles výkonu.</p>
+
+<h2>3. Teplota vzduchu není teplota panelu</h2>
+<p>Tohle je častá chyba. STC pracuje s <strong>teplotou článku</strong>, ne venkovního vzduchu. Panel na tmavé střeše může mít za slunečného dne článek výrazně teplejší než okolní vzduch.</p>
+<p>Proto má smysl sledovat v datasheetu také NMOT/NOCT nebo jiný údaj popisující provozní teplotu modulu v realističtějších podmínkách.</p>
+
+<h2>4. Úhel dopadu a orientace</h2>
+<p>Panel získá nejvíc energie, když záření dopadá vhodně na jeho plochu. Orientace a sklon ovlivňují nejen okamžitý výkon, ale hlavně denní a roční výrobu.</p>
+<p>Nezaměňujte ale „nejvyšší špičkový výkon“ s „nejlepší roční výrobou“ nebo „nejlepší shodou se spotřebou“. Východ–západ může mít nižší polední špičku, ale širší profil výroby během dne.</p>
+
+<h2>5. Stínování může bolet víc než několik procent účinnosti</h2>
+<p>Částečný stín neovlivňuje jen zastíněnou plochu. Podle zapojení článků, bypass diod a stringu může omezit výkon větší části systému.</p>
+<p><a class="se-btn" href="/castecne-zastineni-a-solarni-panely/">Jak funguje částečné zastínění →</a></p>
+
+<h2>6. Znečištění a sníh</h2>
+<p>Prach, pyl, ptačí trus nebo sníh snižují množství světla dopadajícího na články. Velikost ztráty ale závisí na lokalitě, sklonu, dešti a typu nečistot. Není správné předpokládat jeden univerzální procentní zisk z pravidelného čištění.</p>
+<p><a class="se-btn" href="/cisteni-solarnich-panelu-proc-kdy-jak/">Kdy má čištění panelů smysl →</a></p>
+
+<h2>7. MPPT a pracovní bod panelu</h2>
+<p>Panel nemá jeden pevný výkon nezávislý na napětí. MPPT střídače nebo regulátoru průběžně hledá bod maximálního výkonu. Pokud je string mimo provozní napěťové okno MPPT, může být výkon výrazně omezen nebo systém vůbec nemusí správně startovat.</p>
+<p><a class="se-btn" href="/mppt-kalkulacka/">Ověřit Voc, Vmp a MPPT okno →</a></p>
+
+<h2>8. Inverter clipping: když DC pole umí víc než střídač</h2>
+<p>Pokud FV pole v určité chvíli může dodat vyšší DC výkon, než střídač převede na AC, střídač výkon omezí. Tomu se říká clipping. Malé množství clippingu nemusí být špatně — DC/AC poměr se často volí tak, aby střídač pracoval efektivněji po větší část roku.</p>
+
+<h2>9. Ztráty kabelů, mismatch a BOS</h2>
+<p>Výkon panelů není totéž co výkon celé elektrárny na AC straně. Do výsledku vstupují také kabelové ztráty, rozdíly mezi moduly, účinnost střídače, dostupnost systému a další balance-of-system vlivy.</p>
+
+<h2>Reálný výkon na m²</h2>
+<p>Pokud vás zajímá, kolik výkonu dostanete z omezené plochy střechy, je důležitá účinnost a fyzický rozměr panelu. To je jiný problém než okamžitý výkon jednoho konkrétního 450Wp panelu.</p>
+<p><a class="se-btn" href="/fotovoltaika-vykon-na-m2/">Výkon fotovoltaiky na m² →</a></p>
+
+<h2>Okamžitý výkon vs. výroba za hodinu a rok</h2>
+<ul>
+<li><strong>kW:</strong> okamžitý výkon,</li>
+<li><strong>kWh:</strong> energie vyrobená za určité období,</li>
+<li><strong>kWp:</strong> jmenovitý DC výkon FV pole za STC.</li>
+</ul>
+<p><a class="se-btn" href="/kolik-vyrobi-fotovoltaika-za-hodinu/">Kolik vyrobí FVE za hodinu →</a></p>
+<p><a class="se-btn" href="/kolik-vyrobi-fotovoltaika-za-rok/">Roční výroba a PVGIS →</a></p>
+
+<h2>Jak porovnat dva panely v datasheetu</h2>
+<ul>
+<li>Wp a účinnost modulu,</li>
+<li>teplotní koeficient Pmax,</li>
+<li>Voc, Vmp, Isc a Imp,</li>
+<li>NMOT/NOCT nebo provozní charakteristiky,</li>
+<li>výkonovou toleranci,</li>
+<li>mechanické rozměry a hmotnost,</li>
+<li>produktovou a výkonovou záruku,</li>
+<li>kompatibilitu s konkrétním MPPT/stringem.</li>
+</ul>
+
+<h2>Chcete zkontrolovat celou sestavu?</h2>
+<p>Samotný panel je jen jedna část výsledku. Pokud už máte nabídku s výkonem panelů, baterií a měničem, zkontrolujte ji jako celek.</p>
+<p><a class="se-btn se-btn-primary" href="/quote-checker/">Prověřit nabídku v Quote Checkeru →</a></p>
+
+<h2>FAQ</h2>
+<h3>Je možné, aby panel krátce překročil Wp?</h3>
+<p>Ano, za určitých podmínek může okamžitý výkon dosáhnout nebo krátce překročit jmenovitou hodnotu, například při vysokém ozáření a nízké teplotě článku. Není to ale běžná celodenní úroveň.</p>
+
+<h3>Proč 10 kWp FVE často nevyrábí 10 kW?</h3>
+<p>Protože STC podmínky nejsou většinu času splněné. Reálný výkon ovlivňuje ozáření, teplota, orientace, stín, ztráty i omezení střídače.</p>
+
+<h3>Je lepší panel s vyšším Wp?</h3>
+<p>Ne automaticky. Důležité jsou také rozměry, účinnost na m², Voc/Vmp, teplotní koeficient, záruky, mechanické parametry a kompatibilita s návrhem.</p>
+
+<h2>Zdroje a metodika</h2>
+<ul>
+<li><a href="https://www.energy.gov/cmei/systems/solar-photovoltaic-performance-and-efficiency-basics" rel="noopener">U.S. Department of Energy — PV performance and efficiency</a></li>
+<li><a href="https://www.nrel.gov/docs/fy18osti/68696.pdf" rel="noopener">NREL — Solar Photovoltaic DC Systems, STC and operating effects</a></li>
+<li><a href="https://www.nrel.gov/docs/fy20osti/75162.pdf" rel="noopener">NREL — Performance of Photovoltaic Systems</a></li>
+</ul>

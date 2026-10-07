@@ -1,1 +1,54 @@
-{"schemaVersion":"1.0.0","merchants":[{"id":"battery-cz","name":"Battery.cz","status":"approved"},{"id":"solar-import-cz","name":"Solar-Import.cz","status":"approved"},{"id":"ampul-eu","name":"Ampul.eu","status":"approved"},{"id":"eon-cz","name":"E.ON.cz","status":"approved"},{"id":"vselektro-eu","name":"VSelektro.eu","status":"pending_approval"}]}
+{
+  "schemaVersion": "1.2.0",
+  "merchants": [
+    {
+      "id": "battery-cz",
+      "name": "Battery.cz",
+      "status": "approved",
+      "roles": [
+        "lifepo4",
+        "storage"
+      ],
+      "priority": "p0"
+    },
+    {
+      "id": "solar-import-cz",
+      "name": "Solar-Import.cz",
+      "status": "approved",
+      "roles": [
+        "panel",
+        "mppt",
+        "inverter",
+        "hybrid",
+        "lifepo4",
+        "storage"
+      ],
+      "priority": "p0"
+    },
+    {
+      "id": "ampul-eu",
+      "name": "Ampul.eu",
+      "status": "approved",
+      "roles": [
+        "dc-dc",
+        "mobile-power",
+        "accessories"
+      ],
+      "priority": "secondary"
+    },
+    {
+      "id": "eon-cz",
+      "name": "E.ON.cz",
+      "status": "approved",
+      "roles": [
+        "installer-lead"
+      ],
+      "priority": "secondary"
+    },
+    {
+      "id": "vselektro-eu",
+      "name": "VSelektro.eu",
+      "status": "pending_approval"
+    }
+  ]
+}

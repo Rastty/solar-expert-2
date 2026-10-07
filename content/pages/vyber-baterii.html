@@ -1,0 +1,43 @@
+<p class="se-lead">Baterii pro ostrovní systém nevybírejte jen podle Ah. Musí sedět systémovým napětím, energií v kWh a maximálním vybíjecím proudem BMS k výkonu měniče. Battery Selector filtruje produkty právě podle těchto parametrů.</p>
+
+[solar_expert_battery_selector]
+
+<h2>Čtyři parametry, které rozhodují</h2>
+<h3>1. Systémové napětí</h3>
+<p>Baterie, měnič a regulátor musí pracovat se stejnou napěťovou třídou. 12V baterie nepatří do 24V nebo 48V návrhu jen proto, že má dostatečnou kapacitu.</p>
+
+<h3>2. Energie v kWh</h3>
+<p>Ah lze porovnávat pouze při stejném napětí. Pro skutečné množství uložené energie je praktičtější kWh. Přibližně platí: nominální energie = napětí × kapacita v Ah. Dvě 100Ah baterie mohou mít při různém napětí úplně jinou energetickou kapacitu.</p>
+
+<h3>3. Maximální vybíjecí proud BMS</h3>
+<p>Velká baterie nemusí automaticky utáhnout velký měnič. BMS musí dovolit dostatečný proud. Selector proto kontroluje, zda výkon odvozený z napětí a maximálního vybíjecího proudu pokryje požadovaný trvalý výkon měniče.</p>
+
+<h3>4. Autonomie</h3>
+<p>Jeden den autonomie znamená něco jiného pro chatu s 1 kWh/den a něco jiného pro systém se spotřebou 5 kWh/den. Nástroj proto začíná denní spotřebou a z ní počítá nominální cíl baterie s rezervou.</p>
+
+<h2>Proč pracujeme hlavně s LiFePO₄</h2>
+<p>Pro cyklické ostrovní a záložní použití preferujeme LiFePO₄ produkty, u kterých máme ověřitelné elektrické parametry, BMS limity a dostupná data pro 12/24/48V návrhy. Neznamená to, že každá LiFePO₄ baterie je automaticky vhodná; rozhoduje konkrétní BMS, systémové napětí, komunikace a kompatibilita s měničem.</p>
+
+<h2>Typické chyby při výběru baterie</h2>
+<ul>
+<li>porovnávání Ah mezi 12V a 48V baterií bez přepočtu na kWh,</li>
+<li>ignorování limitu BMS při silném měniči,</li>
+<li>podcenění vlastní denní spotřeby a autonomie,</li>
+<li>předpoklad, že CAN/RS485 konektor automaticky znamená kompatibilní komunikaci s každým měničem,</li>
+<li>nákup baterie dříve, než je rozhodnuté systémové napětí celé sestavy.</li>
+</ul>
+
+<h2>Co řešit po výběru baterie</h2>
+<p>Jakmile znáte vhodnou baterii, navazuje <a href="/vyber-menice/">výběr měniče</a> a kontrola FV strany přes <a href="/mppt-kalkulacka/">MPPT kalkulačku</a>. Pro kompletní návrh od spotřeby použijte <a href="/solarni-sestava-na-chatu/">Solar Setup Builder</a>.</p>
+
+<h2>FAQ</h2>
+<h3>Kolik kWh baterie potřebuji?</h3>
+<p>Začněte denní spotřebou a požadovanou autonomií. Baterie se nevolí jen podle okamžitého výkonu, ale hlavně podle energie, kterou musí uložit mezi nabíjením.</p>
+
+<h3>Může 48V baterie napájet 12V měnič?</h3>
+<p>Ne přímo. Baterie a měnič musí být navrženy pro stejnou systémovou napěťovou třídu.</p>
+
+<h3>Je větší baterie vždy lepší?</h3>
+<p>Větší kapacita dává větší energetickou rezervu, ale zvyšuje cenu a sama neřeší výkon BMS, komunikaci ani správné nabíjení. Cílem je technicky odpovídající velikost, ne co největší číslo.</p>
+
+<div class="se-note">Selector je technický předvýběr. Před nákupem ověřte datasheet baterie, požadavky měniče, jištění, kabeláž a případnou podporu komunikačního protokolu.</div>

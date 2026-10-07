@@ -1,0 +1,101 @@
+<p class="se-lead"><strong>Další panely lze ke stávající fotovoltaice často přidat, ale první otázka není „kolik se jich vejde na střechu“.</strong> Nejdřív musíte ověřit elektrické limity střídače a MPPT: maximální Voc za mrazu, pracovní rozsah Vmp, maximální vstupní proud a zkratový proud. Teprve potom dává smysl řešit výkon, střechu a ekonomiku rozšíření.</p>
+
+<h2>Rychlá odpověď: 4 nejčastější cesty rozšíření FVE</h2>
+<ol>
+<li><strong>Prodloužit existující string</strong> – pokud nové moduly elektricky i mechanicky dávají smysl a string zůstane v limitech střídače.</li>
+<li><strong>Přidat nový string na volný MPPT</strong> – často nejčistší varianta, pokud má střídač nevyužitý tracker a dostatečné proudové/napěťové rezervy.</li>
+<li><strong>Vyměnit střídač za vhodnější</strong> – když současný střídač rozšíření nepobere nebo chcete zároveň baterii.</li>
+<li><strong>Přidat samostatnou AC větev / další střídač</strong> – technicky možné řešení, ale vyžaduje kontrolu připojení, jištění, měření a podmínek distributora.</li>
+</ol>
+
+<h2>Nejdřív si opište 8 údajů</h2>
+<ul>
+<li>přesný model střídače,</li>
+<li>počet MPPT a počet DC vstupů na každý MPPT,</li>
+<li>maximální DC vstupní napětí,</li>
+<li>MPP napěťový rozsah,</li>
+<li>maximální proud a maximální zkratový proud pro každý MPPT,</li>
+<li>model a počet současných panelů v každém stringu,</li>
+<li>Voc, Vmp, Isc a Imp současného i nového panelu,</li>
+<li>orientaci a sklon jednotlivých ploch.</li>
+</ul>
+<p>Bez těchto údajů nejde bezpečně rozhodnout, zda „ještě 4 panely“ opravdu můžete přidat.</p>
+
+<h2>1. Kontrola maximálního Voc za mrazu</h2>
+<p>Napětí panelu naprázdno <strong>Voc s klesající teplotou roste</strong>. Proto se maximální napětí stringu neověřuje jen podle hodnoty na štítku při 25 °C. Střídač má pevný limit maximálního DC napětí, který nesmíte překročit ani v nejchladnějším uvažovaném stavu.</p>
+<p>Výrobci proto uvádějí maximální vstupní napětí a pracovní MPP rozsah. Například aktuální dokumentace Fronius Symo Advanced samostatně uvádí MPP rozsah, maximální vstupní napětí a proudové limity jednotlivých MPPT. Konkrétní čísla se však liší model od modelu.</p>
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Spočítat cold Voc a MPPT okno →</a></p>
+
+<h2>2. Kontrola Vmp: string musí být i dost dlouhý</h2>
+<p>Málo panelů v sérii může znamenat, že pracovní napětí stringu nedosáhne do vhodné části MPPT rozsahu nebo střídač za některých podmínek vůbec správně nenaběhne. Rozšíření proto není jen otázka horního napěťového limitu.</p>
+<p><a class="se-btn" href="/kolik-panelu-je-potreba-na-jeden-string/">Kolik panelů patří do jednoho stringu →</a></p>
+
+<h2>3. Proudové limity: paralelní string není „zdarma“</h2>
+<p>V sériovém stringu se sčítá napětí a proud je společný. Při paralelním spojení větví se naopak sčítají proudy. Pokud tedy přidáte další paralelní string na stejný MPPT, musíte znovu ověřit <strong>maximální vstupní proud i maximální povolený zkratový proud</strong> střídače.</p>
+<p>Současné střídače mají tyto limity explicitně uvedené v datasheetu. Samotný AC výkon střídače (např. „10 kW“) nestačí k rozhodnutí, kolik panelů lze připojit.</p>
+
+<h2>4. Mohu smíchat staré a nové panely?</h2>
+<p>Ano, někdy to jde, ale není správné říct, že stačí koupit panel se stejným počtem wattů. Důležité jsou elektrické parametry a způsob zapojení.</p>
+<ul>
+<li><strong>V jednom sériovém stringu</strong> je důležitá kompatibilita proudových charakteristik; rozdílný článek může omezovat pracovní bod celé větve.</li>
+<li><strong>Na samostatném MPPT</strong> může být nová skupina odlišná snáze, protože tracker hledá vlastní pracovní bod.</li>
+<li><strong>Jiná orientace nebo sklon</strong> je další důvod, proč plochy pokud možno nechat na samostatném MPPT.</li>
+</ul>
+<p><a class="se-btn" href="/jak-zapojit-solarni-panely/">Série vs. paralelní zapojení panelů →</a></p>
+
+<h2>5. DC/AC poměr: střídač nemusí mít stejný počet kW jako panely</h2>
+<p>Je běžné, že jmenovitý DC výkon panelů je vyšší než AC výkon střídače. To ale neznamená, že můžete panely přidávat bez omezení. Výrobce stanovuje doporučený nebo maximální PV výkon a zároveň napěťové i proudové limity.</p>
+<p>Pokud pole v ideálních podmínkách umí dodat víc, než střídač převede, může dojít ke clippingu. Rozumné DC předimenzování může být součástí návrhu; překročení elektrických limitů nikoli.</p>
+
+<h2>6. Přidání baterie je samostatné rozhodnutí</h2>
+<p>Více panelů může zvýšit množství přebytků, ale z toho automaticky neplyne, že je vhodná baterie nebo že současný střídač baterii podporuje. U hybridního systému ověřte kompatibilní baterie, výkon nabíjení/vybíjení, napěťový rozsah baterie a řízení přetoků.</p>
+<p><a class="se-btn" href="/vyber-baterii/">Battery Selector →</a> <a class="se-btn" href="/vyber-menice/">Inverter Selector →</a></p>
+
+<h2>7. Nezapomeňte na distributora a sjednané parametry výrobny</h2>
+<p>Rozšíření panelového pole může změnit <strong>instalovaný výkon výrobny</strong> nebo další parametry připojení. Postup závisí na konkrétním distribučním území a stávající smlouvě.</p>
+<p>ČEZ Distribuce ve svém aktuálním rozcestníku výslovně uvádí postupy pro zákazníky, kteří už výrobnu mají a chtějí ji rekonstruovat nebo zvýšit její výkon. Před objednáním techniky proto ověřte požadavky svého distributora (ČEZ Distribuce, EG.D nebo PREdistribuce) pro váš konkrétní případ.</p>
+<p><strong>Nezaměňujte výkon panelů, výkon střídače a rezervovaný výkon do sítě.</strong> Jsou to různé parametry a změna jednoho nemusí automaticky znamenat stejnou změnu ostatních.</p>
+
+<h2>8. Mechanika střechy se počítá znovu</h2>
+<p>Další moduly mění zatížení střechy, rozložení kotev, okrajové zóny větru, kabelové trasy i servisní přístup. Pokud přidáváte panely na jinou plochu střechy, může být jiná orientace, sklon i stínění — a tedy i jiné optimální stringové řešení.</p>
+
+<h2>Praktický rozhodovací strom</h2>
+<table>
+<thead><tr><th>Situace</th><th>První varianta k prověření</th></tr></thead>
+<tbody>
+<tr><td>Volný MPPT a vhodné limity</td><td>Nový samostatný string.</td></tr>
+<tr><td>Volný rozsah v existujícím stringu, stejné/vhodné moduly</td><td>Prodloužení stringu po kontrole cold Voc a Vmp.</td></tr>
+<tr><td>Střídač je na limitech</td><td>Nový/větší střídač nebo druhá AC větev.</td></tr>
+<tr><td>Současně chcete baterii</td><td>Prověřit hybridní architekturu a kompatibilitu baterie.</td></tr>
+<tr><td>Nové panely budou na jiné orientaci</td><td>Samostatný MPPT, pokud je k dispozici.</td></tr>
+</tbody>
+</table>
+
+<h2>Co neposuzovat svépomocí</h2>
+<p>FV string může mít stovky voltů DC a nebezpečné napětí může být přítomné vždy, když jsou moduly osvětlené. Úpravu DC rozvodů, jištění, ochrany, konektorů a uvedení rozšířené výrobny do provozu patří kvalifikovanému projektantovi/instalatérovi a reviznímu technikovi. Tento článek slouží k tomu, abyste uměli zkontrolovat návrh a položit správné otázky.</p>
+
+<h2>Máte nabídku na rozšíření FVE?</h2>
+<p>Nechte si v nabídce jasně uvést nový stringový návrh, nový DC výkon, model panelů, využité MPPT, maximální Voc/Isc, případný clipping, změny jištění a zda se mění parametry připojené výrobny.</p>
+<p><a class="se-btn se-btn-primary" href="/quote-checker/">Prověřit nabídku v Quote Checkeru →</a></p>
+
+<h2>FAQ</h2>
+<h3>Mohu přidat jeden nebo dva panely do stávajícího stringu?</h3>
+<p>Možná ano, ale až po kontrole maximálního Voc za nízké teploty, pracovního Vmp rozsahu a kompatibility nových panelů se stávajícími.</p>
+
+<h3>Potřebuji stejné panely?</h3>
+<p>Stejný model je nejjednodušší, ale není to jediná možná cesta. U jiného modelu musí projektant ověřit elektrickou kompatibilitu a dopad mismatchingu. Nová samostatná skupina na vlastním MPPT bývá tolerantnější k rozdílům.</p>
+
+<h3>Mohu překročit výkon střídače výkonem panelů?</h3>
+<p>Ano, DC výkon pole může být vyšší než AC výkon střídače, pokud to dovoluje výrobce a jsou dodrženy všechny napěťové, proudové a výkonové limity. Neexistuje jedno univerzální procento pro každý střídač.</p>
+
+<h3>Musím změnu hlásit distributorovi?</h3>
+<p>Záleží na tom, co se mění oproti sjednaným parametrům výrobny a na podmínkách vašeho distributora. Pokud rozšíření mění instalovaný nebo rezervovaný výkon či další parametry připojení, ověřte postup před realizací.</p>
+
+<h2>Zdroje a metodika</h2>
+<ul>
+<li><a href="https://www.cezdistribuce.cz/cs/pro-vyrobce" rel="noopener">ČEZ Distribuce — aktuální postupy pro novou, rekonstruovanou nebo výkonově měněnou výrobnu</a></li>
+<li><a href="https://www.cezdistribuce.cz/pro-vyrobce/podani-zadosti-o-pripojeni" rel="noopener">ČEZ Distribuce — žádost o připojení a změny parametrů výrobny</a></li>
+<li><a href="https://manuals.fronius.com/html/4204260426/cs.html" rel="noopener">Fronius Symo Advanced — aktuální příklad MPP napětí, max. DC napětí a proudových limitů</a></li>
+<li><a href="https://www.fronius.com/en/help-center/solar-energy/solar-inverters/support-snapinverter" rel="noopener">Fronius — maximum input current / short-circuit-current guidance</a></li>
+<li><a href="https://files.sma.de/downloads/DC-PL-en-11.pdf" rel="noopener">SMA — PV generator/string planning principles</a></li>
+</ul>
