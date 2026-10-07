@@ -255,7 +255,23 @@
       "source_url": "https://www.battery.cz/seplos-lithiova-nastenna-baterie-polo-w--48v-5kwh-s-bms/",
       "price_czk": 20990,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 20990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/seplos-lithiova-nastenna-baterie-polo-w--48v-5kwh-s-bms/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 20990,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/seplos/seplos-lithiova-nastenna-baterie-polo-w--48v-5kwh-s-bms/",
+          "verified_at": "2026-10-07"
+        }
+      ]
     },
     {
       "id": "panel-victron-190",
@@ -602,7 +618,27 @@
       "continuous_w": 1000,
       "peak_w": 2200,
       "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/off-grid/victron-energy-menic-napeti-sinus-phoenix-ve-direct-1200va-24v/"
+      "source_url": "https://www.solar-import.cz/off-grid/victron-energy-menic-napeti-sinus-phoenix-ve-direct-1200va-24v/",
+      "price_czk_snapshot": 7431,
+      "price_czk": 7431,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 7431,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/off-grid/victron-energy-menic-napeti-sinus-phoenix-ve-direct-1200va-24v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 7431,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/menic-napeti-sinus-victron-energy-phoenix-ve-direct-1200va-24v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
     },
     {
       "id": "inverter-victron-48-1200",
@@ -616,10 +652,26 @@
       "peak_w": 2200,
       "price_czk_snapshot": 7623,
       "availability": "usually_in_stock",
-      "source_url": "https://www.solar-import.cz/menice-napeti/",
+      "source_url": "https://www.solar-import.cz/victron-energy-3/victron-energy-menic-napeti-sinus-ve-direct-1200va-48v/",
       "price_czk": 7623,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 7623,
+          "availability": "usually_in_stock",
+          "source_url": "https://www.solar-import.cz/victron-energy-3/victron-energy-menic-napeti-sinus-ve-direct-1200va-48v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 7623,
+          "availability": "usually_in_stock",
+          "source_url": "https://www.battery.cz/victron-energy-menic-napeti-sinus-ve-direct-1200va-48v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
     },
     {
       "id": "inverter-kosun-48-3000",
