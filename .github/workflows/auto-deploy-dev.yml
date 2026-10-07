@@ -263,10 +263,14 @@ jobs:
 
             outcome7_views="$(jq -r '.outcome_scoreboard.days_7.tool_views // 0' <<<"$health")"
             outcome7_starts="$(jq -r '.outcome_scoreboard.days_7.tool_starts // 0' <<<"$health")"
+            outcome7_exposures="$(jq -r '.outcome_scoreboard.days_7.tool_exposures // 0' <<<"$health")"
+            outcome7_activations="$(jq -r '.outcome_scoreboard.days_7.tool_activations // 0' <<<"$health")"
             outcome7_events="$(jq -r '.outcome_scoreboard.days_7.tool_outcome_events // 0' <<<"$health")"
             outcome7_outbound="$(jq -r '.outcome_scoreboard.days_7.outbound_clicks // 0' <<<"$health")"
             outcome28_views="$(jq -r '.outcome_scoreboard.days_28.tool_views // 0' <<<"$health")"
             outcome28_starts="$(jq -r '.outcome_scoreboard.days_28.tool_starts // 0' <<<"$health")"
+            outcome28_exposures="$(jq -r '.outcome_scoreboard.days_28.tool_exposures // 0' <<<"$health")"
+            outcome28_activations="$(jq -r '.outcome_scoreboard.days_28.tool_activations // 0' <<<"$health")"
             outcome28_events="$(jq -r '.outcome_scoreboard.days_28.tool_outcome_events // 0' <<<"$health")"
             outcome28_outbound="$(jq -r '.outcome_scoreboard.days_28.outbound_clicks // 0' <<<"$health")"
             outcome28_by_tool="$(jq -c '.outcome_scoreboard.days_28.by_tool // {}' <<<"$health")"
@@ -275,7 +279,7 @@ jobs:
 
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
             echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
-            echo "outcome 7d tool_views=${outcome7_views} tool_starts=${outcome7_starts} outcome_events=${outcome7_events} outbound_clicks=${outcome7_outbound}; 28d tool_views=${outcome28_views} tool_starts=${outcome28_starts} outcome_events=${outcome28_events} outbound_clicks=${outcome28_outbound}"
+            echo "outcome 7d tool_views=${outcome7_views} tool_starts=${outcome7_starts} tool_exposures=${outcome7_exposures} tool_activations=${outcome7_activations} outcome_events=${outcome7_events} outbound_clicks=${outcome7_outbound}; 28d tool_views=${outcome28_views} tool_starts=${outcome28_starts} tool_exposures=${outcome28_exposures} tool_activations=${outcome28_activations} outcome_events=${outcome28_events} outbound_clicks=${outcome28_outbound}"
             echo "outcome 28d by_tool=${outcome28_by_tool}"
             echo "outcome 28d by_page=${outcome28_by_page}"
             echo "outcome 28d tool_referrals=${outcome28_tool_referrals}"
