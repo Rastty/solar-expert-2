@@ -1,5 +1,5 @@
 window.solarExpertBuilder=function(){return{
-  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,catalogLoading:true,catalogError:false,bundles:[],result:null,
+  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,catalogLoading:true,catalogError:false,bundles:[],result:null,trackedSteps:[],
   appliances:[
     {id:'fridge',name:'Lednice',watts:70,surge:700,hours:10,qty:1,selected:false},
     {id:'lights',name:'LED osvětlení',watts:40,surge:40,hours:5,qty:1,selected:false},
@@ -58,7 +58,13 @@ window.solarExpertBuilder=function(){return{
     return rows;
   },
   toggle(id){const a=this.appliances.find(x=>x.id===id);if(a)a.selected=!a.selected;},
-  preset(type){this.appliances.forEach(a=>a.selected=false);const ids=type==='chata'?['fridge','lights','laptop','router','pump']:type==='offgrid'?['fridge','lights','laptop','router','tv','pump']:['fridge','lights','router','pump'];ids.forEach(id=>{const a=this.appliances.find(x=>x.id===id);if(a)a.selected=true;});this.scenario=type;this.step=2;},
+  trackStep(status){
+    if(!status||this.trackedSteps.includes(status))return;
+    this.trackedSteps.push(status);
+    if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'builder_step',status,scenario:this.scenario});
+  },
+  advanceToUsage(){this.step=3;this.trackStep('step_3');},
+  preset(type){this.appliances.forEach(a=>a.selected=false);const ids=type==='chata'?['fridge','lights','laptop','router','pump']:type==='offgrid'?['fridge','lights','laptop','router','tv','pump']:['fridge','lights','router','pump'];ids.forEach(id=>{const a=this.appliances.find(x=>x.id===id);if(a)a.selected=true;});this.scenario=type;this.step=2;this.trackStep('step_2');},
   chooseSystemVoltage(inverterW,peak){
     if(inverterW<=1000 && peak<=2000) return 12;
     if(inverterW<=2500 && peak<=4000) return 24;
@@ -82,6 +88,7 @@ window.solarExpertBuilder=function(){return{
     this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,batteryKwh,inverterW,mpptA,psh,riskFlags};
     this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result,this.bundleDeals);
     this.step=4;
+    this.trackStep('result');
     if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'solar_builder_complete',scenario:this.scenario,voltage,panelWp,batteryKwh,inverterW,peak});
   },
   reset(){this.step=1;this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}

@@ -23,7 +23,7 @@
         </div>
       </div>
     </template>
-    <div class="se-actions"><button class="se-btn" @click="step=1">← Zpět</button><button class="se-btn se-btn-primary" :disabled="!selectedAppliances.length" @click="step=3">Pokračovat →</button></div>
+    <div class="se-actions"><button class="se-btn" @click="step=1">← Zpět</button><button class="se-btn se-btn-primary" :disabled="!selectedAppliances.length" @click="advanceToUsage()">Pokračovat →</button></div>
   </div>
 
   <div x-show="step===3" x-cloak>

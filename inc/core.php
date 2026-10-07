@@ -531,6 +531,7 @@ function solar_expert_settings_page() {
         'tool_start' => 'Tool starts (legacy)',
         'tool_exposure' => 'Tool exposures (viewport v2)',
         'tool_activation' => 'Tool activations (v2)',
+        'builder_step' => 'Builder step milestones',
         'solar_builder_complete' => 'Builder completes',
         'selector_engaged' => 'Selector engagements',
         'quote_checker_complete' => 'Quote Checker completes',
@@ -674,6 +675,7 @@ function solar_expert_funnel_allowed_events() {
     'tool_start',
     'tool_exposure',
     'tool_activation',
+    'builder_step',
     'solar_builder_complete',
     'selector_engaged',
     'quote_checker_complete',
@@ -978,6 +980,64 @@ function solar_expert_funnel_referral_breakdown($days = 28) {
   );
 }
 
+function solar_expert_funnel_builder_steps($days = 28) {
+  $days = max(1, min(35, (int) $days));
+  $data = get_option('solar_expert_funnel_daily', array());
+  if ( ! is_array($data) ) { $data = array(); }
+
+  $cutoff = gmdate('Y-m-d', time() - (($days - 1) * DAY_IN_SECONDS));
+  $steps = array('step_2'=>0, 'step_3'=>0, 'result'=>0);
+  $by_scenario = array();
+
+  foreach ( $data as $date => $buckets ) {
+    if ( (string) $date < $cutoff || ! is_array($buckets) ) { continue; }
+    foreach ( $buckets as $bucket => $count ) {
+      $count = max(0, (int) $count);
+      if ( ! $count ) { continue; }
+
+      $parts = explode('|', (string) $bucket);
+      $event = sanitize_key(array_shift($parts));
+      if ( $event !== 'builder_step' ) { continue; }
+
+      $status = '';
+      $scenario = '';
+      foreach ( $parts as $part ) {
+        if ( strpos($part, 'status=') === 0 ) {
+          $status = sanitize_key(substr($part, 7));
+        } elseif ( strpos($part, 'scenario=') === 0 ) {
+          $scenario = sanitize_key(substr($part, 9));
+        }
+      }
+
+      if ( ! isset($steps[$status]) ) { continue; }
+      $steps[$status] += $count;
+
+      if ( $scenario ) {
+        if ( ! isset($by_scenario[$scenario]) ) {
+          $by_scenario[$scenario] = array('step_2'=>0, 'step_3'=>0, 'result'=>0);
+        }
+        $by_scenario[$scenario][$status] += $count;
+      }
+    }
+  }
+
+  foreach ( $by_scenario as $scenario => $row ) {
+    $by_scenario[$scenario]['step_2_to_3_pct'] = ! empty($row['step_2']) ? round(($row['step_3'] / $row['step_2']) * 100, 1) : 0;
+    $by_scenario[$scenario]['step_3_to_result_pct'] = ! empty($row['step_3']) ? round(($row['result'] / $row['step_3']) * 100, 1) : 0;
+  }
+  ksort($by_scenario);
+
+  return array(
+    'step_2' => $steps['step_2'],
+    'step_3' => $steps['step_3'],
+    'result' => $steps['result'],
+    'step_2_to_3_pct' => $steps['step_2'] ? round(($steps['step_3'] / $steps['step_2']) * 100, 1) : 0,
+    'step_3_to_result_pct' => $steps['step_3'] ? round(($steps['result'] / $steps['step_3']) * 100, 1) : 0,
+    'step_2_to_result_pct' => $steps['step_2'] ? round(($steps['result'] / $steps['step_2']) * 100, 1) : 0,
+    'by_scenario' => $by_scenario,
+  );
+}
+
 function solar_expert_funnel_outcome_summary($days = 28) {
   $days = max(1, min(35, (int) $days));
   $summary = solar_expert_funnel_summary($days);
@@ -1020,6 +1080,7 @@ function solar_expert_funnel_outcome_summary($days = 28) {
     'outbound_clicks' => $outbound_clicks,
     'outbound_clicks_per_100_tool_views' => $tool_views ? round(($outbound_clicks / $tool_views) * 100, 1) : 0,
     'by_tool' => solar_expert_funnel_tool_breakdown($days),
+    'builder_steps' => solar_expert_funnel_builder_steps($days),
     'by_page' => solar_expert_funnel_page_breakdown($days),
     'tool_referrals' => solar_expert_funnel_referral_breakdown($days),
   );
