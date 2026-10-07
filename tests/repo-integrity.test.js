@@ -313,6 +313,7 @@ assert(leadCore.includes("https://www.eon.cz/domacnosti/usporne-technologie/tepe
 assert(leadCore.includes("data-se-placement=\"heat_pump_legacy_article\""),'Heat-pump lead CTA must expose a stable measurement placement');
 const leadRuntime=fs.readFileSync(path.join(__dirname,'..','assets','js','lead-cta.js'),'utf8');
 assert(leadRuntime.includes("data-se-lead-id"),'Lead runtime must resolve declared lead ids');
+assert(leadRuntime.includes("const placement=link.getAttribute('data-se-placement')||'lead_cta';"),'Lead runtime must read placement at click time so dynamic result status is preserved');
 const affiliateAdapter=fs.readFileSync(path.join(__dirname,'..','assets','js','affiliate-adapter.js'),'utf8');
 assert(affiliateAdapter.includes("trackLead(id, placement, fallback)"),'Affiliate adapter must track lead-gen clicks');
 assert(affiliateAdapter.includes("event:'lead_click'"),'Lead-gen clicks must emit a dedicated dataLayer event');
@@ -320,7 +321,7 @@ const functionsPhp=fs.readFileSync(path.join(__dirname,'..','functions.php'),'ut
 assert(functionsPhp.includes("'solar-expert-leads'"),'Lead runtime must be enqueued sitewide');
 const quoteCheckerTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','quote-checker.php'),'utf8');
 assert(quoteCheckerTpl.includes('data-se-lead-id="eon-solar"'),'Quote Checker result must expose monetized E.ON solar next step');
-assert(quoteCheckerTpl.includes('data-se-placement="quote_checker_result"'),'Quote Checker E.ON CTA must expose a dedicated analytics placement');
+assert(quoteCheckerTpl.includes(":data-se-placement=\"'quote_checker_result_'+result?.status\""),'Quote Checker E.ON CTA must expose result-state analytics placement');
 assert(quoteCheckerTpl.includes('/solarni-sestava-na-chatu/'),'Quote Checker result must retain an owned Builder next step before outbound comparison');
 
 
@@ -824,6 +825,11 @@ assert(quoteCheckerJsUx.includes("push('bms','Baterie / BMS proud','warn'"),'Quo
 assert(quoteCheckerTplUx.includes('id="se-quote-battery-bms-a"'),'Quote Checker BMS input id missing');
 assert(quoteCheckerTplUx.includes('for="se-quote-battery-bms-a"'),'Quote Checker BMS label association missing');
 assert(quoteCheckerTplUx.includes('x-show="inputError"'),'Quote Checker must expose invalid-input feedback');
+assert(quoteCheckerTplUx.includes('Kontrola nabídky FVE'),'Quote Checker kicker must stay Czech and task-oriented');
+assert(quoteCheckerJsUx.includes('get resultNextTitle()'),'Quote Checker must expose status-aware next-action copy');
+assert(quoteCheckerJsUx.includes('get resultNextCopy()'),'Quote Checker must explain the next action by result status');
+assert(quoteCheckerTplUx.indexOf('se-quote-next')<quoteCheckerTplUx.indexOf('se-checks'),'Quote Checker next action must appear before the detailed check list');
+assert((quoteCheckerTplUx.match(/data-se-lead-id="eon-solar"/g)||[]).length===1,'Quote Checker must expose exactly one E.ON lead CTA');
 for(const id of ['se-quote-daily-kwh','se-quote-season','se-quote-autonomy','se-quote-load-w','se-quote-surge-w','se-quote-panel-wp','se-quote-battery-kwh','se-quote-inverter-w','se-quote-inverter-peak-w','se-quote-system-voltage','se-quote-price']){
   assert(quoteCheckerTplUx.includes('for="'+id+'"'),'Quote Checker label must target '+id);
   assert(quoteCheckerTplUx.includes('id="'+id+'"'),'Quote Checker control id missing: '+id);
