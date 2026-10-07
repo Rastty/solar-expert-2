@@ -2226,6 +2226,10 @@ function solar_expert_append_heat_pump_related_links($content) {
       'label' => 'Nejlepší tepelná čerpadla 2026',
       'url' => home_url('/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/'),
     ),
+    'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady' => array(
+      'label' => 'Samsung EHS R290: recenze 2026',
+      'url' => home_url('/recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady/'),
+    ),
     'prumerna-spotreba-tepelneho-cerpadla' => array(
       'label' => 'Spotřeba tepelného čerpadla',
       'url' => home_url('/prumerna-spotreba-tepelneho-cerpadla/'),

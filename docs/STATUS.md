@@ -254,3 +254,6 @@ Next:
 
 
 - PV maintenance canonical reinforcement (2026-10-07): GSC still surfaced “mytí solárních panelů” against the legacy cleaning URL even though production already 301-redirects it to /cisteni-solarnich-panelu-proc-kdy-jak/ and keeps the source out of the sitemap. Added a narrow dynamic maintenance mini-cluster connecting canonical cleaning, winter/snow operation and degradation/lifetime. This strengthens the canonical target without creating a third overlapping article or rewriting protected post bodies.
+
+
+- Samsung review internal-authority reinforcement (2026-10-07): the fresh Prometheus GSC daily monitor shows `tepelné čerpadlo Samsung recenze` at 30 impressions / avg. position 11.03 plus `tepelné čerpadlo Samsung recenzia` at 18 impressions / avg. position 15. The Samsung EHS article was already rewritten recently, so its body remains protected. Added the canonical Samsung review to the bounded heat-pump related-guide block, allowing relevant TČ pages to pass internal authority while the Samsung page automatically excludes its own self-link.

@@ -379,6 +379,7 @@ assert(comboHtml.includes('ověřeno říjen 2026'),'Time-sensitive price benchm
 assert(leadCore.includes("function solar_expert_append_heat_pump_related_links"),'Heat-pump cluster must expose a dedicated related-links renderer');
 assert(leadCore.includes('data-se-related="heat-pump-cluster"'),'Heat-pump cluster must expose related-guide marker');
 assert(leadCore.includes("/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/"),'Heat-pump cluster must link the comparison hub');
+assert(leadCore.includes("home_url('/recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady/')"),'Heat-pump cluster must strengthen the current Samsung review near-win');
 assert(leadCore.includes("/prumerna-spotreba-tepelneho-cerpadla/"),'Heat-pump cluster must link the consumption guide');
 assert(leadCore.includes("/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/"),'Heat-pump cluster must link the FVE + heat-pump decision page');
 
