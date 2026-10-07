@@ -533,7 +533,7 @@ assert(contentSyncCore.includes("'content_sync_errors'"),'Public health payload 
 for(const field of ['content_sync_last_updated_posts','content_sync_last_created_posts','content_sync_last_meta_updated_posts','content_sync_last_skipped_items']){
   assert(contentSyncCore.includes("'"+field+"'"),'Public health payload missing managed-content churn field: '+field);
 }
-assert(deployWorkflow.includes('content sync churn updated='),'Auto deploy must log managed-content churn so broad accidental rewrites are visible');
+assert(deployWorkflow.includes('release content sync performed='),'Auto deploy must log current-release managed-content churn');
 assert(settingsCore.includes('Managed content: CURRENT'),'Admin diagnostics must show a current managed-content state');
 assert(settingsCore.includes('Automatický sync je naplánovaný'),'Admin diagnostics must explain pending automatic sync');
 
@@ -1115,10 +1115,15 @@ assert(autoDeploy.includes('Deployer URL shape:'),'Auto-deploy diagnostics must 
 assert(corePhp.includes("wp_schedule_single_event(time() + 10, 'solar_expert_async_content_sync')"),'Managed content sync should be scheduled promptly after deploy');
 
 assert(corePhp.includes("function solar_expert_deploy_sync("),'Theme must expose a deterministic deploy-sync callback');
+assert(corePhp.includes("'sync_performed' => false"),'No-op deploy sync must explicitly report that no sync ran');
+assert(corePhp.includes("'sync_performed' => true"),'Performed deploy sync must explicitly report that content convergence ran');
 assert(corePhp.includes("'/deploy-sync'"),'Theme must register the managed-content deploy-sync REST route');
 assert(corePhp.includes("managed-content-sync-v1"),'Deploy-sync must require an explicit fixed intent');
 assert(corePhp.includes("hash_equals($live_version, $expected_version)"),'Deploy-sync must reject version-mismatched release requests');
 assert(autoDeploy.includes('name: Converge managed content'),'Auto-deploy must explicitly converge managed content after the Deployer trigger');
+assert(autoDeploy.includes('id: content-sync'),'Managed-content convergence must expose step outputs for the current release');
+assert(autoDeploy.includes('release content sync performed='),'Auto deploy must report churn from the current release response');
+assert(autoDeploy.includes('last persisted content sync updated='),'Auto deploy must label historical health churn separately');
 assert(autoDeploy.includes('/wp-json/solar-expert/v1/deploy-sync'),'Auto-deploy must call the deterministic managed-content sync endpoint');
 assert(autoDeploy.includes(".ok == true and .content_sync_required == false and .content_sync_errors == 0"),'Auto-deploy must require a clean sync result before health verification');
 assert(autoDeploy.includes("managed_indexability_errors"),'Auto-deploy convergence must also require clean managed indexability');
