@@ -1987,6 +1987,10 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'Tepelné čerpadlo vzduch–vzduch: výběr 2026 | Solar Expert',
       'description' => 'Jak vybrat nejlepší tepelné čerpadlo vzduch–vzduch podle SCOP, výkonu v mrazu, hlučnosti a dispozice. Single vs. multi-split a jak porovnat ceník.'
     ),
+    'tepelne-cerpadlo-monoblok' => array(
+      'title' => 'Tepelné čerpadlo monoblok vs. split 2026 | Solar Expert',
+      'description' => 'Monoblok nebo split? Rozdíl v hydraulice a chladivu, ochrana proti mrazu, R290, radiátory, servis a co ověřit v nabídce tepelného čerpadla.'
+    ),
     'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji' => array(
       'title' => 'Tepelné čerpadlo vzduch–voda: jak funguje a výběr 2026 | Solar Expert',
       'description' => 'Jak funguje tepelné čerpadlo vzduch–voda, jak ho dimenzovat, co znamená COP/SCOP, radiátory vs. podlahovka, mráz, hlučnost a cena celé instalace.'
@@ -2181,6 +2185,7 @@ function solar_expert_heat_pump_lead_slugs() {
     'prehled-vzduchovych-tepelnych-cerpadel-daikin',
     'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji',
     'tepelne-cerpadlo-vzduch-vzduch',
+    'tepelne-cerpadlo-monoblok',
     'jak-funguje-tepelne-cerpadlo',
     'jak-dlouho-vydrzi-tepelna-cerpadla',
     'minimalni-a-maximalni-teploty-tepelneho-cerpadla',
@@ -2214,6 +2219,10 @@ function solar_expert_append_heat_pump_related_links($content) {
     'prumerna-spotreba-tepelneho-cerpadla' => array(
       'label' => 'Spotřeba tepelného čerpadla',
       'url' => home_url('/prumerna-spotreba-tepelneho-cerpadla/'),
+    ),
+    'tepelne-cerpadlo-monoblok' => array(
+      'label' => 'Monoblok vs. split',
+      'url' => home_url('/tepelne-cerpadlo-monoblok/'),
     ),
     'kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem' => array(
       'label' => 'FVE + tepelné čerpadlo',
