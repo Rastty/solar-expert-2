@@ -339,6 +339,16 @@ assert(leadCore.includes("/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/"),'Heat
 assert(leadCore.includes("/prumerna-spotreba-tepelneho-cerpadla/"),'Heat-pump cluster must link the consumption guide');
 assert(leadCore.includes("/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/"),'Heat-pump cluster must link the FVE + heat-pump decision page');
 
+
+assert(seoCore.includes("function solar_expert_battery_cluster_slugs"),'Battery cluster allowlist must exist');
+assert(seoCore.includes("function solar_expert_append_battery_related_links"),'Battery cluster must expose a dedicated related-links renderer');
+assert(seoCore.includes('data-se-related="battery-cluster"'),'Battery cluster must expose a stable marker');
+assert(seoCore.includes("home_url('/category/baterie/')"),'Battery cluster must strengthen the indexed battery hub');
+assert(seoCore.includes("home_url('/vyber-baterii/')"),'Battery cluster must route into Battery Selector');
+for(const slug of ['jak-funguji-solarni-baterie-pruvodce-skladovanim-energie','sady-pro-solarni-napajeni-kompletni-pruvodce']){
+  assert(seoCore.includes("'"+slug+"'"),'Battery cluster allowlist must include: '+slug);
+}
+
 assert(leadCore.includes("function solar_expert_solar_lead_slugs()"),'Solar lead CTA must be bounded by an explicit allowlist');
 assert(leadCore.includes("'eon-solar'"),'Solar lead CTA must use the canonical E.ON solar lead key');
 assert(leadCore.includes("https://www.eon.cz/domacnosti/usporne-technologie/solar/"),'Solar lead CTA must retain a safe public fallback');

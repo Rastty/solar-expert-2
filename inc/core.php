@@ -1465,6 +1465,39 @@ function solar_expert_append_heat_pump_lead_cta($content) {
 }
 add_filter('the_content', 'solar_expert_append_heat_pump_lead_cta', 25);
 
+
+function solar_expert_battery_cluster_slugs() {
+  return array(
+    'jak-funguji-solarni-baterie-pruvodce-skladovanim-energie',
+    'sady-pro-solarni-napajeni-kompletni-pruvodce',
+  );
+}
+
+function solar_expert_append_battery_related_links($content) {
+  if ( is_admin() || ! is_singular('post') || ! in_the_loop() || ! is_main_query() ) {
+    return $content;
+  }
+
+  $post = get_queried_object();
+  $slug = $post && ! empty($post->post_name) ? $post->post_name : '';
+  if ( ! $slug || ! in_array($slug, solar_expert_battery_cluster_slugs(), true) ) {
+    return $content;
+  }
+
+  if ( strpos($content, 'data-se-related="battery-cluster"') !== false ) {
+    return $content;
+  }
+
+  $related = '<aside class="se-note se-related-guides" data-se-related="battery-cluster">'
+    . '<strong>Pokračujte výběrem baterie:</strong> '
+    . '<a href="' . esc_url(home_url('/category/baterie/')) . '">Průvodce solárními bateriemi</a>'
+    . ' · <a href="' . esc_url(home_url('/vyber-baterii/')) . '">Battery Selector</a>'
+    . '</aside>';
+
+  return $content . $related;
+}
+add_filter('the_content', 'solar_expert_append_battery_related_links', 23);
+
 function solar_expert_solar_lead_slugs() {
   return array(
     'fve-panely-na-strechu',
