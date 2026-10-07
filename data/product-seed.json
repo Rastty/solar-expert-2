@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "mode": "verified-public-seed; affiliate URLs added separately",
-  "verifiedAt": "2026-10-06",
+  "verifiedAt": "2026-10-07",
   "products": [
     {
       "id": "battery-goowei-12-100",
@@ -476,7 +476,23 @@
         "48": 53
       },
       "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 4291,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/mppt/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 4291,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-150-35--12-24-48v--35a/",
+          "verified_at": "2026-10-07"
+        }
+      ]
     },
     {
       "id": "mppt-victron-150-70",
@@ -707,7 +723,23 @@
         "mppt_v_max": 450,
         "charge_a_max": 100
       },
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 13490,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/growatt/growatt-spf-6000-es-plus-menic-6kw-48v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 13490,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/growatt-spf-6000-es-plus-menic-6kw-48v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
     },
     {
       "id": "inverter-kosun-12-1000",
@@ -732,7 +764,23 @@
       },
       "lifepo4_charge_supported": true,
       "source_url": "https://www.solar-import.cz/kosun-menic-napeti-s-nabijeckou-a-mppt-regulatorem-dc12v-ac230v--1000w/",
-      "verified_at": "2026-10-05"
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 6580,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/kosun-menic-napeti-s-nabijeckou-a-mppt-regulatorem-dc12v-ac230v--1000w/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 6580,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/kosun-menic-napeti-s-nabijeckou-a-mppt-regulatorem-dc12v-ac230v--1000w/",
+          "verified_at": "2026-10-07"
+        }
+      ]
     },
     {
       "id": "inverter-rogerele-rep1000-12",
