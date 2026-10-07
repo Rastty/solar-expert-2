@@ -261,8 +261,18 @@ jobs:
             monetized_lead_targets="$(jq -r '.affiliate_monetized_lead_targets // 0' <<<"$health")"
             lead_cov="$(jq -r '.affiliate_lead_coverage_pct // 0' <<<"$health")"
 
+            outcome7_views="$(jq -r '.outcome_scoreboard.days_7.tool_views // 0' <<<"$health")"
+            outcome7_starts="$(jq -r '.outcome_scoreboard.days_7.tool_starts // 0' <<<"$health")"
+            outcome7_events="$(jq -r '.outcome_scoreboard.days_7.tool_outcome_events // 0' <<<"$health")"
+            outcome7_outbound="$(jq -r '.outcome_scoreboard.days_7.outbound_clicks // 0' <<<"$health")"
+            outcome28_views="$(jq -r '.outcome_scoreboard.days_28.tool_views // 0' <<<"$health")"
+            outcome28_starts="$(jq -r '.outcome_scoreboard.days_28.tool_starts // 0' <<<"$health")"
+            outcome28_events="$(jq -r '.outcome_scoreboard.days_28.tool_outcome_events // 0' <<<"$health")"
+            outcome28_outbound="$(jq -r '.outcome_scoreboard.days_28.outbound_clicks // 0' <<<"$health")"
+
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
             echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
+            echo "outcome 7d tool_views=${outcome7_views} tool_starts=${outcome7_starts} outcome_events=${outcome7_events} outbound_clicks=${outcome7_outbound}; 28d tool_views=${outcome28_views} tool_starts=${outcome28_starts} outcome_events=${outcome28_events} outbound_clicks=${outcome28_outbound}"
 
             if [ "$lead_targets" -gt "0" ] && [ "$monetized_lead_targets" -lt "$lead_targets" ]; then
               echo "::warning::Lead monetization coverage is incomplete (${monetized_lead_targets}/${lead_targets})."

@@ -1003,6 +1003,13 @@ assert(autoDeploy.includes('$base/page/2/'),'Crawler guard must probe the pagina
 assert(autoDeploy.includes('Paginated archive is missing live noindex'),'Crawler guard must fail when pagination loses live noindex');
 assert(autoDeploy.includes('Paginated archive noindex OK'),'Crawler guard must confirm pagination noindex in production');
 
+assert(seoCore.includes('function solar_expert_funnel_outcome_summary'),'Health layer must expose an aggregate outcome summary helper');
+assert(seoCore.includes("'outcome_scoreboard' => array("),'Health endpoint must expose the outcome scoreboard');
+assert(seoCore.includes("'aggregate_event_counts_not_unique_users'"),'Outcome scoreboard must clearly state event-count semantics');
+assert(seoCore.includes("'outbound_clicks_per_100_tool_views'"),'Outcome scoreboard must expose a normalized outbound intent metric');
+assert(autoDeploy.includes('outcome 7d tool_views='),'Auto-deploy must log the live 7d/28d outcome scoreboard');
+assert(autoDeploy.includes('.outcome_scoreboard.days_28.outbound_clicks'),'Auto-deploy must read 28d outbound outcome data');
+
 assert(autoDeploy.includes('monetization active_offer_coverage='),'Auto-deploy must log live monetization coverage');
 assert(autoDeploy.includes('affiliate_recommendable_product_coverage_pct'),'Auto-deploy must expose recommendable product affiliate coverage');
 assert(autoDeploy.includes('affiliate_monetized_merchants'),'Auto-deploy must expose live monetized merchant count');

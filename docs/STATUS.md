@@ -203,3 +203,5 @@ Next:
 - Pagination live guard: Auto Deploy now probes `/page/2/` after release and fails if the archive loses its live `noindex`; this turns the 0.11.66 pagination cleanup into a production invariant without changing page content.
 
 - Pagination noindex hotfix: the new production crawler guard exposed that `/page/2/` did not match the overly narrow `is_paged() && (is_home() || is_archive())` condition. The robots guard now uses WordPress `is_paged()` directly, preserving `noindex, follow` for paginated result sets while leaving singular content untouched.
+
+- Outcome scoreboard v1: first-party 7/28-day funnel counts are now exposed as aggregate event metrics in `/health` and logged on every production deploy (tool views, starts, outcome events and outbound clicks, plus normalized rates). This shifts the primary operating view from technical health alone toward measurable user/business outcomes without exposing user-level data.
