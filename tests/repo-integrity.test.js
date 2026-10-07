@@ -704,6 +704,22 @@ assert(airWaterItem&&airWaterItem.preserve_status===true,'Air-water canonical gu
 assert(airWaterItem.file&&fs.existsSync(path.join(__dirname,'..',airWaterItem.file)),'Air-water rewrite file missing');
 assert(seoCore.includes("'tepelna-cerpadla-vzduch-vzduch-vs-vzduch-voda' => 'tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji'"),'Overlapping air-air vs air-water URL must redirect to the canonical air-water guide');
 
+const monoblockSlug='tepelne-cerpadlo-monoblok';
+const monoblockItem=manifest.items.find(x=>x.slug===monoblockSlug);
+assert(monoblockItem&&monoblockItem.create_if_missing===true,'Monoblock demand gap must be managed as a new public post');
+assert(monoblockItem.status==='publish'&&monoblockItem.status_if_new==='publish','Monoblock decision guide must publish on first sync');
+assert(monoblockItem.file&&fs.existsSync(path.join(__dirname,'..',monoblockItem.file)),'Monoblock decision guide file missing');
+assert(seoCore.includes("'"+monoblockSlug+"' => array("),'Monoblock decision guide must have dedicated SEO metadata');
+const monoblockHtml=fs.readFileSync(path.join(__dirname,'..',monoblockItem.file),'utf8');
+for(const required of ['Monoblok vs. split','zamrznutí vody','R290','1. ledna 2027','/minimalni-a-maximalni-teploty-tepelneho-cerpadla/','/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/']){
+  assert(monoblockHtml.includes(required),'Monoblock guide missing required decision evidence/path: '+required);
+}
+assert(monoblockHtml.includes('eur-lex.europa.eu/eli/reg/2024/573/oj/ces'),'Monoblock guide must cite current EU F-gas regulation');
+assert(monoblockHtml.includes('climate.ec.europa.eu/areas-action/fluorinated-greenhouse-gases'),'Monoblock guide must cite European Commission refrigerant alternatives');
+assert(monoblockHtml.includes('data-se-lead-id="eon-heat-pump"'),'Monoblock guide must expose bounded E.ON heat-pump comparison lead');
+assert(monoblockHtml.includes('data-se-placement="monoblock_decision_guide"'),'Monoblock guide must expose dedicated lead attribution');
+assert(leadCore.includes("home_url('/tepelne-cerpadlo-monoblok/')"),'Heat-pump cluster must internally link the new monoblock guide');
+
 const airAirSlug='tepelne-cerpadlo-vzduch-vzduch';
 const airAirItem=manifest.items.find(x=>x.slug===airAirSlug);
 assert(airAirItem&&airAirItem.create_if_missing===true,'Air-air demand gap must be managed as a new public post');
