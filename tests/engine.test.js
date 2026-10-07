@@ -444,3 +444,71 @@ const staleDeal=B.findBundleDeal([{
   verified_at:'2000-01-01'
 }],['battery-seplos-pusung-48','inverter-growatt-48-6000'],99999);
 assert(staleDeal===null,'Known stale verified bundle deal must not lower bundle price');
+
+
+const selectorCoreSizing={voltage:48,inverterW:2000,peak:4000};
+const selectorCoreRightSized={
+  id:'selector-core-right-size',
+  type:'inverter',
+  dc_voltage:48,
+  continuous_w:2400,
+  peak_w:4800,
+  availability:'in_stock',
+  offers:[{merchant:'test-a',price_czk:10000,availability:'in_stock',verified_at:'2026-10-07'}]
+};
+const selectorCoreOversized={
+  id:'selector-core-oversized',
+  type:'inverter',
+  dc_voltage:48,
+  continuous_w:6000,
+  peak_w:12000,
+  availability:'in_stock',
+  offers:[{merchant:'test-b',price_czk:9000,availability:'in_stock',verified_at:'2026-10-07'}]
+};
+const selectorCoreRanked=M.rank([selectorCoreOversized,selectorCoreRightSized],selectorCoreSizing);
+assert(selectorCoreRanked[0].product.id==='selector-core-right-size','Core v1 must prefer materially better right-sizing over a slightly cheaper but heavily oversized inverter');
+assert(selectorCoreRanked[0].decision&&selectorCoreRanked[0].decision.score>selectorCoreRanked[1].decision.score,'Core v1 must expose a deterministic decision score');
+assert(selectorCoreRanked[0].decision.fitScore>selectorCoreRanked[1].decision.fitScore,'Core v1 must expose right-size fit separately from commercial value');
+assert(selectorCoreRanked[0].decision.reasons.some(x=>x.code==='continuous_power_reserve'),'Core v1 decision must explain continuous-power reserve');
+assert(selectorCoreRanked[0].decision.reasons.some(x=>x.code.startsWith('evidence_')),'Core v1 decision must expose evidence confidence');
+
+const selectorCoreCheap={
+  ...selectorCoreRightSized,
+  id:'selector-core-cheap',
+  offers:[{merchant:'test-c',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07'}]
+};
+const selectorCoreValue=M.rank([selectorCoreRightSized,selectorCoreCheap],selectorCoreSizing);
+assert(selectorCoreValue[0].product.id==='selector-core-cheap','When technical fit and evidence are equal, verified price value must break the tie');
+
+const selectorCoreUnsafe={
+  ...selectorCoreCheap,
+  id:'selector-core-unsafe',
+  dc_voltage:24
+};
+assert(!M.rank([selectorCoreUnsafe],selectorCoreSizing).length,'Core v1 scoring must never promote a technically incompatible product');
+
+
+const selectorCoreStaleCheap={
+  ...selectorCoreRightSized,
+  id:'selector-core-stale-cheap',
+  offers:[{merchant:'test-stale',price_czk:5000,availability:'in_stock',verified_at:'2000-01-01'}]
+};
+const selectorCoreEvidenceOrder=M.rank([selectorCoreStaleCheap,selectorCoreRightSized],selectorCoreSizing);
+assert(selectorCoreEvidenceOrder[0].product.id==='selector-core-right-size','Current verified evidence must outrank a much cheaper stale offer');
+assert(selectorCoreEvidenceOrder[0].decision.evidenceScore>selectorCoreEvidenceOrder[1].decision.evidenceScore,'Core v1 must expose the evidence-quality difference used by ranking');
+
+const selectorCoreOneMerchant={
+  ...selectorCoreCheap,
+  id:'selector-core-one-merchant'
+};
+const selectorCoreTwoMerchants={
+  ...selectorCoreCheap,
+  id:'selector-core-two-merchants',
+  offers:[
+    {merchant:'test-c',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07'},
+    {merchant:'test-d',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07'}
+  ]
+};
+const selectorCoreMerchantTie=M.rank([selectorCoreOneMerchant,selectorCoreTwoMerchants],selectorCoreSizing);
+assert(selectorCoreMerchantTie[0].product.id==='selector-core-two-merchants','Merchant diversity must break an otherwise exact ranking tie');
+assert(selectorCoreMerchantTie[0].decision.merchantDiversity===2,'Core v1 must expose verified fresh merchant diversity');

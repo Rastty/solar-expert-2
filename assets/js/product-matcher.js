@@ -69,11 +69,107 @@ window.SolarExpertProductMatcher={
     return Number(product.price_czk||Number.MAX_SAFE_INTEGER);
   },
 
+  evidenceQuality(product){
+    const offers=Array.isArray(product.offers)?product.offers:[];
+    const fresh=offers.filter(o=>this.verificationState(o.verified_at)==='fresh');
+    const freshInStock=fresh.filter(o=>o.availability==='in_stock');
+    const freshUsually=fresh.filter(o=>o.availability==='usually_in_stock');
+    if(freshInStock.length)return{score:90,level:'verified_current',freshOffers:freshInStock.length};
+    if(freshUsually.length)return{score:75,level:'verified_limited_stock',freshOffers:freshUsually.length};
+    if(offers.length)return{score:45,level:'stale_or_unavailable_offer_evidence',freshOffers:0};
+    const state=this.verificationState(product.verified_at);
+    if(state==='fresh')return{score:80,level:'verified_product_snapshot',freshOffers:0};
+    if(state==='stale')return{score:40,level:'stale_product_snapshot',freshOffers:0};
+    return{score:25,level:'unknown',freshOffers:0};
+  },
+
+  merchantDiversity(product){
+    const offers=Array.isArray(product.offers)?product.offers:[];
+    return new Set(
+      offers
+        .filter(o=>o.availability==='in_stock'&&this.verificationState(o.verified_at)==='fresh')
+        .map(o=>String(o.merchant||''))
+        .filter(Boolean)
+    ).size;
+  },
+
+  fitMetrics(product,sizing){
+    const safeRatio=(actual,required)=>required>0?Number(actual)/Number(required):1;
+    if(product.type==='battery'){
+      return[
+        {key:'energy',ratio:safeRatio(product.energy_wh,Number(sizing.batteryKwh)*1000)},
+        {key:'discharge_power',ratio:safeRatio(Number(product.system_voltage_class)*Number(product.max_discharge_a),sizing.inverterW)}
+      ];
+    }
+    if(product.type==='inverter'||product.type==='inverter_hybrid'){
+      return[
+        {key:'continuous_power',ratio:safeRatio(product.continuous_w,sizing.inverterW)},
+        {key:'surge_power',ratio:safeRatio(product.peak_w,sizing.peak)}
+      ];
+    }
+    if(product.type==='mppt'){
+      return[
+        {key:'charge_current',ratio:safeRatio(product.rated_charge_a,sizing.mpptA)},
+        {key:'pv_capacity',ratio:safeRatio(Number((product.max_pv_w_by_voltage||{})[String(sizing.voltage)]||0),sizing.panelWp)}
+      ];
+    }
+    return[];
+  },
+
+  rightSizeScore(product,sizing){
+    const metrics=this.fitMetrics(product,sizing);
+    if(!metrics.length)return 50;
+    const excess=metrics.reduce((sum,m)=>sum+Math.min(2,Math.max(0,Number(m.ratio)-1)),0)/metrics.length;
+    return Math.max(0,Math.round(100-excess*50));
+  },
+
+  decision(product,sizing,minPrice){
+    const fitScore=this.rightSizeScore(product,sizing);
+    const evidence=this.evidenceQuality(product);
+    const price=this.effectivePrice(product);
+    const comparablePrice=Number.isFinite(price)&&price>0&&price<Number.MAX_SAFE_INTEGER;
+    const priceScore=comparablePrice&&Number.isFinite(minPrice)&&minPrice>0
+      ? Math.max(0,Math.min(100,Math.round((minPrice/price)*100)))
+      : 0;
+    const score=Math.round(fitScore*.80+priceScore*.20);
+    const metrics=this.fitMetrics(product,sizing);
+    const reasons=metrics.map(m=>({
+      code:m.key+'_reserve',
+      reserve_pct:Math.max(0,Math.round((Number(m.ratio)-1)*100))
+    }));
+    reasons.push({code:'evidence_'+evidence.level,fresh_offers:evidence.freshOffers});
+    if(comparablePrice)reasons.push({code:price===minPrice?'lowest_verified_price':'verified_price',price_czk:price});
+    return{
+      score,
+      fitScore,
+      evidenceScore:evidence.score,
+      evidenceLevel:evidence.level,
+      availabilityRank:this.availabilityRank(product),
+      merchantDiversity:this.merchantDiversity(product),
+      priceScore,
+      priceCzk:comparablePrice?price:null,
+      reasons
+    };
+  },
+
   rank(products,sizing){
-    return products.map(product=>({product,fit:this.explain(product,sizing)})).filter(x=>x.fit.pass).sort((a,b)=>{
-      const sa=this.availabilityRank(a.product),sb=this.availabilityRank(b.product);
-      if(sa!==sb)return sb-sa;
-      return this.effectivePrice(a.product)-this.effectivePrice(b.product);
+    const rows=products
+      .map(product=>({product,fit:this.explain(product,sizing)}))
+      .filter(x=>x.fit.pass);
+    const prices=rows
+      .map(x=>this.effectivePrice(x.product))
+      .filter(x=>Number.isFinite(x)&&x>0&&x<Number.MAX_SAFE_INTEGER);
+    const minPrice=prices.length?Math.min(...prices):null;
+    for(const row of rows)row.decision=this.decision(row.product,sizing,minPrice);
+    return rows.sort((a,b)=>{
+      if(a.decision.evidenceScore!==b.decision.evidenceScore)return b.decision.evidenceScore-a.decision.evidenceScore;
+      if(a.decision.availabilityRank!==b.decision.availabilityRank)return b.decision.availabilityRank-a.decision.availabilityRank;
+      if(a.decision.fitScore!==b.decision.fitScore)return b.decision.fitScore-a.decision.fitScore;
+      if(a.decision.priceScore!==b.decision.priceScore)return b.decision.priceScore-a.decision.priceScore;
+      const pa=this.effectivePrice(a.product),pb=this.effectivePrice(b.product);
+      if(pa!==pb)return pa-pb;
+      if(a.decision.merchantDiversity!==b.decision.merchantDiversity)return b.decision.merchantDiversity-a.decision.merchantDiversity;
+      return String(a.product.id||'').localeCompare(String(b.product.id||''));
     });
   }
 };
