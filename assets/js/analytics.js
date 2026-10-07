@@ -9,8 +9,14 @@
   ]);
   const allowedFields=new Set([
     'tool','selector','status','merchant','placement','scenario',
-    'productId','leadId','dealId','monetized','matchCount'
+    'productId','leadId','dealId','monetized','matchCount','page'
   ]);
+
+  function currentPageKey(){
+    const path=(window.location&&window.location.pathname)||'/';
+    const trimmed=path.replace(/^\\/+|\\/+$/g,'');
+    return (trimmed||'home').replace(/\\/+/g,'--').slice(0,80);
+  }
 
   function cleanPayload(event,detail){
     const payload={event};
@@ -43,7 +49,7 @@
     const result=nativePush(...items);
     for(const item of items){
       if(item&&typeof item==='object'&&allowedEvents.has(item.event)){
-        post(cleanPayload(item.event,item));
+        post(cleanPayload(item.event,{...item,page:currentPageKey()}));
       }
     }
     return result;
