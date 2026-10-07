@@ -999,6 +999,9 @@ assert(autoDeploy.includes('$base/page-sitemap.xml'),'Crawler guard must verify 
 assert(autoDeploy.includes("select(.indexable == true)"),'Crawler guard must derive targets from manifest indexability');
 assert(autoDeploy.includes('X-Robots-Tag noindex'),'Crawler guard must reject header-level noindex');
 assert(autoDeploy.includes('robots noindex meta tag'),'Crawler guard must reject HTML meta noindex');
+assert(autoDeploy.includes('$base/page/2/'),'Crawler guard must probe the paginated archive');
+assert(autoDeploy.includes('Paginated archive is missing live noindex'),'Crawler guard must fail when pagination loses live noindex');
+assert(autoDeploy.includes('Paginated archive noindex OK'),'Crawler guard must confirm pagination noindex in production');
 
 assert(autoDeploy.includes('monetization active_offer_coverage='),'Auto-deploy must log live monetization coverage');
 assert(autoDeploy.includes('affiliate_recommendable_product_coverage_pct'),'Auto-deploy must expose recommendable product affiliate coverage');
