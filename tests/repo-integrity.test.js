@@ -293,6 +293,9 @@ for(const slug of freshNearWins){
   assert(item.file&&fs.existsSync(path.join(__dirname,'..',item.file)),'Fresh GSC near-win content file missing: '+slug);
   assert(seoCore.includes("'"+slug+"' => array("),'Fresh GSC near-win must have dedicated SEO metadata: '+slug);
 }
+const eternitItem=manifest.items.find(x=>x.slug==='fotovoltaika-na-eternitovou-strechu');
+const eternitHtml=fs.readFileSync(path.join(__dirname,'..',eternitItem.file),'utf8');
+assert(eternitHtml.includes('/quote-checker/'),'Eternit near-win must bridge quote-ready visitors into Quote Checker');
 const footerPhp=fs.readFileSync(path.join(__dirname,'..','footer.php'),'utf8');
 for(const slug of ['solarni-sestava-na-chatu','vyber-baterii','mppt-kalkulacka','vyber-menice','quote-checker']){
   assert(footerPhp.includes("solar_expert_public_url('"+slug+"'"),'Sitewide footer must expose published tool for crawl discovery: '+slug);
@@ -883,6 +886,7 @@ assert(trackerHtml.includes('Backtracking'),'Solar tracker guide must explain ba
 assert(trackerHtml.includes('Wind-stow'),'Solar tracker guide must explain wind-stow');
 assert(trackerHtml.includes('Jednoosý vs. dvouosý tracker'),'Solar tracker guide must compare tracker types');
 assert(trackerHtml.includes('/kolik-vyrobi-fotovoltaika-za-rok/'),'Solar tracker guide must route into annual-yield methodology');
+assert(trackerHtml.includes('/quote-checker/'),'Solar tracker near-win must provide a ranking-safe bridge into Quote Checker');
 assert(!trackerHtml.includes('Text odpovědi'),'Solar tracker guide must not retain placeholder FAQ content');
 
 const positioningSlug='polohovani-solarnich-panelu';
@@ -896,6 +900,7 @@ assert(positioningHtml.includes('východ–západ'),'Positioning guide must comp
 assert(positioningHtml.includes('PVGIS'),'Positioning guide must route orientation decisions through PVGIS');
 assert(positioningHtml.includes('/nataceni-solarnich-panelu-za-sluncem/'),'Positioning guide must separate fixed-positioning and tracker intents');
 assert(positioningHtml.includes('/castecne-zastineni-a-solarni-panely/'),'Positioning guide must account for shading intent');
+assert(positioningHtml.includes('/quote-checker/'),'Positioning guide must bridge qualified visitors into Quote Checker');
 assert(!positioningHtml.includes('vysokou latitudou'),'Positioning guide must not retain translated tracker generalizations');
 
 const pvHubSlug='vse-o-solarnich-panelech-a-fotovoltaice';
