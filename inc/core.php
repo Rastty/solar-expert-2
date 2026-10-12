@@ -2497,9 +2497,9 @@ function solar_expert_append_solar_related_links($content) {
       'label' => 'Cena fotovoltaiky 2026',
       'url' => home_url('/kolik-stoji-fotovoltaika/'),
     ),
-    'quote-checker' => array(
-      'label' => 'Quote Checker',
-      'url' => home_url('/quote-checker/'),
+    'solarni-sestava-na-chatu' => array(
+      'label' => 'Sestava pro chatu / ostrovní systém',
+      'url' => home_url('/solarni-sestava-na-chatu/'),
     ),
   );
 
@@ -2540,16 +2540,18 @@ function solar_expert_append_solar_lead_cta($content) {
   }
 
   $fallback = 'https://www.eon.cz/domacnosti/usporne-technologie/solar/';
-  $quote_url = home_url('/quote-checker/');
+  $compare_url = home_url('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve');
+  $offgrid_url = home_url('/solarni-sestava-na-chatu/');
   $cta = '<aside class="se-note se-lead-cta">'
-    . '<strong>Chcete porovnat vlastní návrh s nabídkou na klíč?</strong> '
-    . 'Nejdřív si nabídku projděte v našem <a href="' . esc_url($quote_url) . '">Quote Checkeru</a>. '
-    . 'Pak si můžete nechat připravit druhou nezávaznou nabídku od E.ON a porovnat výkon, baterii i cenu.'
-    . '<p><a class="se-btn" href="' . esc_url($quote_url) . '">Prověřit nabídku →</a> '
+    . '<strong>Porovnáváte nabídku domácí FVE?</strong> '
+    . 'Nejdřív projděte kontrolní seznam pro síťovou fotovoltaiku: panely, měnič, baterii, montáž, připojení a servis. '
+    . 'Pak si můžete vyžádat druhou nezávaznou nabídku od E.ON se srovnatelným rozsahem.'
+    . '<p><a class="se-btn" href="' . esc_url($compare_url) . '">Checklist nabídky domovní FVE →</a> '
     . '<a class="se-btn se-btn-primary" href="' . esc_url($fallback) . '" '
     . 'data-se-lead-id="eon-solar" data-se-placement="solar_legacy_article" '
     . 'data-se-fallback="' . esc_attr($fallback) . '" rel="nofollow noopener">Získat druhou nabídku FVE →</a></p>'
-    . '<small>Partnerský odkaz může Solar Expertu přinést provizi. Technický obsah článku ani pořadí doporučení tím není ovlivněno.</small>'
+    . '<small>Pro chatu, ostrovní nebo záložní systém použijte <a href="' . esc_url($offgrid_url) . '">samostatný Builder</a>. '
+    . 'Ani kontrolní seznam nenahrazuje odborný návrh a revizi. Partnerský odkaz nám může přinést provizi; technická doporučení tím nejsou ovlivněna.</small>'
     . '</aside>';
 
   return $content . $cta;
