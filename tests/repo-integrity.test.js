@@ -187,6 +187,11 @@ assert(deployWorkflow.includes('index_ready')&&deployWorkflow.includes('index_ta
 assert(deployWorkflow.includes('managed_publish_post_slugs'),'Crawler guard must enumerate repo-created public posts');
 assert(deployWorkflow.includes('Managed publish post is missing from Yoast post sitemap'),'Crawler guard must fail when a repo-created public post is absent from the post sitemap');
 assert(deployWorkflow.includes('Managed publish post exposes noindex'),'Crawler guard must reject noindex on repo-created public posts');
+assert(deployWorkflow.includes('Verify rendered residential FVE CTA'),'Deploy must inspect the publicly rendered home-FVE lead CTA');
+assert(deployWorkflow.includes('Checklist nabídky domovní FVE'),'Public CTA verification must require the scoped residential offer checklist');
+assert(deployWorkflow.includes('data-se-placement="solar_legacy_article"'),'Public CTA verification must protect E.ON tracking attribution');
+assert(deployWorkflow.includes('release_scope_probe='),'Public CTA verification must bypass normal cached-page URLs');
+
 
 
 assert(indexabilityCore.includes("managed-content-sync-v4-incremental"),'Managed-content fingerprint schema must advance when indexability DB semantics change');

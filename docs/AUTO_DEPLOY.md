@@ -77,3 +77,7 @@ After Deployer reports a successful theme update, CI POSTs the expected theme ve
 ## Boolean health parsing
 
 The verifier must preserve explicit JSON `false` values. In jq, `false // true` evaluates to `true`, so Solar Expert uses an explicit `has("content_sync_required")` check before converting the boolean to text.
+
+## Publicly rendered solar CTA gate
+
+The deploy workflow also validates the real HTML of `/fve-panely-na-strechu/` after the version, managed-content and crawler checks. A cache-busted fetch must contain the residential FVE comparison checklist CTA and existing E.ON `solar_legacy_article` attribution, while excluding the superseded generic Quote Checker instruction. A stale CDN/WordPress page cache or unrefreshed `the_content` renderer now fails the release instead of letting a correct theme version masquerade as a verified live conversion path.
