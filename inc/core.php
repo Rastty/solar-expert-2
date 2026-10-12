@@ -207,16 +207,47 @@ function solar_expert_update_post_meta_if_changed($post_id, $key, $value) {
   return true;
 }
 
+/**
+ * Add an explicitly declared thematic category to a managed published post.
+ * Appends rather than replacing existing editorial terms. Pages and old posts
+ * without a category declaration keep their taxonomy fully unchanged.
+ */
+function solar_expert_ensure_managed_category($post_id, $category_slug) {
+  $slug = sanitize_title((string) $category_slug);
+  if ( ! $slug ) {
+    return new WP_Error('solar_expert_category', 'Empty managed category slug.');
+  }
+  $term = get_category_by_slug($slug);
+  if ( ! $term || empty($term->term_id) ) {
+    return new WP_Error('solar_expert_category', 'Missing site category: ' . $slug);
+  }
+  $current = wp_get_post_categories((int) $post_id);
+  if ( is_wp_error($current) ) {
+    return $current;
+  }
+  $category_id = (int) $term->term_id;
+  if ( in_array($category_id, array_map('intval', (array) $current), true) ) {
+    return false;
+  }
+  $assigned = wp_set_post_categories((int) $post_id, array($category_id), true);
+  if ( is_wp_error($assigned) ) {
+    return $assigned;
+  }
+  return in_array($category_id, array_map('intval', (array) $assigned), true)
+    ? true
+    : new WP_Error('solar_expert_category', 'Category assignment not confirmed: ' . $slug);
+}
+
 function solar_expert_sync_managed_content($force = false) {
   $manifest = solar_expert_load_manifest();
   $fingerprint = solar_expert_manifest_fingerprint($manifest);
   $last = get_option('solar_expert_content_fingerprint', '');
 
   if ( ! $force && $fingerprint && hash_equals((string)$last, (string)$fingerprint) ) {
-    return array('updated'=>0,'created'=>0,'meta_updated'=>0,'skipped'=>0,'errors'=>array());
+    return array('updated'=>0,'created'=>0,'meta_updated'=>0,'taxonomy_updated'=>0,'skipped'=>0,'errors'=>array());
   }
 
-  $result = array('updated'=>0,'created'=>0,'meta_updated'=>0,'skipped'=>0,'errors'=>array());
+  $result = array('updated'=>0,'created'=>0,'meta_updated'=>0,'taxonomy_updated'=>0,'skipped'=>0,'errors'=>array());
 
   foreach ( $manifest['items'] as $item ) {
     $type = isset($item['type']) && in_array($item['type'], array('page','post'), true) ? $item['type'] : 'page';
@@ -284,6 +315,19 @@ function solar_expert_sync_managed_content($force = false) {
       $post_changed = true;
     }
 
+    $category_changed = false;
+    if ( $type === 'post' && ! empty($item['category_slug']) ) {
+      $category_result = solar_expert_ensure_managed_category($id, $item['category_slug']);
+      if ( is_wp_error($category_result) ) {
+        $result['errors'][] = $slug . ': ' . $category_result->get_error_message();
+        continue;
+      }
+      if ( $category_result === true ) {
+        $category_changed = true;
+        $result['taxonomy_updated']++;
+      }
+    }
+
     $meta_changed = false;
     $meta_changed = solar_expert_update_post_meta_if_changed($id, '_solar_expert_managed', '1') || $meta_changed;
     $meta_changed = solar_expert_update_post_meta_if_changed($id, '_solar_expert_source_file', sanitize_text_field($item['file'])) || $meta_changed;
@@ -307,7 +351,7 @@ function solar_expert_sync_managed_content($force = false) {
 
     if ( $meta_changed && ! $post_changed ) {
       $result['meta_updated']++;
-    } elseif ( ! $post_changed && ! $meta_changed ) {
+    } elseif ( ! $post_changed && ! $meta_changed && ! $category_changed ) {
       $result['skipped']++;
     }
   }
@@ -1789,6 +1833,7 @@ function solar_expert_health_payload() {
     'content_sync_last_updated_posts' => (int) ($last_sync['result']['updated'] ?? 0),
     'content_sync_last_created_posts' => (int) ($last_sync['result']['created'] ?? 0),
     'content_sync_last_meta_updated_posts' => (int) ($last_sync['result']['meta_updated'] ?? 0),
+    'content_sync_last_taxonomy_updated_posts' => (int) ($last_sync['result']['taxonomy_updated'] ?? 0),
     'content_sync_last_skipped_items' => (int) ($last_sync['result']['skipped'] ?? 0),
     'affiliate_product_mappings' => isset($map['products']) && is_array($map['products']) ? count($map['products']) : 0,
     'affiliate_merchant_bases' => count($bases),

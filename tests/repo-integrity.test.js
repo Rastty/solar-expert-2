@@ -1467,6 +1467,15 @@ assert(seoCore.includes("'offer_click_rate_pct'"),'Outcome summary must expose o
 assert(seoCore.includes("in_array($event, $outbound_events, true)"),'Legacy outbound merchant/placement counters must exclude non-click exposure events');
 assert(seoCore.includes("'dealId','page'"),'Funnel endpoint must accept the bounded page dimension');
 assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d per-tool breakdown');
+assert(autoDeploy.includes('Verify public thematic categories for new managed posts'),
+  'Production must verify public category assignments of managed guides');
+assert(seoCore.includes('function solar_expert_ensure_managed_category('),
+  'Managed guide taxonomy must use a guarded WordPress helper');
+assert(seoCore.includes('wp_set_post_categories((int) $post_id, array($category_id), true)'),
+  'New category relationships must append, not replace editorial categories');
+assert(seoCore.includes("'content_sync_last_taxonomy_updated_posts'"),
+  'Health must report taxonomy work separately from editorial updates');
+
 assert(autoDeploy.includes('outcome 28d builder_steps='),'Auto-deploy must log the 28d Builder step funnel');
 assert(autoDeploy.includes('.outcome_scoreboard.days_28.builder_steps // {}'),'Auto-deploy must read Builder step funnel from health');
 assert(autoDeploy.includes('outcome 28d by_page='),'Auto-deploy must log the 28d page-attribution breakdown');

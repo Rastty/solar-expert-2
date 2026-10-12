@@ -181,6 +181,7 @@
       "status_if_new": "publish",
       "status": "publish",
       "file": "content/rewrites/kolik-stoji-fotovoltaika.html",
+      "category_slug": "solarni-panely",
       "create_if_missing": true
     },
     {
@@ -270,6 +271,7 @@
       "status_if_new": "publish",
       "status": "publish",
       "file": "content/rewrites/fotovoltaika-na-pozemku.html",
+      "category_slug": "solarni-panely",
       "create_if_missing": true
     },
     {
@@ -295,6 +297,7 @@
       "status_if_new": "publish",
       "status": "publish",
       "file": "content/rewrites/tepelne-cerpadlo-vzduch-vzduch.html",
+      "category_slug": "tepelna-cerpadla",
       "create_if_missing": true
     },
     {
@@ -304,6 +307,7 @@
       "status_if_new": "publish",
       "status": "publish",
       "file": "content/rewrites/tepelne-cerpadlo-monoblok.html",
+      "category_slug": "tepelna-cerpadla",
       "create_if_missing": true
     },
     {
@@ -353,6 +357,7 @@
       "status_if_new": "publish",
       "status": "publish",
       "file": "content/rewrites/pruhledne-solarni-panely.html",
+      "category_slug": "solarni-panely",
       "create_if_missing": true
     },
     {
