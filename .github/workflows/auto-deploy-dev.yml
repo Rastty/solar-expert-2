@@ -843,20 +843,29 @@ jobs:
             solar="$(mktemp)"
             heat="$(mktemp)"
             pvt="$(mktemp)"
+            eternit="$(mktemp)"
             curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
               "${base}/category/solarni-panely/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$solar" || true
             curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
               "${base}/category/tepelna-cerpadla/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$heat" || true
             curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
               "${base}/vysvetleni-solarnich-panelu-pv-t/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$pvt" || true
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/fotovoltaika-na-eternitovou-strechu/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$eternit" || true
             if grep -Fq 'data-se-category-hub="solar-panels"' "$solar" \
                && grep -Fq 'href="https://solar-expert.cz/solarni-panel-definice-a-fakta/"' "$solar" \
+               && grep -Fq 'href="https://solar-expert.cz/fotovoltaika-na-pozemku/"' "$solar" \
+               && grep -Fq 'href="https://solar-expert.cz/pruhledne-solarni-panely/"' "$solar" \
                && grep -Fq 'data-se-category-hub="heat-pumps"' "$heat" \
+               && grep -Fq 'data-se-category-choice="heat-pump-types"' "$heat" \
                && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-monoblok/"' "$heat" \
                && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-vzduch-vzduch/"' "$heat" \
                && grep -Fq 'data-se-related="emerging-pv-cluster"' "$pvt" \
-               && grep -Fq 'href="https://solar-expert.cz/solarni-panel-definice-a-fakta/"' "$pvt"; then
-              echo "Live SEO intent split verified: basic PV explanation linked from category and PVT; heat-pump type guides discoverable."
+               && grep -Fq 'href="https://solar-expert.cz/solarni-panel-definice-a-fakta/"' "$pvt" \
+               && grep -Fq 'data-se-related="solar-cluster"' "$eternit" \
+               && grep -Fq 'Alternativa k nevhodné střeše: FVE na pozemku' "$eternit" \
+               && grep -Fq 'href="https://solar-expert.cz/fotovoltaika-na-pozemku/"' "$eternit"; then
+              echo "Live SEO discovery verified: solar alternative cards, indexed eternit-to-ground FVE link, and prominent heat-pump choices."
               passed=1
               break
             fi

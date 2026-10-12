@@ -652,6 +652,20 @@ for(const category of [
     'Sitewide footer must strengthen the existing curated category '+categorySlug);
   assert(seoCore.includes("is_category('"+categorySlug+"')"),'Category '+categorySlug+' must have topical Yoast title and description');
 }
+// Crawler path coverage for new published commercial guides (without rewriting their bodies).
+for(const path of ['/fotovoltaika-na-pozemku/','/pruhledne-solarni-panely/']){
+  assert(categoryPhp.includes("home_url('"+path+"')"),
+    'Curated solar-panels hub must expose the new PV guide '+path);
+}
+assert(categoryPhp.includes('data-se-category-choice="heat-pump-types"') &&
+  categoryPhp.includes("home_url('/tepelne-cerpadlo-monoblok/')") &&
+  categoryPhp.includes("home_url('/tepelne-cerpadlo-vzduch-vzduch/')"),
+  'Heat pump installation variants must be discoverable as prominent category guide cards');
+const roofRelated=seoCore.split('function solar_expert_append_solar_related_links($content)')[1]?.split('function solar_expert_append_solar_lead_cta(')[0]||'';
+assert(roofRelated.includes("if ( $slug === 'fotovoltaika-na-eternitovou-strechu' )") &&
+  roofRelated.includes("'label' => 'Alternativa k nevhodné střeše: FVE na pozemku'") &&
+  roofRelated.includes("home_url('/fotovoltaika-na-pozemku/')"),
+  'The indexed eternit roof guide must contextually discover the ground-mount alternative');
 assert(categoryPhp.includes('the_posts_pagination(')&&categoryPhp.includes('while ( have_posts() ) : the_post()'),
   'Original archives and pagination must remain accessible; do not delete legacy posts');
 assert(categoryPhp.includes('Starší publikované informace')&&categoryPhp.includes('včetně starších článků'),

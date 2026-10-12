@@ -3,7 +3,7 @@ Theme Name: Solar Expert 2.0 RC
 Theme URI: https://solar-expert.cz/
 Author: Solar Expert
 Description: Independent solar decision engine for CZ.
-Version: 0.12.16
+Version: 0.12.17
 Text Domain: solar-expert-2
 */
 
@@ -48,6 +48,7 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-category-guide strong{font-size:16px;line-height:1.35}
 .se-category-guide span{font-size:13px;line-height:1.5;color:var(--muted)}
 .se-category-guide-primary{background:#fff8de;border-color:#e9d78f;grid-column:1/-1}
+.se-category-choice-grid{margin-top:12px}
 .se-category-hub .se-category-alternative{font-size:14px;line-height:1.6;margin:18px 0 0;color:#34423c}
 .se-category-alternative a{font-weight:750;text-decoration:underline;text-underline-offset:3px}
 .se-content .se-category-archive-title{font-size:25px;margin-top:37px}
