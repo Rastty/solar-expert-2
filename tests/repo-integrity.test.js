@@ -118,6 +118,11 @@ const homepageFirstUseTemplate=fs.readFileSync(path.join(__dirname,'..','front-p
 assert(builderFirstUseTemplate.includes('Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky'),'Builder first screen must explain editable example loads');
 assert(builderFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Grid-connected FVE visitors need a suitable alternate decision path');
 assert(homepageFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Homepage must distinguish grid-connected PV from the off-grid Builder');
+assert(builderFirstUseTemplate.includes('@click="quickPreview()"'),'Builder must offer an explicit one-click sample on the first screen');
+assert(builderFirstUseTemplate.includes('Modelový výsledek, ne návrh na míru.'),'One-click result must disclose that it is an example');
+assert(builderFirstUseTemplate.includes('@click="editPreview()"'),'Visitors must be able to edit the sample immediately');
+assert(builderFirstUseTemplate.includes('x-show="previewMode"'),'Preview disclaimer must not appear on personalized results');
+
 
 
 // Guardrail: grid-connected residential FVE must not be evaluated by the off-grid Quote Checker.
@@ -1317,6 +1322,9 @@ assert(seoCore.includes("'by_tool' => solar_expert_funnel_tool_breakdown($days)"
 assert(seoCore.includes('function solar_expert_funnel_builder_steps'),'Outcome scoreboard must expose Builder step funnel');
 assert(seoCore.includes("array('step_2'=>0, 'step_3'=>0, 'result'=>0)"),'Builder step funnel must stay bounded to three milestones');
 assert(seoCore.includes("'builder_steps' => solar_expert_funnel_builder_steps($days)"),'Outcome summary must include Builder step funnel');
+assert(seoCore.includes("'quick_preview' => $steps['quick_preview']"),'Health must report sample previews separately from real Builder step completions');
+assert(seoCore.includes("$steps['quick_preview'] = 0"),'Model views must use a bounded independent counter');
+
 assert(seoCore.includes("'step_2_to_result_pct'"),'Builder step funnel must expose end-to-end completion rate');
 assert(seoCore.includes('function solar_expert_funnel_page_breakdown'),'Outcome scoreboard must expose page-level attribution');
 assert(seoCore.includes("'by_page' => solar_expert_funnel_page_breakdown($days)"),'Outcome summary must include page-level attribution');
