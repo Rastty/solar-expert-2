@@ -569,3 +569,55 @@ jobs:
             exit 1
           fi
 
+      - name: Verify rendered editorial FVE purchase paths
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # A healthy theme can still serve a stale managed article from a
+          # full-page cache. Verify the article-owned CTA, not only the
+          # injected WordPress E.ON lead block checked by the preceding step.
+          base="https://solar-expert.cz"
+          for slug in fve-panely-na-strechu fotovoltaika-na-eternitovou-strechu; do
+            case "$slug" in
+              fve-panely-na-strechu)
+                expected='Porovnat nabídku podle checklistu domovní FVE'
+                stale='Zkontrolovat parametry nabídky →'
+                ;;
+              fotovoltaika-na-eternitovou-strechu)
+                expected='Zkontrolovat nabídku domovní FVE'
+                stale='Zkontrolovat nabídku FVE →'
+                ;;
+              *)
+                echo "::error::Unsupported editorial CTA smoke slug: $slug"
+                exit 1
+                ;;
+            esac
+
+            verified=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}/${slug}/?editorial_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              if [ "$code" = "200" ] \
+                 && grep -Fq "$expected" "$body_file" \
+                 && ! grep -Fq "$stale" "$body_file"; then
+                echo "Public editorial FVE CTA verified for ${slug}: grid-tied checklist."
+                verified=1
+                break
+              fi
+
+              echo "Public editorial CTA has not converged for ${slug} (HTTP ${code:-none}, attempt $attempt/6); retrying."
+              sleep 10
+            done
+
+            if [ "$verified" != "1" ]; then
+              echo "::error::Public ${slug} still exposes the stale residential FVE offer path despite repository-managed content sync."
+              exit 1
+            fi
+          done
