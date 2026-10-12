@@ -136,6 +136,16 @@ for(const body of [gridFveAnnualHtml,gridFveHourlyHtml]){
   assert(body.includes('href="/solarni-sestava-na-chatu/"'),'Production-intent guides must retain an explicit off-grid Builder path');
 }
 
+
+// Guardrail: the Builder must validate browser input before calculating.
+const builderInputSafetyJs=fs.readFileSync(path.join(__dirname,'..','assets','js','builder.js'),'utf8');
+const builderInputSafetyTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
+assert(builderInputSafetyJs.includes('validateSelections()'),'Builder must validate hours and appliance unit count');
+assert(builderInputSafetyJs.includes('Number.isInteger(qty)'),'Builder must require integer appliance unit count');
+assert(builderInputSafetyJs.includes('Number.isFinite(hours)'),'Builder must reject nonfinite hours');
+assert(builderInputSafetyTpl.includes('role="alert" aria-live="polite" x-text="inputError"'),'Builder must provide accessible input errors');
+assert(builderInputSafetyTpl.includes('min=".1" max="24"'),'Builder hours field must expose the accepted range');
+
 const expandPvSlug='pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu';
 const expandPvItem=manifest.items.find(x=>x.slug===expandPvSlug);
 assert(expandPvItem&&expandPvItem.preserve_status===true,'Existing-PV expansion near-win must preserve indexed status');
