@@ -832,6 +832,28 @@ function solar_expert_funnel_infer_tool($event, $dimensions) {
     }
   }
 
+  // Product and bundle links can be rendered in the homepage Builder or
+  // inside embedded tools. Their source page is not a reliable tool label.
+  // The bounded, existing placement identifies the originating tool, even
+  // for historical aggregate event buckets created before this release.
+  if ( in_array($event, array('affiliate_click','bundle_deal_click','lead_click'), true) ) {
+    $placement = sanitize_key((string) ($dimensions['placement'] ?? ''));
+    if ( strpos($placement, 'builder-') === 0 ) {
+      return 'builder';
+    }
+    $placement_tools = array(
+      'battery-selector' => 'battery',
+      'mppt-selector' => 'mppt',
+      'inverter-selector' => 'inverter',
+    );
+    if ( isset($placement_tools[$placement]) ) {
+      return $placement_tools[$placement];
+    }
+    if ( strpos($placement, 'quote_checker_result_') === 0 ) {
+      return 'quote';
+    }
+  }
+
   $page = sanitize_key((string) ($dimensions['page'] ?? ''));
   $page_tools = array(
     'solarni-sestava-na-chatu' => 'builder',
