@@ -260,3 +260,5 @@ Next:
 
 
 - LG review cannibalization cleanup (2026-10-07): fresh Prometheus GSC evidence continues to rank the indexed `/tepelne-cerpadla-lg-vyhody-nevyhody-ceny/` URL for LG review queries, while the newly created near-duplicate `/tepelna-cerpadla-lg-vyhody-nevyhody-ceny/` remains unknown to Google. Kept the indexed `tepelne-` URL as canonical, moved the stronger 2026 R290 + owner-experience buyer-guide body onto it, removed the duplicate from managed publishing, and added a sitemap-clean 301 from the duplicate to the indexed canonical.
+
+- Roof PV decision guide (2026-10-12): rebuilt the historically high-impression `/fve-panely-na-strechu/` managed post into a practical consumption → layout → shading → string electrical-limits → offer-check funnel. Existing URL, publication state, original tool and supporting links preserved; Buyer/MPPT/Quote Checker links strengthened, with explicit separation of off-grid Builder from grid-connected rooftop design. Selector Core v1, pricing, affiliate routing, redirects and SEO metadata are unchanged. Release 0.11.97 (requires normal dev deploy and verification).
