@@ -1069,6 +1069,7 @@ function solar_expert_funnel_builder_steps($days = 28) {
 
   $cutoff = gmdate('Y-m-d', time() - (($days - 1) * DAY_IN_SECONDS));
   $steps = array('step_2'=>0, 'step_3'=>0, 'result'=>0);
+  $steps['quick_preview'] = 0; // separate from genuine user-configured completions
   $by_scenario = array();
 
   foreach ( $data as $date => $buckets ) {
@@ -1096,7 +1097,7 @@ function solar_expert_funnel_builder_steps($days = 28) {
 
       if ( $scenario ) {
         if ( ! isset($by_scenario[$scenario]) ) {
-          $by_scenario[$scenario] = array('step_2'=>0, 'step_3'=>0, 'result'=>0);
+          $by_scenario[$scenario] = array('step_2'=>0, 'step_3'=>0, 'result'=>0, 'quick_preview'=>0);
         }
         $by_scenario[$scenario][$status] += $count;
       }
@@ -1113,6 +1114,7 @@ function solar_expert_funnel_builder_steps($days = 28) {
     'step_2' => $steps['step_2'],
     'step_3' => $steps['step_3'],
     'result' => $steps['result'],
+    'quick_preview' => $steps['quick_preview'],
     'step_2_to_3_pct' => $steps['step_2'] ? round(($steps['step_3'] / $steps['step_2']) * 100, 1) : 0,
     'step_3_to_result_pct' => $steps['step_3'] ? round(($steps['result'] / $steps['step_3']) * 100, 1) : 0,
     'step_2_to_result_pct' => $steps['step_2'] ? round(($steps['result'] / $steps['step_2']) * 100, 1) : 0,

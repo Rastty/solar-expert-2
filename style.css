@@ -3,7 +3,7 @@ Theme Name: Solar Expert 2.0 RC
 Theme URI: https://solar-expert.cz/
 Author: Solar Expert
 Description: Independent solar decision engine for CZ.
-Version: 0.12.3
+Version: 0.12.4
 Text Domain: solar-expert-2
 */
 
@@ -21,6 +21,9 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-hero{padding:72px 0 84px;border-bottom:1px solid rgba(20,33,28,.1)}.se-hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}.se-kicker{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--green3);font-weight:800}.se-h1{font-size:clamp(48px,7vw,92px);line-height:.93;letter-spacing:-.055em;margin:18px 0 24px;font-weight:850;max-width:9ch}.se-lead{font-size:20px;color:#44504a;max-width:680px}.se-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
 .se-panel{background:rgba(255,253,247,.94);border:1px solid rgba(20,33,28,.12);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px}.se-panel h2,.se-panel h3{margin-top:0}.se-step{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--solar);font-weight:800}.se-row{display:flex;gap:14px;align-items:center;justify-content:space-between}.se-progress{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:18px 0}.se-progress span{height:6px;border-radius:999px;background:#e2e5e3}.se-progress span.on{background:var(--green2)}
 .se-choice{width:100%;text-align:left;padding:17px;border:1px solid rgba(20,33,28,.12);border-radius:16px;background:var(--paper);cursor:pointer;margin:8px 0}.se-choice:hover,.se-choice.active{border-color:var(--green3);background:#edf5f1}.se-choice strong{display:block;font-size:17px}.se-choice small{color:var(--muted)}
+.se-quick-preview{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;margin:6px 0 17px;border-radius:16px;background:#edf5f1;border:1px solid #b8d5c7}.se-quick-preview strong,.se-quick-preview small{display:block}.se-quick-preview small{max-width:360px;color:var(--muted);font-size:13px;margin-top:4px}.se-quick-preview .se-btn{flex-shrink:0;text-align:center}.se-preview-note{margin-bottom:18px}.se-preview-note .se-btn{display:flex;width:100%;margin-top:12px;background:var(--paper)}
+@media(max-width:570px){.se-quick-preview{align-items:stretch;flex-direction:column}.se-quick-preview .se-btn{width:100%}}
+
 .se-formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.se-field label{display:block;font-size:13px;font-weight:750;margin-bottom:6px}.se-input,.se-select{width:100%;padding:12px 13px;border:1px solid rgba(20,33,28,.16);border-radius:12px;background:white;font:inherit}.se-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.se-tool{background:var(--green);color:white;border-radius:var(--radius);padding:26px;min-height:220px}.se-tool p{color:rgba(255,255,255,.7)}
 .se-resultgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.se-result{background:var(--green);color:white;border-radius:18px;padding:18px}.se-result small{display:block;color:rgba(255,255,255,.62)}.se-result strong{font-size:28px}
 .se-bundles{display:grid;gap:12px;margin-top:18px}.se-bundle{border:1px solid rgba(20,33,28,.12);border-radius:16px;padding:18px;background:white}.se-bundle.best{border:2px solid var(--green2);background:#edf5f1}.se-bundle-head{display:flex;justify-content:space-between;gap:12px}.se-chip{display:inline-flex;align-items:center;border:1px solid rgba(20,33,28,.14);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:750;background:rgba(255,255,255,.65)}

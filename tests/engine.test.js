@@ -95,6 +95,44 @@ assert(!builderFirstUse.selectedAppliances.some(a=>a.id==='pump'),'Changing scen
 window.dataLayer=[];
 
 
+// One-click example must let visitors see a sample result without
+// recording nonexistent step-2/step-3 interactions or a real completion.
+window.dataLayer=[];
+const quickExample=window.solarExpertBuilder();
+quickExample.catalog=catalog.products;
+quickExample.bundleDeals=catalog.bundle_deals||[];
+quickExample.quickPreview();
+assert(quickExample.step===4&&quickExample.previewMode&&quickExample.scenario==='chata',
+  'Quick preview must reveal a clearly labelled cottage result');
+assert(quickExample.season==='three'&&quickExample.autonomy===1,
+  'Quick preview must use the disclosed default season and battery reserve');
+assert(quickExample.completeBundles.length>0&&quickExample.primaryBundle.priceComplete,
+  'Quick cottage example must contain a real priced, technically checked offer');
+const previewSteps=window.dataLayer.filter(x=>x.event==='builder_step').map(x=>x.status);
+assert(JSON.stringify(previewSteps)===JSON.stringify(['quick_preview']),
+  'Sample preview must not invent real configuration funnel steps');
+assert(!window.dataLayer.some(x=>x.event==='solar_builder_complete'),
+  'Sample preview must not count as a user-configured Builder completion');
+quickExample.editPreview();
+assert(quickExample.step===2&&!quickExample.previewMode,
+  'Quick preview must offer a direct edit of the sample appliances');
+quickExample.toggle('tv');
+assert(quickExample.selectedAppliances.some(a=>a.id==='tv'),
+  'Visitor can personalize the quick preview instead of resetting the scenario');
+quickExample.advanceToUsage();
+assert(quickExample.step===3,'Edited example must continue through actual season choices');
+quickExample.calc();
+assert(quickExample.step===4&&!quickExample.previewMode,
+  'Edited sample must become a genuine user-configured result');
+assert(window.dataLayer.filter(x=>x.event==='solar_builder_complete').length===1,
+  'Only the actual customized calculation may count as a complete Builder result');
+assert(window.dataLayer.filter(x=>x.event==='builder_step'&&x.status==='result').length===1,
+  'Real calculation must retain its separate result milestone');
+quickExample.reset();
+assert(quickExample.step===1&&!quickExample.previewMode&&!quickExample.result,
+  'Reset must also clear the quick preview marker');
+window.dataLayer=[];
+
 // Every published starter scenario must lead to a real verified, priced path.
 for(const scenario of ['chata','offgrid','backup']){
   const b=window.solarExpertBuilder();
