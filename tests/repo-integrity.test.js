@@ -309,6 +309,23 @@ assert(gscBaseline.includes('1,713'),'GSC baseline must preserve measured histor
 assert(gscBaseline.includes('/fotovoltaika-vykon-na-m2/'),'GSC baseline must include the strongest Wp/m² near-win URL');
 
 
+
+// Protect the GSC-backed roof-PV decision guide and its owned-first paths.
+const roofGuideSlug='fve-panely-na-strechu';
+const roofGuideEntry=manifest.items.find(x=>x.slug===roofGuideSlug);
+assert(roofGuideEntry&&roofGuideEntry.preserve_status===true,'Roof PV guide must preserve existing indexed post status');
+const roofGuideHtml=fs.readFileSync(path.join(__dirname,'..',roofGuideEntry.file),'utf8');
+for(const required of [
+  '/solarni-sestava-na-chatu/','/mppt-kalkulacka/','/quote-checker/',
+  '/fotovoltaika-na-eternitovou-strechu/','/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/',
+  '/fotovoltaika-na-pozemku/','Voc','Vmp','MPPT','stínění'
+]){
+  assert(roofGuideHtml.includes(required),'Roof PV decision guide missing evidence or decision path: '+required);
+}
+assert(roofGuideHtml.includes('Builder nenahrazuje projekt'),'Roof guide must distinguish off-grid sizing from grid-tied design');
+assert(roofGuideHtml.includes('450 Wp/panel'),'Roof guide must disclose its illustrative panel power');
+assert(roofGuideHtml.includes('hypotetický panel'),'Roof guide must not present its sizing example as a purchasable product');
+
 const freshNearWins=['kolik-panelu-je-potreba-na-jeden-string','fotovoltaika-na-eternitovou-strechu'];
 for(const slug of freshNearWins){
   const item=manifest.items.find(x=>x.slug===slug);
