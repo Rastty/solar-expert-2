@@ -2467,6 +2467,60 @@ function solar_expert_solar_lead_slugs() {
   );
 }
 
+/**
+ * Return one context-specific, user-first next step for the native post footer.
+ * Generic posts offer an explicit choice rather than routing every topic to
+ * the off-grid Builder. These are editorial links, not affiliate placements.
+ */
+function solar_expert_article_next_step($slug) {
+  $slug = sanitize_title((string) $slug);
+  if ( in_array($slug, solar_expert_heat_pump_lead_slugs(), true) ||
+       strpos($slug, 'tepelneho-cerpadla') !== false ||
+       strpos($slug, 'tepelne-cerpadlo') !== false ||
+       strpos($slug, 'tepelna-cerpadla') !== false ) {
+    return array(
+      'scope' => 'heat-pump',
+      'heading' => 'Řešíte výběr tepelného čerpadla?',
+      'description' => 'Nejdřív porovnejte vhodný typ, výkon, hlučnost, náklady a omezení pro svůj dům. Tento postup nenahrazuje návrh vytápění.',
+      'primary_label' => 'Průvodce výběrem tepelného čerpadla →',
+      'primary_url' => home_url('/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/'),
+      'secondary_label' => 'Kombinace s fotovoltaikou',
+      'secondary_url' => home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/')
+    );
+  }
+  if ( in_array($slug, solar_expert_battery_cluster_slugs(), true) ) {
+    return array(
+      'scope' => 'battery',
+      'heading' => 'Potřebujete vybrat konkrétní baterii?',
+      'description' => 'Porovnejte kapacitu v kWh, napětí a vybíjecí proud BMS proti požadavkům systému. Doporučení vždy ověřte s měničem.',
+      'primary_label' => 'Vybrat kompatibilní baterii →',
+      'primary_url' => solar_expert_public_url('vyber-baterii','/vyber-baterii/'),
+      'secondary_label' => 'Navrhnout ostrovní sestavu',
+      'secondary_url' => solar_expert_public_url('solarni-sestava-na-chatu','/solarni-sestava-na-chatu/')
+    );
+  }
+  if ( in_array($slug, solar_expert_solar_lead_slugs(), true) ) {
+    return array(
+      'scope' => 'grid-fve',
+      'heading' => 'Porovnáváte nabídku fotovoltaiky na dům?',
+      'description' => 'Zkontrolujte výkon, baterii, měnič, montáž a připojení podle checklistu domovní FVE. Ostrovní Builder není návrhem síťové instalace.',
+      'primary_label' => 'Kontrolní seznam nabídky domácí FVE →',
+      'primary_url' => home_url('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),
+      'secondary_label' => 'Chata / ostrovní sestava',
+      'secondary_url' => solar_expert_public_url('solarni-sestava-na-chatu','/solarni-sestava-na-chatu/')
+    );
+  }
+  return array(
+    'scope' => 'solar-choice',
+    'heading' => 'Co potřebujete vyřešit dál?',
+    'description' => 'Domovní fotovoltaika připojená k síti a samostatné napájení chaty mají odlišné požadavky. Vyberte správný typ řešení.',
+    'primary_label' => 'Domovní FVE: návrh a kontrola nabídky →',
+    'primary_url' => home_url('/kolik-stoji-fotovoltaika/'),
+    'secondary_label' => 'Chata, ostrovní systém nebo záloha',
+    'secondary_url' => solar_expert_public_url('solarni-sestava-na-chatu','/solarni-sestava-na-chatu/')
+  );
+}
+
 function solar_expert_append_solar_related_links($content) {
   if ( is_admin() || ! is_singular('post') || ! in_the_loop() || ! is_main_query() ) {
     return $content;

@@ -595,7 +595,43 @@ assert(footerPhp.includes("/category/baterie/"),'Battery knowledge hub must rece
 const singlePhp=fs.readFileSync(path.join(__dirname,'..','single.php'),'utf8');
 assert(singlePhp.includes("Aktualizováno"),'Single posts must expose visible freshness');
 assert(singlePhp.includes("get_the_modified_date"),'Single posts must use WordPress modified date');
-assert(singlePhp.includes("solar_expert_public_url('solarni-sestava-na-chatu'"),'Single post CTA must route to the dedicated Builder page when published');
+assert(singlePhp.includes('solar_expert_article_next_step(get_post_field('),'Post footer must use the actual post slug for contextual routing');
+assert(singlePhp.includes('data-se-decision-path='),'Public post CTA must expose an auditable topic-scope marker');
+assert(!singlePhp.includes('Převeďte informace na konkrétní sestavu.'),'Sitewide post footer must not force the off-grid Builder on unrelated topics');
+const routingStart=seoCore.indexOf('function solar_expert_article_next_step(');
+const routingEnd=seoCore.indexOf('function solar_expert_append_solar_related_links(',routingStart);
+assert(routingStart>0&&routingEnd>routingStart,'Pure article next-step router must be extractable for regression tests');
+const routingSource=seoCore.slice(routingStart,routingEnd);
+const {execFileSync}=require('child_process');
+const phpNextStepFixture=[
+  'function sanitize_title($s){return (string) $s;}',
+  'function home_url($path){return "https://solar-expert.cz".$path;}',
+  'function solar_expert_public_url($slug,$fallback=""){return home_url("/".$slug."/");}',
+  'function solar_expert_heat_pump_lead_slugs(){return array("recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady");}',
+  'function solar_expert_solar_lead_slugs(){return array("fve-panely-na-strechu");}',
+  'function solar_expert_battery_cluster_slugs(){return array("jak-funguji-solarni-baterie-pruvodce-skladovanim-energie");}',
+  routingSource,
+  'echo json_encode(array(',
+  '  solar_expert_article_next_step("recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady"),',
+  '  solar_expert_article_next_step("vrt-pro-tepelne-cerpadlo"),',
+  '  solar_expert_article_next_step("fve-panely-na-strechu"),',
+  '  solar_expert_article_next_step("jak-funguji-solarni-baterie-pruvodce-skladovanim-energie"),',
+  '  solar_expert_article_next_step("kolik-panelu-je-potreba-na-jeden-string")',
+  '), JSON_UNESCAPED_UNICODE);'
+].join('\n');
+const routed=JSON.parse(execFileSync('php',['-r',phpNextStepFixture],{encoding:'utf8',timeout:10000}));
+assert(routed.length===5,'Article router test must cover all declared scopes');
+assert(routed[0].scope==='heat-pump'&&routed[0].primary_url.endsWith('/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/'),
+  'Samsung heat-pump review must route to heat-pump advice, never off-grid Builder');
+assert(routed[1].scope==='heat-pump','Additional heat pump topics must not default to off-grid Builder');
+assert(routed[2].scope==='grid-fve'&&routed[2].primary_url.endsWith('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),
+  'Rooftop grid FVE must lead to a bounded offer checklist');
+assert(routed[3].scope==='battery'&&routed[3].primary_url.endsWith('/vyber-baterii/'),
+  'Battery articles must route to battery selection');
+assert(routed[4].scope==='solar-choice'&&routed[4].primary_url.endsWith('/kolik-stoji-fotovoltaika/')&&routed[4].secondary_url.endsWith('/solarni-sestava-na-chatu/'),
+  'Ambiguous solar articles must clearly distinguish grid-tied and off-grid paths');
+assert(deployWorkflow.includes('Verify public topic-aware article next steps'),'Auto deploy must smoke check topic-specific post CTA after theme update');
+
 
 
 const selectorsJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
