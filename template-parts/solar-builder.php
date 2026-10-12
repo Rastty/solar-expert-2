@@ -6,10 +6,11 @@
   <div class="se-progress"><span :class="step>=1?'on':''"></span><span :class="step>=2?'on':''"></span><span :class="step>=3?'on':''"></span><span :class="step>=4?'on':''"></span></div>
 
   <div x-show="step===1">
-    <div class="se-note" style="margin-bottom:12px"><strong>Začněte jedním kliknutím.</strong> Vyberte situaci, která je vám nejblíž. Spotřebiče i dobu provozu upravíte v dalším kroku.</div>
-    <button class="se-choice" @click="preset('chata')"><strong>Chata / zahradní domek</strong><small>Lednice, světla, čerpadlo, notebook…</small></button>
-    <button class="se-choice" @click="preset('offgrid')"><strong>Ostrovní systém</strong><small>Celodenní provoz bez spolehlivé sítě.</small></button>
-    <button class="se-choice" @click="preset('backup')"><strong>Záloha při výpadku</strong><small>Důležité spotřebiče a baterie.</small></button>
+    <div class="se-note" style="margin-bottom:12px"><strong>Vyberte příklad, který je vám nejblíž.</strong> Spotřebiče předvyplníme jen pro začátek; ve druhém kroku je můžete přidat, odebrat a upravit dobu provozu. Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky.</div>
+    <button type="button" class="se-choice" @click="preset('chata')"><strong>Chata / zahradní domek →</strong><small>Lednice, světla, notebook a Wi-Fi. Vše upravíte.</small></button>
+    <button type="button" class="se-choice" @click="preset('offgrid')"><strong>Ostrovní systém →</strong><small>Běžné spotřebiče včetně televize, bez přípojky.</small></button>
+    <button type="button" class="se-choice" @click="preset('backup')"><strong>Záloha při výpadku →</strong><small>Lednice, světla a router při přerušení dodávky.</small></button>
+    <div class="se-note" style="margin-top:12px"><strong>Máte síťovou fotovoltaiku na rodinném domě?</strong> Tento výpočet je pro ostrovní a záložní napájení. U domovní FVE začněte <a href="/kolik-stoji-fotovoltaika/">průvodcem návrhem a cenou fotovoltaiky</a>.</div>
   </div>
 
   <div x-show="step===2" x-cloak>
