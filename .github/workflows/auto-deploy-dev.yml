@@ -621,3 +621,61 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Verify public topic-aware article next steps
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Read the publicly rendered post footer, not merely the updated
+          # PHP template: cached HTML must not keep forcing off-grid Builder.
+          base="https://solar-expert.cz"
+          for slug in \
+            fve-panely-na-strechu \
+            recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady \
+            jak-funguji-solarni-baterie-pruvodce-skladovanim-energie; do
+            case "$slug" in
+              fve-panely-na-strechu)
+                scope='grid-fve'
+                label='Kontrolní seznam nabídky domácí FVE'
+                ;;
+              recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady)
+                scope='heat-pump'
+                label='Průvodce výběrem tepelného čerpadla'
+                ;;
+              jak-funguji-solarni-baterie-pruvodce-skladovanim-energie)
+                scope='battery'
+                label='Vybrat kompatibilní baterii'
+                ;;
+              *)
+                echo "::error::Unexpected post decision smoke slug: $slug"
+                exit 1
+                ;;
+            esac
+
+            passed=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}/${slug}/?post_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+              if [ "$code" = "200" ] \
+                 && grep -Fq "data-se-decision-path=\"$scope\"" "$body_file" \
+                 && grep -Fq "$label" "$body_file" \
+                 && ! grep -Fq 'Převeďte informace na konkrétní sestavu.' "$body_file"; then
+                echo "Public post decision scope verified: $slug => $scope"
+                passed=1
+                break
+              fi
+              echo "Public next-step scope not converged for $slug (HTTP ${code:-none}, attempt $attempt/6)."
+              sleep 10
+            done
+
+            if [ "$passed" != "1" ]; then
+              echo "::error::Article $slug still serves a stale or off-topic next step. Check page cache and public rendering before accepting release."
+              exit 1
+            fi
+          done
