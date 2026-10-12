@@ -615,6 +615,15 @@ assert(samsungHtml.includes('nejde o placenou recenzi Samsungu'),'Samsung review
 
 
 assert(seoCore.includes("function solar_expert_schema_graph()"),'Structured data graph must be registered');
+assert(seoCore.includes("function solar_expert_tool_web_application_schema($post)"),
+  'Shared schema helper must describe genuine decision tools');
+assert(seoCore.includes("add_filter('wpseo_schema_graph', 'solar_expert_add_tool_to_yoast_schema_graph', 25)"),
+  'Yoast must emit decision tool WebApplication in its canonical schema graph');
+assert(seoCore.includes("'offers' => array(") && seoCore.includes("'priceCurrency' => 'CZK'"),
+  'Structured data must identify the tool itself as free, not merchant offer prices');
+assert(fs.existsSync(path.join(__dirname,'..','tests','tool-schema.test.php')),
+  'Executable Yoast/free tool schema regression fixture required');
+
 assert(seoCore.includes("'@type' => 'WebApplication'"),'Structured data must describe published decision tools');
 assert(seoCore.includes("'@type' => 'Article'"),'Structured data must describe legacy editorial posts');
 assert(seoCore.includes("'@type' => 'BreadcrumbList'"),'Structured data must include breadcrumb context');

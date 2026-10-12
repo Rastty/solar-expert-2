@@ -2874,6 +2874,84 @@ function solar_expert_exclude_legacy_redirects_from_sitemap($excluded_post_ids) 
 add_filter('wpseo_exclude_from_sitemap_by_post_ids', 'solar_expert_exclude_legacy_redirects_from_sitemap');
 
 
+/**
+ * Only the five published, standalone decision tools are WebApplications.
+ * Shared by our no-SEO-plugin fallback and the Yoast schema graph. A free
+ * software Offer describes using the tool, NEVER the prices of recommended
+ * affiliate products. We deliberately do not invent reviews/ratings.
+ */
+function solar_expert_tool_web_application_schema($post) {
+  if ( ! ($post instanceof WP_Post) || $post->post_type !== 'page' || $post->post_status !== 'publish' ) {
+    return null;
+  }
+  $features = array(
+    'solarni-sestava-na-chatu' => 'Off-grid solar and backup system sizing',
+    'vyber-baterii' => 'LiFePO4 battery compatibility and capacity selector',
+    'mppt-kalkulacka' => 'MPPT charge controller and panel-string compatibility selector',
+    'vyber-menice' => 'DC inverter and motor surge sizing selector',
+    'quote-checker' => 'Off-grid solar and backup offer sizing checker',
+  );
+  $slug = (string) $post->post_name;
+  if ( ! isset($features[$slug]) ) {
+    return null;
+  }
+  $url = get_permalink($post);
+  $title = get_the_title($post);
+  if ( ! $url || ! $title ) {
+    return null;
+  }
+  $meta = solar_expert_seo_meta($slug);
+  $app = array(
+    '@type' => 'WebApplication',
+    '@id' => $url . '#app',
+    'name' => $title,
+    'url' => $url,
+    'applicationCategory' => 'UtilitiesApplication',
+    'operatingSystem' => 'Web',
+    'browserRequirements' => 'Requires JavaScript',
+    'isAccessibleForFree' => true,
+    'offers' => array(
+      '@type' => 'Offer',
+      'price' => 0,
+      'priceCurrency' => 'CZK',
+    ),
+    'featureList' => $features[$slug],
+    'isPartOf' => array('@id' => home_url('/') . '#website'),
+    'inLanguage' => 'cs-CZ',
+  );
+  if ( is_array($meta) && ! empty($meta['description']) ) {
+    $app['description'] = $meta['description'];
+  }
+  return $app;
+}
+
+/**
+ * Yoast owns WebPage, WebSite, Organization, canonical and Article JSON-LD.
+ * Append only the missing app node to Yoast's graph, never a second graph
+ * with duplicate publisher/site/page data.
+ */
+function solar_expert_add_tool_to_yoast_schema_graph($graph) {
+  if ( ! is_array($graph) || ! is_singular('page') ) {
+    return $graph;
+  }
+  $app = solar_expert_tool_web_application_schema(get_queried_object());
+  if ( ! $app ) {
+    return $graph;
+  }
+  foreach ( $graph as $piece ) {
+    if ( ! is_array($piece) ) { continue; }
+    $types = isset($piece['@type']) ? (array) $piece['@type'] : array();
+    if ( ($piece['@id'] ?? '') === $app['@id'] ||
+         (in_array('WebApplication', $types, true) &&
+          ($piece['url'] ?? '') === $app['url']) ) {
+      return $graph;
+    }
+  }
+  $graph[] = $app;
+  return $graph;
+}
+add_filter('wpseo_schema_graph', 'solar_expert_add_tool_to_yoast_schema_graph', 25);
+
 function solar_expert_schema_graph() {
   if ( defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION') || defined('AIOSEO_VERSION') ) {
     return;
@@ -2982,35 +3060,10 @@ function solar_expert_schema_graph() {
         ),
       );
 
-      if ( $post->post_type === 'page' && in_array($post->post_name, array(
-        'solarni-sestava-na-chatu',
-        'vyber-baterii',
-        'mppt-kalkulacka',
-        'vyber-menice',
-        'quote-checker',
-      ), true) ) {
-        $category = array(
-          'solarni-sestava-na-chatu' => 'Solar system sizing calculator',
-          'vyber-baterii' => 'Battery sizing calculator',
-          'mppt-kalkulacka' => 'MPPT sizing calculator',
-          'vyber-menice' => 'Inverter sizing calculator',
-          'quote-checker' => 'Solar quote checker',
-        );
-        $graph[] = array(
-          '@type' => 'WebApplication',
-          '@id' => $url . '#app',
-          'name' => $title,
-          'url' => $url,
-          'description' => $description,
-          'applicationCategory' => 'UtilitiesApplication',
-          'operatingSystem' => 'Web',
-          'browserRequirements' => 'Requires JavaScript',
-          'isAccessibleForFree' => true,
-          'featureList' => $category[$post->post_name] ?? 'Solar decision tool',
-          'isPartOf' => array('@id' => $home . '#website'),
-          'breadcrumb' => array('@id' => $breadcrumb_id),
-          'inLanguage' => 'cs-CZ',
-        );
+      $tool_app = solar_expert_tool_web_application_schema($post);
+      if ( $tool_app ) {
+        $tool_app['breadcrumb'] = array('@id' => $breadcrumb_id);
+        $graph[] = $tool_app;
       } elseif ( $post->post_type === 'post' ) {
         $article = array(
           '@type' => 'Article',
