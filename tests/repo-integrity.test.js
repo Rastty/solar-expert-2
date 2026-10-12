@@ -402,7 +402,7 @@ for(const required of ['329 780 Kč','369 677 Kč','399 794 Kč','25 000 Kč','1
 }
 assert(fvePriceHtml.includes('data-se-lead-id="eon-solar"'),'Standalone FVE price guide must expose bounded E.ON comparison lead');
 assert(fvePriceHtml.includes('data-se-placement="fve_price_guide_compare"'),'Standalone FVE price guide must use a dedicated lead placement');
-assert(fvePriceHtml.indexOf('/quote-checker/')<fvePriceHtml.indexOf('data-se-lead-id="eon-solar"'),'Owned Quote Checker must appear before outbound comparison');
+assert(fvePriceHtml.indexOf('id="kontrola-domovni-fve"')<fvePriceHtml.indexOf('data-se-lead-id="eon-solar"'),'Residential offer-comparison checklist must appear before outbound E.ON lead');
 assert(fvePriceHtml.includes('novazelenausporam.cz/bezurocny-uver-rodinne-domy/'),'FVE price guide must cite current official NZU 2026 financing rules');
 assert(fvePriceHtml.includes('cez.cz/cs/technologie/fotovoltaika/produkty/queen'),'FVE price guide must cite the dated public installed-price benchmark');
 
@@ -413,8 +413,8 @@ assert(comboItem.file&&fs.existsSync(path.join(__dirname,'..',comboItem.file)),'
 assert(seoCore.includes("'"+comboSlug+"' => array("),'Combined FVE + heat-pump near-win must have dedicated SEO metadata');
 const comboHtml=fs.readFileSync(path.join(__dirname,'..',comboItem.file),'utf8');
 assert(comboHtml.includes('data-se-lead-id="eon-heat-pump"'),'Combined FVE + heat-pump page must expose E.ON lead CTA');
-assert(comboHtml.includes('/quote-checker/'),'Combined FVE + heat-pump page must route into Quote Checker');
-assert(comboHtml.includes('/solarni-sestava-na-chatu/'),'Combined FVE + heat-pump page must route into Builder');
+assert(comboHtml.includes('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),'Combined FVE + heat-pump page must route into the grid-tied offer checklist');
+assert(comboHtml.includes('/solarni-sestava-na-chatu/')&&comboHtml.includes('nikoli kompletní návrh síťové FVE'),'Combined FVE + heat-pump page must disclose off-grid Builder limitations');
 assert(comboHtml.includes('ověřeno říjen 2026'),'Time-sensitive price benchmark must be explicitly date-stamped');
 
 
