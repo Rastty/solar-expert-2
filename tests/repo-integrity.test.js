@@ -355,6 +355,15 @@ assert(corePhp.includes("function solar_expert_affiliate_coverage("),'Affiliate 
 assert(corePhp.includes("'affiliate_recommendable_offer_coverage_pct'"),'Health payload must expose recommendable offer monetization coverage');
 assert(corePhp.includes("'affiliate_recommendable_product_coverage_pct'"),'Health payload must expose recommendable product monetization coverage');
 assert(corePhp.includes("'affiliate_monetized_merchants'"),'Health payload must expose monetized merchant count');
+assert(corePhp.includes("'affiliate_independent_merchant_operators'"),
+  'Health must distinguish true seller independence from affiliate storefront count');
+assert(corePhp.includes("function solar_expert_merchant_operator_id(")&&
+  corePhp.includes("'battery-cz' => 'efteria-cz'")&&
+  corePhp.includes("'solar-import-cz' => 'efteria-cz'"),
+  'Verified shared retail operator must not be counted as two independent sellers');
+assert(fs.existsSync(path.join(__dirname,'..','tests','merchant-operators.test.php')),
+  'Executable independent merchant operator regression fixture is required');
+
 assert(corePhp.includes("function solar_expert_lead_coverage("),'Lead-gen coverage must account for base-link monetization');
 assert(corePhp.includes("'affiliate_monetized_lead_targets'"),'Health payload must expose monetized lead target count');
 assert(corePhp.includes("'affiliate_lead_coverage_pct'"),'Health payload must expose lead-gen monetization coverage');
@@ -1401,6 +1410,20 @@ assert(firstPartyCore.includes("'merchants'=>$merchants"),'Funnel summary must r
 assert(firstPartyCore.includes("'placements'=>$placements"),'Funnel summary must retain placement attribution');
 assert(firstPartyCore.includes("Outbound clicks by merchant"),'Admin diagnostics must expose merchant click attribution');
 assert(firstPartyCore.includes("Outbound clicks by placement"),'Admin diagnostics must expose placement click attribution');
+// Shared seller transparency must be visible where checkout options appear.
+for(const template of [
+ 'solar-builder.php','battery-selector.php','mppt-selector.php','inverter-selector.php'
+]){
+ const html=fs.readFileSync(path.join(__dirname,'..','template-parts',template),'utf8');
+ assert(html.includes('se-merchant-disclosure') &&
+   html.includes('Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria') &&
+   html.includes('levnější z uvedených · o '),
+   'All buying decision tools must disclose operator and qualify price comparison: '+template);
+}
+assert(affiliateAdapter.includes("sharedOperatorNotice(product)") &&
+  affiliateAdapter.includes("operatorId:'efteria-cz'"),
+  'Affiliate shared operator disclosure must be driven from verified merchant metadata');
+
 const builderOfferTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
 assert(builderOfferTpl.includes('SolarExpertAffiliate.bundleDealOffers(b.bundleDeal).slice(0,2)'),'Builder must expose up to two verified bundle-deal merchants');
 assert(builderOfferTpl.includes('SolarExpertAffiliate.trackBundleDealOffer'),'Builder must attribute bundle clicks to the selected merchant');
