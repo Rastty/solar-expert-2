@@ -377,8 +377,12 @@ assert(high48Premium.bundleDeal===null,'Bundle deal must not apply when battery 
 // Conversion safety: the buyer's actual parts list must reconcile exactly
 // with the compatibility-checked bundle, including discounted sets.
 const shoppingTester=window.solarExpertBuilder();
+const shoppingStandalone12=B.compose(catalog.products,{
+  voltage:12,batteryKwh:1,inverterW:800,peak:1800,panelWp:180,mpptA:20
+},[]).find(bundle=>bundle.tier==='budget');
+assert(shoppingStandalone12&&shoppingStandalone12.complete,'Purchase breakdown standalone fixture must be compatible');
 for(const [label,bundle] of [
-  ['small standalone 12V',budget12Verified],
+  ['small standalone 12V',shoppingStandalone12],
   ['integrated MPPT 48V',best48],
   ['one-battery discounted set',withDeal],
   ['parallel-battery discounted set',high48Best],
