@@ -113,11 +113,11 @@ for(const item of manifest.items){
 
 
 // Keep first-use Builder positioning aligned with the actual off-grid tool scope.
-const builderTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
-const homepageTemplate=fs.readFileSync(path.join(__dirname,'..','front-page.php'),'utf8');
-assert(builderTemplate.includes('Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky'),'Builder first screen must explain editable example loads');
-assert(builderTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Grid-connected FVE visitors need a suitable alternate decision path');
-assert(homepageTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Homepage must distinguish grid-connected PV from the off-grid Builder');
+const builderFirstUseTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
+const homepageFirstUseTemplate=fs.readFileSync(path.join(__dirname,'..','front-page.php'),'utf8');
+assert(builderFirstUseTemplate.includes('Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky'),'Builder first screen must explain editable example loads');
+assert(builderFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Grid-connected FVE visitors need a suitable alternate decision path');
+assert(homepageFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Homepage must distinguish grid-connected PV from the off-grid Builder');
 
 const expandPvSlug='pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu';
 const expandPvItem=manifest.items.find(x=>x.slug===expandPvSlug);
