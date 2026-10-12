@@ -94,6 +94,72 @@ builderFirstUse.preset('backup');
 assert(!builderFirstUse.selectedAppliances.some(a=>a.id==='pump'),'Changing scenario must clear old pump selection');
 window.dataLayer=[];
 
+
+// Every published starter scenario must lead to a real verified, priced path.
+for(const scenario of ['chata','offgrid','backup']){
+  const b=window.solarExpertBuilder();
+  b.catalog=catalog.products;
+  b.bundleDeals=catalog.bundle_deals||[];
+  b.preset(scenario);
+  b.advanceToUsage();
+  assert(b.step===3,'Starter '+scenario+' must advance');
+  b.calc();
+  assert(b.step===4&&b.inputError==='','Starter '+scenario+' must produce a valid result');
+  assert(b.completeBundles.length>0,'Starter '+scenario+' must yield a complete verified bundle');
+  assert(b.primaryBundle&&b.primaryBundle.priceComplete&&b.primaryBundle.totalPrice>0,
+    'Starter '+scenario+' must yield a priced recommendation');
+}
+
+const invalidBuilder=window.solarExpertBuilder();
+invalidBuilder.catalog=catalog.products;
+invalidBuilder.preset('chata');
+const badFridge=invalidBuilder.appliances.find(a=>a.id==='fridge');
+badFridge.hours=-2;
+invalidBuilder.advanceToUsage();
+assert(invalidBuilder.step===2&&invalidBuilder.inputError.includes('Lednice'),
+  'Negative hours must not advance Builder');
+badFridge.hours=25;
+invalidBuilder.advanceToUsage();
+assert(invalidBuilder.step===2&&invalidBuilder.inputError.includes('24'),
+  'More than 24 hours/day must be rejected');
+badFridge.hours=10;
+badFridge.qty=1.5;
+invalidBuilder.advanceToUsage();
+assert(invalidBuilder.step===2&&invalidBuilder.inputError.includes('celé číslo'),
+  'Fractional appliance quantities must be rejected');
+badFridge.qty=0;
+invalidBuilder.advanceToUsage();
+assert(invalidBuilder.step===2&&invalidBuilder.inputError.includes('1 do 10'),
+  'Zero appliance quantity must not produce misleading sizing');
+badFridge.qty=11;
+invalidBuilder.advanceToUsage();
+assert(invalidBuilder.step===2&&invalidBuilder.inputError.includes('1 do 10'),
+  'Quantity above the supported limit must not pass');
+badFridge.qty=1;
+badFridge.hours=Number.NaN;
+invalidBuilder.advanceToUsage();
+assert(invalidBuilder.step===2&&invalidBuilder.inputError,
+  'NaN appliance hours must not lead to recommendations');
+badFridge.hours=10;
+invalidBuilder.advanceToUsage();
+assert(invalidBuilder.step===3&&!invalidBuilder.inputError,
+  'Corrected appliance inputs must permit next step');
+invalidBuilder.manualPeak=-100;
+invalidBuilder.calc();
+assert(invalidBuilder.step===3&&invalidBuilder.inputError.includes('Známé maximum')&&!invalidBuilder.result,
+  'Negative manual surge must not produce a quote');
+invalidBuilder.manualPeak=Number.POSITIVE_INFINITY;
+invalidBuilder.calc();
+assert(invalidBuilder.step===3&&invalidBuilder.inputError.includes('Známé maximum')&&!invalidBuilder.result,
+  'Infinite manual surge must not produce a quote');
+invalidBuilder.manualPeak=null;
+invalidBuilder.calc();
+assert(invalidBuilder.step===4&&invalidBuilder.result&&invalidBuilder.inputError==='',
+  'Corrected manual surge must restore valid result');
+invalidBuilder.reset();
+assert(invalidBuilder.step===1&&!invalidBuilder.inputError&&!invalidBuilder.result,
+  'Builder reset must clear previous errors/results');
+
 const batterySelectorReserve=global.window.solarExpertBatterySelector();
 batterySelectorReserve.catalog=catalog.products;
 batterySelectorReserve.voltage=24;
