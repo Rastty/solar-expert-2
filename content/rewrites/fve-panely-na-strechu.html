@@ -1,13 +1,71 @@
-<p>Počet panelů na střechu by neměl vzniknout pouze z dostupné plochy. Správný návrh kombinuje spotřebu, využitelné místo, orientaci, stínění a limity měniče.</p>
-<h2>1. Začněte potřebou energie</h2><p>Nejdřív zjistěte, kolik elektřiny chcete pokrýt a v jaké části roku.</p>
-<h2>2. Ověřte střechu</h2><p>Rozměry panelů, odstupy, komíny, vikýře a stínění mohou prakticky využitelnou plochu výrazně změnit.</p>
-<h2>3. Sladění s měničem a MPPT</h2><p>Počet panelů a jejich stringy musí projít limity vstupního napětí, proudu a výkonu.</p>
-<p><a class="se-btn se-btn-primary" href="/#builder">Spočítat potřebný výkon sestavy →</a></p>
+<p class="se-lead"><strong>Kolik solárních panelů se vejde na střechu a jaký výkon má smysl?</strong> Rozhodují tři různé limity: kolik energie skutečně potřebujete, jakou plochu bez stínění a překážek můžete využít a jaké zapojení dovolí konkrétní měnič či MPPT. Počet panelů proto nezačínejte počítat jen z metrů čtverečních.</p>
 
-<div class="se-note"><strong>Máte odhad výkonu střechy?</strong> Ověřte, jaký výkon opravdu potřebují vaše spotřebiče v <a href="/solarni-sestava-na-chatu/">Builderu</a> a napěťové okno stringu v <a href="/mppt-kalkulacka/">MPPT kalkulačce</a>.</div>
+<div class="se-note"><strong>Vyberte si správnou cestu:</strong> Pro <strong>síťovou FVE na rodinném domě</strong> začněte spotřebou, střechou a následně porovnejte kompletní nabídky v <a href="/kolik-stoji-fotovoltaika/">průvodci cenou FVE</a>. Pro <strong>chatu, ostrovní nebo záložní systém</strong> můžete přímo spočítat komponenty v <a href="/solarni-sestava-na-chatu/">Solar Setup Builderu</a>. Jde o odlišné typy návrhu; Builder nenahrazuje projekt připojené domovní elektrárny.</div>
 
-<div class="se-note"><strong>Máte starší vláknocementovou nebo eternitovou krytinu?</strong> Před návrhem kotvení si projděte <a href="/fotovoltaika-na-eternitovou-strechu/">co ověřit před montáží FVE na eternitovou střechu</a>.</div>
+<h2>1. Nejdřív spotřeba, potom výkon v kWp</h2>
+<p>Výkon <strong>kWp</strong> říká, jaký je součet štítkových výkonů panelů při standardních testovacích podmínkách. Neříká, kolik elektřiny střecha vyrobí každý den. Skutečná výroba v <strong>kWh</strong> závisí na lokalitě, orientaci, sklonu, stínění, počasí a ztrátách celého systému.</p>
+<p>Podívejte se na roční a ideálně i měsíční spotřebu domácnosti. Samostatně zvažte budoucí tepelné čerpadlo, ohřev vody, elektromobil a to, zda budete elektřinu odebírat hlavně přes den, nebo večer. Pro odhad výroby podle lokality použijte <a href="/kolik-vyrobi-fotovoltaika-za-rok/">průvodce roční výrobou a PVGIS</a>, nikoli univerzální slib jedné kWh na jeden Wp.</p>
 
-<div class="se-note"><strong>Plánujete zároveň tepelné čerpadlo?</strong> Nezvětšujte FVE naslepo. Projděte si <a href="/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/">společný návrh a aktuální cenový benchmark FVE + tepelné čerpadlo</a>.</div>
+<h2>2. Kolik panelů potřebuji na 5, 6 nebo 9 kWp?</h2>
+<p>První orientační výpočet je jednoduchý: <strong>požadovaný štítkový výkon ve Wp ÷ výkon jednoho panelu ve Wp</strong>. Výsledek zaokrouhlíte na celý počet panelů, ale až poté ověříte rozložení na střeše a elektrické zapojení.</p>
+<table>
+<thead><tr><th>Modelový počet panelů</th><th>Celkový výkon při 450 Wp/panel</th><th>Plocha samotných modulů*</th></tr></thead>
+<tbody>
+<tr><td>10 panelů</td><td>4,50 kWp</td><td>asi 19,9 m²</td></tr>
+<tr><td>14 panelů</td><td>6,30 kWp</td><td>asi 27,8 m²</td></tr>
+<tr><td>20 panelů</td><td>9,00 kWp</td><td>asi 39,8 m²</td></tr>
+</tbody>
+</table>
+<p><small>*Pouze geometrický příklad pro hypotetický panel o rozměru 1,76 × 1,13 m (1,99 m²). Nejde o nabídku konkrétního výrobku ani o požadovanou využitelnou plochu střechy: tu zvyšují odstupy, okraje, bezpečný přístup a překážky. Přesné rozměry vždy berte z datasheetu vybraného modulu.</small></p>
+<p>Pro další varianty a hmotnost konstrukce pokračujte na <a href="/velikost-rozmery-a-hmotnost-solarnich-panelu/">rozměry a hmotnost solárních panelů</a>.</p>
 
+<h2>3. Jak zjistit skutečně využitelnou plochu střechy</h2>
+<p>Nejdřív si nakreslete jednotlivé střešní roviny a vyznačte komín, vikýře, střešní okna, výlezy, hrany, sněhové zábrany a místa, kde je nutný bezpečný přístup. <strong>Celková plocha střechy není plocha pro panely.</strong> Požadované odstupy se neodvozují univerzálně z jednoho čísla; závisí na konstrukci, požárním a servisním řešení a projektu.</p>
+<ul>
+<li><strong>Šikmá střecha:</strong> zkontrolujte skutečné rozměry mezi překážkami, upevnění do nosné konstrukce a podmínky krytiny.</li>
+<li><strong>Plochá střecha:</strong> počítejte i s balastem/kotvením, mezerami mezi řadami kvůli stínění a se zatížením střechy; pomůže <a href="/kotveni-fotovoltaickych-panelu-na-ploche-strese/">samostatný průvodce plochou střechou</a>.</li>
+<li><strong>Starší krytina:</strong> před montáží ověřte její stav. U vláknocementu a podezření na azbest neprovádějte běžné vrtání nebo demontáž bez odborného postupu: <a href="/fotovoltaika-na-eternitovou-strechu/">FVE na eternitové střeše</a>.</li>
+</ul>
+
+<h2>4. Orientace, sklon a stínění: výkon není jen plocha</h2>
+<p>Jižní orientace často pomáhá maximalizovat celkový roční výnos, ale východní a západní roviny mohou lépe rozložit výrobu během dne. Rozhodující je, kdy elektřinu skutečně využijete. Část střechy, která je dopoledne ve stínu, nemusí být automaticky výhodnější než menší plocha bez stínění.</p>
+<p>Mapujte stín nejen od sousedního domu nebo stromu, ale i od vlastního komína či vikýře. Pokud máte různě orientované roviny, <strong>nepřipojujte je automaticky do stejného stringu</strong>; nejdřív ověřte možnosti oddělených MPPT, případně konkrétní projektové řešení.</p>
+
+<h2>5. Počet panelů musí sedět i elektricky</h2>
+<p>Panely na střeše tvoří stringy a jejich zapojení má vlastní limity. Nejde jen o součet výkonů v kWp. Pro každý kandidátní string je potřeba z datasheetů porovnat:</p>
+<ul>
+<li><strong>Voc za nízké teploty</strong> vůči maximálnímu DC napětí měniče nebo regulátoru;</li>
+<li><strong>Vmp při provozu</strong> vůči pracovnímu a startovacímu rozsahu MPPT;</li>
+<li><strong>Imp a Isc</strong> vůči povoleným vstupním a zkratovým proudům;</li>
+<li><strong>počet MPPT a vstupů</strong> vůči počtu, orientaci a zapojení střešních rovin.</li>
+</ul>
+<p>Například 20 panelů na střeše <strong>automaticky neznamená</strong> jeden string s 20 panely. Podrobnosti najdete v návodu <a href="/kolik-panelu-je-potreba-na-jeden-string/">kolik panelů může být v jednom stringu</a>. Pro konkrétní ověření napětí a limitů použijte <a href="/mppt-kalkulacka/">MPPT kalkulačku</a>. U síťové FVE musí konečné zapojení posoudit projektant a kvalifikovaný dodavatel.</p>
+
+<h2>6. Co ověřit před objednáním panelů na střechu</h2>
+<ol>
+<li>Máte odhad roční a měsíční spotřeby a víte, kolik elektřiny využijete v době výroby?</li>
+<li>Máte plán použitelných ploch včetně překážek, stínění a potřebných odstupů?</li>
+<li>Je ověřen stav a únosnost střechy, kotvení a vliv větru a sněhu?</li>
+<li>Je uveden přesný typ panelu, jeho rozměry a parametry Voc, Vmp, Imp a Isc?</li>
+<li>Je jasné, kolik stringů bude, na kterém MPPT a proč zapojení vyhoví i při mrazu?</li>
+<li>Je v ceně uvedena konstrukce, kabeláž, ochrany, úpravy rozvaděče, revize a připojení?</li>
+<li>Jsou samostatně uvedeny případná baterie, záloha, servis a záruky?</li>
+</ol>
+<p><a class="se-btn se-btn-primary" href="/quote-checker/">Zkontrolovat parametry nabídky →</a></p>
+<p><small>Quote Checker kontroluje základní sizing ostrovních a záložních sestav. Nenahrazuje úplné posouzení střešní síťové FVE, instalační projekt ani kontrolu smluvních podmínek.</small></p>
+
+<h2>Jak pokračovat podle vaší situace</h2>
+<p><a class="se-btn se-btn-primary" href="/#builder">Spočítat potřebný výkon ostrovní sestavy →</a></p>
+<div class="se-note"><strong>Chata nebo záložní napájení:</strong> Ověřte, jaký výkon skutečně potřebují vaše spotřebiče v <a href="/solarni-sestava-na-chatu/">Builderu</a> a napěťové okno stringu v <a href="/mppt-kalkulacka/">MPPT kalkulačce</a>.</div>
+<div class="se-note"><strong>Plánujete zároveň tepelné čerpadlo?</strong> Nezvětšujte FVE naslepo. Projděte si <a href="/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/">společný návrh a cenový benchmark FVE + tepelné čerpadlo</a>.</div>
 <div class="se-note"><strong>Střecha není vhodná?</strong> Podívejte se na <a href="/fotovoltaika-na-pozemku/">fotovoltaiku na pozemku</a>: konstrukce, stínění, kabelová trasa a povolovací kontrola.</div>
+
+<h2>Časté otázky</h2>
+<h3>Stačí na rodinný dům 10 solárních panelů?</h3>
+<p>Deset panelů po 450 Wp představuje 4,5 kWp štítkového výkonu, ale to samo o sobě neříká, zda sestava pokryje vaši spotřebu. Potřebujete znát lokalitu, orientaci střechy, průběh spotřeby i ztráty systému.</p>
+<h3>Je lepší zaplnit celou střechu?</h3>
+<p>Ne vždy. Poslední panely na zastíněné nebo nevhodně orientované části střechy mohou mít nižší přínos a zvýšit náklady na konstrukci či jiný MPPT. Nejprve porovnejte přínos další střešní plochy s reálnou spotřebou.</p>
+<h3>Kolik místa potřebuje jeden solární panel?</h3>
+<p>Liší se modelem. Například modul o rozměrech 1,76 × 1,13 m zabere geometricky přibližně 1,99 m², ale skutečný potřebný prostor na střeše je větší a závisí na konkrétním rozložení.</p>
+<h3>Mohu si panely na střechu namontovat sám?</h3>
+<p>Mechanická únosnost, bezpečná práce ve výšce, elektrické jištění, ochrany a připojení jsou odborné úkoly. Tento průvodce slouží k rozhodnutí a kontrole nabídky, nikoli jako montážní postup.</p>
