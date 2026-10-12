@@ -35,6 +35,42 @@ window.solarExpertBuilder=function(){return{
     ];
     return {batteryKwh,batteryQuantity,inverterW,surgeW,panelWp,reasons};
   },
+  purchaseBreakdownFor(bundle){
+    if(!bundle||!bundle.complete||!bundle.priceComplete||
+       !Number.isFinite(Number(bundle.totalPrice))||Number(bundle.totalPrice)<=0)return null;
+    const matcher=window.SolarExpertProductMatcher;
+    if(!matcher)return null;
+
+    const rows=[];
+    const add=(label,name,quantity,unitPrice)=>{
+      const qty=Number(quantity),price=Number(unitPrice);
+      if(!Number.isInteger(qty)||qty<1||!Number.isFinite(price)||price<=0||
+         price>=Number.MAX_SAFE_INTEGER)return false;
+      rows.push({label,name:String(name||label),quantity:qty,unitPrice:price,subtotal:qty*price});
+      return true;
+    };
+
+    const batteryCount=Number(bundle.batteryQuantity||1);
+    if(bundle.bundleDeal){
+      const deal=bundle.bundleDeal;
+      if(!add('Set baterie + měnič',deal.label||'Baterie + měnič',1,deal.price_czk))return null;
+      const extraCount=batteryCount-1;
+      if(extraCount>0&&!add('Baterie navíc',bundle.battery?.name,extraCount,matcher.effectivePrice(bundle.battery)))return null;
+    }else{
+      if(!add('Baterie',bundle.battery?.name,batteryCount,matcher.effectivePrice(bundle.battery)))return null;
+      if(!add('Měnič',bundle.inverter?.name,1,matcher.effectivePrice(bundle.inverter)))return null;
+    }
+    if(!add('Solární panely',bundle.panel?.product?.name,bundle.panel?.count,matcher.effectivePrice(bundle.panel?.product)))return null;
+    if(!bundle.integratedMppt&&
+       !add('MPPT regulátor',bundle.mppt?.name,1,matcher.effectivePrice(bundle.mppt)))return null;
+
+    const subtotal=rows.reduce((sum,item)=>sum+item.subtotal,0);
+    // Refuse a misleading breakdown if an upstream bundle rule has changed:
+    // the same price must agree with the technical composer's displayed total.
+    if(!Number.isFinite(subtotal)||Math.abs(subtotal-Number(bundle.totalPrice))>0.01)return null;
+    return {rows,total:subtotal};
+  },
+  get primaryShoppingList(){return this.purchaseBreakdownFor(this.primaryBundle);},
   checklistFor(bundle){
     if(!bundle||!bundle.complete)return [];
     const rows=[

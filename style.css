@@ -3,7 +3,7 @@ Theme Name: Solar Expert 2.0 RC
 Theme URI: https://solar-expert.cz/
 Author: Solar Expert
 Description: Independent solar decision engine for CZ.
-Version: 0.12.4
+Version: 0.12.5
 Text Domain: solar-expert-2
 */
 
@@ -43,6 +43,21 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-offer:hover{border-color:var(--green3);background:#edf5f1}.se-offer strong{font-size:12px}
 .se-offer-best{font-size:10px;font-weight:850;line-height:1;padding:4px 6px;border-radius:999px;background:var(--solar2);color:var(--green)}
 
+
+.se-shopping-summary{margin-top:22px;padding:20px;border:1px solid #b8d5c7;border-radius:18px;background:#f2f8f4}
+.se-shopping-summary .se-section-head{margin-bottom:8px}
+.se-shopping-summary h3{font-size:21px}
+.se-shopping-summary>p{font-size:13px;line-height:1.55;margin:6px 0 14px}
+.se-shopping-rows{display:grid;gap:0;border-top:1px solid var(--line)}
+.se-shopping-line{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line)}
+.se-shopping-line strong,.se-shopping-line small{display:block}
+.se-shopping-line strong{font-size:14px}
+.se-shopping-line small{margin-top:3px;color:var(--muted);font-size:12px;max-width:360px}
+.se-shopping-price{text-align:right;flex:0 0 auto}
+.se-shopping-total{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0;font-size:17px}
+.se-shopping-disclaimer{color:#4a5b52}
+.se-shopping-summary>.se-btn{width:100%}
+@media(max-width:570px){.se-shopping-summary{padding:15px}.se-shopping-line{align-items:start}.se-shopping-line small{max-width:190px}.se-shopping-price{max-width:145px}}
 .se-compare,.se-checklist{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
 .se-section-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:14px}.se-section-head h3{margin:4px 0 0}
 .se-compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.se-compare-card{border:1px solid var(--line);border-radius:16px;background:white;padding:16px}.se-compare-card.best{border:2px solid var(--green2);background:#edf5f1}

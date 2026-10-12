@@ -606,12 +606,21 @@ assert(selectorsJs.includes("this.run(false)"),'Selector initialization must not
 
 const builderTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
 assert(builderTemplate.includes('Výhodnější set baterie + měnič'),'Builder template must show verified bundle deal savings');
+assert(builderTemplate.includes('Rozpis hlavních komponent'),'Builder must present a clear purchase breakdown before merchant offers');
+assert(builderTemplate.includes('Přejít k nabídkám obchodů'),'Shopping list must route to existing merchant offers');
+assert(builderTemplate.includes('id="builder-offers"'),'Merchant offers must be reachable by shopping CTA');
+assert(builderTemplate.includes('item.quantity>1 ? item.unitPrice.toLocaleString'),'Quantity-aware product lines must disclose the per-unit price');
+assert(builderTemplate.includes('Nejde o jeden společný košík'),'Buyer-facing totals must disclose mixed merchants and exclusions');
+
 assert(builderTemplate.includes('trackBundleDeal'),'Builder bundle-deal CTA must emit dedicated analytics');
 assert(affiliateAdapter.includes('resolveBundleDeal(deal)'),'Affiliate adapter must resolve bundle deals through merchant base links');
 assert(affiliateAdapter.includes("event:'bundle_deal_click'"),'Bundle deal clicks must emit a dedicated dataLayer event');
 
 
 const builderJs=fs.readFileSync(path.join(__dirname,'..','assets','js','builder.js'),'utf8');
+assert(builderJs.includes('purchaseBreakdownFor(bundle)'),'Buyer list must derive from compatible bundles');
+assert(builderJs.includes('Math.abs(subtotal-Number(bundle.totalPrice))>0.01'),'Unreconciled bundle prices must fail closed');
+
 const composerJs=fs.readFileSync(path.join(__dirname,'..','assets','js','bundle-composer.js'),'utf8');
 assert(composerJs.includes('batteryBankCandidates(products, sizing, tier)'),'Bundle composer must support verified battery banks');
 assert(composerJs.includes('batteryBank.unitPrice + inverterPrice'),'Bundle deal must be evaluated against exactly one battery plus inverter');

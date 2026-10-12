@@ -373,6 +373,50 @@ assert(high48Premium.batteryQuantity===2,'Premium high-power bank should use two
 assert(high48Premium.batteryBank.totalEnergyWh===9600,'Two Pylontech US5000 modules should expose 9.6kWh nominal energy');
 assert(high48Premium.bundleDeal===null,'Bundle deal must not apply when battery quantity is greater than one');
 
+
+// Conversion safety: the buyer's actual parts list must reconcile exactly
+// with the compatibility-checked bundle, including discounted sets.
+const shoppingTester=window.solarExpertBuilder();
+const shoppingStandalone12=B.compose(catalog.products,{
+  voltage:12,batteryKwh:1,inverterW:800,peak:1800,panelWp:180,mpptA:20
+},[]).find(bundle=>bundle.tier==='budget');
+assert(shoppingStandalone12&&shoppingStandalone12.complete,'Purchase breakdown standalone fixture must be compatible');
+for(const [label,bundle] of [
+  ['small standalone 12V',shoppingStandalone12],
+  ['integrated MPPT 48V',best48],
+  ['one-battery discounted set',withDeal],
+  ['parallel-battery discounted set',high48Best],
+  ['parallel-battery separate products',high48Premium]
+]){
+  const list=shoppingTester.purchaseBreakdownFor(bundle);
+  assert(list&&list.rows.length>=2,'Buyer parts list must exist for '+label);
+  assert(list.total===bundle.totalPrice,'Parts list must reconcile exact main-parts total for '+label);
+  assert(list.rows.reduce((total,row)=>total+row.subtotal,0)===bundle.totalPrice,
+    'Every line subtotal must reconcile for '+label);
+  assert(list.rows.every(row=>row.quantity>=1&&Number.isInteger(row.quantity)&&row.unitPrice>0),
+    'All buyer quantities must be whole positive numbers for '+label);
+  const panels=list.rows.find(row=>row.label==='Solární panely');
+  assert(panels&&panels.quantity===bundle.panel.count&&panels.subtotal===panels.quantity*panels.unitPrice,
+    'Panel count and per-unit price must be explicit for '+label);
+  const mppt=list.rows.find(row=>row.label==='MPPT regulátor');
+  assert(Boolean(mppt)===!bundle.integratedMppt,
+    'Integrated MPPT must never add a duplicate standalone purchase for '+label);
+}
+const oneSetItems=shoppingTester.purchaseBreakdownFor(withDeal).rows;
+assert(oneSetItems.filter(row=>row.label==='Set baterie + měnič').length===1,
+  'Discounted set must appear as one purchasable row');
+assert(!oneSetItems.some(row=>row.label==='Měnič'||row.label==='Baterie'),
+  'Discounted set must not double-count included inverter or battery');
+const parallelSetItems=shoppingTester.purchaseBreakdownFor(high48Best).rows;
+assert(parallelSetItems.find(row=>row.label==='Baterie navíc')?.quantity===1,
+  'Two-battery set must explicitly list the extra battery outside the kit');
+assert(parallelSetItems.find(row=>row.label==='Set baterie + měnič')?.quantity===1,
+  'Multi-battery purchase must not recommend buying two inverter sets');
+assert(shoppingTester.purchaseBreakdownFor({...high48Best,totalPrice:high48Best.totalPrice+10})===null,
+  'Price discrepancy must fail safely instead of inventing a reconciled shopping list');
+assert(shoppingTester.purchaseBreakdownFor({...high48Best,priceComplete:false})===null,
+  'Incomplete price evidence must never produce a precise buyer subtotal');
+
 const pusungParallel=catalog.products.find(p=>p.id==='battery-seplos-pusung-48');
 const pylonParallel=catalog.products.find(p=>p.id==='battery-pylontech-us5000');
 assert(pusungParallel.parallel_max_units===16,'PUSUNG-S parallel limit should match verified evidence');
