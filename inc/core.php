@@ -1433,6 +1433,20 @@ function solar_expert_register_funnel_route() {
 add_action('rest_api_init', 'solar_expert_register_funnel_route');
 
 
+/**
+ * Distinct brands can share one legal seller. Verified against the published
+ * merchant terms of both sites, 2026-10-12, IČ 26763028. This is strictly
+ * reporting/transparency; do not merge affiliate destinations or commissions.
+ */
+function solar_expert_merchant_operator_id($merchant_id) {
+  $merchant_id = sanitize_key((string) $merchant_id);
+  $known = array(
+    'battery-cz' => 'efteria-cz',
+    'solar-import-cz' => 'efteria-cz',
+  );
+  return $known[$merchant_id] ?? $merchant_id;
+}
+
 function solar_expert_affiliate_coverage($catalog, $map, $bases) {
   $products = isset($catalog['products']) && is_array($catalog['products']) ? $catalog['products'] : array();
   $product_map = isset($map['products']) && is_array($map['products']) ? $map['products'] : array();
@@ -1445,6 +1459,7 @@ function solar_expert_affiliate_coverage($catalog, $map, $bases) {
   $recommendable_products = 0;
   $monetized_recommendable_products = 0;
   $monetized_merchants = array();
+  $monetized_operators = array();
 
   foreach ( $products as $product ) {
     $offers = ! empty($product['offers']) && is_array($product['offers'])
@@ -1476,6 +1491,7 @@ function solar_expert_affiliate_coverage($catalog, $map, $bases) {
         if ( $mapped ) {
           $monetized_active_offers++;
           $monetized_merchants[$merchant] = true;
+          $monetized_operators[solar_expert_merchant_operator_id($merchant)] = true;
         }
       }
 
@@ -1486,6 +1502,7 @@ function solar_expert_affiliate_coverage($catalog, $map, $bases) {
           $monetized_recommendable_offers++;
           $product_monetized = true;
           $monetized_merchants[$merchant] = true;
+          $monetized_operators[solar_expert_merchant_operator_id($merchant)] = true;
         }
       }
     }
@@ -1505,6 +1522,7 @@ function solar_expert_affiliate_coverage($catalog, $map, $bases) {
     'monetized_recommendable_products' => $monetized_recommendable_products,
     'recommendable_product_coverage_pct' => $recommendable_products ? round(($monetized_recommendable_products / $recommendable_products) * 100, 1) : 0,
     'monetized_merchants' => count($monetized_merchants),
+    'monetized_operators' => count($monetized_operators),
   );
 }
 
@@ -1908,6 +1926,7 @@ function solar_expert_health_payload() {
     'affiliate_monetized_recommendable_products' => (int) ($affiliate_coverage['monetized_recommendable_products'] ?? 0),
     'affiliate_recommendable_product_coverage_pct' => (float) ($affiliate_coverage['recommendable_product_coverage_pct'] ?? 0),
     'affiliate_monetized_merchants' => (int) ($affiliate_coverage['monetized_merchants'] ?? 0),
+    'affiliate_independent_merchant_operators' => (int) ($affiliate_coverage['monetized_operators'] ?? 0),
     'affiliate_lead_targets' => (int) ($lead_coverage['targets'] ?? 0),
     'affiliate_monetized_lead_targets' => (int) ($lead_coverage['monetized_targets'] ?? 0),
     'affiliate_lead_coverage_pct' => (float) ($lead_coverage['coverage_pct'] ?? 0),
