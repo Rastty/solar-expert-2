@@ -2489,6 +2489,13 @@ function solar_expert_append_emerging_pv_related_links($content) {
   }
 
   $guides = array(
+    // Fresh GSC shows basic "jak funguje solární panel" queries landing on
+    // hybrid PVT instead of the published PV-effect explainer. Cross-link
+    // the distinct intents without merging their existing canonical URLs.
+    'solarni-panel-definice-a-fakta' => array(
+      'label' => 'Jak funguje běžný fotovoltaický panel',
+      'url' => home_url('/solarni-panel-definice-a-fakta/'),
+    ),
     'pruhledne-solarni-panely' => array(
       'label' => 'Průhledné panely a BIPV',
       'url' => home_url('/pruhledne-solarni-panely/'),
