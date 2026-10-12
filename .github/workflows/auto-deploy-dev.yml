@@ -905,6 +905,60 @@ jobs:
             fi
           done
 
+      - name: Verify public sitewide decision navigation and mobile style
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            css="$(mktemp)"
+            home_html="$(mktemp)"
+            post_html="$(mktemp)"
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/wp-content/themes/solar-expert-2/style.css?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$css" || true
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$home_html" || true
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$post_html" || true
+            if grep -Fq '@media(max-width:1150px)' "$css" \
+               && grep -Fq 'overflow-x:auto' "$css" \
+               && ! grep -Fq '.se-menu{display:none}' "$css" \
+               && python3 - "$home_html" "$post_html" <<'PY'
+          import pathlib
+          import re
+          import sys
+          expected = (
+              '/kolik-stoji-fotovoltaika/',
+              '/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/',
+              '/#builder',
+              '/vyber-baterii/',
+              '/mppt-kalkulacka/',
+              '/vyber-menice/',
+          )
+          for file in sys.argv[1:]:
+              html = pathlib.Path(file).read_text(encoding='utf-8', errors='replace')
+              nav = re.search(r'<nav class="se-menu" aria-label="Hlavní navigace">(.*?)</nav>', html, re.S)
+              if not nav or not all('href="https://solar-expert.cz' + path + '"' in nav.group(1) for path in expected):
+                  sys.exit('Missing purpose-matched decision links in sitewide navigation: ' + file)
+          PY
+            then
+              passed=1
+              echo "Public desktop/mobile navigation verified: FVE, heat pumps and four existing tool paths."
+              break
+            fi
+            echo "Navigation HTML/CSS still stale; attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo '::error::Sitewide navigation or mobile visibility has not converged.'
+            exit 1
+          fi
+
       - name: Verify public conditional tool scripts
         if: steps.config.outputs.enabled == 'true'
         shell: bash
