@@ -238,6 +238,61 @@ function solar_expert_ensure_managed_category($post_id, $category_slug) {
     : new WP_Error('solar_expert_category', 'Category assignment not confirmed: ' . $slug);
 }
 
+/**
+ * Read-only verification of the explicit post category declarations.
+ * Taxonomy state cannot be inferred from content manifest fingerprints:
+ * a deployed manifest can be current while WordPress terms remain unsynced.
+ */
+function solar_expert_managed_category_state($manifest) {
+  $state = array('targets'=>0,'ready'=>0,'errors'=>0,'issues'=>array());
+  foreach (($manifest['items'] ?? array()) as $item) {
+    if ( ($item['type'] ?? '') !== 'post' || empty($item['category_slug']) ) {
+      continue;
+    }
+    $state['targets']++;
+    $slug = sanitize_title($item['slug'] ?? '');
+    $category_slug = sanitize_title($item['category_slug']);
+    $post = $slug ? get_page_by_path($slug, OBJECT, 'post') : null;
+    $term = $category_slug ? get_category_by_slug($category_slug) : null;
+    if ( ! $post || $post->post_status !== 'publish' || ! $term || empty($term->term_id) ) {
+      $state['errors']++;
+      $state['issues'][] = $slug . ':missing-published-post-or-category';
+      continue;
+    }
+    $existing = wp_get_post_categories((int) $post->ID);
+    if ( is_wp_error($existing) || ! in_array((int) $term->term_id, array_map('intval', (array) $existing), true) ) {
+      $state['errors']++;
+      $state['issues'][] = $slug . ':missing-' . $category_slug;
+      continue;
+    }
+    $state['ready']++;
+  }
+  return $state;
+}
+
+/** Repair only category relationships, without wp_update_post or editorial writes. */
+function solar_expert_reconcile_managed_categories($manifest) {
+  $result = array('updated'=>0,'errors'=>array());
+  foreach (($manifest['items'] ?? array()) as $item) {
+    if ( ($item['type'] ?? '') !== 'post' || empty($item['category_slug']) ) {
+      continue;
+    }
+    $slug = sanitize_title($item['slug'] ?? '');
+    $post = $slug ? get_page_by_path($slug, OBJECT, 'post') : null;
+    if ( ! $post || $post->post_status !== 'publish' ) {
+      $result['errors'][] = $slug . ':not-published';
+      continue;
+    }
+    $changed = solar_expert_ensure_managed_category((int) $post->ID, $item['category_slug']);
+    if ( is_wp_error($changed) ) {
+      $result['errors'][] = $slug . ': ' . $changed->get_error_message();
+    } elseif ( $changed === true ) {
+      $result['updated']++;
+    }
+  }
+  return $result;
+}
+
 function solar_expert_sync_managed_content($force = false) {
   $manifest = solar_expert_load_manifest();
   $fingerprint = solar_expert_manifest_fingerprint($manifest);
@@ -1803,6 +1858,7 @@ function solar_expert_health_payload() {
   $affiliate_coverage = solar_expert_affiliate_coverage($catalog, $map, $bases);
   $lead_coverage = solar_expert_lead_coverage($map, $bases);
   $managed_indexability = solar_expert_managed_indexability_state($manifest);
+  $managed_categories = solar_expert_managed_category_state($manifest);
   $legacy_redirects = solar_expert_legacy_redirect_map();
   $indexnow_state = solar_expert_indexnow_state();
   $outcome7 = solar_expert_funnel_outcome_summary(7);
@@ -1824,6 +1880,10 @@ function solar_expert_health_payload() {
     'managed_indexability_targets' => (int) ($managed_indexability['targets'] ?? 0),
     'managed_indexability_ready' => (int) ($managed_indexability['ready'] ?? 0),
     'managed_indexability_errors' => (int) ($managed_indexability['errors'] ?? 0),
+    'managed_taxonomy_targets' => (int) $managed_categories['targets'],
+    'managed_taxonomy_ready' => (int) $managed_categories['ready'],
+    'managed_taxonomy_errors' => (int) $managed_categories['errors'],
+    'managed_taxonomy_issues' => $managed_categories['issues'],
     'managed_indexability_issues' => isset($managed_indexability['issues']) ? array_values($managed_indexability['issues']) : array(),
     'legacy_redirect_count' => count($legacy_redirects),
     'legacy_redirects' => $legacy_redirects,
@@ -1883,8 +1943,10 @@ function solar_expert_deploy_sync($request) {
   $manifest = solar_expert_load_manifest();
   $indexability_before = solar_expert_managed_indexability_state($manifest);
   $repair_indexability = ((int) ($indexability_before['errors'] ?? 0) > 0);
+  $taxonomy_before = solar_expert_managed_category_state($manifest);
+  $repair_taxonomy = ((int) ($taxonomy_before['errors'] ?? 0) > 0);
 
-  if ( empty($state['required']) && ! $repair_indexability ) {
+  if ( empty($state['required']) && ! $repair_indexability && ! $repair_taxonomy ) {
     return rest_ensure_response(array(
       'ok' => true,
       'status' => 'current',
@@ -1892,6 +1954,10 @@ function solar_expert_deploy_sync($request) {
       'content_sync_required' => false,
       'content_sync_errors' => (int) ($state['errors'] ?? 0),
       'managed_indexability_errors' => 0,
+      'managed_taxonomy_targets' => (int) $taxonomy_before['targets'],
+      'managed_taxonomy_ready' => (int) $taxonomy_before['ready'],
+      'managed_taxonomy_errors' => 0,
+      'taxonomy_updated' => 0,
       'sync_performed' => false,
       'created' => 0,
       'updated' => 0,
@@ -1906,19 +1972,29 @@ function solar_expert_deploy_sync($request) {
 
   set_transient('solar_expert_content_sync_lock', 1, 5 * MINUTE_IN_SECONDS);
   try {
-    $result = solar_expert_sync_managed_content($repair_indexability);
+    $result = empty($state['required']) && ! $repair_indexability
+      ? array('created'=>0,'updated'=>0,'meta_updated'=>0,'skipped'=>0,'errors'=>array())
+      : solar_expert_sync_managed_content($repair_indexability);
   } catch (Throwable $e) {
     delete_transient('solar_expert_content_sync_lock');
     return new WP_Error('solar_expert_sync_failed', 'Managed content sync failed.', array('status'=>500));
   }
+  // Category-only repair is independent of the content fingerprint.
+  // If a PHP opcode cache served the prior sync logic during deployment,
+  // correct the missing terms here without updating post_content or dates.
+  $tax_result = solar_expert_reconcile_managed_categories($manifest);
   delete_transient('solar_expert_content_sync_lock');
 
+  $taxonomy_after = solar_expert_managed_category_state($manifest);
   $after = solar_expert_content_sync_state();
   $indexability_after = solar_expert_managed_indexability_state(solar_expert_load_manifest());
   $ok = empty($after['required'])
     && ((int) ($after['errors'] ?? 0) === 0)
     && ((int) ($indexability_after['errors'] ?? 0) === 0)
-    && ((int) ($indexability_after['ready'] ?? 0) === (int) ($indexability_after['targets'] ?? 0));
+    && ((int) ($indexability_after['ready'] ?? 0) === (int) ($indexability_after['targets'] ?? 0))
+    && empty($tax_result['errors'])
+    && ((int) ($taxonomy_after['errors'] ?? 0) === 0)
+    && ((int) ($taxonomy_after['ready'] ?? 0) === (int) ($taxonomy_after['targets'] ?? 0));
 
   return rest_ensure_response(array(
     'ok' => $ok,
@@ -1930,6 +2006,11 @@ function solar_expert_deploy_sync($request) {
     'managed_indexability_ready' => (int) ($indexability_after['ready'] ?? 0),
     'managed_indexability_errors' => (int) ($indexability_after['errors'] ?? 0),
     'managed_indexability_issues' => isset($indexability_after['issues']) ? array_values($indexability_after['issues']) : array(),
+    'managed_taxonomy_targets' => (int) $taxonomy_after['targets'],
+    'managed_taxonomy_ready' => (int) $taxonomy_after['ready'],
+    'managed_taxonomy_errors' => (int) $taxonomy_after['errors'],
+    'managed_taxonomy_issues' => $taxonomy_after['issues'],
+    'taxonomy_updated' => (int) $tax_result['updated'],
     'sync_performed' => true,
     'created' => (int) ($result['created'] ?? 0),
     'updated' => (int) ($result['updated'] ?? 0),
