@@ -263,6 +263,29 @@ if(deploy.plugin_path){
 }
 
 
+const navHeader=fs.readFileSync(path.join(__dirname,'..','header.php'),'utf8');
+const navStyle=fs.readFileSync(path.join(__dirname,'..','style.css'),'utf8');
+const navBlock=navHeader.match(/<nav class="se-menu" aria-label="Hlavní navigace">([\s\S]*?)<\/nav>/);
+assert(navBlock,'Accessible main navigation must remain server rendered on all page types');
+for(const [target,label] of [
+  ['/kolik-stoji-fotovoltaika/','Domovní FVE'],
+  ['/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/','Tepelná čerpadla'],
+  ['/#builder','Chata a záloha'],
+  ['vyber-baterii','Baterie'],
+  ['mppt-kalkulacka','MPPT'],
+  ['vyber-menice','Měnič']
+]){
+  assert(navBlock[1].includes(target)&&navBlock[1].includes(label),
+    'Sitewide navigation must expose purpose-matched route: '+label);
+}
+assert(!navStyle.includes('.se-menu{display:none}'),
+  'Do not hide primary site navigation on mobile widths');
+assert(navStyle.includes('@media(max-width:1150px)') &&
+       navStyle.includes('.se-menu{order:3;flex:0 0 100%;min-width:0;gap:20px;overflow-x:auto;'),
+  'Tablet/mobile nav needs a focusable horizontal row without JavaScript');
+assert(navStyle.includes('.se-menu a:focus-visible') && navStyle.includes('#builder{scroll-margin-top:130px}'),
+  'Navigation requires visible keyboard focus and Builder anchor offset');
+
 const publicTemplateFiles=['front-page.php','header.php','footer.php'];
 const draftManagedPages=new Set(
   manifest.items
