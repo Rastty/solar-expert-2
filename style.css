@@ -3,7 +3,7 @@ Theme Name: Solar Expert 2.0 RC
 Theme URI: https://solar-expert.cz/
 Author: Solar Expert
 Description: Independent solar decision engine for CZ.
-Version: 0.12.18
+Version: 0.12.19
 Text Domain: solar-expert-2
 */
 
@@ -37,6 +37,24 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-path-card .se-btn{width:100%;text-align:center;font-size:13px;padding:12px}
 @media(max-width:900px){.se-path-grid{grid-template-columns:1fr}.se-path-section{padding:42px 0}.se-path-card{padding:18px}}
 @media(min-width:901px){.se-footer-inner{grid-template-columns:1.25fr 1fr 1.05fr 1fr}}
+
+/* Direct crawlable links from the homepage to new, distinct decision guides.
+   Entire cards are semantic anchors and require no JS. */
+.se-home-discovery{padding:62px 0 70px}
+.se-home-discovery .se-title{max-width:850px;margin-bottom:18px}
+.se-home-discovery-intro{font-size:16px;max-width:780px;line-height:1.65;margin-bottom:18px}
+.se-home-discovery-group{margin-top:30px}
+.se-home-discovery-group h3{margin:0 0 14px;font-size:21px;line-height:1.3}
+.se-home-discovery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.se-home-guide{display:flex;flex-direction:column;gap:9px;min-height:125px;padding:22px;border:1px solid var(--line);border-radius:17px;background:var(--paper)}
+.se-home-guide>strong{display:flex;justify-content:space-between;gap:14px;font-size:18px;line-height:1.4}
+.se-home-guide>strong span{color:var(--green3);flex-shrink:0}
+.se-home-guide>span{color:var(--muted);font-size:14px;line-height:1.55}
+.se-home-guide:hover,.se-home-guide:focus-visible{border-color:var(--green3);background:#f0f8f3;outline-offset:3px}
+.se-home-discovery-more{margin:28px 0 0;color:var(--muted);font-size:14px}
+.se-home-discovery-more a{font-weight:750;color:var(--green);text-decoration:underline;text-underline-offset:3px}
+@media(max-width:700px){.se-home-discovery{padding:42px 0}.se-home-discovery-grid{grid-template-columns:1fr}.se-home-guide{min-height:0;padding:18px}.se-home-discovery-group{margin-top:25px}}
+
 .se-section{padding:82px 0}.se-section-dark{background:var(--green);color:white}.se-title{font-size:clamp(36px,5vw,62px);line-height:1;letter-spacing:-.04em;margin:12px 0 30px}.se-cardgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.se-card{border:1px solid rgba(20,33,28,.12);border-radius:var(--radius);padding:24px;background:var(--paper)}.se-card h3{font-size:22px}
 
 .se-category-hub{padding:22px;border:1px solid #b8d5c7;border-radius:20px;background:#eef5ef;margin:25px 0 35px}
