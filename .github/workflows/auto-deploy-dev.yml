@@ -826,3 +826,76 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Verify public conditional tool scripts
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+
+          # Scrape HTML to validate which scripts the browser truly downloads.
+          # Old archives / articles must no longer ship the entire product
+          # selection engine. Lead and affiliate tracking must remain intact.
+          for route in home article archive builder selector quote; do
+            case "$route" in
+              home) path='/' ; require='builder matcher bundles alpine' ; forbid='selectors quote' ;;
+              article) path='/fve-panely-na-strechu/' ; require='' ; forbid='builder matcher bundles alpine selectors quote' ;;
+              archive) path='/category/solarni-panely/' ; require='' ; forbid='builder matcher bundles alpine selectors quote' ;;
+              builder) path='/solarni-sestava-na-chatu/' ; require='builder matcher bundles alpine' ; forbid='selectors quote' ;;
+              selector) path='/vyber-baterii/' ; require='selectors matcher alpine' ; forbid='builder bundles quote' ;;
+              quote) path='/quote-checker/' ; require='quote alpine' ; forbid='builder matcher bundles selectors' ;;
+            esac
+
+            passed=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}${path}?asset_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              ok=1
+              if [ "$code" != '200' ]; then ok=0; fi
+              for shared in 'assets/js/analytics.js' 'assets/js/affiliate-adapter.js' 'assets/js/lead-cta.js'; do
+                if ! grep -Fq "$shared" "$body_file"; then ok=0; fi
+              done
+              if ! grep -Fq 'SolarExpertConfig' "$body_file"; then ok=0; fi
+              for asset in $require; do
+                case "$asset" in
+                  builder) token='assets/js/builder.js' ;;
+                  matcher) token='assets/js/product-matcher.js' ;;
+                  bundles) token='assets/js/bundle-composer.js' ;;
+                  selectors) token='assets/js/selectors.js' ;;
+                  quote) token='assets/js/quote-checker.js' ;;
+                  alpine) token='alpinejs@3.14.9' ;;
+                esac
+                if ! grep -Fq "$token" "$body_file"; then ok=0; fi
+              done
+              for asset in $forbid; do
+                case "$asset" in
+                  builder) token='assets/js/builder.js' ;;
+                  matcher) token='assets/js/product-matcher.js' ;;
+                  bundles) token='assets/js/bundle-composer.js' ;;
+                  selectors) token='assets/js/selectors.js' ;;
+                  quote) token='assets/js/quote-checker.js' ;;
+                  alpine) token='alpinejs@3.14.9' ;;
+                esac
+                if grep -Fq "$token" "$body_file"; then ok=0; fi
+              done
+
+              if [ "$ok" = '1' ]; then
+                echo "Public script scope verified: $route ($path) => required=$require, excluded=$forbid, sitewide merchant analytics preserved."
+                passed=1
+                break
+              fi
+              echo "Public script scope has not converged: $route HTTP ${code:-none}, attempt $attempt/6."
+              sleep 10
+            done
+
+            if [ "$passed" != '1' ]; then
+              echo "::error::Public route $route still serves incorrect calculator assets or lacks preserved affiliate runtime."
+              exit 1
+            fi
+          done
