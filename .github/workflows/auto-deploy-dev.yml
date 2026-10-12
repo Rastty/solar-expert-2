@@ -1004,6 +1004,95 @@ jobs:
             exit 1
           fi
 
+      - name: Verify real public Yoast WebApplication markup on five tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          directory="$(mktemp -d)"
+          verified=0
+          for attempt in 1 2 3 4 5 6; do
+            for slug in solarni-sestava-na-chatu vyber-baterii mppt-kalkulacka vyber-menice quote-checker kolik-stoji-fotovoltaika; do
+              curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+                "${base}/${slug}/?tool_schema_probe=${GITHUB_SHA}&attempt=${attempt}" \
+                > "${directory}/${slug}.html" || true
+            done
+            if python3 - "$directory" <<'PY'
+          import json
+          import pathlib
+          import sys
+          from html.parser import HTMLParser
+
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.capture = False
+                  self.buf = ''
+                  self.scripts = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'script':
+                      self.capture = dict(attrs).get('type') == 'application/ld+json'
+                      self.buf = ''
+              def handle_data(self, data):
+                  if self.capture:
+                      self.buf += data
+              def handle_endtag(self, tag):
+                  if tag == 'script' and self.capture:
+                      self.scripts.append(self.buf)
+                      self.capture = False
+
+          base = pathlib.Path(sys.argv[1])
+          tools = ('solarni-sestava-na-chatu', 'vyber-baterii',
+                   'mppt-kalkulacka', 'vyber-menice', 'quote-checker')
+          for slug in (*tools, 'kolik-stoji-fotovoltaika'):
+              p = Scripts()
+              p.feed((base / (slug + '.html')).read_text(encoding='utf-8',errors='replace'))
+              graphs = []
+              for text in p.scripts:
+                  try:
+                      d = json.loads(text)
+                  except (ValueError, TypeError):
+                      continue
+                  if isinstance(d, dict) and isinstance(d.get('@graph'), list):
+                      graphs.append(d['@graph'])
+              site_graphs = [nodes for nodes in graphs
+                             if any(isinstance(n, dict) and n.get('@type') == 'WebSite'
+                                    for n in nodes)]
+              if len(site_graphs) != 1:
+                  sys.exit('Yoast core site graph missing or duplicated: ' + slug)
+              graph = site_graphs[0]
+              apps = [n for n in graph if isinstance(n, dict) and
+                      'WebApplication' in ([n.get('@type')] if isinstance(n.get('@type'), str)
+                                           else (n.get('@type') or []))]
+              if slug not in tools:
+                  if apps:
+                      sys.exit('Editorial article must not be described as software: ' + slug)
+                  continue
+              if len(apps) != 1:
+                  sys.exit('Exactly one WebApplication required in Yoast graph: ' + slug)
+              app = apps[0]
+              url = 'https://solar-expert.cz/' + slug + '/'
+              if (app.get('url') != url or app.get('@id') != url + '#app'
+                  or app.get('offers', {}).get('price') != 0
+                  or app.get('offers', {}).get('priceCurrency') != 'CZK'
+                  or app.get('isAccessibleForFree') is not True
+                  or 'aggregateRating' in app or 'review' in app):
+                  sys.exit('Invalid application URL, free offer or fabricated ratings: ' + slug)
+          print('Live Yoast graph verified: five truthful free WebApplications; no editorial app or duplicate site graph.')
+          PY
+            then
+              verified=1
+              break
+            fi
+            echo "Public Yoast app schema has not converged, attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$verified" != '1' ]; then
+            echo '::error::Yoast structured tool descriptions are not correctly published.'
+            exit 1
+          fi
+
       - name: Verify public conditional tool scripts
         if: steps.config.outputs.enabled == 'true'
         shell: bash
