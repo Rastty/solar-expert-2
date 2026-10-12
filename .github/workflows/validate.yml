@@ -26,6 +26,8 @@ jobs:
         run: php tests/conditional-assets.test.php
       - name: Per-tool outbound attribution
         run: php tests/funnel-attribution.test.php
+      - name: Managed category discovery
+        run: php tests/managed-categories.test.php
       - name: Engine tests
         run: node tests/engine.test.js
       - name: Repository integrity
