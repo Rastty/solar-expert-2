@@ -634,6 +634,7 @@ jobs:
           for slug in \
             fve-panely-na-strechu \
             recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady \
+            nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu \
             jak-funguji-solarni-baterie-pruvodce-skladovanim-energie; do
             case "$slug" in
               fve-panely-na-strechu)
@@ -643,6 +644,10 @@ jobs:
               recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady)
                 scope='heat-pump'
                 label='Průvodce výběrem tepelného čerpadla'
+                ;;
+              nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu)
+                scope='heat-pump-next'
+                label='Spotřeba a náklady tepelného čerpadla'
                 ;;
               jak-funguji-solarni-baterie-pruvodce-skladovanim-energie)
                 scope='battery'

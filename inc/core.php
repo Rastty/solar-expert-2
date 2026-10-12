@@ -2492,6 +2492,19 @@ function solar_expert_solar_lead_slugs() {
  */
 function solar_expert_article_next_step($slug) {
   $slug = sanitize_title((string) $slug);
+  // The main air-water buyer guide is already the destination for review
+  // articles. Its own footer must advance the decision, never reload itself.
+  if ( $slug === 'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu' ) {
+    return array(
+      'scope' => 'heat-pump-next',
+      'heading' => 'Chcete znát provozní náklady svého tepelného čerpadla?',
+      'description' => 'Po výběru vhodné technologie si porovnejte roční potřebu tepla, SCOP a odhad spotřeby elektřiny. Potom můžete nabídku řešit pro konkrétní dům.',
+      'primary_label' => 'Spotřeba a náklady tepelného čerpadla →',
+      'primary_url' => home_url('/prumerna-spotreba-tepelneho-cerpadla/'),
+      'secondary_label' => 'Kombinace s fotovoltaikou',
+      'secondary_url' => home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/')
+    );
+  }
   // Drilling for ground-source heat pump requires an independent review of the
   // ground-loop design; an air-source buyer guide must not masquerade as one.
   if ( $slug === 'vrt-pro-tepelne-cerpadlo' ) {

@@ -675,11 +675,12 @@ const phpNextStepFixture=[
   '  solar_expert_article_next_step("vrt-pro-tepelne-cerpadlo"),',
   '  solar_expert_article_next_step("fve-panely-na-strechu"),',
   '  solar_expert_article_next_step("jak-funguji-solarni-baterie-pruvodce-skladovanim-energie"),',
-  '  solar_expert_article_next_step("kolik-panelu-je-potreba-na-jeden-string")',
+  '  solar_expert_article_next_step("kolik-panelu-je-potreba-na-jeden-string"),',
+  '  solar_expert_article_next_step("nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu")',
   '), JSON_UNESCAPED_UNICODE);'
 ].join('\n');
 const routed=JSON.parse(execFileSync('php',['-r',phpNextStepFixture],{encoding:'utf8',timeout:10000}));
-assert(routed.length===5,'Article router test must cover all declared scopes');
+assert(routed.length===6,'Article router test must cover all declared scopes including the main heat-pump guide');
 assert(routed[0].scope==='heat-pump'&&routed[0].primary_url.endsWith('/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/'),
   'Samsung heat-pump review must route to heat-pump advice, never off-grid Builder');
 assert(routed[1].scope==='ground-source-heat-pump'&&routed[1].primary_url.endsWith('/jak-funguje-tepelne-cerpadlo/')&&routed[1].secondary_url.endsWith('/tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji/'),'Ground-loop drilling must have its own decision path instead of the air-source buyer guide');
@@ -689,6 +690,14 @@ assert(routed[3].scope==='battery'&&routed[3].primary_url.endsWith('/vyber-bater
   'Battery articles must route to battery selection');
 assert(routed[4].scope==='solar-choice'&&routed[4].primary_url.endsWith('/kolik-stoji-fotovoltaika/')&&routed[4].secondary_url.endsWith('/solarni-sestava-na-chatu/'),
   'Ambiguous solar articles must clearly distinguish grid-tied and off-grid paths');
+assert(routed[5].scope==='heat-pump-next' &&
+  routed[5].primary_url.endsWith('/prumerna-spotreba-tepelneho-cerpadla/') &&
+  !routed[5].primary_url.endsWith('/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/') &&
+  routed[5].secondary_url.endsWith('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/'),
+  'Main heat-pump buyer guide must advance to consumption or FVE, never reload itself');
+assert(deployWorkflow.includes('nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu)') &&
+  deployWorkflow.includes("scope='heat-pump-next'"),
+  'Production must smoke-check that the main buyer guide footer has a non-self decision path');
 assert(deployWorkflow.includes('Verify public topic-aware article next steps'),'Auto deploy must smoke check topic-specific post CTA after theme update');
 assert(seoCore.includes("'title' => 'Kontrola nabídky ostrovní FVE a zálohy | Solar Expert'"),'Quote Checker SEO title must explicitly identify off-grid/backup scope');
 assert(seoCore.includes('Není určen pro síťovou FVE domu.'),'Quote Checker snippet must distinguish residential grid PV');
