@@ -980,7 +980,7 @@ assert(builderUxTpl.includes('Vyberte příklad, který je vám nejblíž.')&&bu
 assert(builderUxTpl.includes('Návrh solární sestavy'),'Builder kicker must stay Czech and task-oriented');
 assert(builderUxJs.includes("event:'builder_step'"),'Builder must emit bounded step milestones');
 assert(builderUxJs.includes("this.trackStep('step_2')"),'Builder scenario selection must record step 2');
-assert(builderUxJs.includes("advanceToUsage(){this.step=3;this.trackStep('step_3');}"),'Builder continuation must record step 3');
+assert(builderUxJs.includes('advanceToUsage(){')&&builderUxJs.includes("this.trackStep('step_3')")&&builderUxJs.includes('this.validateSelections()'),'Builder continuation must validate inputs and record step 3');
 assert(builderUxJs.includes("this.trackStep('result')"),'Builder calculation must record result milestone');
 assert(builderUxTpl.includes('@click="advanceToUsage()"'),'Builder template must route step 3 through the tracked milestone');
 assert(builderUxTpl.includes(':data-se-product-id="b.battery?.id"'),'Builder battery offers must expose bounded product ids for visibility tracking');
