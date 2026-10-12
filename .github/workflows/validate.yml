@@ -22,6 +22,8 @@ jobs:
         run: |
           find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
           jq empty content/manifest.json
+      - name: Conditional frontend script loading
+        run: php tests/conditional-assets.test.php
       - name: Engine tests
         run: node tests/engine.test.js
       - name: Repository integrity
