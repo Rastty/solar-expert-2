@@ -64,7 +64,7 @@ window.solarExpertBuilder=function(){return{
     if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'builder_step',status,scenario:this.scenario});
   },
   advanceToUsage(){this.step=3;this.trackStep('step_3');},
-  preset(type){this.appliances.forEach(a=>a.selected=false);const ids=type==='chata'?['fridge','lights','laptop','router','pump']:type==='offgrid'?['fridge','lights','laptop','router','tv','pump']:['fridge','lights','router','pump'];ids.forEach(id=>{const a=this.appliances.find(x=>x.id===id);if(a)a.selected=true;});this.scenario=type;this.step=2;this.trackStep('step_2');},
+  preset(type){this.appliances.forEach(a=>a.selected=false);const ids=type==='chata'?['fridge','lights','laptop','router']:type==='offgrid'?['fridge','lights','laptop','router','tv']:['fridge','lights','router'];ids.forEach(id=>{const a=this.appliances.find(x=>x.id===id);if(a)a.selected=true;});this.scenario=type;this.step=2;this.trackStep('step_2');},
   chooseSystemVoltage(inverterW,peak){
     if(inverterW<=1000 && peak<=2000) return 12;
     if(inverterW<=2500 && peak<=4000) return 24;
