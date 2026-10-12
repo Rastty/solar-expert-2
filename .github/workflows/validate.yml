@@ -24,6 +24,8 @@ jobs:
           jq empty content/manifest.json
       - name: Conditional frontend script loading
         run: php tests/conditional-assets.test.php
+      - name: Per-tool outbound attribution
+        run: php tests/funnel-attribution.test.php
       - name: Engine tests
         run: node tests/engine.test.js
       - name: Repository integrity
