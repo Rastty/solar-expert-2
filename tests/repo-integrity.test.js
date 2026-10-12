@@ -143,7 +143,7 @@ assert(expandPvItem&&fs.existsSync(path.join(__dirname,'..',expandPvItem.file)),
 const expandPvCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
 assert(expandPvCore.includes("'"+expandPvSlug+"' => array("),'Existing-PV expansion near-win must have dedicated SEO metadata');
 const expandPvHtml=fs.readFileSync(path.join(__dirname,'..',expandPvItem.file),'utf8');
-for(const required of ['/mppt-kalkulacka/','/kolik-panelu-je-potreba-na-jeden-string/','/quote-checker/','Voc','Vmp','MPPT']){
+for(const required of ['/mppt-kalkulacka/','/kolik-panelu-je-potreba-na-jeden-string/','/kolik-stoji-fotovoltaika/#kontrola-domovni-fve','Voc','Vmp','MPPT']){
   assert(expandPvHtml.includes(required),'Existing-PV expansion guide missing required decision evidence/tool path: '+required);
 }
 assert(expandPvHtml.includes('ČEZ Distribuce'),'Existing-PV expansion guide must cover current distributor boundary');
@@ -346,7 +346,7 @@ const roofGuideEntry=manifest.items.find(x=>x.slug===roofGuideSlug);
 assert(roofGuideEntry&&roofGuideEntry.preserve_status===true,'Roof PV guide must preserve existing indexed post status');
 const roofGuideHtml=fs.readFileSync(path.join(__dirname,'..',roofGuideEntry.file),'utf8');
 for(const required of [
-  '/solarni-sestava-na-chatu/','/mppt-kalkulacka/','/quote-checker/',
+  '/solarni-sestava-na-chatu/','/mppt-kalkulacka/','/kolik-stoji-fotovoltaika/#kontrola-domovni-fve',
   '/fotovoltaika-na-eternitovou-strechu/','/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/',
   '/fotovoltaika-na-pozemku/','Voc','Vmp','MPPT','stínění'
 ]){
@@ -365,7 +365,7 @@ for(const slug of freshNearWins){
 }
 const eternitItem=manifest.items.find(x=>x.slug==='fotovoltaika-na-eternitovou-strechu');
 const eternitHtml=fs.readFileSync(path.join(__dirname,'..',eternitItem.file),'utf8');
-assert(eternitHtml.includes('/quote-checker/'),'Eternit near-win must bridge quote-ready visitors into Quote Checker');
+assert(eternitHtml.includes('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),'Eternit near-win must route household FVE offers to the right checklist');
 const footerPhp=fs.readFileSync(path.join(__dirname,'..','footer.php'),'utf8');
 for(const slug of ['solarni-sestava-na-chatu','vyber-baterii','mppt-kalkulacka','vyber-menice','quote-checker']){
   assert(footerPhp.includes("solar_expert_public_url('"+slug+"'"),'Sitewide footer must expose published tool for crawl discovery: '+slug);
@@ -394,6 +394,34 @@ assert(quoteCheckerTpl.includes('data-se-lead-id="eon-solar"'),'Quote Checker re
 assert(quoteCheckerTpl.includes(":data-se-placement=\"'quote_checker_result_'+result?.status\""),'Quote Checker E.ON CTA must expose result-state analytics placement');
 assert(quoteCheckerTpl.includes('/solarni-sestava-na-chatu/'),'Quote Checker result must retain an owned Builder next step before outbound comparison');
 
+
+
+// Release safety: protect purchase-intent editorial CTAs from using an
+// off-grid-only Quote Checker for grid-connected residential FVE.
+const scopedResidentialEditorialSlugs=[
+  'fve-panely-na-strechu',
+  'fotovoltaika-na-eternitovou-strechu',
+  'jak-vybrat-solarni-panely-pro-vas-domov',
+  'pruhledne-solarni-panely',
+  'kovove-stresni-krytiny-nejlepsi-volba-pro-solarni-panely',
+  'realny-vykon-solarnich-panelu',
+  'nataceni-solarnich-panelu-za-sluncem',
+  'polohovani-solarnich-panelu',
+  'vse-o-solarnich-panelech-a-fotovoltaice',
+  'pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu'
+];
+for(const slug of scopedResidentialEditorialSlugs){
+  const item=manifest.items.find(x=>x.slug===slug);
+  assert(item&&(item.preserve_status===true||(item.create_if_missing===true&&item.status==='publish')),'Editorial residential FVE slug must retain protected status or managed public-publish intent: '+slug);
+  const body=fs.readFileSync(path.join(__dirname,'..',item.file),'utf8');
+  assert(!body.includes('href="/quote-checker/"'),'Residential FVE editorial post must not promise off-grid Quote Checker: '+slug);
+  assert(body.includes('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),'Residential FVE editorial post must route to the accurate offer checklist: '+slug);
+}
+assert(roofGuideHtml.includes('Porovnat nabídku podle checklistu domovní FVE'),'Roof-PV guide must render the source-owned residential offer CTA');
+assert(eternitHtml.includes('Zkontrolovat nabídku domovní FVE'),'Eternit guide must render the source-owned residential offer CTA');
+assert(deployWorkflow.includes('Verify rendered editorial FVE purchase paths'),'Auto deploy must verify public article-owned FVE CTAs, not just the appended WP hook');
+assert(deployWorkflow.includes('Porovnat nabídku podle checklistu domovní FVE'),'Auto deploy must require the new roof-PV editorial decision CTA');
+assert(deployWorkflow.includes('Zkontrolovat nabídku domovní FVE'),'Auto deploy must require the new eternit editorial decision CTA');
 
 const fvePriceSlug='kolik-stoji-fotovoltaika';
 const fvePriceItem=manifest.items.find(x=>x.slug===fvePriceSlug);
@@ -848,7 +876,7 @@ assert(transparentPvItem.status==='publish'&&transparentPvItem.status_if_new==='
 assert(transparentPvItem.file&&fs.existsSync(path.join(__dirname,'..',transparentPvItem.file)),'Transparent PV guide file missing');
 assert(seoCore.includes("'"+transparentPvSlug+"' => array("),'Transparent PV guide must have dedicated SEO metadata');
 const transparentPvHtml=fs.readFileSync(path.join(__dirname,'..',transparentPvItem.file),'utf8');
-for(const required of ['BIPV','43,2 %','9,26 %','/vysvetleni-solarnich-panelu-pv-t/','/jak-vybrat-solarni-panely-pro-vas-domov/','/quote-checker/']){
+for(const required of ['BIPV','43,2 %','9,26 %','/vysvetleni-solarnich-panelu-pv-t/','/jak-vybrat-solarni-panely-pro-vas-domov/','/kolik-stoji-fotovoltaika/#kontrola-domovni-fve']){
   assert(transparentPvHtml.includes(required),'Transparent PV guide missing required decision evidence/path: '+required);
 }
 assert(transparentPvHtml.includes('ise.fraunhofer.de/de/presse-und-medien/presseinformationen/2026/'),'Transparent PV guide must cite the current 2026 Fraunhofer evidence');
@@ -856,7 +884,7 @@ assert(transparentPvHtml.includes('iea-pvps.org/wp-content/uploads/2025/02/'),'T
 assert(transparentPvHtml.includes('energy.gov/cmei/systems/articles/expanding-solar-energy-opportunities-rooftops-building-integration'),'Transparent PV guide must cite a BIPV building-integration reference');
 assert(transparentPvHtml.includes('data-se-lead-id="eon-solar"'),'Transparent PV guide must expose a bounded conventional-FVE comparison lead');
 assert(transparentPvHtml.includes('data-se-placement="transparent_pv_to_conventional_fve"'),'Transparent PV lead must use dedicated attribution');
-assert(transparentPvHtml.indexOf('/quote-checker/')<transparentPvHtml.indexOf('data-se-lead-id="eon-solar"'),'Owned Quote Checker must appear before outbound comparison');
+assert(transparentPvHtml.indexOf('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve')<transparentPvHtml.indexOf('data-se-lead-id="eon-solar"'),'Residential FVE checklist must appear before bounded E.ON comparison');
 assert(seoCore.includes("function solar_expert_emerging_pv_slugs"),'Emerging-PV mini-cluster allowlist must exist');
 assert(seoCore.includes("function solar_expert_append_emerging_pv_related_links"),'Emerging-PV mini-cluster renderer must exist');
 assert(seoCore.includes('data-se-related="emerging-pv-cluster"'),'Emerging-PV mini-cluster must expose a stable marker');
@@ -893,7 +921,7 @@ assert(realPvItem.file&&fs.existsSync(path.join(__dirname,'..',realPvItem.file))
 assert(seoCore.includes("'"+realPvSlug+"' => array("),'Real-world PV performance guide must have dedicated SEO metadata');
 const realPvHtml=fs.readFileSync(path.join(__dirname,'..',realPvItem.file),'utf8');
 assert(realPvHtml.includes('STC'),'Real-world PV performance guide must explain STC');
-assert(realPvHtml.includes('/quote-checker/'),'Real-world PV performance guide must route into Quote Checker');
+assert(realPvHtml.includes('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),'Real-world PV performance guide must route residential FVE buyers to the checklist');
 
 const panelBuyerSlug='jak-vybrat-solarni-panely-pro-vas-domov';
 const panelBuyerItem=manifest.items.find(x=>x.slug===panelBuyerSlug);
@@ -1095,7 +1123,7 @@ assert(trackerHtml.includes('Backtracking'),'Solar tracker guide must explain ba
 assert(trackerHtml.includes('Wind-stow'),'Solar tracker guide must explain wind-stow');
 assert(trackerHtml.includes('Jednoosý vs. dvouosý tracker'),'Solar tracker guide must compare tracker types');
 assert(trackerHtml.includes('/kolik-vyrobi-fotovoltaika-za-rok/'),'Solar tracker guide must route into annual-yield methodology');
-assert(trackerHtml.includes('/quote-checker/'),'Solar tracker near-win must provide a ranking-safe bridge into Quote Checker');
+assert(trackerHtml.includes('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),'Solar tracker near-win must preserve a bounded residential offer checklist bridge');
 assert(!trackerHtml.includes('Text odpovědi'),'Solar tracker guide must not retain placeholder FAQ content');
 
 const positioningSlug='polohovani-solarnich-panelu';
@@ -1109,7 +1137,7 @@ assert(positioningHtml.includes('východ–západ'),'Positioning guide must comp
 assert(positioningHtml.includes('PVGIS'),'Positioning guide must route orientation decisions through PVGIS');
 assert(positioningHtml.includes('/nataceni-solarnich-panelu-za-sluncem/'),'Positioning guide must separate fixed-positioning and tracker intents');
 assert(positioningHtml.includes('/castecne-zastineni-a-solarni-panely/'),'Positioning guide must account for shading intent');
-assert(positioningHtml.includes('/quote-checker/'),'Positioning guide must bridge qualified visitors into Quote Checker');
+assert(positioningHtml.includes('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),'Positioning guide must bridge residential FVE visitors into the offer checklist');
 assert(!positioningHtml.includes('vysokou latitudou'),'Positioning guide must not retain translated tracker generalizations');
 
 const pvHubSlug='vse-o-solarnich-panelech-a-fotovoltaice';
@@ -1119,7 +1147,7 @@ assert(pvHubItem.file&&fs.existsSync(path.join(__dirname,'..',pvHubItem.file)),'
 assert(seoCore.includes("'vse-o-solarnich-panelech-a-fotovoltaice' => array("),'Photovoltaic hub must have dedicated SEO metadata');
 assert(leadCore.includes("'vse-o-solarnich-panelech-a-fotovoltaice'"),'Photovoltaic hub must participate in bounded E.ON solar funnel');
 const pvHubHtml=fs.readFileSync(path.join(__dirname,'..',pvHubItem.file),'utf8');
-for(const href of ['/jak-vybrat-solarni-panely-pro-vas-domov/','/mppt-kalkulacka/','/vyber-menice/','/vyber-baterii/','/quote-checker/','/solarni-sestava-na-chatu/']){
+for(const href of ['/jak-vybrat-solarni-panely-pro-vas-domov/','/mppt-kalkulacka/','/vyber-menice/','/vyber-baterii/','/kolik-stoji-fotovoltaika/#kontrola-domovni-fve','/solarni-sestava-na-chatu/']){
   assert(pvHubHtml.includes(href),'Photovoltaic hub must route to '+href);
 }
 assert(!pvHubHtml.includes('250 000 až 600 000 Kč'),'Photovoltaic hub must not retain stale universal FVE pricing');
