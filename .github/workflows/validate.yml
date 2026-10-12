@@ -26,6 +26,8 @@ jobs:
         run: php tests/conditional-assets.test.php
       - name: Per-tool outbound attribution
         run: php tests/funnel-attribution.test.php
+      - name: Independent retail operator attribution
+        run: php tests/merchant-operators.test.php
       - name: One-click Builder hero attribution
         run: node tests/builder-hero-demo.test.js
       - name: Managed category discovery

@@ -267,6 +267,7 @@ jobs:
             recommendable_offer_cov="$(jq -r '.affiliate_recommendable_offer_coverage_pct // 0' <<<"$health")"
             recommendable_product_cov="$(jq -r '.affiliate_recommendable_product_coverage_pct // 0' <<<"$health")"
             monetized_merchants="$(jq -r '.affiliate_monetized_merchants // 0' <<<"$health")"
+            independent_operators="$(jq -r '.affiliate_independent_merchant_operators // 0' <<<"$health")"
             lead_targets="$(jq -r '.affiliate_lead_targets // 0' <<<"$health")"
             monetized_lead_targets="$(jq -r '.affiliate_monetized_lead_targets // 0' <<<"$health")"
             lead_cov="$(jq -r '.affiliate_lead_coverage_pct // 0' <<<"$health")"
@@ -292,7 +293,7 @@ jobs:
             echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
             echo "release content sync performed=${{ steps.content-sync.outputs.performed || 'false' }} updated=${{ steps.content-sync.outputs.updated || '0' }} created=${{ steps.content-sync.outputs.created || '0' }} meta_updated=${{ steps.content-sync.outputs.meta_updated || '0' }} skipped=${{ steps.content-sync.outputs.skipped || '0' }}"
             echo "last persisted content sync updated=${sync_last_updated} created=${sync_last_created} meta_updated=${sync_last_meta_updated} skipped=${sync_last_skipped}"
-            echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
+            echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} independent_operators=${independent_operators} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
             echo "outcome 7d tool_views=${outcome7_views} tool_starts=${outcome7_starts} tool_exposures=${outcome7_exposures} tool_activations=${outcome7_activations} outcome_events=${outcome7_events} outbound_clicks=${outcome7_outbound}; 28d tool_views=${outcome28_views} tool_starts=${outcome28_starts} tool_exposures=${outcome28_exposures} tool_activations=${outcome28_activations} outcome_events=${outcome28_events} outbound_clicks=${outcome28_outbound}"
             echo "outcome 28d by_tool=${outcome28_by_tool}"
             echo "outcome 28d builder_steps=${outcome28_builder_steps}"
@@ -1101,6 +1102,39 @@ jobs:
             echo '::error::Yoast structured tool descriptions are not correctly published.'
             exit 1
           fi
+
+      - name: Verify honest merchant operator disclosure on all buying tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          healthy=0
+          for attempt in {1..6}; do
+            health="$(curl -fsSL --max-time 30 -H 'Cache-Control: no-cache' "${base}/wp-json/solar-expert/v1/health?operator_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            count="$(jq -r '.affiliate_monetized_merchants // 0' <<<"$health" 2>/dev/null || echo 0)"
+            operators="$(jq -r '.affiliate_independent_merchant_operators // 0' <<<"$health" 2>/dev/null || echo 0)"
+            if [[ "$count" =~ ^[0-9]+$ && "$operators" =~ ^[0-9]+$ ]] \
+               && [ "$count" -ge 2 ] && [ "$operators" -ge 1 ] && [ "$operators" -lt "$count" ]; then
+              healthy=1
+              break
+            fi
+            sleep 8
+          done
+          if [ "$healthy" != 1 ]; then
+            echo "::error::Live monetization health does not distinguish distinct approved storefronts from independent operators."
+            exit 1
+          fi
+
+          for slug in solarni-sestava-na-chatu vyber-baterii mppt-kalkulacka vyber-menice; do
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/${slug}/?seller_probe=${GITHUB_SHA}" \
+              | grep -Fq 'Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria' || {
+                echo "::error::Missing shared-operator disclosure on public tool ${slug}."
+                exit 1
+              }
+          done
+          echo "Independent retailer honesty verified: ${count} affiliate storefronts but ${operators} legal seller(s), and all four purchase tools disclose shared operation."
 
       - name: Verify public conditional tool scripts
         if: steps.config.outputs.enabled == 'true'

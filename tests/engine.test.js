@@ -18,6 +18,17 @@ const A = global.window.SolarExpertAffiliate;
 const multiProduct=catalog.products.find(p=>p.id==='mppt-victron-100-50');
 const multiOffers=A.offers(multiProduct);
 assert(multiOffers.length===2,'MPPT 100/50 should expose two merchant offers');
+assert(A.merchants['battery-cz'].operatorId==='efteria-cz' &&
+  A.merchants['solar-import-cz'].operatorId==='efteria-cz',
+  'Shopfronts must be explicitly grouped under verified shared seller');
+assert(A.sharedOperatorNotice(multiProduct).includes('stejná společnost Efteria'),
+  'Real dual-store offers must explain that the two webshops share one operator');
+assert(A.sharedOperatorNotice(catalog.products.find(p=>p.id==='inverter-rogerele-rep1500-24'))==='',
+  'Single-store offers must not display irrelevant shared-operator disclaimers');
+assert(A.sharedOperatorNotice({offers:[
+  {merchant:'battery-cz'},{merchant:'ampul-eu'}
+]})==='','Offers from separate operators must not be mislabelled as shared');
+
 assert(multiOffers[0].merchantId==='solar-import-cz','Cheapest in-stock offer should be first');
 assert(multiOffers[0].price_czk===3899,'Primary offer price should match verified snapshot');
 window.SolarExpertConfig.affiliateMap.products['mppt-victron-100-50@battery-cz']='https://example.com/battery-affiliate';

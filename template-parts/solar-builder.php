@@ -86,6 +86,9 @@
       Cenový rozpis nelze spolehlivě sladit s doporučenou celkovou cenou. Zkontrolujte ceny jednotlivých komponent přímo u obchodníků.
     </div>
 
+    <p class="se-merchant-disclosure" x-show="completeBundles.some(b => [b.battery,b.inverter,b.mppt,b.panel?.product].some(p => p && SolarExpertAffiliate.sharedOperatorNotice(p)))" x-cloak>
+      Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria, spol. s r.o. Zobrazené ceny jsou nabídky jejích dvou webů, nikoliv dvou nezávislých prodejců.
+    </p>
     <div class="se-bundles" id="builder-offers">
       <template x-for="b in completeBundles" :key="b.tier">
         <div class="se-bundle" :class="b.tier==='best'?'best':''">
@@ -135,7 +138,7 @@
                        :data-se-product-id="b.battery?.id" :data-se-merchant="o.merchantId" :data-se-placement="'builder-battery-'+b.tier"
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.battery,o.raw,'builder-battery-'+b.tier)">
-                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">nejlevnější · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'+((b.batteryQuantity||1)>1?' / ks':'')"></strong>
+                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'+((b.batteryQuantity||1)>1?' / ks':'')"></strong>
                     </a>
                   </template>
                 </div>
@@ -149,7 +152,7 @@
                        :data-se-product-id="b.inverter?.id" :data-se-merchant="o.merchantId" :data-se-placement="'builder-inverter-'+b.tier"
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.inverter,o.raw,'builder-inverter-'+b.tier)">
-                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">nejlevnější · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
                     </a>
                   </template>
                 </div>
@@ -163,7 +166,7 @@
                        :data-se-product-id="b.panel?.product?.id" :data-se-merchant="o.merchantId" :data-se-placement="'builder-panel-'+b.tier"
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.panel?.product,o.raw,'builder-panel-'+b.tier)">
-                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">nejlevnější · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
                     </a>
                   </template>
                 </div>
@@ -177,7 +180,7 @@
                        :data-se-product-id="b.mppt?.id" :data-se-merchant="o.merchantId" :data-se-placement="'builder-mppt-'+b.tier"
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.mppt,o.raw,'builder-mppt-'+b.tier)">
-                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">nejlevnější · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
                     </a>
                   </template>
                 </div>

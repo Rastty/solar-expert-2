@@ -20,6 +20,9 @@
     Katalog měničů se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
   </div>
   <div class="se-row" style="margin-top:20px"><h3 style="margin:0">Doporučené měniče</h3><small class="se-muted">podle hodnot výše</small></div>
+  <p class="se-merchant-disclosure" x-show="matches.some(r => SolarExpertAffiliate.sharedOperatorNotice(r.product))" x-cloak>
+    Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria, spol. s r.o. Porovnáváme nabídky jejích dvou webů, nikoliv dvou nezávislých prodejců.
+  </p>
   <div class="se-bundles" :aria-busy="catalogLoading ? 'true' : 'false'" aria-live="polite">
     <template x-for="r in matches" :key="r.product.id">
       <div class="se-bundle">
@@ -34,7 +37,7 @@
                :data-se-product-id="r.product.id" :data-se-merchant="o.merchantId" data-se-placement="inverter-selector"
                :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                @click="SolarExpertAffiliate.trackOffer(r.product,o.raw,'inverter-selector')">
-              <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">nejlevnější · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+              <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
             </a>
           </template>
         </div>
