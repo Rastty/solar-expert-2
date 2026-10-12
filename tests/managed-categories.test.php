@@ -20,6 +20,22 @@ $GLOBALS['categories'] = array(
   102 => array(1,9), // Another category preserved.
 );
 $GLOBALS['writes'] = 0;
+if (!defined('OBJECT')) define('OBJECT', 'OBJECT');
+class WP_Post {
+  public $ID;
+  public $post_status;
+  function __construct($id,$status='publish') { $this->ID=$id; $this->post_status=$status; }
+}
+$GLOBALS['post_by_slug'] = array(
+  'kolik-stoji-fotovoltaika' => new WP_Post(100),
+  'fotovoltaika-na-pozemku' => new WP_Post(104),
+  'pruhledne-solarni-panely' => new WP_Post(105),
+  'tepelne-cerpadlo-vzduch-vzduch' => new WP_Post(102),
+  'tepelne-cerpadlo-monoblok' => new WP_Post(106),
+);
+function get_page_by_path($slug,$output,$type) {
+  return $type === 'post' ? ($GLOBALS['post_by_slug'][$slug] ?? null) : null;
+}
 function get_category_by_slug($slug) { return $GLOBALS['terms'][$slug] ?? false; }
 function wp_get_post_categories($id) { return $GLOBALS['categories'][$id] ?? array(); }
 function wp_set_post_categories($id, $categories, $append) {
@@ -61,4 +77,17 @@ check($GLOBALS['writes'] === 1,'Idempotent taxonomy sync should create exactly o
 check(is_wp_error(solar_expert_ensure_managed_category(103,'nonexistent-category')),'Missing taxonomy must fail closed');
 check(!isset($GLOBALS['categories'][103]),'Missing taxonomy must not write arbitrary terms');
 check(strpos($source,'wp_set_post_categories')>=0,'Production helper must use WP taxonomy API');
+
+$before = solar_expert_managed_category_state($manifest);
+check($before['targets'] === 5 && $before['ready'] === 2 && $before['errors'] === 3,
+  'Read-only taxonomy audit must discover three remaining missing assignments');
+$previousWrites=$GLOBALS['writes'];
+$repaired = solar_expert_reconcile_managed_categories($manifest);
+check($repaired['updated'] === 3 && !$repaired['errors'], 'Taxonomy-only repair must add missing three categories');
+check($GLOBALS['writes'] === $previousWrites + 3, 'Taxonomy-only reconciliation should not re-write existing terms');
+check($GLOBALS['categories'][102] === array(1,9), 'Existing editorial term preserved after reconciliation');
+$after = solar_expert_managed_category_state($manifest);
+check($after['ready'] === 5 && $after['errors'] === 0, 'Every declared managed post category must be ready');
+check(solar_expert_reconcile_managed_categories($manifest)['updated'] === 0,
+  'Reconciliation must be fully idempotent even when the manifest fingerprint is current');
 echo "PASS: five manifest categories, append-only taxonomy, idempotence and fail-closed lookup\n";
