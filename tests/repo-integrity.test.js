@@ -270,7 +270,7 @@ assert(navBlock,'Accessible main navigation must remain server rendered on all p
 for(const [target,label] of [
   ['/kolik-stoji-fotovoltaika/','Domovní FVE'],
   ['/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/','Tepelná čerpadla'],
-  ['/#builder','Chata a záloha'],
+  ['/#builder','Sestava pro chatu'],
   ['vyber-baterii','Baterie'],
   ['mppt-kalkulacka','MPPT'],
   ['vyber-menice','Měnič']
