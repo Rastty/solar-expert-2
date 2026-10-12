@@ -7,7 +7,11 @@
       <h1 class="se-h1">Solár, který sedí vám.</h1>
       <p class="se-lead">Pro chatu, ostrovní systém nebo zálohu při výpadku: vyberte běžné spotřebiče, upravte jejich provoz a zjistěte potřebné panely, baterii, měnič a MPPT.</p>
       <p class="se-muted">Plánujete klasickou síťovou FVE na rodinném domě? Začněte <a href="/kolik-stoji-fotovoltaika/">průvodcem výběrem a cenou fotovoltaiky</a>.</p>
-      <div class="se-actions"><a class="se-btn se-btn-primary" href="#builder">Navrhnout sestavu zdarma →</a><a class="se-btn" href="#jak">Jak to funguje</a></div>
+      <div class="se-actions se-hero-actions">
+        <a class="se-btn se-btn-primary" href="#builder">Navrhnout vlastní sestavu zdarma →</a>
+        <a class="se-btn se-demo-cta" href="#builder" x-data="{}" @click.prevent="$dispatch('solar-expert-open-demo')" data-se-home-demo="builder-preview">Ukázat vzorovou sestavu →</a>
+      </div>
+      <p class="se-hero-sample-hint">Ukázka bez zadávání: modelová chata, lednice, světla, notebook a Wi-Fi. Výsledek si pak můžete upravit. <a href="#jak">Jak to funguje?</a></p>
     </div>
     <div><?php echo do_shortcode('[solar_expert_builder]'); ?></div>
   </div>
