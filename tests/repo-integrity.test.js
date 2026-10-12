@@ -468,7 +468,7 @@ assert(leadCore.includes("home_url('/fotovoltaika-vykon-na-m2/')"),'Solar cluste
 assert(leadCore.includes("home_url('/co-je-1-kwp/')"),'Solar cluster must strengthen the kWp/Wp explainer near-win');
 assert(leadCore.includes("home_url('/kolik-vyrobi-fotovoltaika-za-rok/')"),'Solar cluster must strengthen the annual-output near-win');
 assert(leadCore.includes("home_url('/kolik-stoji-fotovoltaika/')"),'Solar cluster must distribute internal authority to the new high-intent FVE price guide');
-assert(leadCore.includes("home_url('/quote-checker/')"),'Solar cluster must retain an owned decision-tool path');
+assert(solarRelatedBlock.includes("home_url('/solarni-sestava-na-chatu/')"),'Solar cluster must retain a clearly labeled owned off-grid decision-tool path');
 
 
 const boundarySlug='umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda';
