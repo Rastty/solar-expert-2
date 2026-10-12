@@ -1467,6 +1467,13 @@ assert(seoCore.includes("'offer_click_rate_pct'"),'Outcome summary must expose o
 assert(seoCore.includes("in_array($event, $outbound_events, true)"),'Legacy outbound merchant/placement counters must exclude non-click exposure events');
 assert(seoCore.includes("'dealId','page'"),'Funnel endpoint must accept the bounded page dimension');
 assert(autoDeploy.includes('outcome 28d by_tool='),'Auto-deploy must log the 28d per-tool breakdown');
+assert(autoDeploy.includes('Reconcile managed categories after release convergence'),
+  'Deploy must repair term relations independently after content fingerprint convergence');
+assert(seoCore.includes('function solar_expert_managed_category_state(') &&
+  seoCore.includes('function solar_expert_reconcile_managed_categories('),
+  'Managed category taxonomy requires an independent audit and reconciler');
+assert(seoCore.includes("'managed_taxonomy_ready'"),
+  'Deploy and public health must expose managed taxonomy state');
 assert(autoDeploy.includes('Verify public thematic categories for new managed posts'),
   'Production must verify public category assignments of managed guides');
 assert(seoCore.includes('function solar_expert_ensure_managed_category('),
