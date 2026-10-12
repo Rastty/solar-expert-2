@@ -1916,8 +1916,12 @@ function solar_expert_seo_meta($slug_override = '') {
       'description' => 'Vyberte měnič podle 12/24/48 V, trvalého výkonu a rozběhové špičky. Oddělená kontrola continuous a surge výkonu.'
     ),
     'quote-checker' => array(
-      'title' => 'Kontrola nabídky fotovoltaiky: Quote Checker | Solar Expert',
-      'description' => 'Prověřte nabídku fotovoltaiky podle spotřeby, panelů, baterie, měniče, špičkového výkonu a systémového napětí.'
+      'title' => 'Kontrola nabídky ostrovní FVE a zálohy | Solar Expert',
+      'description' => 'Quote Checker prověří nabídku pro chatu, ostrovní nebo záložní systém: panely, baterii, měnič, špičku a napětí. Není určen pro síťovou FVE domu.'
+    ),
+    'vrt-pro-tepelne-cerpadlo' => array(
+      'title' => 'Vrt pro tepelné čerpadlo: hloubka, cena a rizika | Solar Expert',
+      'description' => 'Co zvážit u vrtu pro tepelné čerpadlo země–voda: hloubka, orientační náklady, geologie, provoz a otázky pro odborného dodavatele.'
     ),
     'jak-doporucujeme' => array(
       'title' => 'Jak Solar Expert doporučuje produkty | Metodika',
@@ -2474,6 +2478,19 @@ function solar_expert_solar_lead_slugs() {
  */
 function solar_expert_article_next_step($slug) {
   $slug = sanitize_title((string) $slug);
+  // Drilling for ground-source heat pump requires an independent review of the
+  // ground-loop design; an air-source buyer guide must not masquerade as one.
+  if ( $slug === 'vrt-pro-tepelne-cerpadlo' ) {
+    return array(
+      'scope' => 'ground-source-heat-pump',
+      'heading' => 'Zvažujete vrt pro tepelné čerpadlo země–voda?',
+      'description' => 'Před výběrem ověřte geologické podmínky, návrh vrtů, související povolení a rozsah práce s odborníkem. Vzduch–voda je jiná technologie, nikoli náhrada za posouzení vrtu.',
+      'primary_label' => 'Jak funguje tepelné čerpadlo →',
+      'primary_url' => home_url('/jak-funguje-tepelne-cerpadlo/'),
+      'secondary_label' => 'Porovnat variantu vzduch–voda',
+      'secondary_url' => home_url('/tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji/')
+    );
+  }
   if ( in_array($slug, solar_expert_heat_pump_lead_slugs(), true) ||
        strpos($slug, 'tepelneho-cerpadla') !== false ||
        strpos($slug, 'tepelne-cerpadlo') !== false ||
