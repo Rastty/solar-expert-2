@@ -111,6 +111,14 @@ for(const item of manifest.items){
 }
 
 
+
+// Keep first-use Builder positioning aligned with the actual off-grid tool scope.
+const builderFirstUseTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
+const homepageFirstUseTemplate=fs.readFileSync(path.join(__dirname,'..','front-page.php'),'utf8');
+assert(builderFirstUseTemplate.includes('Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky'),'Builder first screen must explain editable example loads');
+assert(builderFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Grid-connected FVE visitors need a suitable alternate decision path');
+assert(homepageFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Homepage must distinguish grid-connected PV from the off-grid Builder');
+
 const expandPvSlug='pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu';
 const expandPvItem=manifest.items.find(x=>x.slug===expandPvSlug);
 assert(expandPvItem&&expandPvItem.preserve_status===true,'Existing-PV expansion near-win must preserve indexed status');
@@ -890,7 +898,7 @@ assert(builderUxJs.includes("if(!r.ok)throw new Error('catalog_http_'"),'Builder
 assert(builderUxJs.includes('if(this.result)this.bundles=window.SolarExpertBundleComposer.compose'),'Late catalog load must refresh an already calculated Builder result');
 assert(builderUxTpl.includes('x-show="catalogLoading"'),'Builder template must display catalog loading feedback');
 assert(builderUxTpl.includes('x-show="catalogError"'),'Builder template must display catalog error feedback');
-assert(builderUxTpl.includes('Začněte jedním kliknutím.'),'Builder first step must make the activation action explicit');
+assert(builderUxTpl.includes('Vyberte příklad, který je vám nejblíž.')&&builderUxTpl.includes('@click="preset(\'chata\')"'),'Builder first step must offer an explicit editable one-click scenario');
 assert(builderUxTpl.includes('Návrh solární sestavy'),'Builder kicker must stay Czech and task-oriented');
 assert(builderUxJs.includes("event:'builder_step'"),'Builder must emit bounded step milestones');
 assert(builderUxJs.includes("this.trackStep('step_2')"),'Builder scenario selection must record step 2');
