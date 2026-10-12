@@ -832,6 +832,38 @@ jobs:
             fi
           done
 
+      - name: Reconcile managed categories after release convergence
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
+          # Independently retry after PHP opcode cache convergence. Even if
+          # content fingerprint was saved by the old code, deploy-sync must
+          # now audit/reconcile the five taxonomy relations without rewriting
+          # managed post text.
+          passed=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            response="$(curl -sSL --max-time 20 \
+              -H 'Content-Type: application/json' \
+              -H 'Cache-Control: no-cache, no-store' \
+              -X POST \
+              -d "{\"intent\":\"managed-content-sync-v1\",\"expected_version\":\"${expected}\"}" \
+              "https://solar-expert.cz/wp-json/solar-expert/v1/deploy-sync?taxonomy_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            if jq -e '.ok == true and .managed_taxonomy_targets == 5 and .managed_taxonomy_ready == 5 and .managed_taxonomy_errors == 0' \
+                 <<< "$response" >/dev/null 2>&1; then
+              echo "Managed category reconciliation completed: five of five topical relationships ready."
+              passed=1
+              break
+            fi
+            echo "Category convergence incomplete (attempt $attempt/8); checking deployed PHP/runtime."
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo "::error::Managed categories did not converge through deploy-sync."
+            exit 1
+          fi
+
       - name: Verify public thematic categories for new managed posts
         if: steps.config.outputs.enabled == 'true'
         shell: bash
