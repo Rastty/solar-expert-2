@@ -118,6 +118,24 @@ const homepageFirstUseTemplate=fs.readFileSync(path.join(__dirname,'..','front-p
 assert(builderFirstUseTemplate.includes('Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky'),'Builder first screen must explain editable example loads');
 assert(builderFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Grid-connected FVE visitors need a suitable alternate decision path');
 assert(homepageFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Homepage must distinguish grid-connected PV from the off-grid Builder');
+// Homepage must give distinct, crawlable starting points by purchase intent.
+// Newly published buyer/tools pages need contextual links from an established hub.
+const intentHubStart=homepageFirstUseTemplate.indexOf('class="se-section se-path-section"');
+const intentHubEnd=homepageFirstUseTemplate.indexOf('<section id="jak"',intentHubStart);
+assert(intentHubStart>0&&intentHubEnd>intentHubStart,'Homepage must expose the three-intent navigation hub before editorial sections');
+const intentHub=homepageFirstUseTemplate.slice(intentHubStart,intentHubEnd);
+for(const target of [
+  "home_url('/kolik-stoji-fotovoltaika/')",
+  "solar_expert_public_url('solarni-sestava-na-chatu','/solarni-sestava-na-chatu/')",
+  "home_url('/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/')"
+]){
+  assert(intentHub.includes(target),'Homepage must directly link the precise destination for each intent: '+target);
+}
+assert(intentHub.includes('Domovní fotovoltaika')&&intentHub.includes('Ostrovní solární sestava')&&intentHub.includes('Tepelné čerpadlo'),
+  'Homepage must distinguish household grid PV, off-grid storage and heat pump');
+assert(homepageFirstUseTemplate.includes('Nejde o kontrolu celé síťové FVE.'),
+  'Quote Checker card must not imply grid-tied household inspection');
+
 assert(builderFirstUseTemplate.includes('@click="quickPreview()"'),'Builder must offer an explicit one-click sample on the first screen');
 assert(builderFirstUseTemplate.includes('Modelový výsledek, ne návrh na míru.'),'One-click result must disclose that it is an example');
 assert(builderFirstUseTemplate.includes('@click="editPreview()"'),'Visitors must be able to edit the sample immediately');
@@ -590,6 +608,19 @@ assert(categoryPhp.includes("solar_expert_public_url('vyber-baterii')"),'Battery
 assert(seoCore.includes("is_category('baterie')"),'Battery category must have dedicated SEO metadata');
 assert(seoCore.includes("'@type' => 'CollectionPage'"),'Category archives must expose CollectionPage structured data');
 assert(footerPhp.includes("/category/baterie/"),'Battery knowledge hub must receive a sitewide internal link');
+for(const target of [
+  "home_url('/kolik-stoji-fotovoltaika/')",
+  "solar_expert_public_url('solarni-sestava-na-chatu','/solarni-sestava-na-chatu/')",
+  "home_url('/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/')",
+  "home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/')"
+]){
+  assert(footerPhp.includes(target),'Global footer must expose a direct high-intent contextual discovery link: '+target);
+}
+const headerPhp=fs.readFileSync(path.join(__dirname,'..','header.php'),'utf8');
+assert(headerPhp.includes('Builder pro chatu')&&headerPhp.includes('Sestava pro chatu'),
+  'Global header must accurately label the off-grid/cottage-only Builder');
+assert(deployWorkflow.includes('Verify public homepage decision hub'),'Release must test publicly rendered homepage intent links');
+
 
 
 const singlePhp=fs.readFileSync(path.join(__dirname,'..','single.php'),'utf8');
