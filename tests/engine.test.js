@@ -67,6 +67,33 @@ assert(selectorEvents.length===1,'Selector engagement should emit exactly once p
 assert(selectorEvents[0].matchCount>=0,'Selector engagement should include match count');
 window.dataLayer=[];
 
+
+// First-use activation UX: example presets must not force an expensive motor load.
+// Adding the pump explicitly should increase both energy and surge demand.
+window.dataLayer=[];
+const builderFirstUse=window.solarExpertBuilder();
+const expectedPresetLoads={
+  chata:['fridge','lights','laptop','router'],
+  offgrid:['fridge','lights','laptop','router','tv'],
+  backup:['fridge','lights','router']
+};
+for(const [scenario,expected] of Object.entries(expectedPresetLoads)){
+  builderFirstUse.preset(scenario);
+  const selected=builderFirstUse.selectedAppliances.map(a=>a.id);
+  assert(JSON.stringify(selected)===JSON.stringify(expected),'First-use '+scenario+' preset must be a small editable example without pump');
+  assert(builderFirstUse.step===2&&builderFirstUse.scenario===scenario,'Preset must open editable appliances for '+scenario);
+}
+builderFirstUse.preset('chata');
+const withoutPumpWh=builderFirstUse.dailyWh;
+const withoutPumpPeak=builderFirstUse.estimatedPeak;
+builderFirstUse.toggle('pump');
+assert(builderFirstUse.selectedAppliances.some(a=>a.id==='pump'),'User may explicitly add a water pump');
+assert(builderFirstUse.dailyWh>withoutPumpWh,'Pump must increase daily energy only when selected');
+assert(builderFirstUse.estimatedPeak>withoutPumpPeak,'Pump must increase surge demand only when selected');
+builderFirstUse.preset('backup');
+assert(!builderFirstUse.selectedAppliances.some(a=>a.id==='pump'),'Changing scenario must clear old pump selection');
+window.dataLayer=[];
+
 const batterySelectorReserve=global.window.solarExpertBatterySelector();
 batterySelectorReserve.catalog=catalog.products;
 batterySelectorReserve.voltage=24;
