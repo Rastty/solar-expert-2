@@ -1147,7 +1147,7 @@ assert(pvHubItem.file&&fs.existsSync(path.join(__dirname,'..',pvHubItem.file)),'
 assert(seoCore.includes("'vse-o-solarnich-panelech-a-fotovoltaice' => array("),'Photovoltaic hub must have dedicated SEO metadata');
 assert(leadCore.includes("'vse-o-solarnich-panelech-a-fotovoltaice'"),'Photovoltaic hub must participate in bounded E.ON solar funnel');
 const pvHubHtml=fs.readFileSync(path.join(__dirname,'..',pvHubItem.file),'utf8');
-for(const href of ['/jak-vybrat-solarni-panely-pro-vas-domov/','/mppt-kalkulacka/','/vyber-menice/','/vyber-baterii/','/quote-checker/','/solarni-sestava-na-chatu/']){
+for(const href of ['/jak-vybrat-solarni-panely-pro-vas-domov/','/mppt-kalkulacka/','/vyber-menice/','/vyber-baterii/','/kolik-stoji-fotovoltaika/#kontrola-domovni-fve','/solarni-sestava-na-chatu/']){
   assert(pvHubHtml.includes(href),'Photovoltaic hub must route to '+href);
 }
 assert(!pvHubHtml.includes('250 000 až 600 000 Kč'),'Photovoltaic hub must not retain stale universal FVE pricing');
