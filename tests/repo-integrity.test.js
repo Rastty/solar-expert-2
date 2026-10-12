@@ -898,7 +898,7 @@ assert(builderUxJs.includes("if(!r.ok)throw new Error('catalog_http_'"),'Builder
 assert(builderUxJs.includes('if(this.result)this.bundles=window.SolarExpertBundleComposer.compose'),'Late catalog load must refresh an already calculated Builder result');
 assert(builderUxTpl.includes('x-show="catalogLoading"'),'Builder template must display catalog loading feedback');
 assert(builderUxTpl.includes('x-show="catalogError"'),'Builder template must display catalog error feedback');
-assert(builderUxTpl.includes('Začněte jedním kliknutím.'),'Builder first step must make the activation action explicit');
+assert(builderUxTpl.includes('Vyberte příklad, který je vám nejblíž.')&&builderUxTpl.includes('@click="preset(\'chata\')"'),'Builder first step must offer an explicit editable one-click scenario');
 assert(builderUxTpl.includes('Návrh solární sestavy'),'Builder kicker must stay Czech and task-oriented');
 assert(builderUxJs.includes("event:'builder_step'"),'Builder must emit bounded step milestones');
 assert(builderUxJs.includes("this.trackStep('step_2')"),'Builder scenario selection must record step 2');
