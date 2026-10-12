@@ -41,6 +41,44 @@
   </div>
 </section>
 
+<!-- Direct crawl paths from the recently recrawled homepage to four new
+     published editorial guides still awaiting first Google discovery.
+     The fifth new guide, household FVE prices, is already featured above. -->
+<section class="se-section se-home-discovery" aria-labelledby="se-home-discovery-title" data-se-home-discovery="managed-new-guides">
+  <div class="se-wrap">
+    <div class="se-kicker">Praktická poradna</div>
+    <h2 class="se-title" id="se-home-discovery-title">Když řešíte konkrétní situaci.</h2>
+    <p class="se-muted se-home-discovery-intro">Nemusíte začínat porovnáváním produktů. Vyberte technickou otázku, která ovlivní správný návrh, a ověřte možnosti dřív než budete poptávat montáž.</p>
+    <div class="se-home-discovery-group">
+      <h3>Fotovoltaika pro dům a další plochy</h3>
+      <div class="se-home-discovery-grid">
+        <a class="se-home-guide" href="<?php echo esc_url(home_url('/fotovoltaika-na-pozemku/')); ?>">
+          <strong>Fotovoltaika na pozemku <span aria-hidden="true">→</span></strong>
+          <span>Když střecha není vhodná: konstrukce, stín, vedení kabelů a podmínky instalace na zahradě.</span>
+        </a>
+        <a class="se-home-guide" href="<?php echo esc_url(home_url('/pruhledne-solarni-panely/')); ?>">
+          <strong>Průhledné solární panely <span aria-hidden="true">→</span></strong>
+          <span>Kde dává smysl solární sklo a BIPV, co dnes zvládá a čím se liší od klasických FV panelů.</span>
+        </a>
+      </div>
+    </div>
+    <div class="se-home-discovery-group">
+      <h3>Jaký typ tepelného čerpadla potřebujete?</h3>
+      <div class="se-home-discovery-grid">
+        <a class="se-home-guide" href="<?php echo esc_url(home_url('/tepelne-cerpadlo-monoblok/')); ?>">
+          <strong>Monoblok nebo split? <span aria-hidden="true">→</span></strong>
+          <span>Rozdíly v montáži, ochraně před mrazem, chladivovém okruhu a požadavcích na servis.</span>
+        </a>
+        <a class="se-home-guide" href="<?php echo esc_url(home_url('/tepelne-cerpadlo-vzduch-vzduch/')); ?>">
+          <strong>Tepelné čerpadlo vzduch–vzduch <span aria-hidden="true">→</span></strong>
+          <span>Pro které domy a místnosti funguje vytápění vzduchem a proč samo neřeší teplou vodu.</span>
+        </a>
+      </div>
+    </div>
+    <p class="se-home-discovery-more">Další technická témata najdete v <a href="<?php echo esc_url(home_url('/category/solarni-panely/')); ?>">poradně solárních panelů</a> a v <a href="<?php echo esc_url(home_url('/category/tepelna-cerpadla/')); ?>">poradně tepelných čerpadel</a>.</p>
+  </div>
+</section>
+
 <section id="jak" class="se-section">
   <div class="se-wrap">
     <div class="se-kicker">Nejdřív potřeba, potom produkt</div>

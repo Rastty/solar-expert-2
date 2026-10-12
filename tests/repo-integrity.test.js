@@ -120,6 +120,35 @@ assert(builderFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Gr
 assert(homepageFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Homepage must distinguish grid-connected PV from the off-grid Builder');
 // Homepage must give distinct, crawlable starting points by purchase intent.
 // Newly published buyer/tools pages need contextual links from an established hub.
+// GSC URL inspection: four new published posts have no recorded first crawl,
+// while the front page itself was crawled on 2026-10-12. Keep direct, crawlable
+// paths from that home URL instead of relying solely on paginated archives.
+const homeGuideStart=homepageFirstUseTemplate.indexOf('data-se-home-discovery="managed-new-guides"');
+const homeGuideEnd=homepageFirstUseTemplate.indexOf('<section id="jak"',homeGuideStart);
+assert(homeGuideStart>0&&homeGuideEnd>homeGuideStart,
+  'Homepage must expose a dedicated post discovery hub before tool explanation');
+const homeGuides=homepageFirstUseTemplate.slice(homeGuideStart,homeGuideEnd);
+const homeGuideSlugs=[
+  'fotovoltaika-na-pozemku','pruhledne-solarni-panely',
+  'tepelne-cerpadlo-monoblok','tepelne-cerpadlo-vzduch-vzduch'
+];
+const managedNewPosts=manifest.items.filter(item=>
+  item.type==='post' && item.create_if_missing===true &&
+  (item.status||item.status_if_new)==='publish'
+).map(item=>item.slug);
+assert(managedNewPosts.length===5 &&
+  managedNewPosts.every(slug=>slug==='kolik-stoji-fotovoltaika'||homeGuideSlugs.includes(slug)),
+  'Homepage discovery links must cover all five actually published managed posts');
+for (const slug of homeGuideSlugs) {
+  assert(homeGuides.includes("home_url('/"+slug+"/')"),
+    'Homepage must directly link the previously undiscovered published guide: '+slug);
+}
+assert(homepageFirstUseTemplate.includes("home_url('/kolik-stoji-fotovoltaika/')"),
+  'The fifth new post is already a prominent primary-intent homepage CTA');
+assert(homeGuides.includes("home_url('/category/solarni-panely/')") &&
+       homeGuides.includes("home_url('/category/tepelna-cerpadla/')"),
+  'Direct discovery must retain contextual links to topic-specific archives');
+
 const intentHubStart=homepageFirstUseTemplate.indexOf('class="se-section se-path-section"');
 const intentHubEnd=homepageFirstUseTemplate.indexOf('<section id="jak"',intentHubStart);
 assert(intentHubStart>0&&intentHubEnd>intentHubStart,'Homepage must expose the three-intent navigation hub before editorial sections');
