@@ -770,3 +770,59 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Verify live curated topical category hubs
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz"
+
+          # Preserve original archive URLs and listing while confirming the
+          # new topic hub and article links are really rendered for crawlers.
+          for topic in solarni-panely tepelna-cerpadla; do
+            case "$topic" in
+              solarni-panely)
+                marker='data-se-category-hub="solar-panels"'
+                title='Solární panely: výkon, výběr a návrh FVE'
+                lead='/kolik-stoji-fotovoltaika/'
+                guide='/kolik-panelu-je-potreba-na-jeden-string/'
+                ;;
+              tepelna-cerpadla)
+                marker='data-se-category-hub="heat-pumps"'
+                title='Tepelná čerpadla: výběr, spotřeba a náklady'
+                lead='/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/'
+                guide='/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/'
+                ;;
+            esac
+
+            success=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}/category/${topic}/?category_hub_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              if [ "$code" = "200" ] \
+                && grep -Fq "$marker" "$body_file" \
+                && grep -Fq "$title" "$body_file" \
+                && grep -Fq "href=\"${base}${lead}\"" "$body_file" \
+                && grep -Fq "href=\"${base}${guide}\"" "$body_file" \
+                && grep -Fq 'Další články z archivu' "$body_file" \
+                && grep -Fq 'se-archive-list' "$body_file"; then
+                echo "Public category hub verified: $topic (curated topical content + original archive)."
+                success=1
+                break
+              fi
+
+              echo "Category hub has not converged: $topic HTTP ${code:-none}, attempt $attempt/6."
+              sleep 10
+            done
+
+            if [ "$success" != "1" ]; then
+              echo "::error::Public $topic category lacks current curated guide hub or preserved archive."
+              exit 1
+            fi
+          done
