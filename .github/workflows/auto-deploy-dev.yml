@@ -1126,13 +1126,20 @@ jobs:
             exit 1
           fi
 
+          # Download fully first: piping curl into grep -q under pipefail
+          # can generate a false failure (curl receives SIGPIPE when grep
+          # finds a match before the response finishes streaming).
           for slug in solarni-sestava-na-chatu vyber-baterii mppt-kalkulacka vyber-menice; do
-            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
-              "${base}/${slug}/?seller_probe=${GITHUB_SHA}" \
-              | grep -Fq 'Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria' || {
-                echo "::error::Missing shared-operator disclosure on public tool ${slug}."
-                exit 1
-              }
+            html="$(mktemp)"
+            if ! curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/${slug}/?seller_probe=${GITHUB_SHA}" > "$html"; then
+              echo "::error::Public tool ${slug} could not be fetched for seller disclosure."
+              exit 1
+            fi
+            if ! grep -Fq 'Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria' "$html"; then
+              echo "::error::Missing shared-operator disclosure on public tool ${slug}."
+              exit 1
+            fi
           done
           echo "Independent retailer honesty verified: ${count} affiliate storefronts but ${operators} legal seller(s), and all four purchase tools disclose shared operation."
 
