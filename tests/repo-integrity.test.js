@@ -439,10 +439,28 @@ assert(leadCore.includes("function solar_expert_solar_lead_slugs()"),'Solar lead
 assert(leadCore.includes("'eon-solar'"),'Solar lead CTA must use the canonical E.ON solar lead key');
 assert(leadCore.includes("https://www.eon.cz/domacnosti/usporne-technologie/solar/"),'Solar lead CTA must retain a safe public fallback');
 assert(leadCore.includes("data-se-placement=\"solar_legacy_article\""),'Solar lead CTA must expose a stable measurement placement');
-assert(leadCore.includes("home_url('/quote-checker/')"),'Solar lead CTA must route through Quote Checker before outbound E.ON comparison');
+assert(leadCore.includes("home_url('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve')"),'Solar lead CTA must route residential FVE buyers to the grid-tied checklist before outbound E.ON comparison');
 for(const slug of ['fve-panely-na-strechu','fotovoltaika-na-eternitovou-strechu','kotveni-fotovoltaickych-panelu-na-ploche-strese','velikost-rozmery-a-hmotnost-solarnich-panelu','fotovoltaika-vykon-na-m2','kolik-vyrobi-fotovoltaika-za-rok','fotovoltaika-na-pozemku','kolik-stoji-fotovoltaika','castecne-zastineni-a-solarni-panely']){
   assert(leadCore.includes("'"+slug+"'"),'Solar lead allowlist must include GSC-backed planning page: '+slug);
 }
+
+
+// Static guard: dynamically appended PV content must not send grid-connected buyers
+// into an off-grid Quote Checker (this renderer touches 13 allowed legacy articles).
+const solarRelatedStart=leadCore.indexOf('function solar_expert_append_solar_related_links(');
+const solarRelatedEnd=leadCore.indexOf("add_filter('the_content', 'solar_expert_append_solar_related_links'",solarRelatedStart);
+const solarRelatedBlock=leadCore.slice(solarRelatedStart,solarRelatedEnd);
+const solarLeadStart=leadCore.indexOf('function solar_expert_append_solar_lead_cta(');
+const solarLeadEnd=leadCore.indexOf("add_filter('the_content', 'solar_expert_append_solar_lead_cta'",solarLeadStart);
+const solarLeadBlock=leadCore.slice(solarLeadStart,solarLeadEnd);
+assert(solarRelatedStart>=0&&solarRelatedEnd>solarRelatedStart,'Solar related-link renderer must be bounded for validation');
+assert(solarLeadStart>=0&&solarLeadEnd>solarLeadStart,'Solar dynamic CTA renderer must be bounded for validation');
+assert(!solarRelatedBlock.includes("home_url('/quote-checker/')"),'Broad residential PV related links must not imply Quote Checker validates grid-tied FVE');
+assert(solarRelatedBlock.includes("home_url('/solarni-sestava-na-chatu/')"),'Off-grid Builder must retain a clearly scoped solar related-guide route');
+assert(!solarLeadBlock.includes("home_url('/quote-checker/')"),'Dynamically appended home FVE lead CTA must not use off-grid Quote Checker');
+assert(solarLeadBlock.includes("home_url('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve')"),'Dynamically appended FVE CTA must lead to the on-page residential checklist');
+assert(solarLeadBlock.includes('data-se-lead-id="eon-solar"')&&solarLeadBlock.includes('data-se-placement="solar_legacy_article"'),'Dynamic lead CTA must preserve approved E.ON tracking keys');
+assert(solarLeadBlock.includes('strpos($content, \'data-se-lead-id="eon-solar"\')'),'Dynamic lead CTA must not duplicate an editorial E.ON placement');
 
 assert(leadCore.includes("function solar_expert_append_solar_related_links"),'Solar cluster must expose a dedicated related-links renderer');
 assert(leadCore.includes('data-se-related="solar-cluster"'),'Solar cluster must expose related-guide marker');
@@ -450,7 +468,7 @@ assert(leadCore.includes("home_url('/fotovoltaika-vykon-na-m2/')"),'Solar cluste
 assert(leadCore.includes("home_url('/co-je-1-kwp/')"),'Solar cluster must strengthen the kWp/Wp explainer near-win');
 assert(leadCore.includes("home_url('/kolik-vyrobi-fotovoltaika-za-rok/')"),'Solar cluster must strengthen the annual-output near-win');
 assert(leadCore.includes("home_url('/kolik-stoji-fotovoltaika/')"),'Solar cluster must distribute internal authority to the new high-intent FVE price guide');
-assert(leadCore.includes("home_url('/quote-checker/')"),'Solar cluster must retain an owned decision-tool path');
+assert(solarRelatedBlock.includes("home_url('/solarni-sestava-na-chatu/')"),'Solar cluster must retain a clearly labeled owned off-grid decision-tool path');
 
 
 const boundarySlug='umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda';
