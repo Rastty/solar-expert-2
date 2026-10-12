@@ -63,7 +63,29 @@
       Technický sizing je spočítaný, ale produktový katalog se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
     </div>
 
-    <div class="se-bundles">
+    <section class="se-shopping-summary" x-show="primaryShoppingList" x-cloak aria-label="Nákupní rozpis doporučené sestavy">
+      <div class="se-section-head">
+        <div><div class="se-kicker">Co skutečně nakoupit</div><h3>Rozpis hlavních komponent</h3></div>
+        <small class="se-muted">Varianta <strong x-text="primaryBundle?.label"></strong></small>
+      </div>
+      <p class="se-muted">Počty kusů a orientační ceny vycházejí z doporučení výše. U obchodníka nastavte uvedený počet kusů.</p>
+      <div class="se-shopping-rows">
+        <template x-for="item in primaryShoppingList?.rows || []" :key="item.label">
+          <div class="se-shopping-line">
+            <div><strong x-text="item.quantity+'× '+item.label"></strong><small x-text="item.name"></small></div>
+            <div class="se-shopping-price"><strong x-text="item.subtotal.toLocaleString('cs-CZ')+' Kč'"></strong><small x-text="item.quantity>1 ? item.unitPrice.toLocaleString('cs-CZ')+' Kč / ks' : '1 kus / set'"></small></div>
+          </div>
+        </template>
+      </div>
+      <div class="se-shopping-total"><strong>Součet hlavních dílů</strong><strong x-text="primaryShoppingList?.total.toLocaleString('cs-CZ')+' Kč'"></strong></div>
+      <p class="se-muted se-shopping-disclaimer">Nejde o jeden společný košík: ceny vycházejí z ověřených nabídek různých obchodů a mohou se změnit. Nezahrnují kabely, jištění, konstrukci, montáž ani revizi. U zvýhodněného setu se baterie a měnič nepočítají podruhé.</p>
+      <a href="#builder-offers" class="se-btn se-btn-primary">Přejít k nabídkám obchodů ↓</a>
+    </section>
+    <div class="se-note se-note-error" x-show="primaryBundle?.priceComplete && !primaryShoppingList" x-cloak style="margin-top:14px" role="alert">
+      Cenový rozpis nelze spolehlivě sladit s doporučenou celkovou cenou. Zkontrolujte ceny jednotlivých komponent přímo u obchodníků.
+    </div>
+
+    <div class="se-bundles" id="builder-offers">
       <template x-for="b in completeBundles" :key="b.tier">
         <div class="se-bundle" :class="b.tier==='best'?'best':''">
           <div class="se-bundle-head">
