@@ -714,8 +714,12 @@ jobs:
                && grep -Fq 'href="https://solar-expert.cz/pruhledne-solarni-panely/"' "$body_file" \
                && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-monoblok/"' "$body_file" \
                && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-vzduch-vzduch/"' "$body_file" \
+               && grep -Fq 'data-se-home-demo="builder-preview"' "$body_file" \
+               && grep -Fq 'solar-expert-open-demo' "$body_file" \
+               && grep -Fq 'solar-expert-builder-activated' "$body_file" \
+               && grep -Fq 'Modelový výsledek, ne návrh na míru.' "$body_file" \
                && grep -Fq 'Builder pro chatu' "$body_file"; then
-              echo 'Public homepage decision hub verified: 5/5 new articles one click from recrawled home, off-grid and TČ buyer paths intact.'
+              echo 'Public homepage verified: one-click explicit Builder demo, truthful sample disclosure, all five new SEO article links and three buyer paths.'
               success=1
               break
             fi

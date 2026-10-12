@@ -147,6 +147,10 @@
         observer.observe(root);
       }
 
+      // The homepage's explicit sample-preview CTA lives outside the Builder
+      // DOM root. Route its activation through the exact same once-only
+      // exposure/start counters to avoid losing or double-counting previews.
+      if(tool==='builder') root.addEventListener('solar-expert-builder-activated',start);
       root.addEventListener('pointerdown',start,{once:true,passive:true});
       root.addEventListener('keydown',start,{once:true});
       root.addEventListener('change',start,{once:true});
