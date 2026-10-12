@@ -608,6 +608,34 @@ assert(categoryPhp.includes("solar_expert_public_url('vyber-baterii')"),'Battery
 assert(seoCore.includes("is_category('baterie')"),'Battery category must have dedicated SEO metadata');
 assert(seoCore.includes("'@type' => 'CollectionPage'"),'Category archives must expose CollectionPage structured data');
 assert(footerPhp.includes("/category/baterie/"),'Battery knowledge hub must receive a sitewide internal link');
+for(const category of [
+  ['solarni-panely','solar-panels',
+    ['/kolik-stoji-fotovoltaika/','/fve-panely-na-strechu/',
+     '/kolik-panelu-je-potreba-na-jeden-string/','/fotovoltaika-vykon-na-m2/',
+     '/castecne-zastineni-a-solarni-panely/']],
+  ['tepelna-cerpadla','heat-pumps',
+    ['/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/','/prumerna-spotreba-tepelneho-cerpadla/',
+     '/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/',
+     '/recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady/',
+     '/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/']]
+]){
+  const [categorySlug,hubMarker,links]=category;
+  assert(categoryPhp.includes("is_category('"+categorySlug+"')"),'Curated archive must target existing WordPress category '+categorySlug);
+  assert(categoryPhp.includes('data-se-category-hub="'+hubMarker+'"'),'Editorial category hub must be identifiable in rendered HTML: '+categorySlug);
+  for(const link of links){
+    assert(categoryPhp.includes("home_url('"+link+"')"),'Curated category '+categorySlug+' must link to evidence-backed guide '+link);
+  }
+  assert(footerPhp.includes("home_url('/category/"+categorySlug+"/')"),
+    'Sitewide footer must strengthen the existing curated category '+categorySlug);
+  assert(seoCore.includes("is_category('"+categorySlug+"')"),'Category '+categorySlug+' must have topical Yoast title and description');
+}
+assert(categoryPhp.includes('the_posts_pagination(')&&categoryPhp.includes('while ( have_posts() ) : the_post()'),
+  'Original archives and pagination must remain accessible; do not delete legacy posts');
+assert(categoryPhp.includes('Starší publikované informace')&&categoryPhp.includes('včetně starších článků'),
+  'Archive must mark uncurated content as possibly out of date');
+assert(deployWorkflow.includes('Verify live curated topical category hubs'),
+  'Deploy must verify publicly rendered solar-panel and heat-pump category hubs');
+
 for(const target of [
   "home_url('/kolik-stoji-fotovoltaika/')",
   "solar_expert_public_url('solarni-sestava-na-chatu','/solarni-sestava-na-chatu/')",
