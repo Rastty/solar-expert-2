@@ -1286,6 +1286,18 @@ assert(firstPartyFunctions.includes("wp_enqueue_script('solar-expert-analytics'"
 assert(firstPartyFunctions.includes("array('solar-expert-analytics')"),'First-party funnel collector must be enqueued before affiliate tracking');
 assert(firstPartyFunctions.includes("wp_enqueue_script('solar-expert-quote-checker',$uri.'/assets/js/quote-checker.js',array('solar-expert-analytics')"),'Quote Checker must load after first-party analytics');
 assert(firstPartyFunctions.includes("rest_url('solar-expert/v1/funnel-event')"),'Analytics collector must receive the first-party REST endpoint');
+assert(firstPartyFunctions.includes('function solar_expert_tool_runtime_requirements()'),'Tool JS needs an explicit page-aware runtime router');
+assert(firstPartyFunctions.includes("has_shortcode($body, 'solar_expert_builder')"),'Embedded Builder outside managed landing pages must still run');
+assert(firstPartyFunctions.includes("has_shortcode($body, 'solar_expert_quote_checker')"),'Embedded Quote Checker outside managed pages must still run');
+assert(firstPartyFunctions.includes("wp_localize_script('solar-expert-affiliate','SolarExpertConfig'"),'WordPress merchant bases must be localized on sitewide affiliate script to preserve E.ON lead attribution');
+assert(!firstPartyFunctions.includes("wp_localize_script('solar-expert-builder','SolarExpertConfig'"),'Editor pages must not depend on Builder loading to resolve affiliate leads');
+assert(firstPartyFunctions.includes("if ( ! empty($alpine_dependencies) )"),'Alpine must not load on non-calculator pages');
+const conditionalPhpTest=fs.readFileSync(path.join(__dirname,'..','tests','conditional-assets.test.php'),'utf8');
+assert(conditionalPhpTest.includes('All conditional script routing and merchant attribution cases passed.'),'Validated script router must cover archive, article and owned tools');
+const validateAssetWorkflow=fs.readFileSync(path.join(__dirname,'..','.github','workflows','validate.yml'),'utf8');
+assert(validateAssetWorkflow.includes('php tests/conditional-assets.test.php'),'CI must execute PHP tool-enqueue simulations before merge');
+assert(deployWorkflow.includes('Verify public conditional tool scripts'),'Release gate must test live script scope, not just theme version');
+
 assert(firstPartyCore.includes("register_rest_route('solar-expert/v1', '/funnel-event'"),'First-party funnel REST route must stay registered');
 assert(firstPartyCore.includes("get_option('solar_expert_funnel_daily'"),'Funnel collector must use aggregate daily storage');
 assert(firstPartyCore.includes("34 * DAY_IN_SECONDS"),'Funnel collector must prune storage to a 35-day rolling window');
