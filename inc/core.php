@@ -2758,6 +2758,16 @@ function solar_expert_append_solar_related_links($content) {
     ),
   );
 
+  // An asbestos/fragile-roof decision needs a real mounting alternative.
+  // The indexed eternit guide should expose the published ground-mount guide
+  // without silently steering residential FVE buyers to the cottage Builder.
+  if ( $slug === 'fotovoltaika-na-eternitovou-strechu' ) {
+    $guides['fotovoltaika-na-pozemku'] = array(
+      'label' => 'Alternativa k nevhodné střeše: FVE na pozemku',
+      'url' => home_url('/fotovoltaika-na-pozemku/'),
+    );
+  }
+
   $links = array();
   foreach ( $guides as $guide_slug => $guide ) {
     if ( $guide_slug === $slug ) {
