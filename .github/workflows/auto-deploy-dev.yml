@@ -832,6 +832,47 @@ jobs:
             fi
           done
 
+      - name: Verify public thematic categories for new managed posts
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          # Term membership is checked through public REST, not the first
+          # category archive page (which may be paginated).
+          for pair in \
+            kolik-stoji-fotovoltaika:solarni-panely \
+            fotovoltaika-na-pozemku:solarni-panely \
+            pruhledne-solarni-panely:solarni-panely \
+            tepelne-cerpadlo-vzduch-vzduch:tepelna-cerpadla \
+            tepelne-cerpadlo-monoblok:tepelna-cerpadla; do
+            slug="${pair%%:*}"
+            category="${pair#*:}"
+            passed=0
+            for attempt in 1 2 3 4 5 6; do
+              term_json="$(curl -fsSL --max-time 20 \
+                -H 'Cache-Control: no-cache' \
+                "${base}/wp-json/wp/v2/categories?slug=${category}&_fields=id,slug&release_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              post_json="$(curl -fsSL --max-time 20 \
+                -H 'Cache-Control: no-cache' \
+                "${base}/wp-json/wp/v2/posts?slug=${slug}&_fields=id,slug,categories&release_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              category_id="$(jq -er '.[0].id' <<< "$term_json" 2>/dev/null || true)"
+              if [[ "$category_id" =~ ^[0-9]+$ ]] &&
+                 jq -e --arg slug "$slug" --argjson id "$category_id" \
+                   'length == 1 and .[0].slug == $slug and (.[0].categories | index($id) != null)' \
+                   <<< "$post_json" >/dev/null 2>&1; then
+                echo "Managed category verified: $slug => $category ($category_id)."
+                passed=1
+                break
+              fi
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Managed post $slug lacks required category $category; abort release."
+              exit 1
+            fi
+          done
+
       - name: Verify public conditional tool scripts
         if: steps.config.outputs.enabled == 'true'
         shell: bash
