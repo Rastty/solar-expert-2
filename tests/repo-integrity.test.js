@@ -1043,6 +1043,17 @@ assert(transparentPvHtml.includes('data-se-placement="transparent_pv_to_conventi
 assert(transparentPvHtml.indexOf('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve')<transparentPvHtml.indexOf('data-se-lead-id="eon-solar"'),'Residential FVE checklist must appear before bounded E.ON comparison');
 assert(seoCore.includes("function solar_expert_emerging_pv_slugs"),'Emerging-PV mini-cluster allowlist must exist');
 assert(seoCore.includes("function solar_expert_append_emerging_pv_related_links"),'Emerging-PV mini-cluster renderer must exist');
+assert(seoCore.includes("'solarni-panel-definice-a-fakta' => array(") &&
+  seoCore.includes("'label' => 'Jak funguje běžný fotovoltaický panel'") &&
+  seoCore.includes("home_url('/solarni-panel-definice-a-fakta/')"),
+  'PVT technology articles must link back to the basic PV-effect intent owner, not compete with it');
+assert(categoryPhp.includes('Jak funguje solární panel?') &&
+  categoryPhp.includes("home_url('/solarni-panel-definice-a-fakta/')"),
+  'Solar category hub must give the basic PV explanation an explicit contextual discovery link');
+for (const path of ['/tepelne-cerpadlo-monoblok/','/tepelne-cerpadlo-vzduch-vzduch/']){
+  assert(categoryPhp.includes("home_url('"+path+"')"),
+    'Heat-pump topic hub must internally discover the new comparison page '+path);
+}
 assert(seoCore.includes('data-se-related="emerging-pv-cluster"'),'Emerging-PV mini-cluster must expose a stable marker');
 assert(seoCore.includes("home_url('/pruhledne-solarni-panely/')"),'Emerging-PV cluster must internally link the transparent PV guide');
 assert(seoCore.includes("home_url('/vysvetleni-solarnich-panelu-pv-t/')"),'Emerging-PV cluster must retain the PVT comparison path');

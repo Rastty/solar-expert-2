@@ -832,6 +832,42 @@ jobs:
             fi
           done
 
+      - name: Verify GSC-intent topic discovery links in live content
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            solar="$(mktemp)"
+            heat="$(mktemp)"
+            pvt="$(mktemp)"
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/category/solarni-panely/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$solar" || true
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/category/tepelna-cerpadla/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$heat" || true
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/vysvetleni-solarnich-panelu-pv-t/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$pvt" || true
+            if grep -Fq 'data-se-category-hub="solar-panels"' "$solar" \
+               && grep -Fq 'href="https://solar-expert.cz/solarni-panel-definice-a-fakta/"' "$solar" \
+               && grep -Fq 'data-se-category-hub="heat-pumps"' "$heat" \
+               && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-monoblok/"' "$heat" \
+               && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-vzduch-vzduch/"' "$heat" \
+               && grep -Fq 'data-se-related="emerging-pv-cluster"' "$pvt" \
+               && grep -Fq 'href="https://solar-expert.cz/solarni-panel-definice-a-fakta/"' "$pvt"; then
+              echo "Live SEO intent split verified: basic PV explanation linked from category and PVT; heat-pump type guides discoverable."
+              passed=1
+              break
+            fi
+            echo "SEO intent links have not converged: attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo '::error::GSC-backed topical internal links are missing from public WordPress HTML.'
+            exit 1
+          fi
+
       - name: Reconcile managed categories after release convergence
         if: steps.config.outputs.enabled == 'true'
         shell: bash

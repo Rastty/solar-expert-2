@@ -22,6 +22,7 @@
         <p class="se-muted">Vybrané návody řadíme podle rozhodnutí, která je potřeba udělat před podpisem nabídky nebo nákupem komponent.</p>
         <div class="se-category-curated-grid">
           <a class="se-category-guide se-category-guide-primary" href="<?php echo esc_url(home_url('/kolik-stoji-fotovoltaika/')); ?>"><strong>Domovní FVE: cena a kontrola nabídky</strong><span>Co má být součástí ceny, výkon systému, montáž a podmínky připojení →</span></a>
+          <a class="se-category-guide" href="<?php echo esc_url(home_url('/solarni-panel-definice-a-fakta/')); ?>"><strong>Jak funguje solární panel?</strong><span>Fotovoltaický článek, přeměna světla na elektřinu, výkon Wp a základní rozdíl oproti PVT →</span></a>
           <a class="se-category-guide" href="<?php echo esc_url(home_url('/fve-panely-na-strechu/')); ?>"><strong>Panely na střechu</strong><span>Počet panelů, orientace, stínění, využitelná plocha a statika →</span></a>
           <a class="se-category-guide" href="<?php echo esc_url(home_url('/kolik-panelu-je-potreba-na-jeden-string/')); ?>"><strong>Kolik panelů do stringu?</strong><span>Vmp, Voc za chladu, limity měniče a bezpečné zapojení →</span></a>
           <a class="se-category-guide" href="<?php echo esc_url(home_url('/fotovoltaika-vykon-na-m2/')); ?>"><strong>Jaký výkon na m²?</strong><span>Rozdíl mezi Wp, kWp, plochou a skutečnou výrobou →</span></a>
@@ -45,6 +46,7 @@
           <a class="se-category-guide" href="<?php echo esc_url(home_url('/recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady/')); ?>"><strong>Samsung: technická recenze</strong><span>Konkrétní produktová řada, omezení a body k ověření u dodavatele →</span></a>
           <a class="se-category-guide" href="<?php echo esc_url(home_url('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/')); ?>"><strong>Fotovoltaika a tepelné čerpadlo</strong><span>Jak hodnotit kombinaci, spotřebu, souběh a investici →</span></a>
         </div>
+        <p class="se-category-alternative">Porovnáváte způsob instalace a vytápění? Přečtěte si <a href="<?php echo esc_url(home_url('/tepelne-cerpadlo-monoblok/')); ?>">monoblok vs. split</a> a <a href="<?php echo esc_url(home_url('/tepelne-cerpadlo-vzduch-vzduch/')); ?>">kdy dává smysl tepelné čerpadlo vzduch–vzduch</a>. Tyto typy mají jiné instalační a provozní požadavky.</p>
         <p class="se-category-alternative">Zvažujete vrt pro systém země–voda? Začněte samostatným <a href="<?php echo esc_url(home_url('/vrt-pro-tepelne-cerpadlo/')); ?>">průvodcem vrty</a>. Parametry vzduchových jednotek se na vrty nepřenášejí.</p>
       </section>
       <h2 class="se-category-archive-title">Další články z archivu tepelných čerpadel</h2>
