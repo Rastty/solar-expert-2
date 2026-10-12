@@ -6,6 +6,10 @@
   <div class="se-progress"><span :class="step>=1?'on':''"></span><span :class="step>=2?'on':''"></span><span :class="step>=3?'on':''"></span><span :class="step>=4?'on':''"></span></div>
 
   <div x-show="step===1">
+    <div class="se-quick-preview">
+      <div><strong>Chcete nejdřív vidět výsledek?</strong><small>Modelová chata: lednice, světla, notebook, Wi-Fi · jaro–podzim · baterie na 1 den. Výpočet lze potom upravit.</small></div>
+      <button type="button" class="se-btn se-btn-primary" @click="quickPreview()">Ukázat vzorovou sestavu →</button>
+    </div>
     <div class="se-note" style="margin-bottom:12px"><strong>Vyberte příklad, který je vám nejblíž.</strong> Spotřebiče předvyplníme jen pro začátek; ve druhém kroku je můžete přidat, odebrat a upravit dobu provozu. Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky.</div>
     <button type="button" class="se-choice" @click="preset('chata')"><strong>Chata / zahradní domek →</strong><small>Lednice, světla, notebook a Wi-Fi. Vše upravíte.</small></button>
     <button type="button" class="se-choice" @click="preset('offgrid')"><strong>Ostrovní systém →</strong><small>Běžné spotřebiče včetně televize, bez přípojky.</small></button>
@@ -38,6 +42,11 @@
   </div>
 
   <div x-show="step===4" x-cloak>
+    <div class="se-note se-preview-note" x-show="previewMode" x-cloak role="status">
+      <strong>Modelový výsledek, ne návrh na míru.</strong>
+      Počítáme příklad pro chatu (lednice, světla, notebook, Wi-Fi), sezónu jaro–podzim a baterii na 1 den. Ceny jsou orientační a technická kompatibilita předběžná.
+      <button type="button" class="se-btn" @click="editPreview()">Upravit spotřebiče a spočítat vlastní sestavu →</button>
+    </div>
     <div class="se-resultgrid">
       <div class="se-result"><small>Denní spotřeba</small><strong><span x-text="result?.energyKwh"></span> kWh</strong></div>
       <div class="se-result"><small>Odhad špičky</small><strong><span x-text="result?.peak"></span> W</strong></div>
