@@ -5,7 +5,8 @@
     <div>
       <div class="se-kicker">CZ decision engine · bez prodejního tlaku</div>
       <h1 class="se-h1">Solár, který sedí vám.</h1>
-      <p class="se-lead">Vyberte spotřebiče a způsob použití. Spočítáme panely, baterii, měnič a MPPT a ukážeme jen technicky odpovídající sestavy.</p>
+      <p class="se-lead">Pro chatu, ostrovní systém nebo zálohu při výpadku: vyberte běžné spotřebiče, upravte jejich provoz a zjistěte potřebné panely, baterii, měnič a MPPT.</p>
+      <p class="se-muted">Plánujete klasickou síťovou FVE na rodinném domě? Začněte <a href="/kolik-stoji-fotovoltaika/">průvodcem výběrem a cenou fotovoltaiky</a>.</p>
       <div class="se-actions"><a class="se-btn se-btn-primary" href="#builder">Navrhnout sestavu zdarma →</a><a class="se-btn" href="#jak">Jak to funguje</a></div>
     </div>
     <div><?php echo do_shortcode('[solar_expert_builder]'); ?></div>
