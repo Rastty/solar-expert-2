@@ -380,8 +380,9 @@ assert(!budget12.complete, '12V KOSUN bundle must stay incomplete until explicit
 const builder = global.window.solarExpertBuilder();
 builder.catalog = catalog.products;
 builder.preset('chata');
+builder.toggle('pump'); // Dedicated pump scenario: the first-use default intentionally leaves the pump off.
 builder.calc();
-assert(builder.result.voltage===24, 'Default cottage preset should use 24V, not jump to 48V only because of short pump surge');
+assert(builder.result.voltage===24, 'Cottage with explicitly enabled pump should use 24V, not jump to 48V only because of short pump surge');
 assert(builder.result.inverterW>=builder.result.runningWatts, 'Continuous inverter target must cover running load');
 assert(builder.result.peak>builder.result.inverterW, 'Cottage pump scenario should keep surge separate from continuous inverter sizing');
 const cottageBest = builder.bundles.find(b=>b.tier==='best');
