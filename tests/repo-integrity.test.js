@@ -119,6 +119,23 @@ assert(builderFirstUseTemplate.includes('Čerpadlo ani jiné výkonné zařízen
 assert(builderFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Grid-connected FVE visitors need a suitable alternate decision path');
 assert(homepageFirstUseTemplate.includes('href="/kolik-stoji-fotovoltaika/"'),'Homepage must distinguish grid-connected PV from the off-grid Builder');
 
+
+// Guardrail: grid-connected residential FVE must not be evaluated by the off-grid Quote Checker.
+const gridFvePriceHtml=fs.readFileSync(path.join(__dirname,'..','content','rewrites','kolik-stoji-fotovoltaika.html'),'utf8');
+const gridFveCombinedHtml=fs.readFileSync(path.join(__dirname,'..','content','rewrites','kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem.html'),'utf8');
+const gridFveAnnualHtml=fs.readFileSync(path.join(__dirname,'..','content','rewrites','kolik-vyrobi-fotovoltaika-za-rok.html'),'utf8');
+const gridFveHourlyHtml=fs.readFileSync(path.join(__dirname,'..','content','rewrites','kolik-vyrobi-fotovoltaika-za-hodinu.html'),'utf8');
+assert(gridFvePriceHtml.includes('id="kontrola-domovni-fve"'),'Residential price guide must retain its offer-comparison checklist anchor');
+assert(gridFvePriceHtml.includes('Quote Checker</a> je určený pro ostrovní a záložní sestavy'),'Residential quote guide must disclose off-grid tool limits');
+assert(!gridFvePriceHtml.includes('Prověřit vlastní nabídku v Quote Checkeru'),'Residential grid-tied price guide cannot promise a generic Quote Checker assessment');
+assert(gridFvePriceHtml.includes('data-se-lead-id="eon-solar"')&&gridFvePriceHtml.includes('data-se-placement="fve_price_guide_compare"'),'Residential comparison must retain the existing approved E.ON lead and attribution');
+assert(gridFveCombinedHtml.includes('href="/kolik-stoji-fotovoltaika/#kontrola-domovni-fve"'),'Combined FVE + heat-pump guide must route to the correct residential checklist');
+assert(!gridFveCombinedHtml.includes('Spočítat potřebný FV výkon podle spotřeby'),'Combined residential FVE guide must not promise off-grid Builder grid-tied sizing');
+for(const body of [gridFveAnnualHtml,gridFveHourlyHtml]){
+  assert(body.includes('href="/kolik-stoji-fotovoltaika/"'),'Production-intent guides must route price searchers to the dedicated residential landing page');
+  assert(body.includes('href="/solarni-sestava-na-chatu/"'),'Production-intent guides must retain an explicit off-grid Builder path');
+}
+
 const expandPvSlug='pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu';
 const expandPvItem=manifest.items.find(x=>x.slug===expandPvSlug);
 assert(expandPvItem&&expandPvItem.preserve_status===true,'Existing-PV expansion near-win must preserve indexed status');
