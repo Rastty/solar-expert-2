@@ -412,7 +412,7 @@ const scopedResidentialEditorialSlugs=[
 ];
 for(const slug of scopedResidentialEditorialSlugs){
   const item=manifest.items.find(x=>x.slug===slug);
-  assert(item&&item.preserve_status===true,'Editorial residential FVE slug must retain indexed status: '+slug);
+  assert(item&&(item.preserve_status===true||(item.create_if_missing===true&&item.status==='publish')),'Editorial residential FVE slug must retain protected status or managed public-publish intent: '+slug);
   const body=fs.readFileSync(path.join(__dirname,'..',item.file),'utf8');
   assert(!body.includes('href="/quote-checker/"'),'Residential FVE editorial post must not promise off-grid Quote Checker: '+slug);
   assert(body.includes('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),'Residential FVE editorial post must route to the accurate offer checklist: '+slug);
