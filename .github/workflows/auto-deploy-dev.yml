@@ -717,3 +717,56 @@ jobs:
             echo '::error::Public homepage does not expose the current topic-scoped decision hub, navigation and owned links.'
             exit 1
           fi
+
+      - name: Verify public ground-source routing and Quote Checker SEO title
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # The native post footer and the real Yoast title/description must
+          # match their current topic; cached HTML and stale SEO plugin values
+          # are intentionally not accepted merely because the theme updated.
+          base='https://solar-expert.cz'
+          for check in ground quote; do
+            success=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              if [ "$check" = 'ground' ]; then
+                url="${base}/vrt-pro-tepelne-cerpadlo/?ground_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              else
+                url="${base}/quote-checker/?quote_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              fi
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              if [ "$check" = 'ground' ]; then
+                if [ "$code" = 200 ] \
+                   && grep -Fq 'data-se-decision-path="ground-source-heat-pump"' "$body_file" \
+                   && grep -Fq 'Zvažujete vrt pro tepelné čerpadlo země–voda?' "$body_file" \
+                   && grep -Fq 'Porovnat variantu vzduch–voda' "$body_file" \
+                   && grep -Fq 'Vrt pro tepelné čerpadlo: hloubka, cena a rizika' "$body_file"; then
+                  echo 'Public ground-source article routing and corrected search title verified.'
+                  success=1
+                fi
+              else
+                if [ "$code" = 200 ] \
+                   && grep -Fq 'Kontrola nabídky ostrovní FVE a zálohy' "$body_file" \
+                   && grep -Fq 'Není určen pro síťovou FVE domu.' "$body_file"; then
+                  echo 'Public Quote Checker off-grid SEO title and snippet scope verified.'
+                  success=1
+                fi
+              fi
+
+              if [ "$success" = 1 ]; then break; fi
+              echo "Public $check scope not converged (HTTP ${code:-none}, attempt $attempt/6)."
+              sleep 10
+            done
+
+            if [ "$success" != 1 ]; then
+              echo "::error::Live $check page still has stale/misleading search or decision context."
+              exit 1
+            fi
+          done
