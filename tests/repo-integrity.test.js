@@ -136,6 +136,16 @@ for(const body of [gridFveAnnualHtml,gridFveHourlyHtml]){
   assert(body.includes('href="/solarni-sestava-na-chatu/"'),'Production-intent guides must retain an explicit off-grid Builder path');
 }
 
+
+// Guardrail: the Builder must validate browser input before calculating.
+const builderInputSafetyJs=fs.readFileSync(path.join(__dirname,'..','assets','js','builder.js'),'utf8');
+const builderInputSafetyTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
+assert(builderInputSafetyJs.includes('validateSelections()'),'Builder must validate hours and appliance unit count');
+assert(builderInputSafetyJs.includes('Number.isInteger(qty)'),'Builder must require integer appliance unit count');
+assert(builderInputSafetyJs.includes('Number.isFinite(hours)'),'Builder must reject nonfinite hours');
+assert(builderInputSafetyTpl.includes('role="alert" aria-live="polite" x-text="inputError"'),'Builder must provide accessible input errors');
+assert(builderInputSafetyTpl.includes('min=".1" max="24"'),'Builder hours field must expose the accepted range');
+
 const expandPvSlug='pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu';
 const expandPvItem=manifest.items.find(x=>x.slug===expandPvSlug);
 assert(expandPvItem&&expandPvItem.preserve_status===true,'Existing-PV expansion near-win must preserve indexed status');
@@ -970,7 +980,7 @@ assert(builderUxTpl.includes('Vyberte příklad, který je vám nejblíž.')&&bu
 assert(builderUxTpl.includes('Návrh solární sestavy'),'Builder kicker must stay Czech and task-oriented');
 assert(builderUxJs.includes("event:'builder_step'"),'Builder must emit bounded step milestones');
 assert(builderUxJs.includes("this.trackStep('step_2')"),'Builder scenario selection must record step 2');
-assert(builderUxJs.includes("advanceToUsage(){this.step=3;this.trackStep('step_3');}"),'Builder continuation must record step 3');
+assert(builderUxJs.includes('advanceToUsage(){')&&builderUxJs.includes("this.trackStep('step_3')")&&builderUxJs.includes('this.validateSelections()'),'Builder continuation must validate inputs and record step 3');
 assert(builderUxJs.includes("this.trackStep('result')"),'Builder calculation must record result milestone');
 assert(builderUxTpl.includes('@click="advanceToUsage()"'),'Builder template must route step 3 through the tracked milestone');
 assert(builderUxTpl.includes(':data-se-product-id="b.battery?.id"'),'Builder battery offers must expose bounded product ids for visibility tracking');

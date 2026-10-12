@@ -1,5 +1,5 @@
 window.solarExpertBuilder=function(){return{
-  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,catalogLoading:true,catalogError:false,bundles:[],result:null,trackedSteps:[],
+  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,catalogLoading:true,catalogError:false,bundles:[],result:null,trackedSteps:[],inputError:'',
   appliances:[
     {id:'fridge',name:'Lednice',watts:70,surge:700,hours:10,qty:1,selected:false},
     {id:'lights',name:'LED osvětlení',watts:40,surge:40,hours:5,qty:1,selected:false},
@@ -63,15 +63,48 @@ window.solarExpertBuilder=function(){return{
     this.trackedSteps.push(status);
     if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'builder_step',status,scenario:this.scenario});
   },
-  advanceToUsage(){this.step=3;this.trackStep('step_3');},
-  preset(type){this.appliances.forEach(a=>a.selected=false);const ids=type==='chata'?['fridge','lights','laptop','router']:type==='offgrid'?['fridge','lights','laptop','router','tv']:['fridge','lights','router'];ids.forEach(id=>{const a=this.appliances.find(x=>x.id===id);if(a)a.selected=true;});this.scenario=type;this.step=2;this.trackStep('step_2');},
+  validateSelections(){
+    if(!this.selectedAppliances.length)return 'Vyberte alespoň jeden spotřebič.';
+    for(const a of this.selectedAppliances){
+      const hours=Number(a.hours),qty=Number(a.qty);
+      if(!Number.isFinite(hours)||hours<=0||hours>24){
+        return a.name+': zadejte dobu provozu větší než 0 a nejvýše 24 hodin denně. Pokud spotřebič nepoužíváte, odškrtněte jej.';
+      }
+      if(!Number.isInteger(qty)||qty<1||qty>10){
+        return a.name+': počet musí být celé číslo od 1 do 10.';
+      }
+    }
+    if(!Number.isFinite(this.dailyWh)||this.dailyWh<=0){
+      return 'Denní spotřeba musí být kladné konečné číslo.';
+    }
+    return '';
+  },
+  advanceToUsage(){
+    this.inputError=this.validateSelections();
+    if(this.inputError)return;
+    this.step=3;
+    this.trackStep('step_3');
+  },
+  preset(type){this.inputError='';this.appliances.forEach(a=>a.selected=false);const ids=type==='chata'?['fridge','lights','laptop','router']:type==='offgrid'?['fridge','lights','laptop','router','tv']:['fridge','lights','router'];ids.forEach(id=>{const a=this.appliances.find(x=>x.id===id);if(a)a.selected=true;});this.scenario=type;this.step=2;this.trackStep('step_2');},
   chooseSystemVoltage(inverterW,peak){
     if(inverterW<=1000 && peak<=2000) return 12;
     if(inverterW<=2500 && peak<=4000) return 24;
     return 48;
   },
   calc(){
-    if(!this.selectedAppliances.length)return;
+    this.inputError=this.validateSelections();
+    if(this.inputError){this.step=2;return;}
+    if(this.manualPeak!==null&&this.manualPeak!==''&&
+       (!Number.isFinite(Number(this.manualPeak))||Number(this.manualPeak)<0)){
+      this.inputError='Známé maximum musí být kladné číslo nebo nula. Jinak pole nechte prázdné.';
+      return;
+    }
+    if(!['summer','three','year'].includes(this.season)||
+       ![0.5,1,2].includes(Number(this.autonomy))){
+      this.inputError='Zvolte platnou sezónu a rezervu baterie.';
+      return;
+    }
+    this.inputError='';
     const energyWh=this.dailyWh;
     const runningWatts=this.runningWatts;
     const psh=this.season==='summer'?4.2:(this.season==='three'?2.8:1.6);
@@ -91,5 +124,5 @@ window.solarExpertBuilder=function(){return{
     this.trackStep('result');
     if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'solar_builder_complete',scenario:this.scenario,voltage,panelWp,batteryKwh,inverterW,peak});
   },
-  reset(){this.step=1;this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}
+  reset(){this.step=1;this.inputError='';this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}
 };};
