@@ -654,7 +654,7 @@ const routed=JSON.parse(execFileSync('php',['-r',phpNextStepFixture],{encoding:'
 assert(routed.length===5,'Article router test must cover all declared scopes');
 assert(routed[0].scope==='heat-pump'&&routed[0].primary_url.endsWith('/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/'),
   'Samsung heat-pump review must route to heat-pump advice, never off-grid Builder');
-assert(routed[1].scope==='heat-pump','Additional heat pump topics must not default to off-grid Builder');
+assert(routed[1].scope==='ground-source-heat-pump'&&routed[1].primary_url.endsWith('/jak-funguje-tepelne-cerpadlo/')&&routed[1].secondary_url.endsWith('/tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji/'),'Ground-loop drilling must have its own decision path instead of the air-source buyer guide');
 assert(routed[2].scope==='grid-fve'&&routed[2].primary_url.endsWith('/kolik-stoji-fotovoltaika/#kontrola-domovni-fve'),
   'Rooftop grid FVE must lead to a bounded offer checklist');
 assert(routed[3].scope==='battery'&&routed[3].primary_url.endsWith('/vyber-baterii/'),
@@ -662,6 +662,11 @@ assert(routed[3].scope==='battery'&&routed[3].primary_url.endsWith('/vyber-bater
 assert(routed[4].scope==='solar-choice'&&routed[4].primary_url.endsWith('/kolik-stoji-fotovoltaika/')&&routed[4].secondary_url.endsWith('/solarni-sestava-na-chatu/'),
   'Ambiguous solar articles must clearly distinguish grid-tied and off-grid paths');
 assert(deployWorkflow.includes('Verify public topic-aware article next steps'),'Auto deploy must smoke check topic-specific post CTA after theme update');
+assert(seoCore.includes("'title' => 'Kontrola nabídky ostrovní FVE a zálohy | Solar Expert'"),'Quote Checker SEO title must explicitly identify off-grid/backup scope');
+assert(seoCore.includes('Není určen pro síťovou FVE domu.'),'Quote Checker snippet must distinguish residential grid PV');
+assert(seoCore.includes("'title' => 'Vrt pro tepelné čerpadlo: hloubka, cena a rizika | Solar Expert'"),'Ground-source drilling article must have a typo-free high-intent SEO title');
+assert(deployWorkflow.includes('Verify public ground-source routing and Quote Checker SEO title'),'Deploy must verify live scoped ground-source routing and indexed landing meta');
+
 
 
 
