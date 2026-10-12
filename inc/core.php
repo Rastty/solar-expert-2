@@ -2148,6 +2148,20 @@ function solar_expert_seo_meta($slug_override = '') {
     );
   }
 
+  if ( is_category('solarni-panely') ) {
+    return array(
+      'title' => 'Solární panely: výkon, výběr a návrh FVE | Solar Expert',
+      'description' => 'Průvodce solárními panely: počet modulů na střechu, výkon Wp/m², Voc/Vmp, stringy, stínění a kontrola nabídky domovní FVE.'
+    );
+  }
+
+  if ( is_category('tepelna-cerpadla') ) {
+    return array(
+      'title' => 'Tepelná čerpadla: výběr, spotřeba a náklady | Solar Expert',
+      'description' => 'Jak vybrat tepelné čerpadlo pro dům: výkon, vzduch–voda, SCOP, hlučnost, spotřeba, umístění a nabídka dodavatele.'
+    );
+  }
+
   if ( is_singular(array('page','post')) ) {
     $post = get_queried_object();
     if ( $post && isset($map[$post->post_name]) ) {
