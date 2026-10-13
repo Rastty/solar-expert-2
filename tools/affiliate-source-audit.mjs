@@ -32,7 +32,11 @@ export function catalogSources(catalog) {
   for(const [kind,rows] of [['product',catalog.products],['bundle',catalog.bundle_deals]]) {
     for(const row of rows) {
       if(!row || typeof row.id!=='string' || !row.id) throw new Error('Catalog row missing an ID');
-      const offers=Array.isArray(row.offers)&&row.offers.length?row.offers:[{
+      // A discontinued seed item can have no real published shop offer.
+      // Do not fabricate a fallback audit URL for such a withdrawn SKU.
+      const explicit=Array.isArray(row.offers)&&row.offers.length;
+      if(!explicit && ['discontinued','unavailable'].includes(row.availability)) continue;
+      const offers=explicit?row.offers:[{
         merchant:row.merchant,source_url:row.source_url,
         availability:row.availability,verified_at:row.verified_at
       }];
