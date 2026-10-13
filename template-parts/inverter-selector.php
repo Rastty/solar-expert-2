@@ -46,6 +46,7 @@
                :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                @click="SolarExpertAffiliate.trackOffer(r.product,o.raw,'inverter-selector')">
               <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+              <span class="se-offer-cta" x-text="o.price_czk ? 'Zobrazit nabídku ↗' : 'Ověřit cenu u prodejce ↗'"></span>
             </a>
           </template>
         </div>
