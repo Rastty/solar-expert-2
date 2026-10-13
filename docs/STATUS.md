@@ -2,6 +2,8 @@
 
 Git-first development active on `dev`.
 
+- v0.12.23: buyer-facing Czech guidance now replaces internal `P1`/`NEW`, `Decision tools`, `Product comparison` and English purchase caveats on the homepage and Builder guide; all four tool URLs, affiliate/lead targets, prices, analytics and frozen decision rules remain unchanged. CI tests protect public links and transparent same-operator merchant disclosure. Evaluate changes via 7/28-day tool exposure → activation → real outbound, not assumed conversion uplift.
+
 - WordPress theme root: ready
 - Builder: implemented with product comparison + completion checklist
 - Battery Selector: implemented and offer-enabled
