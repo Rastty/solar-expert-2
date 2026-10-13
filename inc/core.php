@@ -1590,6 +1590,7 @@ function solar_expert_merchant_operator_id($merchant_id) {
   $known = array(
     'battery-cz' => 'efteria-cz',
     'solar-import-cz' => 'efteria-cz',
+    'vselektro-eu' => 'vs-elektro-plus-cz',
   );
   return $known[$merchant_id] ?? $merchant_id;
 }
