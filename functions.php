@@ -4,6 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 require_once get_template_directory() . '/inc/core.php';
 require_once get_template_directory() . '/inc/curated-archives.php';
 require_once get_template_directory() . '/inc/buyer-discovery.php';
+require_once get_template_directory() . '/inc/import-seo-hygiene.php';
 
 function solar_expert_setup() {
   add_theme_support('title-tag');
