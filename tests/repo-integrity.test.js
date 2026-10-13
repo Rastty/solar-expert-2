@@ -248,6 +248,7 @@ const deployWorkflow=fs.readFileSync(path.join(__dirname,'..','.github','workflo
 assert(deployWorkflow.includes('managed_indexability_errors'),'Auto deploy must fail on managed indexability errors');
 assert(deployWorkflow.includes('index_ready')&&deployWorkflow.includes('index_targets'),'Auto deploy must verify every indexability target is ready');
 assert(deployWorkflow.includes('managed_publish_post_slugs'),'Crawler guard must enumerate repo-created public posts');
+assert(deployWorkflow.includes('select(.type == "page" and .indexable == true)'), 'Crawler guard must validate only indexable Pages in page-sitemap; new indexed Posts belong to post-sitemap');
 assert(deployWorkflow.includes('Managed publish post is missing from Yoast post sitemap'),'Crawler guard must fail when a repo-created public post is absent from the post sitemap');
 assert(deployWorkflow.includes('Managed publish post exposes noindex'),'Crawler guard must reject noindex on repo-created public posts');
 assert(deployWorkflow.includes('Verify rendered residential FVE CTA'),'Deploy must inspect the publicly rendered home-FVE lead CTA');
