@@ -1528,7 +1528,7 @@ assert(autoDeploy.includes('name: Verify crawler discovery surfaces'),'Auto-depl
 assert(autoDeploy.includes('$base/robots.txt'),'Crawler guard must verify robots.txt');
 assert(autoDeploy.includes('$base/sitemap_index.xml'),'Crawler guard must verify sitemap index');
 assert(autoDeploy.includes('$base/page-sitemap.xml'),'Crawler guard must verify page sitemap');
-assert(autoDeploy.includes("select(.indexable == true)"),'Crawler guard must derive targets from manifest indexability');
+assert(autoDeploy.includes('select(.type == "page" and .indexable == true)'),'Crawler guard must derive Page sitemap targets from manifest type and indexability');
 assert(autoDeploy.includes('X-Robots-Tag noindex'),'Crawler guard must reject header-level noindex');
 assert(autoDeploy.includes('robots noindex meta tag'),'Crawler guard must reject HTML meta noindex');
 assert(autoDeploy.includes('$base/page/2/'),'Crawler guard must probe the paginated archive');
