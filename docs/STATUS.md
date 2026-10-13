@@ -2,6 +2,8 @@
 
 Git-first development active on `dev`.
 
+- v0.12.25 (2026-10-13): owner supplied eHUB VSelektro affiliate base and deep example; base inserted successfully into private WP option. VSelektro is approved as independently owned seller and exact dated price/stock evidence now powers three existing Victron MPPT SKUs (100/20, 100/30, 100/50), appending three source URLs for 52 total. Three merchant choices now visible in MPPT Selector and Builder. Automated release gates require >=3 monetized storefronts and >=2 legal operators; no full affiliate redirect/sale asserted. See docs/VSELEKTRO_ONBOARDING.md.
+
 - 2026-10-13 independent seller diligence: VSelektro.eu (VS ELEKTRO PLUS, IČ 09719458) is a legal-operator alternative to Efteria with at least three public SKU pages matching existing SmartSolar MPPT 100/20, 100/30 and 100/50 IDs. Research-only candidate data and activation gates live in `docs/VSELEKTRO_ONBOARDING.md` and `data/merchant-candidates/vselektro-eu.json`; eHUB approval, deeplink tracking, fresh 2-day price/stock and the production offer integration remain BLOCKED. No new live merchant or revenue claim.
 
 - v0.12.24: added placement-level first-party offer exposure vs affiliate product-click table in Solar Expert admin, with explicit 7/28-day event denominators, excluded E.ON leads/bundle clicks, no unique visitor/order claims, and no ratio if pre-exposure historical events lack an impression. Release guard also verifies actual Czech buyer copy in public HTML, not only health theme version. No product catalog, private links, sizing or SEO canonical changes.
