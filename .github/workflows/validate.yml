@@ -32,6 +32,8 @@ jobs:
         run: php tests/funnel-offer-placements.test.php
       - name: Independent retail operator attribution
         run: php tests/merchant-operators.test.php
+      - name: Pending independent retailer activation guard
+        run: node --test tests/merchant-candidate-vselektro.test.mjs
       - name: One-click Builder hero attribution
         run: node tests/builder-hero-demo.test.js
       - name: Czech buyer journey copy and tools routes
