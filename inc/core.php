@@ -2803,6 +2803,7 @@ add_filter('the_content', 'solar_expert_append_battery_related_links', 23);
 
 function solar_expert_solar_lead_slugs() {
   return array(
+    'fotovoltaika-a-elektrokotel',
     'fve-panely-na-strechu',
     'fotovoltaika-na-eternitovou-strechu',
     'kotveni-fotovoltaickych-panelu-na-ploche-strese',
