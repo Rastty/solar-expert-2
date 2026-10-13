@@ -12,7 +12,7 @@ const manifest=JSON.parse(fs.readFileSync(path.join(root,'content/manifest.json'
 // any job could start, even though the two taxonomy scripts were bash-valid.
 let workflowBlocks=0;
 for(let i=0;i<lines.length;i++){
-  if(!/^        run: \\$\|/.test(lines[i])) continue;
+  if(lines[i] !== '        run: |') continue;
   workflowBlocks++;
   for(let j=i+1;j<lines.length;j++){
     if(/^      - name: /.test(lines[j])) break;
