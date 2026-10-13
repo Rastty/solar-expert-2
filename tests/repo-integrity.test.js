@@ -726,9 +726,12 @@ assert(roofRelated.includes("if ( $slug === 'fotovoltaika-na-eternitovou-strechu
   roofRelated.includes("home_url('/fotovoltaika-na-pozemku/')"),
   'The indexed eternit roof guide must contextually discover the ground-mount alternative');
 assert(categoryPhp.includes('the_posts_pagination(')&&categoryPhp.includes('while ( have_posts() ) : the_post()'),
-  'Original archives and pagination must remain accessible; do not delete legacy posts');
-assert(categoryPhp.includes('Starší publikované informace')&&categoryPhp.includes('včetně starších článků'),
-  'Archive must mark uncurated content as possibly out of date');
+  'Curated archives must keep native main-query pagination and article permalinks');
+assert(categoryPhp.includes('starší informace vždy ověřujte')&&categoryPhp.includes('Ověřujte rok publikace'),
+  'Archives must warn readers to verify legacy technical claims');
+const archiveLoad=fs.readFileSync(path.join(__dirname,'..','functions.php'),'utf8');
+assert(archiveLoad.includes("require_once get_template_directory() . '/inc/curated-archives.php';"),
+  'Every frontend category render must load the curation query hook');
 assert(deployWorkflow.includes('Verify live curated topical category hubs'),
   'Deploy must verify publicly rendered solar-panel and heat-pump category hubs');
 
