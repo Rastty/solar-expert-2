@@ -21,6 +21,7 @@
         <h2 id="se-solar-guide-heading">Začněte ověřenými průvodci</h2>
         <p class="se-muted">Vybrané návody řadíme podle rozhodnutí, která je potřeba udělat před podpisem nabídky nebo nákupem komponent.</p>
         <div class="se-category-curated-grid">
+          <a class="se-category-guide" href="<?php echo esc_url(home_url('/fotovoltaika-a-elektrokotel/')); ?>"><strong>Fotovoltaika a elektrokotel: vyplatí se?</strong><span>Zimní výroba, reálná spotřeba, návratnost a kdy uvažovat o tepelném čerpadle →</span></a>
           <a class="se-category-guide se-category-guide-primary" href="<?php echo esc_url(home_url('/kolik-stoji-fotovoltaika/')); ?>"><strong>Domovní FVE: cena a kontrola nabídky</strong><span>Co má být součástí ceny, výkon systému, montáž a podmínky připojení →</span></a>
           <a class="se-category-guide" href="<?php echo esc_url(home_url('/solarni-panel-definice-a-fakta/')); ?>"><strong>Jak funguje solární panel?</strong><span>Fotovoltaický článek, přeměna světla na elektřinu, výkon Wp a základní rozdíl oproti PVT →</span></a>
           <a class="se-category-guide" href="<?php echo esc_url(home_url('/fve-panely-na-strechu/')); ?>"><strong>Panely na střechu</strong><span>Počet panelů, orientace, stínění, využitelná plocha a statika →</span></a>
