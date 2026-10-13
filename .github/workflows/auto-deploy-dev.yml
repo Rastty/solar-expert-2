@@ -577,11 +577,15 @@ jobs:
         run: |
           set -euo pipefail
           base='https://solar-expert.cz'
-          # Public published EIA duplicate and US tax-form import confirmed
-          # on 2026-10-13. 301/410/deletions are not part of this release.
+          # Two previously verified pilot URLs plus three independent new
+          # imported topics identified in the complete 476-post inventory.
+          # 301/410/deletions are not part of this release.
           for slug in \
             dnes-v-energetice-us-energy-information-administration-eia-19 \
-            pokyny-k-formulari-5695-narokovani-slevy-na-solarni-dan; do
+            pokyny-k-formulari-5695-narokovani-slevy-na-solarni-dan \
+            solarni-energie-v-queenslandu-informace-statistiky-a-zdroje \
+            solar-for-all-ministerstvo-obchodu-statu-washington \
+            prumerna-denni-vyroba-solarnich-fotovoltaickych-clanku-v-australii; do
             ok=0
             for attempt in 1 2 3 4 5 6; do
               body="$(mktemp)"
