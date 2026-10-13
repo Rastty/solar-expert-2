@@ -28,6 +28,8 @@ jobs:
         run: php tests/conditional-assets.test.php
       - name: Per-tool outbound attribution
         run: php tests/funnel-attribution.test.php
+      - name: Product offer exposure and click placement reporting
+        run: php tests/funnel-offer-placements.test.php
       - name: Independent retail operator attribution
         run: php tests/merchant-operators.test.php
       - name: One-click Builder hero attribution
