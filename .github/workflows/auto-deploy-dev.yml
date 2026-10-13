@@ -392,7 +392,7 @@ jobs:
           fi
 
           page_sitemap="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/page-sitemap.xml")"
-          mapfile -t indexable_slugs < <(jq -r '.items[] | select(.indexable == true) | .slug' content/manifest.json)
+          mapfile -t indexable_slugs < <(jq -r '.items[] | select(.type == "page" and .indexable == true) | .slug' content/manifest.json)
 
           if [ "${#indexable_slugs[@]}" -eq 0 ]; then
             echo "::error::No indexable managed pages were declared in the manifest."
