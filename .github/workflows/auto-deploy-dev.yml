@@ -544,7 +544,8 @@ jobs:
           # read-only GSC inspection. Verify real HTML, not merely theme SHA.
           for record in \
             'kolik-panelu-je-potreba-na-jeden-string|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt' \
-            'jak-zapojit-solarni-panely|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt'; do
+            'jak-zapojit-solarni-panely|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt' \
+            'tepelne-cerpadlo-nebo-elektrokotel|fotovoltaika-a-elektrokotel|kolik-stoji-fotovoltaika|electric-heating-fve'; do
             IFS='|' read -r source guide tool kind <<<"$record"
             passed=0
             for attempt in 1 2 3 4 5 6; do

@@ -2230,6 +2230,10 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'MPPT pro 400W panel: 100/20, 100/30, 100/50 | Solar Expert',
       'description' => 'Jaký MPPT regulátor pro jeden 400W solární panel na 12 V či 24 V? Srovnání Victron 100/20, 100/30 a 100/50, limity Voc/Isc a výběr produktu.'
     ),
+    'fotovoltaika-a-elektrokotel' => array(
+      'title' => 'Fotovoltaika a elektrokotel: vyplatí se v roce 2026? | Solar Expert',
+      'description' => 'Elektrokotel a FVE: skutečná zimní výroba, spotřeba 12 000 kWh, model nákladů a srovnání s tepelným čerpadlem. Checklist před nákupem.'
+    ),
     'solarni-sestava-na-chatu-pro-lednici' => array(
       'title' => 'Solár na chatu pro lednici: panely, baterie a měnič | Solar Expert',
       'description' => 'Kolik solárních panelů a LiFePO4 baterie pro lednici 230 V na chatě? Vzorový výpočet kWh, výkon měniče, MPPT a cesta k vhodné sestavě.'
@@ -2799,6 +2803,7 @@ add_filter('the_content', 'solar_expert_append_battery_related_links', 23);
 
 function solar_expert_solar_lead_slugs() {
   return array(
+    'fotovoltaika-a-elektrokotel',
     'fve-panely-na-strechu',
     'fotovoltaika-na-eternitovou-strechu',
     'kotveni-fotovoltaickych-panelu-na-ploche-strese',

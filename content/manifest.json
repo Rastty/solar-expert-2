@@ -503,6 +503,18 @@
       "indexable": true,
       "category_slug": "solarni-panely",
       "file": "content/rewrites/solarni-sestava-na-chatu-pro-lednici.html"
+    },
+    {
+      "type": "post",
+      "slug": "fotovoltaika-a-elektrokotel",
+      "title": "Fotovoltaika a elektrokotel: spotřeba, zimní výroba a návratnost",
+      "status_if_new": "publish",
+      "status": "publish",
+      "create_if_missing": true,
+      "publish_ready": true,
+      "indexable": true,
+      "category_slug": "solarni-panely",
+      "file": "content/rewrites/fotovoltaika-a-elektrokotel.html"
     }
   ]
 }
