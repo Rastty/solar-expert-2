@@ -4,7 +4,7 @@ window.SolarExpertAffiliate = {
     'solar-import-cz': {label:'Solar-Import.cz', approved:true, operatorId:'efteria-cz'},
     'ampul-eu': {label:'Ampul.eu', approved:true},
     'eon-cz': {label:'E.ON.cz', approved:true},
-    'vselektro-eu': {label:'VS Elektro', approved:false}
+    'vselektro-eu': {label:'VSelektro.eu', approved:true, operatorId:'vs-elektro-plus-cz'}
   },
 
   // Merchant storefronts are not necessarily independent sellers.
@@ -14,8 +14,7 @@ window.SolarExpertAffiliate = {
   sharedOperatorNotice(product) {
     const merchantIds=[...new Set(this.rawOffers(product).map(o=>o.merchant))];
     if (merchantIds.length<2) return '';
-    const operatorIds=merchantIds.map(id=>this.merchants[id]?.operatorId||id);
-    if (operatorIds.every(id=>id==='efteria-cz')) {
+    if (merchantIds.includes('battery-cz') && merchantIds.includes('solar-import-cz')) {
       return 'Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria, spol. s r.o. Porovnáváme dvě nabídky jejích webů, ne dva nezávislé prodejce.';
     }
     return '';

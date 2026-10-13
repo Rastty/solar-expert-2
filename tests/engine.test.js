@@ -17,7 +17,7 @@ const A = global.window.SolarExpertAffiliate;
 
 const multiProduct=catalog.products.find(p=>p.id==='mppt-victron-100-50');
 const multiOffers=A.offers(multiProduct);
-assert(multiOffers.length===2,'MPPT 100/50 should expose two merchant offers');
+assert(multiOffers.length===3,'MPPT 100/50 should expose three merchant offers');
 assert(A.merchants['battery-cz'].operatorId==='efteria-cz' &&
   A.merchants['solar-import-cz'].operatorId==='efteria-cz',
   'Shopfronts must be explicitly grouped under verified shared seller');
@@ -31,6 +31,8 @@ assert(A.sharedOperatorNotice({offers:[
 
 assert(multiOffers[0].merchantId==='solar-import-cz','Cheapest in-stock offer should be first');
 assert(multiOffers[0].price_czk===3899,'Primary offer price should match verified snapshot');
+assert(multiOffers[2].merchantId==='vselektro-eu'&&multiOffers[2].price_czk===4946,'Independent third retailer must be visible as an honestly higher-priced option');
+assert(A.merchants['vselektro-eu'].approved&&A.merchants['vselektro-eu'].operatorId!=='efteria-cz','VSelektro must be independent and owner approved');
 window.SolarExpertConfig.affiliateMap.products['mppt-victron-100-50@battery-cz']='https://example.com/battery-affiliate';
 const batteryOffer=A.offers(multiProduct).find(o=>o.merchantId==='battery-cz');
 const solarOffer=A.offers(multiProduct).find(o=>o.merchantId==='solar-import-cz');
@@ -40,6 +42,14 @@ assert(!solarOffer.monetized,'Merchant-specific affiliate URL must not leak to a
 window.SolarExpertConfig.affiliateBases={
   'solar-import-cz':'https://ehub.cz/system/scripts/click.php?a_aid=testpub&a_bid=testsolar'
 };
+const thirdOffer=A.offers(multiProduct).find(o=>o.merchantId==='vselektro-eu');
+assert(!thirdOffer.monetized,'Never claim monetization without private WP affiliate base');
+window.SolarExpertConfig.affiliateBases['vselektro-eu']='https://ehub.cz/system/scripts/click.php?a_aid=testpub&a_bid=test-vselektro';
+const vlink=A.offers(multiProduct).find(o=>o.merchantId==='vselektro-eu');
+assert(vlink.monetized&&vlink.href.startsWith('https://ehub.cz/system/scripts/click.php?'),'Third offer must resolve to a generated monetized eHUB link');
+const vparams=new URL(vlink.href).searchParams;
+assert(vparams.get('a_aid')==='testpub'&&vparams.get('a_bid')==='test-vselektro','Generated deeplink must preserve the supplied merchant-specific base parameters');
+assert(vparams.get('desturl')===vlink.raw.source_url&&new URL(vparams.get('desturl')).hostname==='www.vselektro.eu','Third merchant deeplink must route to exact checked SKU on correct seller domain');
 const victronPanel=catalog.products.find(p=>p.id==='panel-victron-190');
 const generatedPanelOffer=A.resolve(victronPanel);
 assert(generatedPanelOffer.monetized,'Merchant base should auto-generate deeplink');

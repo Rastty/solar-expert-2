@@ -33,7 +33,7 @@
         </div>
         <div class="se-muted"><span x-text="r.product.rated_charge_a"></span> A · max Voc <span x-text="r.product.max_pv_voc_v"></span> V</div>
         <div class="se-offer-links" style="margin-top:10px">
-          <template x-for="o in SolarExpertAffiliate.offers(r.product).slice(0,2)" :key="r.product.id+'-'+o.merchantId">
+          <template x-for="o in SolarExpertAffiliate.offers(r.product).slice(0,3)" :key="r.product.id+'-'+o.merchantId">
             <a class="se-offer" target="_blank" :href="o.href"
                :data-se-product-id="r.product.id" :data-se-merchant="o.merchantId" data-se-placement="mppt-selector"
                :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"

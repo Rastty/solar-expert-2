@@ -7,6 +7,7 @@ const root=path.resolve(here,'..');
 const allowedHosts=new Map([
   ['battery-cz',new Set(['battery.cz','www.battery.cz'])],
   ['solar-import-cz',new Set(['solar-import.cz','www.solar-import.cz'])],
+  ['vselektro-eu',new Set(['vselektro.eu','www.vselektro.eu'])],
 ]);
 const anomalyStates=new Set(['not_found','blocked_or_rate_limited','server_error','network_inconclusive','unsafe_target','redirect_review','other_status']);
 

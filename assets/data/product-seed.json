@@ -371,6 +371,13 @@
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-20--12-24v--20a/",
           "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "vselektro-eu",
+          "price_czk": 2404,
+          "availability": "in_stock",
+          "source_url": "https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-20a/",
+          "verified_at": "2026-10-13"
         }
       ]
     },
@@ -415,6 +422,13 @@
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
           "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "vselektro-eu",
+          "price_czk": 3444,
+          "availability": "in_stock",
+          "source_url": "https://www.vselektro.eu/solarni-regulator-victron-energy-smartsolar-30a/",
+          "verified_at": "2026-10-13"
         }
       ]
     },
@@ -459,6 +473,13 @@
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-50--12-24v--50a/",
           "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "vselektro-eu",
+          "price_czk": 4946,
+          "availability": "in_stock",
+          "source_url": "https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-50a/",
+          "verified_at": "2026-10-13"
         }
       ]
     },
