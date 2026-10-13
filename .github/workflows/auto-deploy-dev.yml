@@ -591,7 +591,7 @@ jobs:
                 -o "$body" -w '%{http_code}' \
                 "$base/$slug/?import_cleanup_probe=${GITHUB_SHA}&attempt=$attempt" || true)"
               if [ "$http" = '200' ] \
-                && grep -Eiq '<meta[^>]*name="robots"[^>]*content="[^"]*noindex|<meta[^>]*content="[^"]*noindex[^>]*name="robots"' "$body"; then
+                && grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$body"; then
                 echo "Published imported URL retained with Yoast noindex: $slug"
                 ok=1
                 break
@@ -610,7 +610,7 @@ jobs:
           live="$(mktemp)"
           curl -fsSL --max-time 30 \
             "$base/kolik-panelu-je-potreba-na-jeden-string/?import_protect_probe=${GITHUB_SHA}" > "$live"
-          if grep -Eiq '<meta[^>]*name="robots"[^>]*content="[^"]*noindex|<meta[^>]*content="[^"]*noindex[^>]*name="robots"' "$live"; then
+          if grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$live"; then
             echo "::error::An indexed and GSC-ranked MPPT post must NEVER be noindexed by the cleanup pilot."
             exit 1
           fi

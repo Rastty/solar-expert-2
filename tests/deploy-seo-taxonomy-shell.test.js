@@ -58,4 +58,20 @@ assert(publicVerify.includes('published_pairs < <(jq -r'),'Every public managed 
 assert(publicVerify.includes('slug="${pair%%|*}"'),'Pair parsing must not lose slug');
 assert(publicVerify.includes('category="${pair#*|}"'),'Pair parsing must not lose category');
 assert(!publicVerify.includes('for pair in \\\n'),'No static slug list allowed in category release check');
-console.log('PASS: dynamic SEO taxonomy deploy scripts are Bash-valid and manifest-bound for '+published.length+' published posts');
+// The site currently renders Yoast's real robots tag with SINGLE quotes:
+ // <meta name='robots' content='noindex, follow' />. Do not gate on
+ // a double-quote-only synthetic fixture or report a false failed release.
+const hygiene=shellStep('Verify foreign-import noindex pilot on live WordPress');
+const noindexPattern=/<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots/i;
+for(const html of [
+  "<meta name='robots' content='noindex, follow' />",
+  '<meta name="robots" content="noindex, follow" />',
+  '<meta content="noindex, follow" name="robots" />'
+]){
+  assert(noindexPattern.test(html),'Smoke must accept live and double-quoted Yoast robots metadata');
+}
+assert(hygiene.includes("grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots'"),
+  'The release smoke must support both single- and double-quoted actual Yoast HTML');
+assert(!hygiene.includes('name="robots"[^>]*content="'),
+  'Old double-quote-only gate would falsely fail a real Yoast noindex tag');
+console.log('PASS: dynamic SEO taxonomy and public noindex smoke are Bash-valid and manifest-bound for '+published.length+' published posts');
