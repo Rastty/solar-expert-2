@@ -1,6 +1,14 @@
 <div class="se-panel" x-data="solarExpertMpptSelector()" x-init="init()">
   <div class="se-kicker">Výběr MPPT regulátoru</div><h2>Vyberte regulátor podle FV pole</h2>
   <div class="se-note" style="margin-bottom:14px"><strong>Upravte parametry svého pole.</strong> Hodnoty níže jsou jen výchozí příklad; výsledek se po každé změně přepočítá automaticky.</div>
+  <div class="se-note se-selector-examples" data-se-selector-examples="mppt" style="margin-bottom:14px">
+    <strong>Nemáte zatím parametry? Vyzkoušejte ukázkové zapojení.</strong>
+    <p class="se-muted">Voc a Vmp jsou modelové hodnoty, nikoli parametry libovolného 400W či 190W panelu. Před nákupem opište hodnoty z datasheetu svého panelu.</p>
+    <div class="se-actions">
+      <button type="button" class="se-btn" @click="applyExample('single400')">1 panel 400 W · 24 V baterie</button>
+      <button type="button" class="se-btn" @click="applyExample('pair190')">2 panely po 190 W · 12 V baterie</button>
+    </div>
+  </div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-mppt-voltage">Bateriový systém</label><select id="se-mppt-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
     <div class="se-field"><label for="se-mppt-panel-wp">Výkon pole (Wp)</label><input id="se-mppt-panel-wp" class="se-input" type="number" min="50" step="50" x-model.number="panelWp" @input.debounce.200ms="run()"></div>

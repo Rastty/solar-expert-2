@@ -11,12 +11,23 @@ function seTrackSelectorOnce(ctx,selector,detail){
 }
 
 window.solarExpertBatterySelector=function(){return{
-  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,
+  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,
   get requiredBatteryKwh(){return Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/.85)*10)/10;},
   get requiredDischargeA(){return Math.max(1,Math.ceil(Number(this.inverterW)/Math.max(1,Number(this.voltage))));},
+  applyExample(kind){
+    const examples={
+      cottage:{voltage:24,dailyKwh:1,autonomy:1,inverterW:1000},
+      backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000}
+    };
+    const selection=examples[kind];
+    if(!selection)return;
+    Object.assign(this,selection);
+    if(this.catalogLoading||!this.catalog.length){this.pendingExample=true;return;}
+    this.run(true);
+  },
   async init(){
     this.catalogLoading=true;this.catalogError=false;
-    try{this.catalog=await seCatalog();this.run(false);}
+    try{this.catalog=await seCatalog();this.run(this.pendingExample);this.pendingExample=false;}
     catch(_){this.catalog=[];this.matches=[];this.catalogError=true;}
     finally{this.catalogLoading=false;}
   },
@@ -41,14 +52,26 @@ window.solarExpertBatterySelector=function(){return{
 };};
 
 window.solarExpertMpptSelector=function(){return{
-  voltage:24,panelWp:760,panelVoc:25.5,panelVmp:21.8,seriesCount:2,coldFactor:1.12,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,
+  voltage:24,panelWp:760,panelVoc:25.5,panelVmp:21.8,seriesCount:2,coldFactor:1.12,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,
   get coldStringVoc(){return Number(this.panelVoc)*Number(this.seriesCount)*Number(this.coldFactor);},
   get stringVmp(){return Number(this.panelVmp)*Number(this.seriesCount);},
   get requiredChargeA(){const voltage=Math.max(1,Number(this.voltage));return Math.max(10,Math.ceil(((Number(this.panelWp)/voltage)*1.25)/5)*5);},
   get inputValid(){return Number(this.panelWp)>0&&Number(this.panelVoc)>0&&Number(this.panelVmp)>0&&Number(this.panelVoc)>Number(this.panelVmp)&&Number(this.seriesCount)>=1;},
+  applyExample(kind){
+    // Illustrative datasheet-like electrical inputs, not manufacturer data for a particular module.
+    const examples={
+      single400:{voltage:24,panelWp:400,panelVoc:49,panelVmp:40,seriesCount:1},
+      pair190:{voltage:12,panelWp:380,panelVoc:24,panelVmp:20,seriesCount:2}
+    };
+    const selection=examples[kind];
+    if(!selection)return;
+    Object.assign(this,selection);
+    if(this.catalogLoading||!this.catalog.length){this.pendingExample=true;return;}
+    this.run(true);
+  },
   async init(){
     this.catalogLoading=true;this.catalogError=false;
-    try{this.catalog=await seCatalog();this.run(false);}
+    try{this.catalog=await seCatalog();this.run(this.pendingExample);this.pendingExample=false;}
     catch(_){this.catalog=[];this.matches=[];this.catalogError=true;}
     finally{this.catalogLoading=false;}
   },
@@ -69,13 +92,24 @@ window.solarExpertMpptSelector=function(){return{
 };};
 
 window.solarExpertInverterSelector=function(){return{
-  voltage:48,continuousW:2000,peakW:4000,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,
+  voltage:48,continuousW:2000,peakW:4000,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,
   get inputValid(){return Number(this.voltage)>0&&Number(this.continuousW)>0&&Number(this.peakW)>=Number(this.continuousW);},
   get requiredDcA(){return Math.max(1,Math.ceil(Number(this.continuousW)/Math.max(1,Number(this.voltage))));},
   get peakDcA(){return Math.max(1,Math.ceil(Number(this.peakW)/Math.max(1,Number(this.voltage))));},
+  applyExample(kind){
+    const examples={
+      cottage:{voltage:24,continuousW:1000,peakW:2000},
+      backup:{voltage:48,continuousW:2000,peakW:4000}
+    };
+    const selection=examples[kind];
+    if(!selection)return;
+    Object.assign(this,selection);
+    if(this.catalogLoading||!this.catalog.length){this.pendingExample=true;return;}
+    this.run(true);
+  },
   async init(){
     this.catalogLoading=true;this.catalogError=false;
-    try{this.catalog=await seCatalog();this.run(false);}
+    try{this.catalog=await seCatalog();this.run(this.pendingExample);this.pendingExample=false;}
     catch(_){this.catalog=[];this.matches=[];this.catalogError=true;}
     finally{this.catalogLoading=false;}
   },
