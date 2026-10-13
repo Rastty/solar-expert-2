@@ -14,12 +14,35 @@ const sumOffers=liveOfferCount(catalog.products)+liveOfferCount(catalog.bundle_d
 test('catalog inventories every verified shop offer including bundle deals, never affiliate redirects',()=>{
   assert.equal(catalog.products.length,24);
   assert.equal(sumOffers,49);
+  assert.equal(offered.length,49,'All 49 live offers must have distinct merchant source destinations');
   assert.equal(offered.length,49,'Do not silently drop offer-level retailer URLs');
   assert.equal(new Set(offered.map(x=>x.merchant+'|'+x.source_url)).size,offered.length);
   assert(offered.every(x=>validateMerchantSource(x.merchant,x.source_url).ok));
   assert(offered.some(x=>x.bundles.length));
+  assert(!offered.some(x=>new URL(x.source_url).pathname==='/mppt/'),
+    'Never send buyers from exact MPPT recommendation to generic listing');
   assert(!offered.some(x=>/ehub\.cz|click\.php|desturl/i.test(x.source_url)),
     'Do not send HTTP audits through affiliate click URLs or simulate sales attribution');
+});
+
+test('four SKU families route to exact Victron product page at each retail site',()=>{
+  const expected={
+    'mppt-victron-100-20':'100-20',
+    'mppt-victron-100-30':'100-30',
+    'mppt-victron-100-50':'100-50',
+    'mppt-victron-150-35':'150-35',
+  };
+  for(const [id,model] of Object.entries(expected)){
+    const product=catalog.products.find(p=>p.id===id);
+    assert(product,'Missing SKU '+id);
+    for(const offer of product.offers){
+      assert(new URL(offer.source_url).pathname.includes('smartsolar-mppt-'+model+'--'),
+        'Must direct-link to the matching model '+id+' @ '+offer.merchant);
+      assert(validateMerchantSource(offer.merchant,offer.source_url).ok);
+    }
+    assert.equal(product.source_url,product.offers.find(o=>o.merchant===product.merchant).source_url,
+      'Product level fallback source must match SKU direct link');
+  }
 });
 
 test('merchant allowlist forbids unknown hosts, tracking destinations, plain http and credentials',()=>{
@@ -29,6 +52,8 @@ test('merchant allowlist forbids unknown hosts, tracking destinations, plain htt
   assert(!validateMerchantSource('other','https://battery.cz/sample/').ok);
   assert(!validateMerchantSource('battery-cz','http://battery.cz/sample/').ok);
   assert(!validateMerchantSource('battery-cz','https://battery.cz/?desturl=https://attacker.com').ok);
+  assert.equal(validateMerchantSource('battery-cz','https://www.battery.cz/mppt/').reason,'category_landing_not_product');
+  assert.equal(validateMerchantSource('solar-import-cz','https://www.solar-import.cz/regulatory/').reason,'category_landing_not_product');
   assert(!validateMerchantSource('battery-cz','https://name:password@battery.cz/sample/').ok);
   assert(!validateMerchantSource('battery-cz','/relative/path').ok);
 });
