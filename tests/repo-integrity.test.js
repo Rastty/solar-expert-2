@@ -809,7 +809,8 @@ assert(deployWorkflow.includes('Verify public ground-source routing and Quote Ch
 const selectorsJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
 assert(selectorsJs.includes("event:'selector_engaged'"),'Selectors must emit a one-shot engagement event');
 assert(selectorsJs.includes("engagementTracked"),'Selector analytics must suppress repeated engagement events');
-assert(selectorsJs.includes("this.run(false)"),'Selector initialization must not count as user engagement');
+assert(selectorsJs.includes('this.run(this.pendingExample)')&&selectorsJs.includes('pendingExample:false'),
+  'Selector initialization must count genuine early preset clicks, but never count passive page loads as engagement');
 
 
 const builderTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
