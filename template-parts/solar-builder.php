@@ -61,7 +61,7 @@
       Načítám ověřený produktový katalog…
     </div>
     <div class="se-note se-note-error" x-show="catalogError" style="margin-top:14px">
-      Technický sizing je spočítaný, ale produktový katalog se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
+      Výpočet potřebných komponent je hotový, ale produktový katalog se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
     </div>
 
     <section class="se-shopping-summary" x-show="primaryShoppingList" x-cloak aria-label="Nákupní rozpis doporučené sestavy">
