@@ -40,6 +40,8 @@ jobs:
         run: node tests/czech-buyer-journey.test.js
       - name: Selector one-click examples and real activation QA
         run: node tests/selector-first-use.test.js
+      - name: Actual merchant offer CTA labels, price freshness and tracking
+        run: node --test tests/offer-cta-clarity.test.mjs
       - name: Buyer SEO guides claim, intent and indexability validation
         run: node --test tests/buyer-seo-posts.test.mjs
       - name: Existing indexed guides to new buying paths
