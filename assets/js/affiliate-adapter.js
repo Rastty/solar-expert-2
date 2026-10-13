@@ -20,6 +20,22 @@ window.SolarExpertAffiliate = {
     return '';
   },
 
+  // Show the independently owned third shop as a genuine alternative,
+  // not as another storefront of the same seller. This is informational:
+  // it never changes price order, fit decisions, stock or affiliate ranking.
+  isIndependentAlternative(product, merchantId) {
+    if (!product || !merchantId) return false;
+    const offers=this.rawOffers(product);
+    if (!offers.some(o=>o.merchant===merchantId)) return false;
+    const ownOperator=this.merchants[merchantId]?.operatorId||merchantId;
+    const counts=new Map();
+    for (const offer of offers) {
+      const operator=this.merchants[offer.merchant]?.operatorId||offer.merchant;
+      counts.set(operator,(counts.get(operator)||0)+1);
+    }
+    return [...counts].some(([operator,count])=>operator!==ownOperator&&count>=2);
+  },
+
   map() {
     const config = window.SolarExpertConfig || {};
     const map = config.affiliateMap || {};
