@@ -348,7 +348,7 @@
       },
       "price_czk_snapshot": 2091,
       "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/mppt/",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-20--12-24-48v--20a/",
       "price_czk": 2091,
       "price_mode": "snapshot",
       "min_pv_start_v_by_voltage": {
@@ -362,14 +362,14 @@
           "merchant": "solar-import-cz",
           "price_czk": 2091,
           "availability": "in_stock",
-          "source_url": "https://www.solar-import.cz/mppt/",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-20--12-24-48v--20a/",
           "verified_at": "2026-10-05"
         },
         {
           "merchant": "battery-cz",
           "price_czk": 2091,
           "availability": "in_stock",
-          "source_url": "https://www.battery.cz/mppt/",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-20--12-24v--20a/",
           "verified_at": "2026-10-05"
         }
       ]
@@ -393,7 +393,7 @@
       },
       "price_czk_snapshot": 2984,
       "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/mppt/",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
       "price_czk": 2984,
       "price_mode": "snapshot",
       "min_pv_start_v_by_voltage": {
@@ -406,14 +406,14 @@
           "merchant": "solar-import-cz",
           "price_czk": 2984,
           "availability": "in_stock",
-          "source_url": "https://www.solar-import.cz/mppt/",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
           "verified_at": "2026-10-05"
         },
         {
           "merchant": "battery-cz",
           "price_czk": 2984,
           "availability": "in_stock",
-          "source_url": "https://www.battery.cz/mppt/",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
           "verified_at": "2026-10-05"
         }
       ]
@@ -437,7 +437,7 @@
       },
       "price_czk_snapshot": 3899,
       "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/mppt/",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-50--12-24v--50a/",
       "price_czk": 3899,
       "price_mode": "snapshot",
       "min_pv_start_v_by_voltage": {
@@ -450,7 +450,7 @@
           "merchant": "solar-import-cz",
           "price_czk": 3899,
           "availability": "in_stock",
-          "source_url": "https://www.solar-import.cz/mppt/",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-50--12-24v--50a/",
           "verified_at": "2026-10-05"
         },
         {
@@ -483,7 +483,7 @@
       },
       "price_czk_snapshot": 4291,
       "availability": "in_stock",
-      "source_url": "https://www.solar-import.cz/mppt/",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-150-35--12-24-48v--35a/",
       "price_czk": 4291,
       "price_mode": "snapshot",
       "min_pv_start_v_by_voltage": {
@@ -498,7 +498,7 @@
           "merchant": "solar-import-cz",
           "price_czk": 4291,
           "availability": "in_stock",
-          "source_url": "https://www.solar-import.cz/mppt/",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-150-35--12-24-48v--35a/",
           "verified_at": "2026-10-07"
         },
         {
