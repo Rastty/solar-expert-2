@@ -48,6 +48,8 @@ jobs:
         run: php tests/managed-categories.test.php
       - name: Curated topic archives (scope, relevance and preservation)
         run: php tests/curated-archives.test.php
+      - name: Strict old import sitemap and noindex hygiene
+        run: php tests/import-seo-hygiene.test.php
       - name: Yoast decision tool structured data
         run: php tests/tool-schema.test.php
       - name: Engine tests
