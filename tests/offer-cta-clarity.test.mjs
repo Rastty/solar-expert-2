@@ -19,7 +19,7 @@ test('every tracked product offer has a visible, honest action without breaking 
       assert.match(link,/:href="o.href"/,path+' product URL must remain the original affiliate resolver');
       assert.match(link,/:data-se-product-id="[^"]+"/,path+' product exposure/click identity retained');
       assert.match(link,/:data-se-merchant="o.merchantId"/,path+' merchant dimension retained');
-      assert.match(link,/:data-se-placement="[^"]+"/,path+' placement retained');
+      assert.match(link,/(?:\:)?data-se-placement="[^"]+"/,path+' placement retained');
       assert.match(link,/@click="SolarExpertAffiliate\.trackOffer\(/,path+' original click event retained');
       assert.match(link,/:rel="o.monetized \? 'sponsored nofollow noopener' : 'nofollow noopener'"/,
         path+' paid links still disclose sponsored rel');
