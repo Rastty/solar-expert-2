@@ -1163,7 +1163,7 @@ jobs:
               && jq -e '
                 ([.products[] | select(.id=="mppt-victron-100-20" or .id=="mppt-victron-100-30" or .id=="mppt-victron-100-50") | .offers[] | select(.merchant=="vselektro-eu")] | length) == 3
                 and
-                ([.products[] | .offers[] | select(.merchant=="vselektro-eu") | select(.availability=="in_stock" and .verified_at=="2026-10-13" and (.source_url | startswith("https://www.vselektro.eu/")))] | length) == 3
+                ([.products[] | (.offers // [])[] | select(.merchant=="vselektro-eu") | select(.availability=="in_stock" and .verified_at=="2026-10-13" and (.source_url | startswith("https://www.vselektro.eu/")))] | length) == 3
               ' "$catalog" >/dev/null \
               && grep -Fq 'vselektro-eu' "$page" \
               && grep -Fq 'SolarExpertConfig' "$page"; then
