@@ -534,6 +534,43 @@ jobs:
           redirect_count="$(jq -r '.legacy_redirect_count' <<<"$health")"
           echo "Crawler discovery verified: robots + sitemap index + page sitemap + ${#indexable_slugs[@]} managed pages + ${#managed_publish_post_slugs[@]} managed publish posts + ${redirect_count} sitemap-clean 301 redirects + paginated archive noindex."
 
+      - name: Verify editorial bridge from indexed technical guides to buyer guides
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          # These source URLs were already indexed according to the 13 Oct
+          # read-only GSC inspection. Verify real HTML, not merely theme SHA.
+          for record in \
+            'kolik-panelu-je-potreba-na-jeden-string|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt' \
+            'jak-zapojit-solarni-panely|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt'; do
+            IFS='|' read -r source guide tool kind <<<"$record"
+            passed=0
+            for attempt in 1 2 3 4 5 6; do
+              html="$(mktemp)"
+              status="$(curl -sSL --max-time 30 \
+                -H 'Cache-Control: no-cache, no-store, max-age=0' \
+                -H 'Pragma: no-cache' \
+                -o "$html" -w '%{http_code}' \
+                "${base}/${source}/?buyer_bridge_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              if [ "$status" = '200' ] \
+                && grep -Fq "data-se-buyer-bridge=\"$kind\"" "$html" \
+                && grep -Fq "href=\"$base/$guide/\"" "$html" \
+                && grep -Fq "href=\"$base/$tool/\"" "$html"; then
+                echo "Indexed guide buyer route ready: $source -> $guide -> $tool"
+                passed=1
+                break
+              fi
+              echo "Indexed buyer link not yet live: $source HTTP ${status:-none}, attempt $attempt/6"
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Missing real crawlable internal buyer route from indexed article: $source"
+              exit 1
+            fi
+          done
+
       - name: Verify rendered residential FVE CTA
         if: steps.config.outputs.enabled == 'true'
         shell: bash
