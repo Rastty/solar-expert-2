@@ -2226,6 +2226,14 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'MPPT kalkulačka: Voc, Vmp a výběr regulátoru | Solar Expert',
       'description' => 'Zkontrolujte MPPT regulátor podle výkonu FV pole, nabíjecího proudu, startovacího Vmp a cold Voc panelového stringu.'
     ),
+    'jak-vybrat-mppt-regulator-pro-400w-panel' => array(
+      'title' => 'MPPT pro 400W panel: 100/20, 100/30, 100/50 | Solar Expert',
+      'description' => 'Jaký MPPT regulátor pro jeden 400W solární panel na 12 V či 24 V? Srovnání Victron 100/20, 100/30 a 100/50, limity Voc/Isc a výběr produktu.'
+    ),
+    'solarni-sestava-na-chatu-pro-lednici' => array(
+      'title' => 'Solár na chatu pro lednici: panely, baterie a měnič | Solar Expert',
+      'description' => 'Kolik solárních panelů a LiFePO4 baterie pro lednici 230 V na chatě? Vzorový výpočet kWh, výkon měniče, MPPT a cesta k vhodné sestavě.'
+    ),
     'vyber-menice' => array(
       'title' => 'Měnič pro ostrovní systém: výkon a surge | Solar Expert',
       'description' => 'Vyberte měnič podle 12/24/48 V, trvalého výkonu a rozběhové špičky. Oddělená kontrola continuous a surge výkonu.'

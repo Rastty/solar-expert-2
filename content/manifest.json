@@ -479,6 +479,30 @@
       "preserve_status": true,
       "file": "content/rewrites/pridani-dalsich-solarnich-panelu-ke-stavajicimu-solarnimu-systemu.html",
       "create_if_missing": false
+    },
+    {
+      "type": "post",
+      "slug": "jak-vybrat-mppt-regulator-pro-400w-panel",
+      "title": "Jaký MPPT regulátor pro 400W panel: 12 V, 24 V a Victron 100/20 vs 100/30",
+      "status_if_new": "publish",
+      "status": "publish",
+      "create_if_missing": true,
+      "publish_ready": true,
+      "indexable": true,
+      "category_slug": "solarni-panely",
+      "file": "content/rewrites/jak-vybrat-mppt-regulator-pro-400w-panel.html"
+    },
+    {
+      "type": "post",
+      "slug": "solarni-sestava-na-chatu-pro-lednici",
+      "title": "Solární sestava na chatu pro lednici 230 V: panely, baterie a měnič",
+      "status_if_new": "publish",
+      "status": "publish",
+      "create_if_missing": true,
+      "publish_ready": true,
+      "indexable": true,
+      "category_slug": "solarni-panely",
+      "file": "content/rewrites/solarni-sestava-na-chatu-pro-lednici.html"
     }
   ]
 }
