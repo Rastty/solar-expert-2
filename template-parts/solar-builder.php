@@ -180,7 +180,7 @@
                        :data-se-product-id="b.mppt?.id" :data-se-merchant="o.merchantId" :data-se-placement="'builder-mppt-'+b.tier"
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.mppt,o.raw,'builder-mppt-'+b.tier)">
-                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                      <span x-text="o.merchant?.label"></span><small class="se-offer-independent" x-show="SolarExpertAffiliate.isIndependentAlternative(b.mppt,o.merchantId)">Jiný provozovatel</small><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
                     </a>
                   </template>
                 </div>

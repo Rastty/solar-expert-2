@@ -18,7 +18,7 @@ eval(substr($source,$from,$to-$from));
 check(solar_expert_merchant_operator_id('battery-cz')==='efteria-cz','Battery.cz ownership');
 check(solar_expert_merchant_operator_id('solar-import-cz')==='efteria-cz','Solar-Import.cz ownership');
 check(solar_expert_merchant_operator_id('ampul-eu')==='ampul-eu','Unrelated seller remains independent');
-check(solar_expert_merchant_operator_id('vselektro-eu')==='vselektro-eu','VS Elektro legal entity is different from Efteria');
+check(solar_expert_merchant_operator_id('vselektro-eu')==='vs-elektro-plus-cz','VS Elektro legal entity identified explicitly and remains different from Efteria');
 
 $catalog=array('products'=>array(
   array('id'=>'battery-demo','type'=>'battery','merchant'=>'battery-cz','availability'=>'in_stock','offers'=>array(

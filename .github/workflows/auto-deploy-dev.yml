@@ -1166,7 +1166,9 @@ jobs:
                 ([.products[] | (.offers // [])[] | select(.merchant=="vselektro-eu") | select(.availability=="in_stock" and .verified_at=="2026-10-13" and (.source_url | startswith("https://www.vselektro.eu/")))] | length) == 3
               ' "$catalog" >/dev/null \
               && grep -Fq 'vselektro-eu' "$page" \
-              && grep -Fq 'SolarExpertConfig' "$page"; then
+              && grep -Fq 'SolarExpertConfig' "$page" \
+              && grep -Fq 'isIndependentAlternative(r.product,o.merchantId)' "$page" \
+              && grep -Fq 'Jiný provozovatel' "$page"; then
                 passed=1
                 echo 'Three dated VSelektro SKU offers live; independent eHUB WP base on MPPT selector page, no click probe.'
                 break

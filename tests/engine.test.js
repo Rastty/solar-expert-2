@@ -23,6 +23,10 @@ assert(A.merchants['battery-cz'].operatorId==='efteria-cz' &&
   'Shopfronts must be explicitly grouped under verified shared seller');
 assert(A.sharedOperatorNotice(multiProduct).includes('stejná společnost Efteria'),
   'Real dual-store offers must explain that the two webshops share one operator');
+assert(A.isIndependentAlternative(multiProduct,'vselektro-eu'),'VSelektro must be marked as a truly separate operator where the two other storefronts share Efteria');
+assert(!A.isIndependentAlternative(multiProduct,'battery-cz')&&!A.isIndependentAlternative(multiProduct,'solar-import-cz'),'Neither Efteria storefront can claim to be a separate alternative when both belong to one company');
+assert(!A.isIndependentAlternative(catalog.products.find(p=>p.id==='inverter-rogerele-rep1500-24'),'battery-cz'),'Single merchant must never show an independence badge');
+assert(!A.isIndependentAlternative({offers:[{merchant:'battery-cz'},{merchant:'vselektro-eu'}]},'vselektro-eu'),'Two independent dealers without duplicate operator should not need a misleading alternative badge');
 assert(A.sharedOperatorNotice(catalog.products.find(p=>p.id==='inverter-rogerele-rep1500-24'))==='',
   'Single-store offers must not display irrelevant shared-operator disclaimers');
 assert(A.sharedOperatorNotice({offers:[
