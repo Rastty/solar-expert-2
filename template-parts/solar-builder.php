@@ -139,6 +139,7 @@
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.battery,o.raw,'builder-battery-'+b.tier)">
                       <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'+((b.batteryQuantity||1)>1?' / ks':'')"></strong>
+                      <span class="se-offer-cta" x-text="o.price_czk ? 'Zobrazit nabídku ↗' : 'Ověřit cenu u prodejce ↗'"></span>
                     </a>
                   </template>
                 </div>
@@ -153,6 +154,7 @@
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.inverter,o.raw,'builder-inverter-'+b.tier)">
                       <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                      <span class="se-offer-cta" x-text="o.price_czk ? 'Zobrazit nabídku ↗' : 'Ověřit cenu u prodejce ↗'"></span>
                     </a>
                   </template>
                 </div>
@@ -167,6 +169,7 @@
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.panel?.product,o.raw,'builder-panel-'+b.tier)">
                       <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                      <span class="se-offer-cta" x-text="o.price_czk ? 'Zobrazit nabídku ↗' : 'Ověřit cenu u prodejce ↗'"></span>
                     </a>
                   </template>
                 </div>
@@ -181,6 +184,7 @@
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                        @click="SolarExpertAffiliate.trackOffer(b.mppt,o.raw,'builder-mppt-'+b.tier)">
                       <span x-text="o.merchant?.label"></span><small class="se-offer-independent" x-show="SolarExpertAffiliate.isIndependentAlternative(b.mppt,o.merchantId)">Jiný provozovatel</small><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                      <span class="se-offer-cta" x-text="o.price_czk ? 'Zobrazit nabídku ↗' : 'Ověřit cenu u prodejce ↗'"></span>
                     </a>
                   </template>
                 </div>
