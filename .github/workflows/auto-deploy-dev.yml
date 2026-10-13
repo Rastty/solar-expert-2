@@ -1286,6 +1286,48 @@ jobs:
             exit 1
           fi
 
+      - name: Verify public merchant offer CTA clarity on buying tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          for slug in '' vyber-baterii mppt-kalkulacka vyber-menice; do
+            passed=0
+            for attempt in 1 2 3 4 5 6; do
+              html="$(mktemp)"
+              if [ -z "$slug" ]; then
+                url="$base/?offer_cta_probe=${GITHUB_SHA}&attempt=$attempt"
+              else
+                url="$base/$slug/?offer_cta_probe=${GITHUB_SHA}&attempt=$attempt"
+              fi
+              http="$(curl -sSL --max-time 30 \
+                -H 'Cache-Control: no-cache, no-store, max-age=0' \
+                -o "$html" -w '%{http_code}' "$url" || true)"
+              if [ "$http" = '200' ] \
+                && grep -Fq 'class="se-offer-cta"' "$html" \
+                && grep -Fq 'Zobrazit nabídku' "$html" \
+                && grep -Fq 'Ověřit cenu u prodejce' "$html" \
+                && grep -Fq 'SolarExpertAffiliate.trackOffer(' "$html"; then
+                echo "Real merchant CTA template and unchanged outbound tracking present: ${slug:-home}"
+                passed=1
+                break
+              fi
+              echo "Merchant offer CTA not yet live: ${slug:-home} HTTP ${http:-none}, attempt $attempt/6"
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Expected tracked merchant offer CTA missing from public HTML."
+              exit 1
+            fi
+          done
+
+          css="$(curl -fsSL --max-time 30 "$base/wp-content/themes/solar-expert-2/style.css?offer_cta_probe=${GITHUB_SHA}")"
+          if ! grep -Fq '.se-offer-cta{display:inline-flex' <<<"$css"; then
+            echo "::error::Live offer action style missing."
+            exit 1
+          fi
+
       - name: Verify public conditional tool scripts
         if: steps.config.outputs.enabled == 'true'
         shell: bash
