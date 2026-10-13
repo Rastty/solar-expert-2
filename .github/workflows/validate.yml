@@ -18,6 +18,8 @@ jobs:
         run: find . -name '*.php' -not -path './theme/*' -not -path './plugin/*' -print0 | xargs -0 -n1 php -l
       - name: JavaScript syntax
         run: find assets/js tests -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Affiliate source link audit fixture
+        run: node --test tests/affiliate-source-audit.test.mjs
       - name: JSON validity
         run: |
           find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
