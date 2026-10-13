@@ -55,6 +55,7 @@
     <p class="se-muted se-home-discovery-intro">Nemusíte začínat porovnáváním produktů. Vyberte technickou otázku, která ovlivní správný návrh, a ověřte možnosti dřív než budete poptávat montáž.</p>
     <div class="se-home-discovery-group">
       <h3>Fotovoltaika pro dům a další plochy</h3>
+      <p class="se-muted">Řešíte elektrické vytápění? <a href="<?php echo esc_url(home_url('/fotovoltaika-a-elektrokotel/')); ?>">Fotovoltaika a elektrokotel: zimní výroba, spotřeba a skutečná ekonomika →</a></p>
       <div class="se-home-discovery-grid">
         <a class="se-home-guide" href="<?php echo esc_url(home_url('/fotovoltaika-na-pozemku/')); ?>">
           <strong>Fotovoltaika na pozemku <span aria-hidden="true">→</span></strong>
