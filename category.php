@@ -30,6 +30,14 @@
           <a class="se-category-guide" href="<?php echo esc_url(home_url('/fotovoltaika-vykon-na-m2/')); ?>"><strong>Jaký výkon na m²?</strong><span>Rozdíl mezi Wp, kWp, plochou a skutečnou výrobou →</span></a>
           <a class="se-category-guide" href="<?php echo esc_url(home_url('/castecne-zastineni-a-solarni-panely/')); ?>"><strong>Částečné zastínění panelů</strong><span>Jak stín ovlivní výkon stringu a kdy řešit optimizéry →</span></a>
         </div>
+        <div class="se-category-buying" data-se-category-buying="offgrid-guides">
+          <h3>Chata a ostrovní systém: co vybrat před nákupem</h3>
+          <p class="se-muted">Máte konkrétní spotřebič nebo panel? Začněte ověřením kompatibility a spotřeby, ne univerzálním žebříčkem produktů.</p>
+          <div class="se-category-curated-grid se-category-choice-grid">
+            <a class="se-category-guide" href="<?php echo esc_url(home_url('/jak-vybrat-mppt-regulator-pro-400w-panel/')); ?>"><strong>Jaký MPPT pro panel 400 W?</strong><span>12 V versus 24 V, Victron 100/20–100/50, Voc, Vmp a vstup do výběru regulátoru →</span></a>
+            <a class="se-category-guide" href="<?php echo esc_url(home_url('/solarni-sestava-na-chatu-pro-lednici/')); ?>"><strong>Solár na chatu pro lednici 230 V</strong><span>Kolik energie spotřebuje, jak určit baterii, panely a měnič a jak sestavit vlastní řešení →</span></a>
+          </div>
+        </div>
         <p class="se-category-alternative">Potřebujete systém pro chatu bez připojení k síti? Použijte zvlášť <a href="<?php echo esc_url(solar_expert_public_url('solarni-sestava-na-chatu','/solarni-sestava-na-chatu/')); ?>">Solar Setup Builder</a>; nenahrazuje návrh domácí síťové FVE.</p>
       </section>
       <h2 class="se-category-archive-title">Další články z archivu solárních panelů</h2>
