@@ -175,7 +175,7 @@
               <div class="se-offer-group" x-show="!b.integratedMppt">
                 <small>MPPT · kde koupit</small>
                 <div class="se-offer-links">
-                  <template x-for="o in SolarExpertAffiliate.offers(b.mppt).slice(0,2)" :key="b.mppt?.id+'-'+o.merchantId">
+                  <template x-for="o in SolarExpertAffiliate.offers(b.mppt).slice(0,3)" :key="b.mppt?.id+'-'+o.merchantId">
                     <a class="se-offer" target="_blank" :href="o.href"
                        :data-se-product-id="b.mppt?.id" :data-se-merchant="o.merchantId" :data-se-placement="'builder-mppt-'+b.tier"
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
