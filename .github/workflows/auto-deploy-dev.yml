@@ -571,6 +571,59 @@ jobs:
             fi
           done
 
+      - name: Verify foreign-import noindex pilot on live WordPress
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          # Public published EIA duplicate and US tax-form import confirmed
+          # on 2026-10-13. 301/410/deletions are not part of this release.
+          for slug in \
+            dnes-v-energetice-us-energy-information-administration-eia-19 \
+            pokyny-k-formulari-5695-narokovani-slevy-na-solarni-dan; do
+            ok=0
+            for attempt in 1 2 3 4 5 6; do
+              body="$(mktemp)"
+              http="$(curl -sSL --max-time 30 \
+                -H 'Cache-Control: no-cache, no-store, max-age=0' \
+                -H 'Pragma: no-cache' \
+                -o "$body" -w '%{http_code}' \
+                "$base/$slug/?import_cleanup_probe=${GITHUB_SHA}&attempt=$attempt" || true)"
+              if [ "$http" = '200' ] \
+                && grep -Eiq '<meta[^>]*name="robots"[^>]*content="[^"]*noindex|<meta[^>]*content="[^"]*noindex[^>]*name="robots"' "$body"; then
+                echo "Published imported URL retained with Yoast noindex: $slug"
+                ok=1
+                break
+              fi
+              echo "Legacy import noindex not yet live: $slug HTTP ${http:-none}, attempt $attempt/6"
+              sleep 10
+            done
+            if [ "$ok" != '1' ]; then
+              echo "::error::Bounded foreign-import noindex is missing; keep sitemap/index hygiene release gated."
+              exit 1
+            fi
+          done
+
+          # Still indexable: an existing GSC near-win. The ordinary production
+          # crawler-surface gate already checks protected managed post slugs.
+          live="$(mktemp)"
+          curl -fsSL --max-time 30 \
+            "$base/kolik-panelu-je-potreba-na-jeden-string/?import_protect_probe=${GITHUB_SHA}" > "$live"
+          if grep -Eiq '<meta[^>]*name="robots"[^>]*content="[^"]*noindex|<meta[^>]*content="[^"]*noindex[^>]*name="robots"' "$live"; then
+            echo "::error::An indexed and GSC-ranked MPPT post must NEVER be noindexed by the cleanup pilot."
+            exit 1
+          fi
+
+          # Yoast sitemap caches can lag a theme update; inspect and report
+          # transient sitemap state without claiming an immediate deindex.
+          sitemap="$(curl -fsSL --max-time 30 "$base/post-sitemap.xml" || true)"
+          if grep -Fq "$base/dnes-v-energetice-us-energy-information-administration-eia-19/" <<<"$sitemap"; then
+            echo "::warning::Yoast XML sitemap still lists import; recheck sitemap cache after propagation."
+          else
+            echo "Low-value imported EIA article no longer listed in public Yoast post sitemap."
+          fi
+
       - name: Verify rendered residential FVE CTA
         if: steps.config.outputs.enabled == 'true'
         shell: bash
