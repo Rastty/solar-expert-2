@@ -34,10 +34,12 @@ function solar_expert_import_cleanup_slugs() {
 
 function solar_expert_managed_cleanup_protection_slugs() {
   static $protected = null;
-  if ( $protected !== null ) { return $protected; }
+  static $cached_path = null;
+  $path = get_template_directory() . '/content/manifest.json';
+  if ( $path === $cached_path ) { return $protected; }
+  $cached_path = $path;
 
   // If the authoritative manifest is absent/corrupt, fail open.
-  $path = get_template_directory() . '/content/manifest.json';
   if ( ! is_readable($path) ) { return null; }
   $manifest = json_decode((string) file_get_contents($path), true);
   if ( ! is_array($manifest) || ! isset($manifest['items']) || ! is_array($manifest['items']) ) {
