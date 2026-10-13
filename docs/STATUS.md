@@ -2,6 +2,8 @@
 
 Git-first development active on `dev`.
 
+- 2026-10-13 independent seller diligence: VSelektro.eu (VS ELEKTRO PLUS, IČ 09719458) is a legal-operator alternative to Efteria with at least three public SKU pages matching existing SmartSolar MPPT 100/20, 100/30 and 100/50 IDs. Research-only candidate data and activation gates live in `docs/VSELEKTRO_ONBOARDING.md` and `data/merchant-candidates/vselektro-eu.json`; eHUB approval, deeplink tracking, fresh 2-day price/stock and the production offer integration remain BLOCKED. No new live merchant or revenue claim.
+
 - v0.12.24: added placement-level first-party offer exposure vs affiliate product-click table in Solar Expert admin, with explicit 7/28-day event denominators, excluded E.ON leads/bundle clicks, no unique visitor/order claims, and no ratio if pre-exposure historical events lack an impression. Release guard also verifies actual Czech buyer copy in public HTML, not only health theme version. No product catalog, private links, sizing or SEO canonical changes.
 
 - v0.12.23: buyer-facing Czech guidance now replaces internal `P1`/`NEW`, `Decision tools`, `Product comparison` and English purchase caveats on the homepage and Builder guide; all four tool URLs, affiliate/lead targets, prices, analytics and frozen decision rules remain unchanged. CI tests protect public links and transparent same-operator merchant disclosure. Evaluate changes via 7/28-day tool exposure → activation → real outbound, not assumed conversion uplift.
