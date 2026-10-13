@@ -130,21 +130,22 @@ assert(homeGuideStart>0&&homeGuideEnd>homeGuideStart,
 const homeGuides=homepageFirstUseTemplate.slice(homeGuideStart,homeGuideEnd);
 const homeGuideSlugs=[
   'fotovoltaika-na-pozemku','pruhledne-solarni-panely',
-  'tepelne-cerpadlo-monoblok','tepelne-cerpadlo-vzduch-vzduch'
+  'tepelne-cerpadlo-monoblok','tepelne-cerpadlo-vzduch-vzduch',
+  'solarni-sestava-na-chatu-pro-lednici','jak-vybrat-mppt-regulator-pro-400w-panel'
 ];
 const managedNewPosts=manifest.items.filter(item=>
   item.type==='post' && item.create_if_missing===true &&
   (item.status||item.status_if_new)==='publish'
 ).map(item=>item.slug);
-assert(managedNewPosts.length===5 &&
+assert(managedNewPosts.length===7 &&
   managedNewPosts.every(slug=>slug==='kolik-stoji-fotovoltaika'||homeGuideSlugs.includes(slug)),
-  'Homepage discovery links must cover all five actually published managed posts');
+  'Homepage discovery links must cover all seven actually published managed posts');
 for (const slug of homeGuideSlugs) {
   assert(homeGuides.includes("home_url('/"+slug+"/')"),
     'Homepage must directly link the previously undiscovered published guide: '+slug);
 }
 assert(homepageFirstUseTemplate.includes("home_url('/kolik-stoji-fotovoltaika/')"),
-  'The fifth new post is already a prominent primary-intent homepage CTA');
+  'The first grid-FVE price post remains a prominent primary-intent homepage CTA');
 assert(homeGuides.includes("home_url('/category/solarni-panely/')") &&
        homeGuides.includes("home_url('/category/tepelna-cerpadla/')"),
   'Direct discovery must retain contextual links to topic-specific archives');
