@@ -38,6 +38,7 @@ function solar_expert_managed_cleanup_protection_slugs() {
   $path = get_template_directory() . '/content/manifest.json';
   if ( $path === $cached_path ) { return $protected; }
   $cached_path = $path;
+  $protected = null; // Never reuse a previous valid allowlist after a path/manifest failure.
 
   // If the authoritative manifest is absent/corrupt, fail open.
   if ( ! is_readable($path) ) { return null; }
