@@ -18,6 +18,11 @@ export function validateMerchantSource(merchant,sourceUrl) {
        || url.username || url.password || url.searchParams.has('desturl')) {
       return {ok:false,reason:'unapproved_domain_or_scheme'};
     }
+    // A merchant category may answer HTTP 200 while failing the buyer's
+    // actual product-selection intent. These are not acceptable SKU URLs.
+    if(['/','/mppt/','/regulatory/','/solarni-regulatory/'].includes(url.pathname)) {
+      return {ok:false,reason:'category_landing_not_product'};
+    }
     return {ok:true,url:url.toString()};
   } catch(_) {
     return {ok:false,reason:'invalid_absolute_https_url'};
