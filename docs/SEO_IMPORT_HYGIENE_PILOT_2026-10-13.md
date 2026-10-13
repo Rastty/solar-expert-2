@@ -48,3 +48,26 @@ The pilot's sitemap exclusion queried by exact slug but incorrectly capped WP_Qu
 - Live QA: two old and three newly selected imports return HTTP 200 with `noindex, follow`; indexed string tutorial still returns without noindex. Sitewide buyer SEO, Yoast sitemap and affiliate gates remain unchanged.
 - Yoast XML sitemap eligibility is updated immediately at theme level but cache/GSC may lag; check indexed state and crawl in 7/14/28 days. IndexNow does not make this a Google indexing request.
 - To reverse, delete a precise slug from `solar_expert_import_cleanup_slugs()` and redeploy. No WP database restoration necessary; content was never removed. If a GSC source later proves a candidate is profitable or contextually relevant, prioritize editorial rehabilitation.
+
+## Second cleanup cohort: 10 non-buyer trivia/listicle posts (2026-10-13)
+
+The full 476-post inventory was further compared using `MD5(post_content)` and normalized 700-character intros on live WordPress (read-only SQL). **One** pair has exactly identical 15,128-character bodies: `tepelne-cerpadla-lg-vyhody-nevyhody-ceny` (post 549) and `tepelna-cerpadla-lg-vyhody-nevyhody-ceny` (post 1584). **Already consolidated by the existing 301 from the latter URL to the former**, which is the GSC observed query owner; do not invert the redirect or noindex the destination. The repeated EIA news series also shares the same imported boilerplate intro, and is already inside the foreign-import noindex cohort. The two other old definitions/news pages matching at 700 chars diverge by 1,500 chars; not an exact duplicate and not automatically suppressed.
+
+Separately, 10 explicitly reviewed low-intent articles with numbered trivia/climate/history lists were identified, distinct from technical decision guides:
+
+- `2-pozoruhodna-fakta-ktera-ilustruji-klesajici-naklady-na-solarni-energii`
+- `10-faktu-o-solarni-energii-ktera-vas-mozna-prekvapi`
+- `7-zajimavych-faktu-o-obnovitelne-energii`
+- `14-zajimavych-faktu-o-solarni-energii-ktere-potrebujete-vedet`
+- `9-faktu-ktere-jste-o-solarni-energii-pravdepodobne-nevedeli`
+- `10-nejlepsich-faktu-o-solarni-energii-solarni-pruvodce`
+- `8-faktu-o-zmene-klimatu`
+- `6-vyvracenych-mytu-o-solarni-energii`
+- `6-mist-pro-uceni-o-solarni-energii`
+- `prekvapiva-historie-solarnich-panelu-detsky-pruvodce-obnovitelnymi-zdroji-energie`
+
+These 10 received `noindex, follow` and removal from Yoast post sitemap by exact slug in addition to the existing 66 imported posts: **76 total**. Body/text sampling directly in the connected WP database confirmed these are generic facts and environmental descriptions, in several cases with legacy `[su_button url="https://solar-expert.cz/poptavka"...]` shortcode and externally copied markup. **This cohort is a reversible editorial relevance judgment, not a claim that the ten article bodies are identical or have zero GSC traffic.** The Prometheus near-win/query subset protects 26 historically relevant URL slugs, but is NOT a complete crawl/backlink/traffic export for every page.
+
+Keep articles with plausible purchase intent despite similar title words, e.g. `fakta-o-solarnich-panelech-ktera-byste-meli-vedet-pred-nakupem`, plus the reviewed canonical technical guides and managed-manifest posts. The application only targets existing published WordPress posts and fails open without the managed manifest. No WordPress database mutation, deletions, URL changes, redirects or affiliate edits. The 76 candidate limit is exhaustive and now exercised by CI with all 76 fixture IDs; the production release checks real public Yoast robots tags on 3 of the new generic entries in addition to 5 previous import examples.
+
+Follow up with GSC at 7/14/28 days and promote/review any manually judged page which turns out to receive relevant buyer queries or high-quality inbound links. To roll back, remove the individual slug and redeploy, restoring Yoast index eligibility.
