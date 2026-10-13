@@ -1,6 +1,14 @@
 <div class="se-panel" x-data="solarExpertBatterySelector()" x-init="init()">
   <div class="se-kicker">Výběr baterie</div><h2>Jakou LiFePO₄ baterii potřebujete?</h2>
   <div class="se-note" style="margin-bottom:14px"><strong>Upravte své hodnoty.</strong> Čísla níže jsou jen výchozí příklad; po změně kteréhokoli pole se doporučení přepočítá automaticky.</div>
+  <div class="se-note se-selector-examples" data-se-selector-examples="battery" style="margin-bottom:14px">
+    <strong>Nemáte spočítanou spotřebu? Vyzkoušejte modelový příklad.</strong>
+    <p class="se-muted">Hodnoty se doplní do formuláře. Můžete je pak změnit podle své skutečné spotřeby.</p>
+    <div class="se-actions">
+      <button type="button" class="se-btn" @click="applyExample('cottage')">Chata: 24 V, 1 kWh/den</button>
+      <button type="button" class="se-btn" @click="applyExample('backup')">Záloha: 48 V, 3 kWh/den</button>
+    </div>
+  </div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-battery-voltage">Systémové napětí</label><select id="se-battery-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
     <div class="se-field"><label for="se-battery-daily-kwh">Denní spotřeba (kWh)</label><input id="se-battery-daily-kwh" class="se-input" type="number" min=".2" step=".1" x-model.number="dailyKwh" @input.debounce.200ms="run()"></div>
