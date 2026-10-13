@@ -61,7 +61,7 @@
       Načítám ověřený produktový katalog…
     </div>
     <div class="se-note se-note-error" x-show="catalogError" style="margin-top:14px">
-      Technický sizing je spočítaný, ale produktový katalog se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
+      Výpočet potřebných komponent je hotový, ale produktový katalog se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
     </div>
 
     <section class="se-shopping-summary" x-show="primaryShoppingList" x-cloak aria-label="Nákupní rozpis doporučené sestavy">
@@ -201,7 +201,7 @@
 
     <section class="se-compare" x-show="completeBundles.length>1">
       <div class="se-section-head">
-        <div><div class="se-kicker">Product comparison</div><h3>Srovnání variant podle stejných kritérií</h3></div>
+        <div><div class="se-kicker">Technické srovnání</div><h3>Srovnání variant podle stejných kritérií</h3></div>
         <span class="se-muted">Technika první, cena až potom.</span>
       </div>
       <div class="se-compare-grid">
@@ -257,7 +257,7 @@
       <div class="se-note" style="margin-top:14px">Tento seznam zatím nevybírá konkrétní jištění, kabely ani konstrukci bez potřebných vstupů. Raději ukážeme, co je potřeba ověřit, než doporučit falešně přesný díl.</div>
     </section>
 
-    <div class="se-note" style="margin-top:14px">Výsledek je sizing a předběžný compatibility check. Ceny jsou orientační snapshoty a technický ranking není ovlivněn affiliate provizí. Před nákupem ověřte kabeláž, jištění, teplotní Voc a přesný datasheet.</div>
+    <div class="se-note" style="margin-top:14px">Výsledek je orientační návrh velikosti systému a předběžná kontrola kompatibility. Ceny vycházejí z datovaných nabídek obchodů a mohou se změnit. Technické pořadí sestav neurčuje affiliate provize. Před nákupem ověřte kabeláž, jištění, teplotní Voc a přesný datasheet.</div>
     <div class="se-actions"><button class="se-btn" @click="reset()">Přepočítat</button></div>
   </div>
 </div>
