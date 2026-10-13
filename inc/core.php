@@ -1403,9 +1403,12 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
     // merchants for a seller-diversity performance decision.
     $merchant = $row['merchant'];
     $operator = solar_expert_merchant_operator_id($merchant);
-    foreach ( array(array(&$by_merchant, $merchant), array(&$by_operator, $operator)) as $group ) {
-      $target =& $group[0];
-      $key = $group[1];
+    foreach ( array('merchant'=>$merchant, 'operator'=>$operator) as $dimension => $key ) {
+      if ( $dimension === 'merchant' ) {
+        $target =& $by_merchant;
+      } else {
+        $target =& $by_operator;
+      }
       if ( ! isset($target[$key]) ) {
         $target[$key] = array('exposures'=>0, 'clicks'=>0, 'clicks_per_100_exposures'=>null);
       }
@@ -1427,19 +1430,24 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
       ? round(((int) $row['clicks'] / $exposures) * 100, 1)
       : null;
   }
-  foreach ( array(&$by_merchant, &$by_operator) as &$breakdown ) {
-    foreach ( $breakdown as $key => $row ) {
+  foreach ( array('merchant','operator') as $dimension ) {
+    if ( $dimension === 'merchant' ) {
+      $target =& $by_merchant;
+    } else {
+      $target =& $by_operator;
+    }
+    foreach ( $target as $key => $row ) {
       $exposures = (int) $row['exposures'];
-      $breakdown[$key]['clicks_per_100_exposures'] = $exposures
+      $target[$key]['clicks_per_100_exposures'] = $exposures
         ? round(((int) $row['clicks'] / $exposures) * 100, 1)
         : null;
     }
-    uasort($breakdown, function($a, $b) {
+    uasort($target, function($a, $b) {
       $cmp = ((int) $b['exposures']) <=> ((int) $a['exposures']);
       return $cmp ?: (((int) $b['clicks']) <=> ((int) $a['clicks']));
     });
+    unset($target);
   }
-  unset($breakdown);
 
   uasort($by_placement, function($a,$b) {
     $cmp = ((int) $b['exposures']) <=> ((int) $a['exposures']);
