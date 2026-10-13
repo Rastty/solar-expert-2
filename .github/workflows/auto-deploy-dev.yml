@@ -825,7 +825,7 @@ jobs:
                 && grep -Fq "$title" "$body_file" \
                 && grep -Fq "href=\"${base}${lead}\"" "$body_file" \
                 && grep -Fq "href=\"${base}${guide}\"" "$body_file" \
-                && grep -Fq 'Další články z archivu' "$body_file" \
+                && grep -Fq 'Další průvodci k' "$body_file" \
                 && grep -Fq 'se-archive-list' "$body_file"; then
                 echo "Public category hub verified: $topic (curated topical content + original archive)."
                 success=1
