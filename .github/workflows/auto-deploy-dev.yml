@@ -893,10 +893,15 @@ jobs:
         run: |
           set -euo pipefail
           expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
-          # Independently retry after PHP opcode cache convergence. Even if
-          # content fingerprint was saved by the old code, deploy-sync must
-          # now audit/reconcile the five taxonomy relations without rewriting
-          # managed post text.
+          # Derive publisher taxonomy requirements from the exact deployed
+          # content manifest. More SEO buyer guides must not break a literal
+          # old 5/5 counter or silently bypass a newly declared category.
+          expected_categories="$(jq '[.items[] | select(.type == "post" and (.category_slug // "") != "")] | length' content/manifest.json)"
+          if ! [[ "$expected_categories" =~ ^[0-9]+$ ]] || [ "$expected_categories" -lt 1 ]; then
+            echo "::error::Invalid managed post taxonomy manifest."
+            exit 1
+          fi
+          # Independently retry after PHP opcode cache convergence.
           passed=0
           for attempt in 1 2 3 4 5 6 7 8; do
             response="$(curl -sSL --max-time 20 \
@@ -905,9 +910,9 @@ jobs:
               -X POST \
               -d "{\"intent\":\"managed-content-sync-v1\",\"expected_version\":\"${expected}\"}" \
               "https://solar-expert.cz/wp-json/solar-expert/v1/deploy-sync?taxonomy_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
-            if jq -e '.ok == true and .managed_taxonomy_targets == 5 and .managed_taxonomy_ready == 5 and .managed_taxonomy_errors == 0' \
+            if jq -e --argjson expected "$expected_categories" '.ok == true and .managed_taxonomy_targets == $expected and .managed_taxonomy_ready == $expected and .managed_taxonomy_errors == 0' \
                  <<< "$response" >/dev/null 2>&1; then
-              echo "Managed category reconciliation completed: five of five topical relationships ready."
+              echo "Managed category reconciliation completed: ${expected_categories}/${expected_categories} topical relationships ready."
               passed=1
               break
             fi
@@ -927,14 +932,726 @@ jobs:
           base='https://solar-expert.cz'
           # Term membership is checked through public REST, not the first
           # category archive page (which may be paginated).
-          for pair in \
-            kolik-stoji-fotovoltaika:solarni-panely \
-            fotovoltaika-na-pozemku:solarni-panely \
-            pruhledne-solarni-panely:solarni-panely \
-            tepelne-cerpadlo-vzduch-vzduch:tepelna-cerpadla \
-            tepelne-cerpadlo-monoblok:tepelna-cerpadla; do
-            slug="${pair%%:*}"
-            category="${pair#*:}"
+          # Check every live-published post with a declared category.
+          # Keep future buyer-guide publishing manifest-driven, not hardcoded.
+          mapfile -t published_pairs < <(jq -r '.items[] | select(.type == "post" and (.category_slug // "") != "" and .create_if_missing == true and ((.status // .status_if_new) == "publish")) | [.slug,.category_slug] | @tsv' content/manifest.json)
+          if [ "${#published_pairs[@]}" -lt 1 ]; then
+            echo "::error::No declared public managed post category contracts."
+            exit 1
+          fi
+          for pair in "${published_pairs[@]}"; do
+            slug="${pair%%
+            passed=0
+            for attempt in 1 2 3 4 5 6; do
+              term_json="$(curl -fsSL --max-time 20 \
+                -H 'Cache-Control: no-cache' \
+                "${base}/wp-json/wp/v2/categories?slug=${category}&_fields=id,slug&release_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              post_json="$(curl -fsSL --max-time 20 \
+                -H 'Cache-Control: no-cache' \
+                "${base}/wp-json/wp/v2/posts?slug=${slug}&_fields=id,slug,categories&release_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              category_id="$(jq -er '.[0].id' <<< "$term_json" 2>/dev/null || true)"
+              if [[ "$category_id" =~ ^[0-9]+$ ]] &&
+                 jq -e --arg slug "$slug" --argjson id "$category_id" \
+                   'length == 1 and .[0].slug == $slug and (.[0].categories | index($id) != null)' \
+                   <<< "$post_json" >/dev/null 2>&1; then
+                echo "Managed category verified: $slug => $category ($category_id)."
+                passed=1
+                break
+              fi
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Managed post $slug lacks required category $category; abort release."
+              exit 1
+            fi
+          done
+
+      - name: Verify public sitewide decision navigation and mobile style
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            css="$(mktemp)"
+            home_html="$(mktemp)"
+            post_html="$(mktemp)"
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/wp-content/themes/solar-expert-2/style.css?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$css" || true
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$home_html" || true
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$post_html" || true
+            if grep -Fq '@media(max-width:1150px)' "$css" \
+               && grep -Fq 'overflow-x:auto' "$css" \
+               && ! grep -Fq '.se-menu{display:none}' "$css" \
+               && python3 - "$home_html" "$post_html" <<'PY'
+          import pathlib
+          import re
+          import sys
+          expected = (
+              '/kolik-stoji-fotovoltaika/',
+              '/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/',
+              '/#builder',
+              '/vyber-baterii/',
+              '/mppt-kalkulacka/',
+              '/vyber-menice/',
+          )
+          for file in sys.argv[1:]:
+              html = pathlib.Path(file).read_text(encoding='utf-8', errors='replace')
+              nav = re.search(r'<nav class="se-menu" aria-label="Hlavní navigace">(.*?)</nav>', html, re.S)
+              if not nav or not all('href="https://solar-expert.cz' + path + '"' in nav.group(1) for path in expected):
+                  sys.exit('Missing purpose-matched decision links in sitewide navigation: ' + file)
+          PY
+            then
+              passed=1
+              echo "Public desktop/mobile navigation verified: FVE, heat pumps and four existing tool paths."
+              break
+            fi
+            echo "Navigation HTML/CSS still stale; attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo '::error::Sitewide navigation or mobile visibility has not converged.'
+            exit 1
+          fi
+
+      - name: Verify real public Yoast WebApplication markup on five tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          directory="$(mktemp -d)"
+          verified=0
+          for attempt in 1 2 3 4 5 6; do
+            for slug in solarni-sestava-na-chatu vyber-baterii mppt-kalkulacka vyber-menice quote-checker kolik-stoji-fotovoltaika; do
+              curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+                "${base}/${slug}/?tool_schema_probe=${GITHUB_SHA}&attempt=${attempt}" \
+                > "${directory}/${slug}.html" || true
+            done
+            if python3 - "$directory" <<'PY'
+          import json
+          import pathlib
+          import sys
+          from html.parser import HTMLParser
+
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.capture = False
+                  self.buf = ''
+                  self.scripts = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'script':
+                      self.capture = dict(attrs).get('type') == 'application/ld+json'
+                      self.buf = ''
+              def handle_data(self, data):
+                  if self.capture:
+                      self.buf += data
+              def handle_endtag(self, tag):
+                  if tag == 'script' and self.capture:
+                      self.scripts.append(self.buf)
+                      self.capture = False
+
+          base = pathlib.Path(sys.argv[1])
+          tools = ('solarni-sestava-na-chatu', 'vyber-baterii',
+                   'mppt-kalkulacka', 'vyber-menice', 'quote-checker')
+          for slug in (*tools, 'kolik-stoji-fotovoltaika'):
+              p = Scripts()
+              p.feed((base / (slug + '.html')).read_text(encoding='utf-8',errors='replace'))
+              graphs = []
+              for text in p.scripts:
+                  try:
+                      d = json.loads(text)
+                  except (ValueError, TypeError):
+                      continue
+                  if isinstance(d, dict) and isinstance(d.get('@graph'), list):
+                      graphs.append(d['@graph'])
+              site_graphs = [nodes for nodes in graphs
+                             if any(isinstance(n, dict) and n.get('@type') == 'WebSite'
+                                    for n in nodes)]
+              if len(site_graphs) != 1:
+                  sys.exit('Yoast core site graph missing or duplicated: ' + slug)
+              graph = site_graphs[0]
+              apps = [n for n in graph if isinstance(n, dict) and
+                      'WebApplication' in ([n.get('@type')] if isinstance(n.get('@type'), str)
+                                           else (n.get('@type') or []))]
+              if slug not in tools:
+                  if apps:
+                      sys.exit('Editorial article must not be described as software: ' + slug)
+                  continue
+              if len(apps) != 1:
+                  sys.exit('Exactly one WebApplication required in Yoast graph: ' + slug)
+              app = apps[0]
+              url = 'https://solar-expert.cz/' + slug + '/'
+              if (app.get('url') != url or app.get('@id') != url + '#app'
+                  or app.get('offers', {}).get('price') != 0
+                  or app.get('offers', {}).get('priceCurrency') != 'CZK'
+                  or app.get('isAccessibleForFree') is not True
+                  or 'aggregateRating' in app or 'review' in app):
+                  sys.exit('Invalid application URL, free offer or fabricated ratings: ' + slug)
+          print('Live Yoast graph verified: five truthful free WebApplications; no editorial app or duplicate site graph.')
+          PY
+            then
+              verified=1
+              break
+            fi
+            echo "Public Yoast app schema has not converged, attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$verified" != '1' ]; then
+            echo '::error::Yoast structured tool descriptions are not correctly published.'
+            exit 1
+          fi
+
+      - name: Verify honest merchant operator disclosure on all buying tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          healthy=0
+          for attempt in {1..6}; do
+            health="$(curl -fsSL --max-time 30 -H 'Cache-Control: no-cache' "${base}/wp-json/solar-expert/v1/health?operator_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            count="$(jq -r '.affiliate_monetized_merchants // 0' <<<"$health" 2>/dev/null || echo 0)"
+            operators="$(jq -r '.affiliate_independent_merchant_operators // 0' <<<"$health" 2>/dev/null || echo 0)"
+            if [[ "$count" =~ ^[0-9]+$ && "$operators" =~ ^[0-9]+$ ]] \
+               && [ "$count" -ge 3 ] && [ "$operators" -ge 2 ] && [ "$operators" -lt "$count" ]; then
+              healthy=1
+              break
+            fi
+            sleep 8
+          done
+          if [ "$healthy" != 1 ]; then
+            echo "::error::Live monetization health does not distinguish distinct approved storefronts from independent operators."
+            exit 1
+          fi
+
+          # Download fully first: piping curl into grep -q under pipefail
+          # can generate a false failure (curl receives SIGPIPE when grep
+          # finds a match before the response finishes streaming).
+          for slug in solarni-sestava-na-chatu vyber-baterii mppt-kalkulacka vyber-menice; do
+            html="$(mktemp)"
+            if ! curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/${slug}/?seller_probe=${GITHUB_SHA}" > "$html"; then
+              echo "::error::Public tool ${slug} could not be fetched for seller disclosure."
+              exit 1
+            fi
+            if ! grep -Fq 'Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria' "$html"; then
+              echo "::error::Missing shared-operator disclosure on public tool ${slug}."
+              exit 1
+            fi
+          done
+          echo "Independent retailer honesty verified: ${count} affiliate storefronts but ${operators} legal seller(s), and all four purchase tools disclose shared operation."
+
+      - name: Verify monetized independent VSelektro SKU links on live site
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in {1..6}; do
+            catalog="$(mktemp)"
+            page="$(mktemp)"
+            code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$catalog" -w '%{http_code}' \
+              "${base}/wp-content/themes/solar-expert-2/assets/data/product-seed.json?vselektro_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            page_code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$page" -w '%{http_code}' \
+              "${base}/mppt-kalkulacka/?vselektro_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            if [ "$code" = '200' ] && [ "$page_code" = '200' ] \
+              && jq -e '
+                ([.products[] | select(.id=="mppt-victron-100-20" or .id=="mppt-victron-100-30" or .id=="mppt-victron-100-50") | .offers[] | select(.merchant=="vselektro-eu")] | length) == 3
+                and
+                ([.products[] | (.offers // [])[] | select(.merchant=="vselektro-eu") | select(.availability=="in_stock" and .verified_at=="2026-10-13" and (.source_url | startswith("https://www.vselektro.eu/")))] | length) == 3
+              ' "$catalog" >/dev/null \
+              && grep -Fq 'vselektro-eu' "$page" \
+              && grep -Fq 'SolarExpertConfig' "$page" \
+              && grep -Fq 'isIndependentAlternative(r.product,o.merchantId)' "$page" \
+              && grep -Fq 'Jiný provozovatel' "$page"; then
+                passed=1
+                echo 'Three dated VSelektro SKU offers live; independent eHUB WP base on MPPT selector page, no click probe.'
+                break
+            fi
+            echo "Independent merchant SKU deployment not converged, attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != 1 ]; then
+            echo "::error::Three VSelektro offers or their private WP merchant-base injection were not verified on production."
+            exit 1
+          fi
+
+      - name: Verify public conditional tool scripts
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+
+          # Scrape HTML to validate which scripts the browser truly downloads.
+          # Old archives / articles must no longer ship the entire product
+          # selection engine. Lead and affiliate tracking must remain intact.
+          for route in home article archive builder selector quote; do
+            case "$route" in
+              home) path='/' ; require='builder matcher bundles alpine' ; forbid='selectors quote' ;;
+              article) path='/fve-panely-na-strechu/' ; require='' ; forbid='builder matcher bundles alpine selectors quote' ;;
+              archive) path='/category/solarni-panely/' ; require='' ; forbid='builder matcher bundles alpine selectors quote' ;;
+              builder) path='/solarni-sestava-na-chatu/' ; require='builder matcher bundles alpine' ; forbid='selectors quote' ;;
+              selector) path='/vyber-baterii/' ; require='selectors matcher alpine' ; forbid='builder bundles quote' ;;
+              quote) path='/quote-checker/' ; require='quote alpine' ; forbid='builder matcher bundles selectors' ;;
+            esac
+
+            passed=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}${path}?asset_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              ok=1
+              if [ "$code" != '200' ]; then ok=0; fi
+              for shared in 'assets/js/analytics.js' 'assets/js/affiliate-adapter.js' 'assets/js/lead-cta.js'; do
+                if ! grep -Fq "$shared" "$body_file"; then ok=0; fi
+              done
+              if ! grep -Fq 'SolarExpertConfig' "$body_file"; then ok=0; fi
+              for asset in $require; do
+                case "$asset" in
+                  builder) token='assets/js/builder.js' ;;
+                  matcher) token='assets/js/product-matcher.js' ;;
+                  bundles) token='assets/js/bundle-composer.js' ;;
+                  selectors) token='assets/js/selectors.js' ;;
+                  quote) token='assets/js/quote-checker.js' ;;
+                  alpine) token='alpinejs@3.14.9' ;;
+                esac
+                if ! grep -Fq "$token" "$body_file"; then ok=0; fi
+              done
+              for asset in $forbid; do
+                case "$asset" in
+                  builder) token='assets/js/builder.js' ;;
+                  matcher) token='assets/js/product-matcher.js' ;;
+                  bundles) token='assets/js/bundle-composer.js' ;;
+                  selectors) token='assets/js/selectors.js' ;;
+                  quote) token='assets/js/quote-checker.js' ;;
+                  alpine) token='alpinejs@3.14.9' ;;
+                esac
+                if grep -Fq "$token" "$body_file"; then ok=0; fi
+              done
+
+              if [ "$ok" = '1' ]; then
+                echo "Public script scope verified: $route ($path) => required=$require, excluded=$forbid, sitewide merchant analytics preserved."
+                passed=1
+                break
+              fi
+              echo "Public script scope has not converged: $route HTTP ${code:-none}, attempt $attempt/6."
+              sleep 10
+            done
+
+            if [ "$passed" != '1' ]; then
+              echo "::error::Public route $route still serves incorrect calculator assets or lacks preserved affiliate runtime."
+              exit 1
+            fi
+          done
+
+      - name: Verify real public Czech buyer guidance (no stale homepage cache)
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          for route in home builder; do
+            case "$route" in
+              home) path='/'
+                required='Praktický solární poradce'
+                secondary='Výběr MPPT regulátoru'
+                forbidden='Decision tools' ;;
+              builder) path='/solarni-sestava-na-chatu/'
+                required='Technické srovnání'
+                secondary='Výsledek je orientační návrh velikosti systému'
+                forbidden='Product comparison' ;;
+            esac
+            passed=0
+            for attempt in {1..6}; do
+              body="$(mktemp)"
+              url="${base}${path}?buyer_copy_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store, max-age=0' -H 'Pragma: no-cache' -o "$body" -w '%{http_code}' "$url" || true)"
+              if [ "$code" = '200' ] && grep -Fq "$required" "$body" && grep -Fq "$secondary" "$body" && ! grep -Fq "$forbidden" "$body"; then
+                echo "Public Czech buyer copy current on $route ($path): expected labels present, stale labels absent."
+                passed=1
+                break
+              fi
+              echo "Public $route HTML missing release text or still serving old copy (HTTP ${code:-none}, attempt $attempt/6)."
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Public buyer UX copy has not converged; version health alone is not sufficient."
+              exit 1
+            fi
+          done
+\t'*}"
+            category="${pair#*
+            passed=0
+            for attempt in 1 2 3 4 5 6; do
+              term_json="$(curl -fsSL --max-time 20 \
+                -H 'Cache-Control: no-cache' \
+                "${base}/wp-json/wp/v2/categories?slug=${category}&_fields=id,slug&release_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              post_json="$(curl -fsSL --max-time 20 \
+                -H 'Cache-Control: no-cache' \
+                "${base}/wp-json/wp/v2/posts?slug=${slug}&_fields=id,slug,categories&release_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              category_id="$(jq -er '.[0].id' <<< "$term_json" 2>/dev/null || true)"
+              if [[ "$category_id" =~ ^[0-9]+$ ]] &&
+                 jq -e --arg slug "$slug" --argjson id "$category_id" \
+                   'length == 1 and .[0].slug == $slug and (.[0].categories | index($id) != null)' \
+                   <<< "$post_json" >/dev/null 2>&1; then
+                echo "Managed category verified: $slug => $category ($category_id)."
+                passed=1
+                break
+              fi
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Managed post $slug lacks required category $category; abort release."
+              exit 1
+            fi
+          done
+
+      - name: Verify public sitewide decision navigation and mobile style
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            css="$(mktemp)"
+            home_html="$(mktemp)"
+            post_html="$(mktemp)"
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/wp-content/themes/solar-expert-2/style.css?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$css" || true
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$home_html" || true
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$post_html" || true
+            if grep -Fq '@media(max-width:1150px)' "$css" \
+               && grep -Fq 'overflow-x:auto' "$css" \
+               && ! grep -Fq '.se-menu{display:none}' "$css" \
+               && python3 - "$home_html" "$post_html" <<'PY'
+          import pathlib
+          import re
+          import sys
+          expected = (
+              '/kolik-stoji-fotovoltaika/',
+              '/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/',
+              '/#builder',
+              '/vyber-baterii/',
+              '/mppt-kalkulacka/',
+              '/vyber-menice/',
+          )
+          for file in sys.argv[1:]:
+              html = pathlib.Path(file).read_text(encoding='utf-8', errors='replace')
+              nav = re.search(r'<nav class="se-menu" aria-label="Hlavní navigace">(.*?)</nav>', html, re.S)
+              if not nav or not all('href="https://solar-expert.cz' + path + '"' in nav.group(1) for path in expected):
+                  sys.exit('Missing purpose-matched decision links in sitewide navigation: ' + file)
+          PY
+            then
+              passed=1
+              echo "Public desktop/mobile navigation verified: FVE, heat pumps and four existing tool paths."
+              break
+            fi
+            echo "Navigation HTML/CSS still stale; attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo '::error::Sitewide navigation or mobile visibility has not converged.'
+            exit 1
+          fi
+
+      - name: Verify real public Yoast WebApplication markup on five tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          directory="$(mktemp -d)"
+          verified=0
+          for attempt in 1 2 3 4 5 6; do
+            for slug in solarni-sestava-na-chatu vyber-baterii mppt-kalkulacka vyber-menice quote-checker kolik-stoji-fotovoltaika; do
+              curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+                "${base}/${slug}/?tool_schema_probe=${GITHUB_SHA}&attempt=${attempt}" \
+                > "${directory}/${slug}.html" || true
+            done
+            if python3 - "$directory" <<'PY'
+          import json
+          import pathlib
+          import sys
+          from html.parser import HTMLParser
+
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.capture = False
+                  self.buf = ''
+                  self.scripts = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'script':
+                      self.capture = dict(attrs).get('type') == 'application/ld+json'
+                      self.buf = ''
+              def handle_data(self, data):
+                  if self.capture:
+                      self.buf += data
+              def handle_endtag(self, tag):
+                  if tag == 'script' and self.capture:
+                      self.scripts.append(self.buf)
+                      self.capture = False
+
+          base = pathlib.Path(sys.argv[1])
+          tools = ('solarni-sestava-na-chatu', 'vyber-baterii',
+                   'mppt-kalkulacka', 'vyber-menice', 'quote-checker')
+          for slug in (*tools, 'kolik-stoji-fotovoltaika'):
+              p = Scripts()
+              p.feed((base / (slug + '.html')).read_text(encoding='utf-8',errors='replace'))
+              graphs = []
+              for text in p.scripts:
+                  try:
+                      d = json.loads(text)
+                  except (ValueError, TypeError):
+                      continue
+                  if isinstance(d, dict) and isinstance(d.get('@graph'), list):
+                      graphs.append(d['@graph'])
+              site_graphs = [nodes for nodes in graphs
+                             if any(isinstance(n, dict) and n.get('@type') == 'WebSite'
+                                    for n in nodes)]
+              if len(site_graphs) != 1:
+                  sys.exit('Yoast core site graph missing or duplicated: ' + slug)
+              graph = site_graphs[0]
+              apps = [n for n in graph if isinstance(n, dict) and
+                      'WebApplication' in ([n.get('@type')] if isinstance(n.get('@type'), str)
+                                           else (n.get('@type') or []))]
+              if slug not in tools:
+                  if apps:
+                      sys.exit('Editorial article must not be described as software: ' + slug)
+                  continue
+              if len(apps) != 1:
+                  sys.exit('Exactly one WebApplication required in Yoast graph: ' + slug)
+              app = apps[0]
+              url = 'https://solar-expert.cz/' + slug + '/'
+              if (app.get('url') != url or app.get('@id') != url + '#app'
+                  or app.get('offers', {}).get('price') != 0
+                  or app.get('offers', {}).get('priceCurrency') != 'CZK'
+                  or app.get('isAccessibleForFree') is not True
+                  or 'aggregateRating' in app or 'review' in app):
+                  sys.exit('Invalid application URL, free offer or fabricated ratings: ' + slug)
+          print('Live Yoast graph verified: five truthful free WebApplications; no editorial app or duplicate site graph.')
+          PY
+            then
+              verified=1
+              break
+            fi
+            echo "Public Yoast app schema has not converged, attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$verified" != '1' ]; then
+            echo '::error::Yoast structured tool descriptions are not correctly published.'
+            exit 1
+          fi
+
+      - name: Verify honest merchant operator disclosure on all buying tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          healthy=0
+          for attempt in {1..6}; do
+            health="$(curl -fsSL --max-time 30 -H 'Cache-Control: no-cache' "${base}/wp-json/solar-expert/v1/health?operator_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            count="$(jq -r '.affiliate_monetized_merchants // 0' <<<"$health" 2>/dev/null || echo 0)"
+            operators="$(jq -r '.affiliate_independent_merchant_operators // 0' <<<"$health" 2>/dev/null || echo 0)"
+            if [[ "$count" =~ ^[0-9]+$ && "$operators" =~ ^[0-9]+$ ]] \
+               && [ "$count" -ge 3 ] && [ "$operators" -ge 2 ] && [ "$operators" -lt "$count" ]; then
+              healthy=1
+              break
+            fi
+            sleep 8
+          done
+          if [ "$healthy" != 1 ]; then
+            echo "::error::Live monetization health does not distinguish distinct approved storefronts from independent operators."
+            exit 1
+          fi
+
+          # Download fully first: piping curl into grep -q under pipefail
+          # can generate a false failure (curl receives SIGPIPE when grep
+          # finds a match before the response finishes streaming).
+          for slug in solarni-sestava-na-chatu vyber-baterii mppt-kalkulacka vyber-menice; do
+            html="$(mktemp)"
+            if ! curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/${slug}/?seller_probe=${GITHUB_SHA}" > "$html"; then
+              echo "::error::Public tool ${slug} could not be fetched for seller disclosure."
+              exit 1
+            fi
+            if ! grep -Fq 'Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria' "$html"; then
+              echo "::error::Missing shared-operator disclosure on public tool ${slug}."
+              exit 1
+            fi
+          done
+          echo "Independent retailer honesty verified: ${count} affiliate storefronts but ${operators} legal seller(s), and all four purchase tools disclose shared operation."
+
+      - name: Verify monetized independent VSelektro SKU links on live site
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in {1..6}; do
+            catalog="$(mktemp)"
+            page="$(mktemp)"
+            code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$catalog" -w '%{http_code}' \
+              "${base}/wp-content/themes/solar-expert-2/assets/data/product-seed.json?vselektro_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            page_code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$page" -w '%{http_code}' \
+              "${base}/mppt-kalkulacka/?vselektro_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            if [ "$code" = '200' ] && [ "$page_code" = '200' ] \
+              && jq -e '
+                ([.products[] | select(.id=="mppt-victron-100-20" or .id=="mppt-victron-100-30" or .id=="mppt-victron-100-50") | .offers[] | select(.merchant=="vselektro-eu")] | length) == 3
+                and
+                ([.products[] | (.offers // [])[] | select(.merchant=="vselektro-eu") | select(.availability=="in_stock" and .verified_at=="2026-10-13" and (.source_url | startswith("https://www.vselektro.eu/")))] | length) == 3
+              ' "$catalog" >/dev/null \
+              && grep -Fq 'vselektro-eu' "$page" \
+              && grep -Fq 'SolarExpertConfig' "$page" \
+              && grep -Fq 'isIndependentAlternative(r.product,o.merchantId)' "$page" \
+              && grep -Fq 'Jiný provozovatel' "$page"; then
+                passed=1
+                echo 'Three dated VSelektro SKU offers live; independent eHUB WP base on MPPT selector page, no click probe.'
+                break
+            fi
+            echo "Independent merchant SKU deployment not converged, attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != 1 ]; then
+            echo "::error::Three VSelektro offers or their private WP merchant-base injection were not verified on production."
+            exit 1
+          fi
+
+      - name: Verify public conditional tool scripts
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+
+          # Scrape HTML to validate which scripts the browser truly downloads.
+          # Old archives / articles must no longer ship the entire product
+          # selection engine. Lead and affiliate tracking must remain intact.
+          for route in home article archive builder selector quote; do
+            case "$route" in
+              home) path='/' ; require='builder matcher bundles alpine' ; forbid='selectors quote' ;;
+              article) path='/fve-panely-na-strechu/' ; require='' ; forbid='builder matcher bundles alpine selectors quote' ;;
+              archive) path='/category/solarni-panely/' ; require='' ; forbid='builder matcher bundles alpine selectors quote' ;;
+              builder) path='/solarni-sestava-na-chatu/' ; require='builder matcher bundles alpine' ; forbid='selectors quote' ;;
+              selector) path='/vyber-baterii/' ; require='selectors matcher alpine' ; forbid='builder bundles quote' ;;
+              quote) path='/quote-checker/' ; require='quote alpine' ; forbid='builder matcher bundles selectors' ;;
+            esac
+
+            passed=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}${path}?asset_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              ok=1
+              if [ "$code" != '200' ]; then ok=0; fi
+              for shared in 'assets/js/analytics.js' 'assets/js/affiliate-adapter.js' 'assets/js/lead-cta.js'; do
+                if ! grep -Fq "$shared" "$body_file"; then ok=0; fi
+              done
+              if ! grep -Fq 'SolarExpertConfig' "$body_file"; then ok=0; fi
+              for asset in $require; do
+                case "$asset" in
+                  builder) token='assets/js/builder.js' ;;
+                  matcher) token='assets/js/product-matcher.js' ;;
+                  bundles) token='assets/js/bundle-composer.js' ;;
+                  selectors) token='assets/js/selectors.js' ;;
+                  quote) token='assets/js/quote-checker.js' ;;
+                  alpine) token='alpinejs@3.14.9' ;;
+                esac
+                if ! grep -Fq "$token" "$body_file"; then ok=0; fi
+              done
+              for asset in $forbid; do
+                case "$asset" in
+                  builder) token='assets/js/builder.js' ;;
+                  matcher) token='assets/js/product-matcher.js' ;;
+                  bundles) token='assets/js/bundle-composer.js' ;;
+                  selectors) token='assets/js/selectors.js' ;;
+                  quote) token='assets/js/quote-checker.js' ;;
+                  alpine) token='alpinejs@3.14.9' ;;
+                esac
+                if grep -Fq "$token" "$body_file"; then ok=0; fi
+              done
+
+              if [ "$ok" = '1' ]; then
+                echo "Public script scope verified: $route ($path) => required=$require, excluded=$forbid, sitewide merchant analytics preserved."
+                passed=1
+                break
+              fi
+              echo "Public script scope has not converged: $route HTTP ${code:-none}, attempt $attempt/6."
+              sleep 10
+            done
+
+            if [ "$passed" != '1' ]; then
+              echo "::error::Public route $route still serves incorrect calculator assets or lacks preserved affiliate runtime."
+              exit 1
+            fi
+          done
+
+      - name: Verify real public Czech buyer guidance (no stale homepage cache)
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          for route in home builder; do
+            case "$route" in
+              home) path='/'
+                required='Praktický solární poradce'
+                secondary='Výběr MPPT regulátoru'
+                forbidden='Decision tools' ;;
+              builder) path='/solarni-sestava-na-chatu/'
+                required='Technické srovnání'
+                secondary='Výsledek je orientační návrh velikosti systému'
+                forbidden='Product comparison' ;;
+            esac
+            passed=0
+            for attempt in {1..6}; do
+              body="$(mktemp)"
+              url="${base}${path}?buyer_copy_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store, max-age=0' -H 'Pragma: no-cache' -o "$body" -w '%{http_code}' "$url" || true)"
+              if [ "$code" = '200' ] && grep -Fq "$required" "$body" && grep -Fq "$secondary" "$body" && ! grep -Fq "$forbidden" "$body"; then
+                echo "Public Czech buyer copy current on $route ($path): expected labels present, stale labels absent."
+                passed=1
+                break
+              fi
+              echo "Public $route HTML missing release text or still serving old copy (HTTP ${code:-none}, attempt $attempt/6)."
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Public buyer UX copy has not converged; version health alone is not sufficient."
+              exit 1
+            fi
+          done
+\t'}"
             passed=0
             for attempt in 1 2 3 4 5 6; do
               term_json="$(curl -fsSL --max-time 20 \

@@ -248,6 +248,12 @@ const deployWorkflow=fs.readFileSync(path.join(__dirname,'..','.github','workflo
 assert(deployWorkflow.includes('managed_indexability_errors'),'Auto deploy must fail on managed indexability errors');
 assert(deployWorkflow.includes('index_ready')&&deployWorkflow.includes('index_targets'),'Auto deploy must verify every indexability target is ready');
 assert(deployWorkflow.includes('managed_publish_post_slugs'),'Crawler guard must enumerate repo-created public posts');
+assert(deployWorkflow.includes('expected_categories="$(jq'),
+  'Deploy must dynamically count all managed categorized posts instead of assuming five');
+assert(deployWorkflow.includes('published_pairs < <(jq -r'),
+  'Deploy must dynamically verify public taxonomy membership for newly published SEO guides');
+assert(!deployWorkflow.includes('.managed_taxonomy_targets == 5')&&!deployWorkflow.includes('.managed_taxonomy_targets == 7'),
+  'Never hard-code a current number of categorized posts in production release gates');
 assert(deployWorkflow.includes('select(.type == "page" and .indexable == true)'), 'Crawler guard must validate only indexable Pages in page-sitemap; new indexed Posts belong to post-sitemap');
 assert(deployWorkflow.includes('Managed publish post is missing from Yoast post sitemap'),'Crawler guard must fail when a repo-created public post is absent from the post sitemap');
 assert(deployWorkflow.includes('Managed publish post exposes noindex'),'Crawler guard must reject noindex on repo-created public posts');
