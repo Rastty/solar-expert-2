@@ -35,11 +35,22 @@ function check($ok,$message){if(!$ok){throw new RuntimeException($message);}}
 require dirname(__DIR__).'/inc/import-seo-hygiene.php';
 
 $slugs=solar_expert_import_cleanup_slugs();
-check(count($slugs)===66&&count(array_unique($slugs))===66,'Exactly 66 verified imported candidate slugs; never bulk category blanket');
+check(count($slugs)===76&&count(array_unique($slugs))===76,'Exactly 76 manually reviewed candidate slugs; never bulk category blanket');
 check(in_array('solarni-energie-v-queenslandu-informace-statistiky-a-zdroje',$slugs,true),'Australian news should be in expanded exact inventory');
 check(in_array('solar-for-all-ministerstvo-obchodu-statu-washington',$slugs,true),'US state subsidy news should be in expanded inventory');
 check(in_array('prumerna-denni-vyroba-solarnich-fotovoltaickych-clanku-v-australii',$slugs,true),'Exact Australian production report should be in expanded inventory');
 check(!in_array('kolik-zalohy-byste-meli-zaplatit-abyste-zajistili-svou-solarni-instalaci',$slugs,true),'Keep potentially relevant Czech buyer guidance for editorial decision');
+check(in_array('10-faktu-o-solarni-energii-ktera-vas-mozna-prekvapi',$slugs,true),
+  'Reviewed generic fact listicle is included');
+check(in_array('8-faktu-o-zmene-klimatu',$slugs,true),
+  'Unrelated climate trivia is included');
+check(in_array('9-faktu-ktere-jste-o-solarni-energii-pravdepodobne-nevedeli',$slugs,true),
+  'Old generic trivia with obsolete shortcode is included');
+check(!in_array('fakta-o-solarnich-panelech-ktera-byste-meli-vedet-pred-nakupem',$slugs,true),
+  'Protect more specific purchase-intent article');
+check(!in_array('tepelne-cerpadla-lg-vyhody-nevyhody-ceny',$slugs,true) &&
+      !in_array('tepelna-cerpadla-lg-vyhody-nevyhody-ceny',$slugs,true),
+  'Existing LG literal duplicate already consolidated by 301, not noindex');
 check(in_array('dnes-v-energetice-us-energy-information-administration-eia-19',$slugs,true),
   'Observed duplicate EIA imports must be eligible');
 check(!in_array('dnes-v-energetice-us-energy-information-administration-eia-20',$slugs,true),
@@ -97,7 +108,7 @@ foreach ($slugs as $i=>$slug) {
 }
 $GLOBALS['fixture_posts'][999]=new WP_Post(999,'kolik-panelu-je-potreba-na-jeden-string');
 $bulkIds=solar_expert_exclude_low_value_imports_from_sitemap(array(7));
-check(count($bulkIds)===67,'All 66 matching import IDs plus preserved preexisting exclusion must survive sitemap cap');
+check(count($bulkIds)===77,'All 76 matching reviewed post IDs plus preserved preexisting exclusion must survive sitemap cap');
 check(!in_array(999,$bulkIds,true),'GSC near-win should never be suppressed by sitemap cleanup');
 check(count(array_unique($bulkIds))===count($bulkIds),'No duplicate sitemap IDs');
 check(solar_expert_is_low_value_import(new WP_Post(1001,'solarni-energie-v-queenslandu-informace-statistiky-a-zdroje')),
@@ -105,8 +116,12 @@ check(solar_expert_is_low_value_import(new WP_Post(1001,'solarni-energie-v-queen
 check(!solar_expert_is_low_value_import(new WP_Post(1002,'nataceni-solarnich-panelu-za-sluncem')),
   'GSC top ranking guide must never be noindexed');
 
+check(solar_expert_is_low_value_import(new WP_Post(1003,'10-faktu-o-solarni-energii-ktera-vas-mozna-prekvapi')),
+  'Reviewed generic listicle must be noindex');
+check(!solar_expert_is_low_value_import(new WP_Post(1004,'fakta-o-solarnich-panelech-ktera-byste-meli-vedet-pred-nakupem')),
+  'Purchase-intent fact-check must remain index-eligible');
 $GLOBALS['fixture_root']='/unavailable-manifest';
 check(!solar_expert_is_low_value_import($eia),'On manifest failure, fail open for robots');
 check(solar_expert_exclude_low_value_imports_from_sitemap(array(7))===array(7),
   'On manifest failure, fail open for sitemap');
-echo "PASS: 66 verified foreign imports, all XML sitemap exclusions, 26 GSC near-win protections, 0 WP content mutations\n";
+echo "PASS: 76 reviewed imported/trivia candidates, all XML sitemap exclusions, 26 GSC near-win protections, 0 WP content mutations\n";
