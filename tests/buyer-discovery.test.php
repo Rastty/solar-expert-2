@@ -26,11 +26,11 @@ verify(in_array(array('the_content','solar_expert_append_buyer_bridge',22),$GLOB
 $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/content/manifest.json'),true);
 $slugs = array_column($manifest['items'],'slug');
 $map=solar_expert_buyer_bridge_map();
-verify(count($map)===5,'Bounded source list, not a sitewide spam footer');
+verify(count($map)===6,'Six explicitly intent-matched articles, never sitewide spam');
 foreach ($map as $source=>$bridge) {
   verify(in_array($source,$slugs,true),'Source must be editorially managed: '.$source);
   verify(in_array($bridge['guide_slug'],$slugs,true),'Target must be source-controlled: '.$source);
-  verify(in_array($bridge['tool_slug'],$slugs,true),'Calculator target must be published: '.$source);
+  verify(in_array($bridge['tool_slug'],$slugs,true),'Next-step article or calculator must be managed: '.$source);
   verify($source!==$bridge['guide_slug'] && $source!==$bridge['tool_slug'],'No self-links');
   $GLOBALS['test_post_slug']=$source;
   $rendered=solar_expert_append_buyer_bridge('<p>Evergreen post body</p>');
@@ -61,4 +61,4 @@ foreach (array('test_loop','test_main','test_singular') as $flag) {
   verify(solar_expert_append_buyer_bridge('Base')==='Base','Only primary public post content: '.$flag);
   $GLOBALS[$flag]=true;
 }
-echo "PASS: five intent-matched article-to-buyer paths, no off-topic links, no duplicates or metadata edits\n";
+echo "PASS: six intent-matched article-to-buyer paths, no off-topic links, no duplicates or metadata edits\n";
