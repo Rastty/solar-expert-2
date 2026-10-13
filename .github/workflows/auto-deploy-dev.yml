@@ -1115,7 +1115,7 @@ jobs:
             count="$(jq -r '.affiliate_monetized_merchants // 0' <<<"$health" 2>/dev/null || echo 0)"
             operators="$(jq -r '.affiliate_independent_merchant_operators // 0' <<<"$health" 2>/dev/null || echo 0)"
             if [[ "$count" =~ ^[0-9]+$ && "$operators" =~ ^[0-9]+$ ]] \
-               && [ "$count" -ge 2 ] && [ "$operators" -ge 1 ] && [ "$operators" -lt "$count" ]; then
+               && [ "$count" -ge 3 ] && [ "$operators" -ge 2 ] && [ "$operators" -lt "$count" ]; then
               healthy=1
               break
             fi
@@ -1142,6 +1142,42 @@ jobs:
             fi
           done
           echo "Independent retailer honesty verified: ${count} affiliate storefronts but ${operators} legal seller(s), and all four purchase tools disclose shared operation."
+
+      - name: Verify monetized independent VSelektro SKU links on live site
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in {1..6}; do
+            catalog="$(mktemp)"
+            page="$(mktemp)"
+            code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$catalog" -w '%{http_code}' \
+              "${base}/wp-content/themes/solar-expert-2/assets/data/product-seed.json?vselektro_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            page_code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$page" -w '%{http_code}' \
+              "${base}/mppt-kalkulacka/?vselektro_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            if [ "$code" = '200' ] && [ "$page_code" = '200' ] \
+              && jq -e '
+                ([.products[] | select(.id=="mppt-victron-100-20" or .id=="mppt-victron-100-30" or .id=="mppt-victron-100-50") | .offers[] | select(.merchant=="vselektro-eu")] | length) == 3
+                and
+                ([.products[] | .offers[] | select(.merchant=="vselektro-eu") | select(.availability=="in_stock" and .verified_at=="2026-10-13" and (.source_url | startswith("https://www.vselektro.eu/")))] | length) == 3
+              ' "$catalog" >/dev/null \
+              && grep -Fq 'vselektro-eu' "$page" \
+              && grep -Fq 'SolarExpertConfig' "$page"; then
+                passed=1
+                echo 'Three dated VSelektro SKU offers live; independent eHUB WP base on MPPT selector page, no click probe.'
+                break
+            fi
+            echo "Independent merchant SKU deployment not converged, attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != 1 ]; then
+            echo "::error::Three VSelektro offers or their private WP merchant-base injection were not verified on production."
+            exit 1
+          fi
 
       - name: Verify public conditional tool scripts
         if: steps.config.outputs.enabled == 'true'
