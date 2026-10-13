@@ -77,7 +77,7 @@ export async function inspectCatalogSource(item,fetchImpl=fetch,timeoutMs=12000)
       });
       // Some stores do not implement HEAD. A GET fallback avoids false 404 or
       // bot-blocker alerts; do not download/parse a product's full page.
-      if([400,401,403,405,429,501].includes(response.status)) {
+      if([400,401,403,404,405,410,429,501].includes(response.status)) {
         response.body?.cancel?.().catch?.(()=>{});
         method='GET';
         response=await fetchImpl(current,{
