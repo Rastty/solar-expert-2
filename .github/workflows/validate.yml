@@ -42,6 +42,8 @@ jobs:
         run: node tests/selector-first-use.test.js
       - name: Buyer SEO guides claim, intent and indexability validation
         run: node --test tests/buyer-seo-posts.test.mjs
+      - name: Existing indexed guides to new buying paths
+        run: php tests/buyer-discovery.test.php
       - name: Managed category discovery
         run: php tests/managed-categories.test.php
       - name: Curated topic archives (scope, relevance and preservation)
