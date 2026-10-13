@@ -343,9 +343,9 @@ for(const item of manifest.items){
   if(item.publish_ready){
     assert(item.type==='page'||(
       item.type==='post' &&
-      ['jak-vybrat-mppt-regulator-pro-400w-panel','solarni-sestava-na-chatu-pro-lednici'].includes(item.slug) &&
+      ['jak-vybrat-mppt-regulator-pro-400w-panel','solarni-sestava-na-chatu-pro-lednici','fotovoltaika-a-elektrokotel'].includes(item.slug) &&
       item.indexable===true && item.category_slug==='solarni-panely' && item.create_if_missing===true
-    ),'Only reviewed pages and two explicitly approved indexed buyer-guide posts may publish: '+item.slug);
+    ),'Only reviewed pages and three explicitly approved indexed buyer-guide posts may publish: '+item.slug);
     assert(item.status==='publish','publish_ready item must be public at sync: '+item.slug);
     assert(item.status_if_new==='publish','publish_ready item must publish when first created: '+item.slug);
   }
