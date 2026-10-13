@@ -27,6 +27,10 @@ assert(!/sizing|compatibility check|snapshoty|technický ranking/.test(builder),
 assert(builder.includes('affiliate provize'),'Keep the editorial independence disclosure');
 assert(builder.includes('Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria'),
   'Preserve source-backed warning about shared legal retailer');
+const mppt=read('template-parts/mppt-selector.php');
+assert(builder.includes('SolarExpertAffiliate.isIndependentAlternative(b.mppt,o.merchantId)'), 'Builder third merchant should get factual independent-seller label');
+assert(mppt.includes('SolarExpertAffiliate.isIndependentAlternative(r.product,o.merchantId)'), 'MPPT selector should show independent-seller label');
+assert(builder.includes('SolarExpertAffiliate.offers(b.mppt).slice(0,3)')&&mppt.includes('SolarExpertAffiliate.offers(r.product).slice(0,3)'), 'Third MPPT affiliate shop must remain visible in both tools');
 assert(builder.includes('SolarExpertAffiliate.trackOffer(')&&builder.includes('SolarExpertAffiliate.trackBundleDealOffer('),
   'Keep buyer click attribution intact');
 assert(front.includes('data-se-home-demo="builder-preview"'),
