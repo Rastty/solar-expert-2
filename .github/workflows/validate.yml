@@ -32,6 +32,8 @@ jobs:
         run: php tests/merchant-operators.test.php
       - name: One-click Builder hero attribution
         run: node tests/builder-hero-demo.test.js
+      - name: Czech buyer journey copy and tools routes
+        run: node tests/czech-buyer-journey.test.js
       - name: Managed category discovery
         run: php tests/managed-categories.test.php
       - name: Yoast decision tool structured data
