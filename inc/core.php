@@ -781,6 +781,50 @@ function solar_expert_settings_page() {
         return ($b_count <=> $a_count);
       });
     ?>
+    <?php
+      $merchant_offers7 = $offer7['by_merchant'] ?? array();
+      $merchant_offers28 = $offer28['by_merchant'] ?? array();
+      $operator_offers28 = $offer28['by_operator'] ?? array();
+      $merchant_offer_keys = array_values(array_unique(array_merge(array_keys($merchant_offers7), array_keys($merchant_offers28))));
+      usort($merchant_offer_keys, function($a, $b) use ($merchant_offers28, $merchant_offers7) {
+        return ((int) ($merchant_offers28[$b]['exposures'] ?? $merchant_offers7[$b]['exposures'] ?? 0))
+          <=> ((int) ($merchant_offers28[$a]['exposures'] ?? $merchant_offers7[$a]['exposures'] ?? 0));
+      });
+    ?>
+    <h3>Obchody: zobrazení nabídek → prokliky</h3>
+    <p class="description">Porovnáváme stejné první-stranové události produktových nabídek pro každý obchod. Jde o počet kliknutí na 100 zaznamenaných zobrazení nabídky, ne o procento lidí, nákupů ani provizi. Jeden návštěvník může kliknout vícekrát; starší prokliky bez zaznamenaného zobrazení mohou zkreslit poměr. Sety a leady zde nejsou zahrnuty.</p>
+    <?php if ( ! empty($merchant_offer_keys) ) : ?>
+      <table class="widefat striped" style="max-width:940px">
+        <thead><tr><th>Obchod</th><th>Právní provozovatel</th><th>7 dní: zobrazení</th><th>7 dní: kliky</th><th>28 dní: zobrazení</th><th>28 dní: kliky</th><th>Kliky / 100 zobrazení (28 dní)</th></tr></thead>
+        <tbody>
+        <?php foreach ( $merchant_offer_keys as $merchant_offer_key ) :
+          $seven = $merchant_offers7[$merchant_offer_key] ?? array();
+          $month = $merchant_offers28[$merchant_offer_key] ?? array();
+          $rate = $month['clicks_per_100_exposures'] ?? null;
+        ?>
+          <tr>
+            <td><code><?php echo esc_html($merchant_offer_key); ?></code></td>
+            <td><code><?php echo esc_html(solar_expert_merchant_operator_id($merchant_offer_key)); ?></code></td>
+            <td><?php echo esc_html((int) ($seven['exposures'] ?? 0)); ?></td>
+            <td><?php echo esc_html((int) ($seven['clicks'] ?? 0)); ?></td>
+            <td><?php echo esc_html((int) ($month['exposures'] ?? 0)); ?></td>
+            <td><?php echo esc_html((int) ($month['clicks'] ?? 0)); ?></td>
+            <td><?php echo $rate === null ? '—' : esc_html(number_format_i18n((float) $rate, 1)); ?></td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+      <?php if ( ! empty($operator_offers28) ) : ?>
+        <p class="description">Za 28 dní podle skutečného provozovatele:
+        <?php foreach ( $operator_offers28 as $operator => $row ) : ?>
+          <strong><?php echo esc_html($operator); ?>:</strong> <?php echo esc_html((int) $row['exposures']); ?> zobrazení / <?php echo esc_html((int) $row['clicks']); ?> kliků;
+        <?php endforeach; ?>
+        </p>
+      <?php endif; ?>
+    <?php else : ?>
+      <p>Ještě nejsou zaznamenané nabídky s úplnou identitou produktu, obchodu a umístění.</p>
+    <?php endif; ?>
+
     <h3>Viditelnost produktových nabídek a prokliky podle umístění</h3>
     <p class="description">Počítáme zobrazení jednotlivých produktových nabídek ve viditelné části stránky a jejich následné affiliate kliky. Nejde o unikátní návštěvníky ani potvrzené nákupy. Sety a E.ON leady nemají stejný čitatel/jmenovatel a nejsou zde zahrnuty; starší dny před měřením zobrazení nemusí být plně srovnatelné.</p>
     <?php if ( ! empty($offer_placement_keys) ) : ?>
@@ -1351,7 +1395,24 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
   // Aggregate over ALL individual offers before truncating the detailed top 50.
   // A product-offer exposure is a counter event, not a unique visitor or sale.
   $by_placement = array();
+  $by_merchant = array();
+  $by_operator = array();
   foreach ( $rows as $row ) {
+    // Storefront and legal-operator reporting must remain distinct: Battery.cz
+    // and Solar-Import.cz share Efteria. Never count them as two independent
+    // merchants for a seller-diversity performance decision.
+    $merchant = $row['merchant'];
+    $operator = solar_expert_merchant_operator_id($merchant);
+    foreach ( array(array(&$by_merchant, $merchant), array(&$by_operator, $operator)) as $group ) {
+      $target =& $group[0];
+      $key = $group[1];
+      if ( ! isset($target[$key]) ) {
+        $target[$key] = array('exposures'=>0, 'clicks'=>0, 'clicks_per_100_exposures'=>null);
+      }
+      $target[$key]['exposures'] += (int) $row['exposures'];
+      $target[$key]['clicks'] += (int) $row['clicks'];
+      unset($target);
+    }
     $placement = $row['placement'];
     if ( ! isset($by_placement[$placement]) ) {
       $by_placement[$placement] = array('exposures'=>0, 'clicks'=>0, 'clicks_per_100_exposures'=>null);
@@ -1366,6 +1427,20 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
       ? round(((int) $row['clicks'] / $exposures) * 100, 1)
       : null;
   }
+  foreach ( array(&$by_merchant, &$by_operator) as &$breakdown ) {
+    foreach ( $breakdown as $key => $row ) {
+      $exposures = (int) $row['exposures'];
+      $breakdown[$key]['clicks_per_100_exposures'] = $exposures
+        ? round(((int) $row['clicks'] / $exposures) * 100, 1)
+        : null;
+    }
+    uasort($breakdown, function($a, $b) {
+      $cmp = ((int) $b['exposures']) <=> ((int) $a['exposures']);
+      return $cmp ?: (((int) $b['clicks']) <=> ((int) $a['clicks']));
+    });
+  }
+  unset($breakdown);
+
   uasort($by_placement, function($a,$b) {
     $cmp = ((int) $b['exposures']) <=> ((int) $a['exposures']);
     return $cmp ?: (((int) $b['clicks']) <=> ((int) $a['clicks']));
@@ -1377,6 +1452,8 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
     'click_rate_pct' => $total_exposures ? round(($total_clicks / $total_exposures) * 100, 1) : 0,
     'rows' => array_slice($rows, 0, 50, true),
     'by_placement' => array_slice($by_placement, 0, 25, true),
+    'by_merchant' => $by_merchant,
+    'by_operator' => $by_operator,
   );
 }
 
