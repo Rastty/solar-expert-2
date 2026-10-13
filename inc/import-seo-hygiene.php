@@ -1,6 +1,6 @@
 <?php
 /**
- * SEO hygiene pilot: explicitly identified imported foreign-market news.
+ * SEO hygiene: exact-slug foreign-market imports and reviewed generic legacy trivia.
  *
  * Strict editorial denylist, NOT an automatic quality score. Never infer
  * low quality from age, category, publication frequency or GSC zero clicks.
@@ -66,6 +66,23 @@ function solar_expert_import_cleanup_slugs() {
     'pravni-ne-primocare-spolecnost-zabyvajici-se-solarni-energii-poskytuje-zakaznikum-zavadejici-informace-zpravy',
     'danove-ulevy-na-solarni-panely-po-celem-svete',
     'prumerna-denni-vyroba-solarnich-fotovoltaickych-clanku-v-australii',
+  ));
+  // Secondary editorial quality cohort: 10 inspected legacy listicles
+  // (generic trivia, trivia repetition, irrelevant climate/history tangents,
+  // and broken 2025-era [su_button] quote CTAs). These are NOT asserted to be
+  // exact body duplicates and have not been proven zero-GSC-traffic.
+  // Each slug was observed among 476 published posts on 2026-10-13.
+  $slugs = array_merge($slugs, array(
+    '2-pozoruhodna-fakta-ktera-ilustruji-klesajici-naklady-na-solarni-energii',
+    '10-faktu-o-solarni-energii-ktera-vas-mozna-prekvapi',
+    '7-zajimavych-faktu-o-obnovitelne-energii',
+    '14-zajimavych-faktu-o-solarni-energii-ktere-potrebujete-vedet',
+    '9-faktu-ktere-jste-o-solarni-energii-pravdepodobne-nevedeli',
+    '10-nejlepsich-faktu-o-solarni-energii-solarni-pruvodce',
+    '8-faktu-o-zmene-klimatu',
+    '6-vyvracenych-mytu-o-solarni-energii',
+    '6-mist-pro-uceni-o-solarni-energii',
+    'prekvapiva-historie-solarnich-panelu-detsky-pruvodce-obnovitelnymi-zdroji-energie',
   ));
   // Bounded, verified same-title EIA imports. Do not match arbitrary news.
   for ( $i = 1; $i <= 19; $i++ ) {
