@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import {auditCatalog,catalogSources,inspectCatalogSource,statusClass,summaryMarkdown,validateMerchantSource} from '../tools/affiliate-source-audit.mjs';
 
 const catalog=JSON.parse(fs.readFileSync(new URL('../data/product-seed.json',import.meta.url),'utf8'));
+const deployedCatalog=JSON.parse(fs.readFileSync(new URL('../assets/data/product-seed.json',import.meta.url),'utf8'));
+assert.deepEqual(deployedCatalog,catalog,'Audit source must stay identical to the actually served product catalog');
 const offered=catalogSources(catalog);
 const sumOffers=catalog.products.reduce((n,p)=>n+(p.offers?.length||1),0)+
   catalog.bundle_deals.reduce((n,p)=>n+(p.offers?.length||1),0);
