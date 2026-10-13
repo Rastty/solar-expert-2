@@ -934,13 +934,14 @@ jobs:
           # category archive page (which may be paginated).
           # Check every live-published post with a declared category.
           # Keep future buyer-guide publishing manifest-driven, not hardcoded.
-          mapfile -t published_pairs < <(jq -r '.items[] | select(.type == "post" and (.category_slug // "") != "" and .create_if_missing == true and ((.status // .status_if_new) == "publish")) | [.slug,.category_slug] | @tsv' content/manifest.json)
+          mapfile -t published_pairs < <(jq -r '.items[] | select(.type == "post" and (.category_slug // "") != "" and .create_if_missing == true and ((.status // .status_if_new) == "publish")) | "\(.slug)|\(.category_slug)"' content/manifest.json)
           if [ "${#published_pairs[@]}" -lt 1 ]; then
             echo "::error::No declared public managed post category contracts."
             exit 1
           fi
           for pair in "${published_pairs[@]}"; do
-            slug="${pair%%
+            slug="${pair%%|*}"
+            category="${pair#*|}"
             passed=0
             for attempt in 1 2 3 4 5 6; do
               term_json="$(curl -fsSL --max-time 20 \

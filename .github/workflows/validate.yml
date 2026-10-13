@@ -48,3 +48,5 @@ jobs:
         run: node tests/engine.test.js
       - name: Repository integrity
         run: node tests/repo-integrity.test.js
+      - name: SEO taxonomy deploy Bash syntax and manifest coverage
+        run: node tests/deploy-seo-taxonomy-shell.test.js
