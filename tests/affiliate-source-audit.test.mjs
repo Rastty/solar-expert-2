@@ -13,9 +13,9 @@ const sumOffers=liveOfferCount(catalog.products)+liveOfferCount(catalog.bundle_d
 
 test('catalog inventories every verified shop offer including bundle deals, never affiliate redirects',()=>{
   assert.equal(catalog.products.length,24);
-  assert.equal(sumOffers,49);
-  assert.equal(offered.length,49,'All 49 live offers must have distinct merchant source destinations');
-  assert.equal(offered.length,49,'Do not silently drop offer-level retailer URLs');
+  assert.equal(sumOffers,52);
+  assert.equal(offered.length,52,'All 52 live offers must have distinct merchant source destinations');
+  assert.equal(offered.length,52,'Do not silently drop offer-level retailer URLs');
   assert.equal(new Set(offered.map(x=>x.merchant+'|'+x.source_url)).size,offered.length);
   assert(offered.every(x=>validateMerchantSource(x.merchant,x.source_url).ok));
   assert(offered.some(x=>x.bundles.length));
@@ -36,7 +36,11 @@ test('four SKU families route to exact Victron product page at each retail site'
     const product=catalog.products.find(p=>p.id===id);
     assert(product,'Missing SKU '+id);
     for(const offer of product.offers){
-      assert(new URL(offer.source_url).pathname.includes('smartsolar-mppt-'+model+'--'),
+      if(offer.merchant==='vselektro-eu'){
+        assert(['mppt-victron-100-20','mppt-victron-100-30','mppt-victron-100-50'].includes(id),'Only approved MPPT SKUs have third-retailer offers');
+        assert(new URL(offer.source_url).hostname==='www.vselektro.eu','Third retailer must route to its independently verified domain');
+        assert(new URL(offer.source_url).pathname.includes(id==='mppt-victron-100-30'?'smartsolar-30a':'smartsolar-100v-'+id.split('-').at(-1)+'a'),'Deep link must point to the correct model');
+      } else assert(new URL(offer.source_url).pathname.includes('smartsolar-mppt-'+model+'--'),
         'Must direct-link to the matching model '+id+' @ '+offer.merchant);
       assert(validateMerchantSource(offer.merchant,offer.source_url).ok);
     }
@@ -48,6 +52,9 @@ test('four SKU families route to exact Victron product page at each retail site'
 test('merchant allowlist forbids unknown hosts, tracking destinations, plain http and credentials',()=>{
   assert(validateMerchantSource('battery-cz','https://www.battery.cz/sample/').ok);
   assert(!validateMerchantSource('battery-cz','https://www.solar-import.cz/sample/').ok);
+  assert(validateMerchantSource('vselektro-eu','https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-20a/').ok);
+  assert(!validateMerchantSource('vselektro-eu','https://www.battery.cz/sample/').ok);
+  assert(!validateMerchantSource('vselektro-eu','https://ehub.cz/system/scripts/click.php?desturl=https://www.vselektro.eu/sample/').ok);
   assert(!validateMerchantSource('battery-cz','https://battery.cz.attacker.test/').ok);
   assert(!validateMerchantSource('other','https://battery.cz/sample/').ok);
   assert(!validateMerchantSource('battery-cz','http://battery.cz/sample/').ok);
