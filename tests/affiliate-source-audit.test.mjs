@@ -7,8 +7,9 @@ const catalog=JSON.parse(fs.readFileSync(new URL('../data/product-seed.json',imp
 const deployedCatalog=JSON.parse(fs.readFileSync(new URL('../assets/data/product-seed.json',import.meta.url),'utf8'));
 assert.deepEqual(deployedCatalog,catalog,'Audit source must stay identical to the actually served product catalog');
 const offered=catalogSources(catalog);
-const sumOffers=catalog.products.reduce((n,p)=>n+(p.offers?.length||1),0)+
-  catalog.bundle_deals.reduce((n,p)=>n+(p.offers?.length||1),0);
+const liveOfferCount=rows=>rows.reduce((n,p)=>n+
+  (p.offers?.length||(['discontinued','unavailable'].includes(p.availability)?0:1)),0);
+const sumOffers=liveOfferCount(catalog.products)+liveOfferCount(catalog.bundle_deals);
 
 test('catalog inventories every verified shop offer including bundle deals, never affiliate redirects',()=>{
   assert.equal(catalog.products.length,24);
