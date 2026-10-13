@@ -40,8 +40,8 @@
         </div>
         <p class="se-category-alternative">Potřebujete systém pro chatu bez připojení k síti? Použijte zvlášť <a href="<?php echo esc_url(solar_expert_public_url('solarni-sestava-na-chatu','/solarni-sestava-na-chatu/')); ?>">Solar Setup Builder</a>; nenahrazuje návrh domácí síťové FVE.</p>
       </section>
-      <h2 class="se-category-archive-title">Další články z archivu solárních panelů</h2>
-      <p class="se-muted">Následuje původní archiv. Starší publikované informace vždy porovnejte s aktuálním datasheetem a platnými pravidly.</p>
+      <h2 class="se-category-archive-title">Další průvodci k solárním panelům</h2>
+      <p class="se-muted">Zde zobrazujeme výběr tematicky relevantních průvodců. Ostatní staré URL nemažeme; starší informace vždy ověřujte podle aktuálního datasheetu a platných pravidel.</p>
     <?php elseif ( is_category('tepelna-cerpadla') ) : ?>
       <div class="se-kicker">Solar Expert · tepelná čerpadla</div>
       <h1>Tepelná čerpadla: výběr, spotřeba a nabídka</h1>
@@ -63,8 +63,8 @@
         </div>
         <p class="se-category-alternative">Zvažujete vrt pro systém země–voda? Začněte samostatným <a href="<?php echo esc_url(home_url('/vrt-pro-tepelne-cerpadlo/')); ?>">průvodcem vrty</a>. Parametry vzduchových jednotek se na vrty nepřenášejí.</p>
       </section>
-      <h2 class="se-category-archive-title">Další články z archivu tepelných čerpadel</h2>
-      <p class="se-muted">Následuje původní archiv, včetně starších článků. Ověřujte rok publikace a aktuálnost technických tvrzení.</p>
+      <h2 class="se-category-archive-title">Další průvodci k tepelným čerpadlům</h2>
+      <p class="se-muted">Zde zobrazujeme tematické průvodce a chráněné články s prokázaným zájmem z vyhledávání. Ověřujte rok publikace a aktuálnost technických tvrzení.</p>
     <?php else : ?>
       <div class="se-kicker">Solar Expert · poradna</div>
       <h1><?php single_cat_title(); ?></h1>
