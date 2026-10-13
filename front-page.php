@@ -3,7 +3,7 @@
 <section class="se-hero se-gridbg">
   <div class="se-wrap se-hero-grid">
     <div>
-      <div class="se-kicker">CZ decision engine · bez prodejního tlaku</div>
+      <div class="se-kicker">Praktický solární poradce · bez prodejního tlaku</div>
       <h1 class="se-h1">Solár, který sedí vám.</h1>
       <p class="se-lead">Pro chatu, ostrovní systém nebo zálohu při výpadku: vyberte běžné spotřebiče, upravte jejich provoz a zjistěte potřebné panely, baterii, měnič a MPPT.</p>
       <p class="se-muted">Plánujete klasickou síťovou FVE na rodinném domě? Začněte <a href="/kolik-stoji-fotovoltaika/">průvodcem výběrem a cenou fotovoltaiky</a>.</p>
@@ -97,13 +97,13 @@
 
 <section class="se-section se-section-dark">
   <div class="se-wrap">
-    <div class="se-kicker" style="color:var(--solar)">Decision tools</div>
+    <div class="se-kicker" style="color:var(--solar)">Kalkulačky a výběr komponent</div>
     <h2 class="se-title">Samostatné nástroje pro konkrétní rozhodnutí.</h2>
     <div class="se-tools">
-      <a class="se-tool" href="<?php echo esc_url(solar_expert_public_url('vyber-baterii')); ?>"><span class="se-chip">P1</span><h3>Battery Selector</h3><p>Napětí, energie, vybíjecí výkon a reálný fit k měniči.</p></a>
-      <a class="se-tool" href="<?php echo esc_url(solar_expert_public_url('mppt-kalkulacka')); ?>"><span class="se-chip">P1</span><h3>MPPT Selector</h3><p>PV výkon, nabíjecí proud, Voc a podporované napětí baterie.</p></a>
-      <a class="se-tool" href="<?php echo esc_url(solar_expert_public_url('vyber-menice')); ?>"><span class="se-chip">P1</span><h3>Inverter Selector</h3><p>Trvalý výkon, surge, 12/24/48 V a integrovaný MPPT.</p></a>
-      <a class="se-tool" href="<?php echo esc_url(solar_expert_public_url('quote-checker')); ?>"><span class="se-chip">NEW</span><h3>Quote Checker</h3><p>Prověřte nabídku pro ostrovní nebo záložní napájení. Nejde o kontrolu celé síťové FVE.</p></a>
+      <a class="se-tool" href="<?php echo esc_url(solar_expert_public_url('vyber-baterii')); ?>"><span class="se-chip">LiFePO₄</span><h3>Výběr baterie</h3><p>Napětí 12/24/48 V, energie v kWh a vybíjecí proud BMS pro zvolený měnič.</p></a>
+      <a class="se-tool" href="<?php echo esc_url(solar_expert_public_url('mppt-kalkulacka')); ?>"><span class="se-chip">Regulátor</span><h3>Výběr MPPT regulátoru</h3><p>Výkon panelů, Voc za mrazu, startovní Vmp a nabíjecí proud.</p></a>
+      <a class="se-tool" href="<?php echo esc_url(solar_expert_public_url('vyber-menice')); ?>"><span class="se-chip">12/24/48 V</span><h3>Výběr měniče</h3><p>Trvalý a špičkový výkon, napětí baterie a integrovaný MPPT.</p></a>
+      <a class="se-tool" href="<?php echo esc_url(solar_expert_public_url('quote-checker')); ?>"><span class="se-chip">Kontrola sestavy</span><h3>Kontrola nabídky pro chatu</h3><p>Ověřte kompatibilitu komponent pro ostrovní nebo záložní napájení. Nejde o kontrolu celé síťové FVE.</p></a>
     </div>
   </div>
 </section>
