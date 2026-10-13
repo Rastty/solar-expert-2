@@ -895,7 +895,7 @@ jobs:
           expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
           # Independently retry after PHP opcode cache convergence. Even if
           # content fingerprint was saved by the old code, deploy-sync must
-          # now audit/reconcile the five taxonomy relations without rewriting
+          # now audit/reconcile all declared new-post taxonomy relations without rewriting
           # managed post text.
           passed=0
           for attempt in 1 2 3 4 5 6 7 8; do
@@ -905,9 +905,9 @@ jobs:
               -X POST \
               -d "{\"intent\":\"managed-content-sync-v1\",\"expected_version\":\"${expected}\"}" \
               "https://solar-expert.cz/wp-json/solar-expert/v1/deploy-sync?taxonomy_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
-            if jq -e '.ok == true and .managed_taxonomy_targets == 5 and .managed_taxonomy_ready == 5 and .managed_taxonomy_errors == 0' \
+            if jq -e '.ok == true and .managed_taxonomy_targets == 7 and .managed_taxonomy_ready == 7 and .managed_taxonomy_errors == 0' \
                  <<< "$response" >/dev/null 2>&1; then
-              echo "Managed category reconciliation completed: five of five topical relationships ready."
+              echo "Managed category reconciliation completed: seven of seven topical relationships ready."
               passed=1
               break
             fi
@@ -932,7 +932,9 @@ jobs:
             fotovoltaika-na-pozemku:solarni-panely \
             pruhledne-solarni-panely:solarni-panely \
             tepelne-cerpadlo-vzduch-vzduch:tepelna-cerpadla \
-            tepelne-cerpadlo-monoblok:tepelna-cerpadla; do
+            tepelne-cerpadlo-monoblok:tepelna-cerpadla \
+            jak-vybrat-mppt-regulator-pro-400w-panel:solarni-panely \
+            solarni-sestava-na-chatu-pro-lednici:solarni-panely; do
             slug="${pair%%:*}"
             category="${pair#*:}"
             passed=0
