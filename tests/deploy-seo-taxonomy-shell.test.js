@@ -7,6 +7,27 @@ const root=path.resolve(__dirname,'..');
 const lines=fs.readFileSync(path.join(root,'.github/workflows/auto-deploy-dev.yml'),'utf8').split('\n');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'content/manifest.json'),'utf8'));
 
+// Validate the entire workflow's Bash scalar boundaries. A previously
+// appended fragment with zero indentation invalidated GitHub Actions before
+// any job could start, even though the two taxonomy scripts were bash-valid.
+let workflowBlocks=0;
+for(let i=0;i<lines.length;i++){
+  if(!/^        run: \\$\|/.test(lines[i])) continue;
+  workflowBlocks++;
+  for(let j=i+1;j<lines.length;j++){
+    if(/^      - name: /.test(lines[j])) break;
+    if(!lines[j].trim()) continue;
+    assert(lines[j].startsWith('          '),
+      'Unindented/garbled text outside run YAML literal at line '+(j+1)+': '+lines[j]);
+  }
+}
+assert(workflowBlocks>=20,'Production deploy must retain complete expected verification stages');
+const finalCheck='- name: Verify real public Czech buyer guidance (no stale homepage cache)';
+assert.equal(lines.filter(x=>x.trim()===finalCheck).length,1,'Workflow must not append duplicate trailing step fragments');
+assert.equal(lines.filter(x=>x.trim()).at(-1).trim(),'done',
+  'No unmatched stray text after last production verification');
+
+
 function shellStep(name){
   const target='- name: '+name;
   const start=lines.findIndex(x=>x.trim()===target);
