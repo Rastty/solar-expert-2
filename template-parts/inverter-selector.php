@@ -1,6 +1,14 @@
 <div class="se-panel" x-data="solarExpertInverterSelector()" x-init="init()">
   <div class="se-kicker">Výběr měniče</div><h2>Vyberte měnič podle výkonu a napětí</h2>
   <div class="se-note" style="margin-bottom:14px"><strong>Upravte své požadavky.</strong> Hodnoty níže jsou jen výchozí příklad; doporučení se po každé změně přepočítá automaticky.</div>
+  <div class="se-note se-selector-examples" data-se-selector-examples="inverter" style="margin-bottom:14px">
+    <strong>Neznáte potřebný výkon měniče? Začněte příkladem.</strong>
+    <p class="se-muted">Trvalý příkon a rozběhová špička jsou orientační. Přepište je podle skutečných spotřebičů a datasheetu.</p>
+    <div class="se-actions">
+      <button type="button" class="se-btn" @click="applyExample('cottage')">Chata: 24 V, 1 / 2 kW</button>
+      <button type="button" class="se-btn" @click="applyExample('backup')">Záloha: 48 V, 2 / 4 kW</button>
+    </div>
+  </div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-inverter-voltage">DC systém</label><select id="se-inverter-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
     <div class="se-field"><label for="se-inverter-continuous">Trvalý požadovaný výkon (W)</label><input id="se-inverter-continuous" class="se-input" type="number" min="100" step="100" x-model.number="continuousW" @input.debounce.200ms="run()"></div>
