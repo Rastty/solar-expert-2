@@ -769,6 +769,44 @@ function solar_expert_settings_page() {
       </table>
     <?php endif; ?>
 
+    <?php
+      $offer7 = solar_expert_funnel_offer_breakdown(7);
+      $offer28 = solar_expert_funnel_offer_breakdown(28);
+      $offer_placements7 = $offer7['by_placement'] ?? array();
+      $offer_placements28 = $offer28['by_placement'] ?? array();
+      $offer_placement_keys = array_values(array_unique(array_merge(array_keys($offer_placements7), array_keys($offer_placements28))));
+      usort($offer_placement_keys, function($a, $b) use ($offer_placements28, $offer_placements7) {
+        $a_count = (int) ($offer_placements28[$a]['exposures'] ?? $offer_placements7[$a]['exposures'] ?? 0);
+        $b_count = (int) ($offer_placements28[$b]['exposures'] ?? $offer_placements7[$b]['exposures'] ?? 0);
+        return ($b_count <=> $a_count);
+      });
+    ?>
+    <h3>Viditelnost produktových nabídek a prokliky podle umístění</h3>
+    <p class="description">Počítáme zobrazení jednotlivých produktových nabídek ve viditelné části stránky a jejich následné affiliate kliky. Nejde o unikátní návštěvníky ani potvrzené nákupy. Sety a E.ON leady nemají stejný čitatel/jmenovatel a nejsou zde zahrnuty; starší dny před měřením zobrazení nemusí být plně srovnatelné.</p>
+    <?php if ( ! empty($offer_placement_keys) ) : ?>
+      <table class="widefat striped" style="max-width:860px">
+        <thead><tr><th>Umístění</th><th>7 dní: zobrazení</th><th>7 dní: kliky</th><th>28 dní: zobrazení</th><th>28 dní: kliky</th><th>28 dní: kliků / 100 zobrazení</th></tr></thead>
+        <tbody>
+        <?php foreach ( $offer_placement_keys as $offer_placement_key ) :
+          $seven = $offer_placements7[$offer_placement_key] ?? array();
+          $month = $offer_placements28[$offer_placement_key] ?? array();
+          $rate = $month['clicks_per_100_exposures'] ?? null;
+        ?>
+          <tr>
+            <td><code><?php echo esc_html($offer_placement_key); ?></code></td>
+            <td><?php echo esc_html((int) ($seven['exposures'] ?? 0)); ?></td>
+            <td><?php echo esc_html((int) ($seven['clicks'] ?? 0)); ?></td>
+            <td><?php echo esc_html((int) ($month['exposures'] ?? 0)); ?></td>
+            <td><?php echo esc_html((int) ($month['clicks'] ?? 0)); ?></td>
+            <td><?php echo $rate === null ? '—' : esc_html(number_format_i18n((float) $rate, 1)); ?></td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php else : ?>
+      <p>Za zvolené období zatím nejsou zaznamenané porovnatelné produktové nabídky ani prokliky.</p>
+    <?php endif; ?>
+
     <hr>
     <h2>Price freshness</h2>
     <p>
@@ -1310,11 +1348,35 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
   $total_exposures = array_sum(array_map(function($row){ return (int) ($row['exposures'] ?? 0); }, $rows));
   $total_clicks = array_sum(array_map(function($row){ return (int) ($row['clicks'] ?? 0); }, $rows));
 
+  // Aggregate over ALL individual offers before truncating the detailed top 50.
+  // A product-offer exposure is a counter event, not a unique visitor or sale.
+  $by_placement = array();
+  foreach ( $rows as $row ) {
+    $placement = $row['placement'];
+    if ( ! isset($by_placement[$placement]) ) {
+      $by_placement[$placement] = array('exposures'=>0, 'clicks'=>0, 'clicks_per_100_exposures'=>null);
+    }
+    $by_placement[$placement]['exposures'] += (int) $row['exposures'];
+    $by_placement[$placement]['clicks'] += (int) $row['clicks'];
+  }
+  foreach ( $by_placement as $placement => $row ) {
+    $exposures = (int) $row['exposures'];
+    // No invented 0% when we do not have a comparable exposure denominator.
+    $by_placement[$placement]['clicks_per_100_exposures'] = $exposures
+      ? round(((int) $row['clicks'] / $exposures) * 100, 1)
+      : null;
+  }
+  uasort($by_placement, function($a,$b) {
+    $cmp = ((int) $b['exposures']) <=> ((int) $a['exposures']);
+    return $cmp ?: (((int) $b['clicks']) <=> ((int) $a['clicks']));
+  });
+
   return array(
     'total_exposures' => $total_exposures,
     'total_clicks' => $total_clicks,
     'click_rate_pct' => $total_exposures ? round(($total_clicks / $total_exposures) * 100, 1) : 0,
     'rows' => array_slice($rows, 0, 50, true),
+    'by_placement' => array_slice($by_placement, 0, 25, true),
   );
 }
 

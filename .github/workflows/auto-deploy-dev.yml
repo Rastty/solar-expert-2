@@ -1215,3 +1215,39 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Verify real public Czech buyer guidance (no stale homepage cache)
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          for route in home builder; do
+            case "$route" in
+              home) path='/'
+                required='Praktický solární poradce'
+                secondary='Výběr MPPT regulátoru'
+                forbidden='Decision tools' ;;
+              builder) path='/solarni-sestava-na-chatu/'
+                required='Technické srovnání'
+                secondary='Výsledek je orientační návrh velikosti systému'
+                forbidden='Product comparison' ;;
+            esac
+            passed=0
+            for attempt in {1..6}; do
+              body="$(mktemp)"
+              url="${base}${path}?buyer_copy_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store, max-age=0' -H 'Pragma: no-cache' -o "$body" -w '%{http_code}' "$url" || true)"
+              if [ "$code" = '200' ] && grep -Fq "$required" "$body" && grep -Fq "$secondary" "$body" && ! grep -Fq "$forbidden" "$body"; then
+                echo "Public Czech buyer copy current on $route ($path): expected labels present, stale labels absent."
+                passed=1
+                break
+              fi
+              echo "Public $route HTML missing release text or still serving old copy (HTTP ${code:-none}, attempt $attempt/6)."
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Public buyer UX copy has not converged; version health alone is not sufficient."
+              exit 1
+            fi
+          done
