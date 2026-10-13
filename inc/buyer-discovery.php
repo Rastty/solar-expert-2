@@ -38,6 +38,15 @@ function solar_expert_buyer_bridge_map() {
       'tool_slug' => 'mppt-kalkulacka',
       'tool_label' => 'Ověřit regulátor pro nové pole →',
     ),
+    'tepelne-cerpadlo-nebo-elektrokotel' => array(
+      'kind' => 'electric-heating-fve',
+      'headline' => 'Topíte elektrokotlem a uvažujete o solárech?',
+      'explanation' => 'Elektrokotel potřebuje nejvíce kWh v zimě, kdy FVE zpravidla vyrábí méně. Oddělte roční úsporu a zimní odběr, pak porovnejte s tepelným čerpadlem.',
+      'guide_slug' => 'fotovoltaika-a-elektrokotel',
+      'guide_label' => 'FVE k elektrokotli: spotřeba a návratnost →',
+      'tool_slug' => 'kolik-stoji-fotovoltaika',
+      'tool_label' => 'Domovní FVE: porovnání nabídky →',
+    ),
     'sady-pro-solarni-napajeni-kompletni-pruvodce' => array(
       'kind' => 'cottage',
       'headline' => 'Má solární sada napájet lednici na chatě?',
