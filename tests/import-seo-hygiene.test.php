@@ -28,19 +28,28 @@ function get_posts($args){
       $selected[]=$id;
     }
   }
-  return $selected;
+  return array_slice($selected,0,(int)$args['posts_per_page']);
 }
 function add_filter($hook,$name,$priority){$GLOBALS['calls'][]=array($hook,$name,$priority);}
 function check($ok,$message){if(!$ok){throw new RuntimeException($message);}}
 require dirname(__DIR__).'/inc/import-seo-hygiene.php';
 
 $slugs=solar_expert_import_cleanup_slugs();
-check(count($slugs)===29&&count(array_unique($slugs))===29,'Must be exactly 29 explicit pilot candidates');
+check(count($slugs)===66&&count(array_unique($slugs))===66,'Exactly 66 verified imported candidate slugs; never bulk category blanket');
+check(in_array('solarni-energie-v-queenslandu-informace-statistiky-a-zdroje',$slugs,true),'Australian news should be in expanded exact inventory');
+check(in_array('solar-for-all-ministerstvo-obchodu-statu-washington',$slugs,true),'US state subsidy news should be in expanded inventory');
+check(in_array('prumerna-denni-vyroba-solarnich-fotovoltaickych-clanku-v-australii',$slugs,true),'Exact Australian production report should be in expanded inventory');
+check(!in_array('kolik-zalohy-byste-meli-zaplatit-abyste-zajistili-svou-solarni-instalaci',$slugs,true),'Keep potentially relevant Czech buyer guidance for editorial decision');
 check(in_array('dnes-v-energetice-us-energy-information-administration-eia-19',$slugs,true),
   'Observed duplicate EIA imports must be eligible');
 check(!in_array('dnes-v-energetice-us-energy-information-administration-eia-20',$slugs,true),
   'Do not silently expand the series');
 check(!in_array('kolik-panelu-je-potreba-na-jeden-string',$slugs,true),'Preserve GSC indexable near-wins');
+$gscProtected=solar_expert_import_gsc_protected_slugs();
+check(count($gscProtected)===26,'Protect all 26 13 Oct GSC near-win and query owner slugs');
+check(count(array_intersect($slugs,$gscProtected))===0,'Never noindex any GSC proven near-win or query owner');
+check(in_array('nataceni-solarnich-panelu-za-sluncem',$gscProtected,true),'Protect clicked high-ranking tracker guide');
+check(in_array('proc-se-solarni-panely-neprehrivaji',$gscProtected,true),'Protect top-position cooling guide');
 $manifest=json_decode(file_get_contents(dirname(__DIR__).'/content/manifest.json'),true);
 $managed=array_column($manifest['items'],'slug');
 check(count(array_intersect($managed,$slugs))===0,'Pilot must never contain a managed URL');
@@ -75,12 +84,29 @@ $GLOBALS['fixture_posts']=array(
 $ids=solar_expert_exclude_low_value_imports_from_sitemap(array(7,100));
 sort($ids);
 check($ids===array(7,100,110),'Preserve prior exclusions and suppress only matching published import IDs');
-check($GLOBALS['last_query']['post_name__in']===$slugs&&$GLOBALS['last_query']['posts_per_page']<=40,
-  'Sitemap exclusion must use a bounded exact-name query');
+check($GLOBALS['last_query']['post_name__in']===$slugs&&$GLOBALS['last_query']['posts_per_page']===count($slugs)&&count($slugs)<100,
+  'Sitemap exclusion must cover EVERY candidate with a bounded exact-name query');
 check(solar_expert_exclude_low_value_imports_from_sitemap(array(7))===array(7,100,110),
   'Repeat calls should preserve stable identity');
+// Regression for the original 40-post cap: a batch >40 must actually
+// disappear from XML sitemap eligibility, not merely get per-page robots.
+$GLOBALS['fixture_posts']=array();
+foreach ($slugs as $i=>$slug) {
+  $id=200+$i;
+  $GLOBALS['fixture_posts'][$id]=new WP_Post($id,$slug);
+}
+$GLOBALS['fixture_posts'][999]=new WP_Post(999,'kolik-panelu-je-potreba-na-jeden-string');
+$bulkIds=solar_expert_exclude_low_value_imports_from_sitemap(array(7));
+check(count($bulkIds)===67,'All 66 matching import IDs plus preserved preexisting exclusion must survive sitemap cap');
+check(!in_array(999,$bulkIds,true),'GSC near-win should never be suppressed by sitemap cleanup');
+check(count(array_unique($bulkIds))===count($bulkIds),'No duplicate sitemap IDs');
+check(solar_expert_is_low_value_import(new WP_Post(1001,'solarni-energie-v-queenslandu-informace-statistiky-a-zdroje')),
+  'Expanded Australian imports must carry public noindex');
+check(!solar_expert_is_low_value_import(new WP_Post(1002,'nataceni-solarnich-panelu-za-sluncem')),
+  'GSC top ranking guide must never be noindexed');
+
 $GLOBALS['fixture_root']='/unavailable-manifest';
 check(!solar_expert_is_low_value_import($eia),'On manifest failure, fail open for robots');
 check(solar_expert_exclude_low_value_imports_from_sitemap(array(7))===array(7),
   'On manifest failure, fail open for sitemap');
-echo "PASS: 29 bounded foreign imports noindex/sitemap pilot, managed and GSC protection, original URLs preserved\n";
+echo "PASS: 66 verified foreign imports, all XML sitemap exclusions, 26 GSC near-win protections, 0 WP content mutations\n";
