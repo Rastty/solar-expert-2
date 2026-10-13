@@ -7,6 +7,7 @@ const read=p=>fs.readFileSync(new URL(p,root),'utf8');
 const manifest=JSON.parse(read('content/manifest.json'));
 const core=read('inc/core.php');
 const home=read('front-page.php');
+const solarCategory=read('category.php');
 const specs=[
   {slug:'jak-vybrat-mppt-regulator-pro-400w-panel',path:'content/rewrites/jak-vybrat-mppt-regulator-pro-400w-panel.html',
     primary:'MPPT',requirements:['SmartSolar MPPT 100/20','SmartSolar MPPT 100/30','SmartSolar MPPT 100/50','290 Wp','440 Wp','700 Wp','Voc','Vmp','Isc'],
@@ -37,12 +38,18 @@ for(const spec of specs){
     for(const route of spec.conversion)assert(html.includes('href="'+route+'"'),spec.slug+' must link directly to owned URL '+route);
     for(const domain of spec.evidence)assert(html.includes(domain),'Missing source link '+domain);
     assert(home.includes("home_url('/"+spec.slug+"/')"),'Indexed homepage must link directly to new buyer guide');
+    assert(solarCategory.includes("home_url('/"+spec.slug+"/')"),'Indexed solar-panel archive must link directly to new buyer guide');
     assert(core.includes("'"+spec.slug+"' => array("),'Yoast title + meta should be defined by slug');
     const part=core.slice(core.indexOf("'"+spec.slug+"' => array("),core.indexOf("'"+spec.slug+"' => array(")+480);
     assert(part.includes("'title' =>")&&part.includes("'description' =>"),'Both SEO title and meta description required');
     assert(!html.includes('Nejlepší regulátor pro každého')&&!html.includes('garantujeme'),'No fabricated universal ranking claims');
   });
 }
+test('solar category keeps an explicit off-grid purchase guide cluster',()=>{
+  assert(solarCategory.includes('data-se-category-buying="offgrid-guides"'));
+  assert(solarCategory.includes('Chata a ostrovní systém: co vybrat před nákupem'));
+  assert(solarCategory.includes('VSelektro')===false,'Archive discovery must not advertise a merchant without a product-level fit check');
+});
 test('two exact buyer topics stay noncannibalizing and preserve existing GSC owners',()=>{
   assert(specs[0].slug!==specs[1].slug);
   assert(manifest.items.some(x=>x.slug==='kolik-panelu-je-potreba-na-jeden-string'&&x.preserve_status===true));
