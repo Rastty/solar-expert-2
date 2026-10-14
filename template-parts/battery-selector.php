@@ -11,12 +11,13 @@
   </div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-battery-voltage">Systémové napětí</label><select id="se-battery-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
-    <div class="se-field"><label for="se-battery-daily-kwh">Denní spotřeba (kWh)</label><input id="se-battery-daily-kwh" class="se-input" type="number" min=".2" step=".1" x-model.number="dailyKwh" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-battery-daily-kwh">Denní spotřeba spotřebičů (kWh/den)</label><input id="se-battery-daily-kwh" class="se-input" type="number" min=".2" step=".1" x-model.number="dailyKwh" @input.debounce.200ms="run()"></div>
     <div class="se-field"><label for="se-battery-autonomy">Rezerva</label><select id="se-battery-autonomy" class="se-select" x-model.number="autonomy" @change="run()"><option value=".5">½ dne</option><option value="1">1 den</option><option value="2">2 dny</option></select></div>
     <div class="se-field"><label for="se-battery-inverter-w">Výkon měniče (W)</label><input id="se-battery-inverter-w" class="se-input" type="number" min="100" step="100" x-model.number="inverterW" @input.debounce.200ms="run()"></div>
   </div>
   <div class="se-note" style="margin-top:14px">
-    Výběr hlídá nominální energii baterie včetně rezervy i maximální vybíjecí proud BMS vůči měniči.
+    Pro modelové spotřebiče na 230 V počítáme s 80 % využitelné kapacity baterie a 90 % účinností měniče. Denní spotřebu samotného měniče naprázdno připočtěte k zadaným kWh.
+    Výběr hlídá nominální energii baterie včetně rezervy i maximální trvalý vybíjecí proud BMS včetně předpokládaných ztrát měniče.
     Pro toto zadání potřebujete alespoň <strong><span x-text="requiredBatteryKwh.toFixed(1)"></span> kWh</strong> nominální kapacity a orientačně nejméně
     <strong><span x-text="requiredDischargeA"></span> A</strong> trvalého vybíjecího proudu banku při zvoleném systémovém napětí.
   </div>
