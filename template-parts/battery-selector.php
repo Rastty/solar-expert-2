@@ -5,9 +5,14 @@
     <strong>Nemáte spočítanou spotřebu? Vyzkoušejte modelový příklad.</strong>
     <p class="se-muted">Hodnoty se doplní do formuláře. Můžete je pak změnit podle své skutečné spotřeby.</p>
     <div class="se-actions">
+      <button type="button" class="se-btn" @click="applyExample('panel400')">Panel 400 W: 24 V, 0,7 kWh/den</button>
       <button type="button" class="se-btn" @click="applyExample('cottage')">Chata: 24 V, 1 kWh/den</button>
       <button type="button" class="se-btn" @click="applyExample('backup')">Záloha: 48 V, 3 kWh/den</button>
     </div>
+  </div>
+  <div class="se-note" x-cloak x-show="articleExample" data-se-article-example="panel400" role="status">
+    <strong>Model z článku o panelu 400 W:</strong> systém 24 V, denní spotřeba 0,7 kWh, jednodenní rezerva a modelový trvalý příkon 800 W.
+    Jde pouze o ilustraci, nikoli vaše skutečné parametry. Před nákupem upravte spotřebu, výkon, napětí a připočtěte klidový odběr měniče.
   </div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-battery-voltage">Systémové napětí</label><select id="se-battery-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>

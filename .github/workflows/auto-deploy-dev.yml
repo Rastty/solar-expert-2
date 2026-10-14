@@ -1329,6 +1329,46 @@ jobs:
           fi
           echo 'Published Battery Selector uses 80% usable battery energy, 90% AC conversion and DC BMS fit.'
 
+      - name: Verify live 400W battery guide to selector model handoff
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            guide="$(mktemp)"
+            selector="$(mktemp)"
+            guide_http="$(curl -sSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              -o "$guide" -w '%{http_code}' \
+              "$base/jakou-baterii-k-solarnimu-panelu-400w/?handoff_probe=${GITHUB_SHA}&attempt=$attempt" || true)"
+            selector_http="$(curl -sSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              -o "$selector" -w '%{http_code}' \
+              "$base/vyber-baterii/?scenario=panel400&handoff_probe=${GITHUB_SHA}&attempt=$attempt" || true)"
+            js="$(curl -fsSL --max-time 30 \
+              "$base/wp-content/themes/solar-expert-2/assets/js/selectors.js?handoff_probe=${GITHUB_SHA}" || true)"
+            if [ "$guide_http" = '200' ] \
+              && [ "$selector_http" = '200' ] \
+              && grep -Fq '/vyber-baterii/?scenario=panel400' "$guide" \
+              && grep -Fq 'data-se-article-example="panel400"' "$selector" \
+              && grep -Fq 'Panel 400 W: 24 V, 0,7 kWh/den' "$selector" \
+              && grep -Fq "new URLSearchParams(search).get('scenario')!=='panel400'" <<<"$js" \
+              && grep -Fq 'this.applyArticleExampleFromUrl();' <<<"$js" \
+              && grep -Fq 'inverterW:800' <<<"$js"; then
+              echo 'Verified live 400W article -> same-origin model token -> safe editable Battery Selector'
+              passed=1
+              break
+            fi
+            echo "400W article handoff not yet live: guide $guide_http selector $selector_http attempt $attempt/6"
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo "::error::Live editorial 400W model-to-battery-selector handoff missing."
+            exit 1
+          fi
+
       - name: Verify public merchant offer CTA clarity on buying tools
         if: steps.config.outputs.enabled == 'true'
         shell: bash

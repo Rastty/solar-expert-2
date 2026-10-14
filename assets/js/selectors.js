@@ -11,7 +11,7 @@ function seTrackSelectorOnce(ctx,selector,detail){
 }
 
 window.solarExpertBatterySelector=function(){return{
-  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,
+  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,articleExample:false,
   // Conservative illustrative sizing for AC loads: 80% usable nominal
   // LiFePO4 energy, 90% inverter efficiency. Include inverter losses
   // in BOTH energy and BMS continuous-current checks; no product may pass
@@ -20,18 +20,31 @@ window.solarExpertBatterySelector=function(){return{
   get requiredBatteryKwh(){return Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/(this.usableFraction*this.inverterEfficiency))*10)/10;},
   get requiredBatteryDcW(){return Math.ceil(Number(this.inverterW)/this.inverterEfficiency);},
   get requiredDischargeA(){return Math.max(1,Math.ceil(this.requiredBatteryDcW/Math.max(1,Number(this.voltage))));},
+  applyArticleExampleFromUrl(){
+    // Only one immutable, editorially reviewed deep-link scenario is allowed.
+    // Never read untrusted electrical input fields from the URL or record
+    // a selector engagement simply because this page was opened.
+    const search=window.location&&typeof window.location.search==='string'
+      ?window.location.search:'';
+    if(new URLSearchParams(search).get('scenario')!=='panel400')return;
+    Object.assign(this,{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800});
+    this.articleExample=true;
+  },
   applyExample(kind){
     const examples={
+      panel400:{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800},
       cottage:{voltage:24,dailyKwh:1,autonomy:1,inverterW:1000},
       backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000}
     };
     const selection=examples[kind];
     if(!selection)return;
     Object.assign(this,selection);
+    this.articleExample=false;
     if(this.catalogLoading||!this.catalog.length){this.pendingExample=true;return;}
     this.run(true);
   },
   async init(){
+    this.applyArticleExampleFromUrl();
     this.catalogLoading=true;this.catalogError=false;
     try{this.catalog=await seCatalog();this.run(this.pendingExample);this.pendingExample=false;}
     catch(_){this.catalog=[];this.matches=[];this.catalogError=true;}
