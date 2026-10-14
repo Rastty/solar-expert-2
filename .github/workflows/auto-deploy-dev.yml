@@ -813,6 +813,10 @@ jobs:
                && grep -Fq 'href="https://solar-expert.cz/pruhledne-solarni-panely/"' "$body_file" \
                && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-monoblok/"' "$body_file" \
                && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-vzduch-vzduch/"' "$body_file" \
+               && grep -Fq 'class="se-btn se-btn-primary se-demo-cta"' "$body_file" \
+               && grep -Fq 'Zobrazit ukázkovou sestavu zdarma' "$body_file" \
+               && grep -Fq 'Spočítat vlastní sestavu' "$body_file" \
+               && grep -Fq 'Bez registrace a bez zadávání:' "$body_file" \
                && grep -Fq 'data-se-home-demo="builder-preview"' "$body_file" \
                && grep -Fq 'solar-expert-open-demo' "$body_file" \
                && grep -Fq 'solar-expert-builder-activated' "$body_file" \

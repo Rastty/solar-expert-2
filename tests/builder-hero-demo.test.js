@@ -55,6 +55,19 @@ assert(homepage.includes('data-se-home-demo="builder-preview"'),'Homepage must e
 assert(homepage.includes('x-data="{}" @click.prevent="$dispatch(\'solar-expert-open-demo\')"'),
   'Explicit hero interaction must notify the Builder without auto-playing');
 assert(homepage.includes('href="#builder"'),'Graceful anchor fallback must keep the Builder reachable');
+const hero=homepage.match(/<div class="se-actions se-hero-actions">([\s\S]*?)<\/div>/)?.[1]||'';
+assert(hero.includes('se-btn-primary se-demo-cta'),'One-click no-form sample must be the visible primary CTA');
+assert(hero.indexOf('data-se-home-demo="builder-preview"') < hero.indexOf('Spočítat vlastní sestavu'),
+  'Lead with an editable working example before asking visitors to fill the tool');
+assert(hero.includes('Zobrazit ukázkovou sestavu zdarma'),
+  'Primary CTA must clearly promise a model/example, not falsely personalized results');
+assert(hero.includes('aria-label="Zobrazit modelovou solární sestavu'),
+  'Describe the illustration correctly to assistive technology');
+assert(homepage.includes('<strong>Bez registrace a bez zadávání:</strong>'),
+  'Explanatory hint must disclose the no-input preview and its illustrative nature');
+const css=fs.readFileSync(path.join(__dirname,'..','style.css'),'utf8');
+assert(css.includes('.se-demo-cta.se-btn-primary:hover'),'Primary demo text color must remain legible on hover');
+assert(css.includes('.se-hero-actions .se-btn{min-height:48px'),'Hero CTA must remain a usable tap target');
 assert(builder.includes('@solar-expert-open-demo.window='),'Builder must handle CTA event with Alpine on window');
 assert(builder.includes("new CustomEvent('solar-expert-builder-activated')"),
   'Cross-root CTA must bridge into the first-party deduplicated activation');
