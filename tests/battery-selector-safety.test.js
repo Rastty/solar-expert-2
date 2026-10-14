@@ -48,9 +48,8 @@ assert.equal(lower.requiredDischargeA,38);
 const noComposer=setup(900,false);
 assert.equal(noComposer.matches.length,0,
   'Single-product fallback must retain exactly the same safety envelope');
-window.SolarExpertBundleComposer=require.cache[require.resolve('../assets/js/bundle-composer.js')] &&
-  (delete require.cache[require.resolve('../assets/js/bundle-composer.js')],
-   require('../assets/js/bundle-composer.js'),window.SolarExpertBundleComposer);
+delete require.cache[require.resolve('../assets/js/bundle-composer.js')];
+require('../assets/js/bundle-composer.js');
 const track=window.solarExpertBatterySelector();
 track.catalog=catalog;track.catalogLoading=false;track.voltage=24;track.dailyKwh=.7;track.inverterW=1000;track.run(true);
 let events=window.dataLayer.filter(e=>e.event==='selector_engaged'&&e.selector==='battery');
