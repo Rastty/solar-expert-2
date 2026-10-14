@@ -1,0 +1,52 @@
+<p class="se-lead"><strong>Máte solární panel 400 W a vybíráte MPPT regulátor pro 12V nebo 24V baterii?</strong> Samotný nápis „400 W“ nestačí. Rozhoduje napětí baterie, skutečné Voc a Isc panelu, nabíjecí proud regulátoru a možnost rozšíření. Níže najdete přímé srovnání konkrétních modelů Victron a postup, jak ověřit kompatibilitu ještě před nákupem.</p>
+
+<div class="se-note"><strong>Rychlá orientace pro jeden panel 400 W:</strong> U <strong>12 V</strong> je Victron SmartSolar 100/30 výkonově blízko jmenovité hodnotě (440 Wp při 12 V), model 100/50 nabízí větší rezervu. <strong>100/20 je pro 400 Wp na 12 V pod jmenovitým výkonem</strong> (290 Wp) a může omezovat výstup; není to automaticky vadný nebo nebezpečný návrh, ale je třeba zkontrolovat podmínky výrobce. U <strong>24 V</strong> má 100/20 jmenovitý FV výkon 580 Wp, takže jeden 400W panel může výkonově stačit, pokud vyhoví Voc, Isc a startovací Vmp. Bez parametrů panelu a baterie nejde žádný model označit za univerzálně vhodný.</div>
+
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Zadat Voc, Vmp a výkon do MPPT kalkulačky →</a></p>
+
+<h2>Victron SmartSolar 100/20 vs 100/30 vs 100/50</h2>
+<p>Čísla 100/20 znamenají <strong>100 V maximální FV Voc</strong> a <strong>20 A jmenovitého nabíjecího proudu</strong>, nikoliv „panel s napětím 100 V“. Hodnoty v tabulce jsou specifikace výrobců pro příslušnou produktovou řadu, ne měření výkonu na naší instalaci.</p>
+<table>
+<thead><tr><th>Regulátor</th><th>Nabíjecí proud</th><th>Jmenovitý FV výkon při 12 V</th><th>Při 24 V</th><th>Max. Voc</th><th>Max. Isc vstupu</th></tr></thead>
+<tbody>
+<tr><td>SmartSolar MPPT 100/20</td><td>20 A</td><td>290 Wp</td><td>580 Wp</td><td>100 V</td><td>20 A</td></tr>
+<tr><td>SmartSolar MPPT 100/30</td><td>30 A</td><td>440 Wp</td><td>880 Wp</td><td>100 V</td><td>35 A</td></tr>
+<tr><td>SmartSolar MPPT 100/50</td><td>50 A</td><td>700 Wp</td><td>1 400 Wp</td><td>100 V</td><td>60 A</td></tr>
+</tbody></table>
+<p><small>Zdroje parametrů: <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_75-10_up_to_100-20/en/technical-specifications.html" rel="nofollow noopener">Victron – MPPT 100/20</a> a <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/technical-specifications.html" rel="nofollow noopener">Victron – MPPT 100/30 a 100/50</a>. Isc je maximální zkratový proud solárního vstupu; při paralelním zapojení se proudy větví sčítají.</small></p>
+
+<h2>Proč se stejný 400W panel na 12 V a 24 V chová jinak</h2>
+<p>MPPT převádí výkon z napětí FV panelu na nabíjecí proud baterie. Pro rychlý odhad lze vydělit vstupní výkon typickým nabíjecím napětím: <strong>400 W / 14,4 V ≈ 27,8 A</strong> na 12V systému, ale <strong>400 W / 28,8 V ≈ 13,9 A</strong> na 24V systému. Jsou to idealizované odhady bez převodních ztrát a teplotních podmínek, nikoliv přesně garantované proudy.</p>
+<p>Právě proto může při jednom 400W panelu na 12 V dávat smysl 30A model, kdežto na 24 V může výkonově vyhovět 20A model. <strong>O finální kompatibilitě však rozhodují i napěťová a proudová maxima solárního vstupu.</strong> Naopak silnější regulátor neudělá z malého panelu více energie.</p>
+
+<h2>Co ověřit na štítku panelu před koupí</h2>
+<ol>
+<li><strong>Voc:</strong> napětí naprázdno při 25 °C. V zimě roste; vypočítejte cold Voc z teplotního koeficientu a minimální očekávané teploty. Součet Voc panelů v sérii musí zůstat pod absolutním FV limitem regulátoru.</li>
+<li><strong>Vmp:</strong> pracovní napětí panelu. Musí umožnit spolehlivý start i provoz nabíjení baterie, včetně poklesu Vmp u horkého modulu. U 24V baterie nemusí být libovolný „400W panel“ v létě napěťově vhodný.</li>
+<li><strong>Isc:</strong> zkratový proud a počet paralelních větví. Nepřekročte dovolený zkratový proud solárního vstupu a dimenzujte konektory, kabely a ochrany podle projektu.</li>
+<li><strong>Napětí baterie a chemie:</strong> ověřte 12/24/48 V podporované přesným modelem, nabíjecí profil LiFePO₄ a soulad s BMS.</li>
+<li><strong>Budoucí rozšíření:</strong> pokud přidáte druhý 400W panel, nové rozložení série/paralelně mění Voc, Isc i využitelný výkon. Nový návrh přepočítejte.</li>
+</ol>
+<p>Pomůže také náš původní průvodce <a href="/kolik-panelu-je-potreba-na-jeden-string/">kolik panelů patří do jednoho stringu</a> a <a href="/jak-zapojit-solarni-panely/">rozdíl mezi sérií a paralelním zapojením</a>.</p>
+
+<h2>Tři typické situace při výběru</h2>
+<h3>1. Chata, jedna FV deska 400 W a baterie 12 V</h3>
+<p>Uvažujte 100/30 jako <em>výkonového kandidáta</em> (440 Wp jmenovitě při 12 V). Levnější 100/20 má při 12 V jmenovitě 290 Wp; přebytečný FV výkon může být ořezán. Pokud připravujete rozšíření, 100/50 nabízí výkonovou rezervu, ale zůstává nutné ověřit skutečný Isc a Voc panelů.</p>
+<h3>2. Jeden 400W panel a bateriový systém 24 V</h3>
+<p>100/20 má výkonově rezervu vůči 400 Wp. Nejprve ale ověřte, zda jeho startovací a pracovní napětí odpovídají <strong>Vmp konkrétního panelu</strong>; pro 24V baterii může být panel s nízkým Vmp za horka problematický. Více amperů na štítku regulátoru tuto chybu nevyřeší.</p>
+<h3>3. Dva panely po 400 W</h3>
+<p>Celkem 800 Wp. Pro 12V baterii je 100/30 (440 Wp) silně pod výkonem pole a i 100/50 (700 Wp) může špičky omezit. Pro 24V baterii má 100/30 výkonovou kapacitu 880 Wp, avšak <strong>zapojení 2S může za mrazu překročit 100V Voc</strong> podle typu panelu; u 2P se zase sečte Isc. Nepoužívejte hotovou kombinaci bez elektrického ověření.</p>
+
+<div class="se-note">
+<strong>Chcete už konkrétní produkt a obchod?</strong> <a href="/mppt-kalkulacka/">MPPT kalkulačka</a> zkontroluje základní proudové a napěťové podmínky, pak nabídne odpovídající modely a odkazy na aktuálně evidované obchody včetně nezávislého VSelektro. <strong>Nedoporučujeme regulátor jen podle výše provize.</strong> Ceny jsou datované orientační snapshoty; finální parametry a sklad ověřte na stránce prodejce.
+</div>
+
+<h2>Časté otázky</h2>
+<h3>Je 100/20 pro jeden 400W panel zakázaný?</h3>
+<p>Nejde o univerzální zákaz. Při 12 V ale výkon panelu přesahuje jeho jmenovitých 290 Wp, takže část potenciálu může být omezena. Kromě výkonu musí být splněny limity Voc a Isc a podmínky výrobce.</p>
+<h3>Mohu použít regulátor 100/50 místo 100/30?</h3>
+<p>Ano, pokud ostatní parametry systému vyhovují. Silnější regulátor poskytne prostor pro budoucí navýšení výkonu panelů, ale nezvyšuje fyzikálně dostupnou energii jednoho 400W panelu.</p>
+<h3>Je rozdíl mezi MPPT 100/30 a MPPT 150/35?</h3>
+<p>Ano. „150“ znamená vyšší dovolené maximální FV napětí, což může být rozhodující pro delší sériové stringy. Nestačí porovnat jen nabíjecí proud; opět rozhoduje datasheet konkrétního regulátoru.</p>
+
+<p class="se-muted"><small>Redakční kontrola: 13. 10. 2026. Modelové scénáře nejsou montážním návodem. Návrh jištění, průřezů, ochrany proti úrazu a bezpečné připojení akumulátoru vyžaduje odborné posouzení.</small></p>

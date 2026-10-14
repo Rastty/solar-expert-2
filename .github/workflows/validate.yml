@@ -3,7 +3,11 @@ on:
   push:
     branches: [dev, main]
   pull_request:
-    branches: [main]
+    branches: [dev, main]
+
+concurrency:
+  group: solar-expert-validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -11,11 +15,52 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: PHP syntax
-        run: |
-          find . -name '*.php' -not -path './theme/*' -not -path './plugin/*' -print0 | xargs -0 -n1 php -l
+        run: find . -name '*.php' -not -path './theme/*' -not -path './plugin/*' -print0 | xargs -0 -n1 php -l
       - name: JavaScript syntax
-        run: |
-          find assets/js -name '*.js' -print0 | xargs -0 -n1 node --check
+        run: find assets/js tests -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Affiliate source link audit fixture
+        run: node --test tests/affiliate-source-audit.test.mjs
       - name: JSON validity
         run: |
           find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
+          jq empty content/manifest.json
+      - name: Conditional frontend script loading
+        run: php tests/conditional-assets.test.php
+      - name: Per-tool outbound attribution
+        run: php tests/funnel-attribution.test.php
+      - name: Product offer exposure and click placement reporting
+        run: php tests/funnel-offer-placements.test.php
+      - name: Independent retail operator attribution
+        run: php tests/merchant-operators.test.php
+      - name: Pending independent retailer activation guard
+        run: node --test tests/merchant-candidate-vselektro.test.mjs
+      - name: One-click Builder hero attribution
+        run: node tests/builder-hero-demo.test.js
+      - name: Czech buyer journey copy and tools routes
+        run: node tests/czech-buyer-journey.test.js
+      - name: Selector one-click examples and real activation QA
+        run: node tests/selector-first-use.test.js
+      - name: Battery Selector AC energy efficiency and BMS current safety
+        run: node tests/battery-selector-safety.test.js
+      - name: 400W buyer guide to editable Battery Selector handoff
+        run: node tests/battery-article-handoff.test.js
+      - name: Actual merchant offer CTA labels, price freshness and tracking
+        run: node --test tests/offer-cta-clarity.test.mjs
+      - name: Buyer SEO guides claim, intent and indexability validation
+        run: node --test tests/buyer-seo-posts.test.mjs
+      - name: Existing indexed guides to new buying paths
+        run: php tests/buyer-discovery.test.php
+      - name: Managed category discovery
+        run: php tests/managed-categories.test.php
+      - name: Curated topic archives (scope, relevance and preservation)
+        run: php tests/curated-archives.test.php
+      - name: Strict old import sitemap and noindex hygiene
+        run: php tests/import-seo-hygiene.test.php
+      - name: Yoast decision tool structured data
+        run: php tests/tool-schema.test.php
+      - name: Engine tests
+        run: node tests/engine.test.js
+      - name: Repository integrity
+        run: node tests/repo-integrity.test.js
+      - name: SEO taxonomy deploy Bash syntax and manifest coverage
+        run: node tests/deploy-seo-taxonomy-shell.test.js

@@ -1,0 +1,42 @@
+name: Solar Expert Affiliate Source Audit
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - "data/product-seed.json"
+      - "tools/affiliate-source-audit.mjs"
+      - "tests/affiliate-source-audit.test.mjs"
+      - ".github/workflows/affiliate-source-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-expert-affiliate-source-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regression checks
+        run: |
+          node --check tools/affiliate-source-audit.mjs
+          node --test tests/affiliate-source-audit.test.mjs
+      - name: Check approved retailer product source URLs (NOT affiliate links)
+        run: node tools/affiliate-source-audit.mjs
+      - name: Keep immutable findings for follow-up
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: affiliate-source-audit-${{ github.run_id }}
+          path: artifacts/affiliate-source-audit.json
+          if-no-files-found: warn
+          retention-days: 14

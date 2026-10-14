@@ -1,0 +1,57 @@
+<p class="se-lead"><strong>Počet panelů v jednom stringu nemá univerzální hodnotu.</strong> Neurčuje se podle velikosti domu ani podle počtu slunečních hodin. Rozhodují elektrické parametry konkrétního panelu a napěťové okno MPPT regulátoru nebo hybridního měniče.</p>
+
+<h2>Co je string fotovoltaických panelů</h2>
+<p>String je skupina panelů zapojených <strong>do série</strong>. Při sériovém zapojení se sčítá napětí panelů, zatímco proud stringu zůstává přibližně na úrovni jednoho panelu. Více stejných stringů lze následně zapojit paralelně, pokud to regulátor dovoluje.</p>
+
+<h2>Kolik panelů tedy může být v jednom stringu?</h2>
+<p>Počet panelů musí současně splnit dvě hlavní podmínky:</p>
+<ul>
+<li><strong>minimum:</strong> pracovní napětí stringu musí být dostatečné, aby se MPPT dostal do svého pracovního rozsahu,</li>
+<li><strong>maximum:</strong> součet Voc panelů nesmí ani za nízké teploty překročit maximální vstupní Voc regulátoru nebo měniče.</li>
+</ul>
+<p>Proto může být u jednoho systému správně například 4 panely v sérii a u jiného 10 nebo více. Bez datasheetu panelu a MPPT nelze bezpečné číslo určit.</p>
+
+<h2>Minimální počet panelů ve stringu</h2>
+<p>Pro první kontrolu se pracuje s hodnotou <strong>Vmp</strong> panelu a minimálním MPPT napětím regulátoru. Pokud má panel například Vmp 40 V a MPPT potřebuje pro spolehlivou práci alespoň 120 V, tři panely vytvoří přibližně 120 V pracovního napětí. Je ale potřeba zohlednit skutečné podmínky a přesné požadavky výrobce.</p>
+
+<h2>Maximální počet panelů ve stringu</h2>
+<p>Horní limit určuje především <strong>Voc</strong>. Voc se při nízké teplotě zvyšuje, proto nestačí vzít katalogové Voc při standardních testovacích podmínkách a jednoduše jím vydělit limit měniče. Správný návrh používá teplotní koeficient Voc nebo konzervativní rezervu.</p>
+
+<p><strong>Zjednodušeně:</strong> maximální počet v sérii musí zajistit, že cold Voc celého stringu zůstane bezpečně pod maximálním PV napětím zařízení.</p>
+
+<h2>Příklad</h2>
+<p>Má-li panel Vmp 41 V a Voc 49 V a hybridní měnič pracovní MPPT rozsah 120–430 V s maximálním PV Voc 500 V:</p>
+<ul>
+<li>2 panely: Vmp přibližně 82 V — pravděpodobně příliš nízko,</li>
+<li>3 panely: Vmp přibližně 123 V — dostává se do pracovního rozsahu,</li>
+<li>8 panelů: Vmp přibližně 328 V — stále v pracovním rozsahu,</li>
+<li>10 panelů: katalogové Voc 490 V — bez teplotní korekce už je nebezpečně blízko limitu a za chladu by limit mohlo překročit.</li>
+</ul>
+<p>Konkrétní výsledek vždy závisí na skutečném teplotním koeficientu panelu a datasheetu zařízení.</p>
+
+<h2>Kolik panelů je potřeba na rodinný dům?</h2>
+<p>To je jiná otázka než počet panelů v jednom stringu. <strong>Celkový počet panelů</strong> vychází z požadovaného výkonu elektrárny, použitelné plochy a výkonu jednoho panelu. Teprve potom se panely rozdělí do jednoho nebo více stringů tak, aby každý string elektricky vyhověl měniči.</p>
+<p>Například 20 panelů na domě nemusí znamenat string o 20 panelech; může jít o dva stringy po 10 nebo jiné zapojení podle limitů měniče.</p>
+
+<h2>Co ještě kromě napětí zkontrolovat</h2>
+<ul>
+<li>maximální vstupní proud MPPT,</li>
+<li>počet podporovaných MPPT vstupů a stringů,</li>
+<li>maximální doporučený FV výkon,</li>
+<li>shodnou orientaci a podobné podmínky panelů v jednom stringu,</li>
+<li>jištění, kabeláž, konektory a odpojování podle konkrétní instalace.</li>
+</ul>
+
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Spočítat string v MPPT kalkulačce →</a></p>
+
+<h2>FAQ</h2>
+<h3>Musí být v jednom stringu minimálně 6 panelů?</h3>
+<p>Ne. Univerzální minimum neexistuje. Minimální počet závisí na Vmp panelu a minimálním pracovním nebo startovacím napětí konkrétního MPPT.</p>
+
+<h3>Mohou být všechny panely na domě v jednom stringu?</h3>
+<p>Ano jen tehdy, pokud celkové cold Voc, Vmp a další limity vyhoví konkrétnímu měniči. U větších polí se běžně používá více stringů.</p>
+
+<h3>Mohu spojit různé typy panelů do jednoho stringu?</h3>
+<p>Je to problematické a bez podrobného návrhu nevhodné. Rozdílné elektrické parametry mohou omezovat výkon celé série. Pro návrh preferujte shodné nebo výrobcem výslovně kompatibilní moduly.</p>
+
+<div class="se-note"><strong>Nejdřív datasheet, potom počet panelů.</strong> Pro kompletní sizing od spotřeby použijte <a href="/solarni-sestava-na-chatu/">Solar Setup Builder</a>; pro konkrétní Voc/Vmp kontrolu stringu použijte <a href="/mppt-kalkulacka/">MPPT kalkulačku</a>.</div>

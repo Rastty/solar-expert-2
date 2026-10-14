@@ -1,0 +1,83 @@
+<p class="se-lead"><strong>Jak velkou LiFePO₄ baterii koupit k jednomu 400W solárnímu panelu?</strong> Samotných <strong>400 Wp</strong> kapacitu baterie neurčuje. Rozhoduje, kolik <strong>Wh denně skutečně spotřebujete</strong>, kolik hodin či dnů chcete fungovat bez slunce, zda máte systém 12 V nebo 24 V a jaký proud zvládne BMS při spuštění spotřebiče. Níže je konkrétní výpočet, příklady kompatibilních kategorií baterií a cesta k porovnání ověřených nabídek.</p>
+
+<div class="se-note"><strong>Výsledek pro modelový odběr 700 Wh/den:</strong> při jedné jednodenní rezervě, využitelných 80 % kapacity a předpokládané 90% účinnosti AC měniče vychází potřeba nejméně <strong>700 / (0,80 × 0,90) ≈ 972 Wh nominální energie</strong>. Modelově mohou energeticky vyhovět <strong>12,8 V × 100 Ah = 1,28 kWh</strong> i <strong>25,6 V × 50 Ah = 1,28 kWh</strong>. Neznamená to ale, že jsou zaměnitelné: celé zapojení, měnič, MPPT, BMS a nabíjecí teploty musí odpovídat danému napětí a konkrétním výrobkům. Vlastní spotřeba měniče může výsledek významně zhoršit.</div>
+
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/?scenario=panel400">Otevřít model 400 W v Battery Selectoru →</a> <a class="se-btn" href="/jak-vybrat-mppt-regulator-pro-400w-panel/">Zkontrolovat MPPT k panelu 400 W →</a></p>
+
+<h2>400 Wp panel neznamená, že baterie musí mít 400 Wh</h2>
+<p>400 Wp označuje jmenovitý výkon panelu při standardních testovacích podmínkách, <strong>nikoli denní množství vyrobené energie</strong>. Výroba měřená ve Wh či kWh závisí na místě, roční době, počasí, zastínění, sklonu, orientaci a ztrátách systému. Například čistě modelových <strong>0,4 kW × 3 ekvivalentní sluneční hodiny × 0,75 = 0,90 kWh za den</strong> předává ilustraci, nikoli reálnou předpověď pro konkrétní chatu. V prosinci může být výroba podstatně nižší a za zamračených dní nestačit ani na úsporné spotřebiče.</p>
+<p>Pro místo instalace si spočítejte měsíční a roční výrobu v <a href="https://joint-research-centre.ec.europa.eu/pvgis-online-tool_en" rel="nofollow noopener">PVGIS Evropské komise</a> a pro autonomii zkontrolujte několik slabých dnů po sobě. Nepřenášejte letní výnos panelu automaticky na zimní provoz.</p>
+
+<h2>Výpočet baterie k 400W panelu: nejdřív spotřeba ve Wh</h2>
+<p>Pro modelovou malou chatu uvažujme toto <strong>ilustrativní</strong> denní využití:</p>
+<table>
+<thead><tr><th>Spotřebič</th><th>Předpoklad</th><th>Spotřeba za den</th></tr></thead>
+<tbody>
+<tr><td>LED světla</td><td>20 W × 5 h</td><td>100 Wh</td></tr>
+<tr><td>Notebook</td><td>60 W × 5 h</td><td>300 Wh</td></tr>
+<tr><td>Wi-Fi router</td><td>10 W × 24 h</td><td>240 Wh</td></tr>
+<tr><td>Telefony a drobná elektronika</td><td>Ilustrační rezerva</td><td>60 Wh</td></tr>
+<tr><td><strong>Celkem</strong></td><td>Bez trvalé spotřeby AC měniče</td><td><strong>700 Wh/den</strong></td></tr>
+</tbody></table>
+<p>Pokud spotřebiče napájíte přes měnič 230 V, konzervativní model pro baterii může použít účinnost 90 %. Při využití 80 % nominální energie LiFePO₄ vyjde <strong>700 Wh ÷ 0,90 ÷ 0,80 ≈ 972 Wh</strong>. Jde o volené bezpečnostní parametry příkladu, nikoli výrobcem garantovanou hloubku vybití nebo skutečnou účinnost každého měniče.</p>
+
+<h3>Pozor na trvalou spotřebu měniče: může převážit malé odběry</h3>
+<p>Má-li například AC měnič vlastní spotřebu naprázdno <strong>15 W nepřetržitě</strong>, za 24 hodin sám spotřebuje <strong>15 × 24 = 360 Wh</strong>. Pak už není denní energetický požadavek 700 Wh, ale nejméně 1 060 Wh před dalšími konverzními ztrátami. Baterie 1,28 kWh by v takovém případě nemusela stačit na celý den požadované autonomie. Číslo 15 W je zvolená ukázka, ne parametr některého doporučovaného měniče; ověřte skutečný klidový příkon jeho datasheetu. Významně může pomoci vhodný DC odběr nebo úsporný režim měniče, pokud ho výrobce pro dané zařízení podporuje.</p>
+
+<h2>12 V, 24 V nebo 48 V: stejná Ah nejsou stejná kWh</h2>
+<p>Pro přibližnou nominální energii platí <strong>napětí baterie × kapacita v Ah = Wh</strong>. U LiFePO₄ je pro modelové výpočty 12V třída typicky 12,8 V a 24V třída 25,6 V, nikoliv přesně 12 a 24 V. Skutečné napětí se v provozu mění.</p>
+<table>
+<thead><tr><th>Bateriový model</th><th>Výpočet nominální energie</th><th>Modelově využitelné pro AC při 80 % × 90 %</th><th>Co dále ověřit</th></tr></thead>
+<tbody>
+<tr><td><strong>12V LiFePO₄ 100 Ah</strong></td><td>12,8 V × 100 Ah = <strong>1 280 Wh</strong></td><td>≈ 922 Wh</td><td>Max. BMS vybíjecí proud, výkon měniče a nabíjecí proud</td></tr>
+<tr><td><strong>24V LiFePO₄ 50 Ah</strong></td><td>25,6 V × 50 Ah = <strong>1 280 Wh</strong></td><td>≈ 922 Wh</td><td>24V MPPT a měnič, BMS může mít nižší limit proudu než 12V produkt</td></tr>
+<tr><td><strong>24V LiFePO₄ 100 Ah</strong></td><td>25,6 V × 100 Ah = <strong>2 560 Wh</strong></td><td>≈ 1 843 Wh</td><td>Vyšší autonomie za cenu větší investice; nelze jí nahradit slabou zimní výrobu</td></tr>
+</tbody></table>
+<p><small>Zaokrouhlení: 1 280 × 0,80 × 0,90 = 921,6 Wh; 2 560 × 0,80 × 0,90 = 1 843,2 Wh. Užitečná kapacita se liší podle BMS, minimálního napětí, teploty, rychlosti vybíjení a stárnutí. Při DC napájení bez měniče vypočítejte ztráty samostatně.</small></p>
+
+<h2>Výběr konkrétní baterie: 12V 100Ah vs. 24V 50Ah</h2>
+<p>V ověřeném katalogu Solar Expertu jsou například <strong>GOOWEI ENERGY CNLFP100-12.8 (12,8 V, 100 Ah)</strong> a <strong>GOOWEI ENERGY CNLFP50-25.6 (25,6 V, 50 Ah)</strong>. Obě mají podle aktuálně evidovaných nominálních parametrů <strong>1,28 kWh</strong>. To však <strong>není potvrzení vhodnosti pro každý 400W panel</strong>, každou nabíječku a měnič. Například katalog uvádí u 24V 50Ah varianty max. trvalý proud BMS 40 A; její vhodnost pro vysoké AC špičky musí projít samostatnou kontrolou.</p>
+<p>Nejbezpečnější nákupní postup: otevřete <a href="/vyber-baterii/">výběr baterie 12/24/48 V</a>, vyberte skutečné systémové napětí, vložte denní kWh a požadovaný výkon měniče. Výběr nabídne jen produkty z našeho katalogu, které projdou energetickou a proudovou podmínkou. Před objednávkou i nadále zkontrolujte aktuální cenu, dostupnost, originální datasheet výrobce a podmínky paralelního zapojení. Dva e-shopy se stejným provozovatelem nejsou dva nezávislí prodejci.</p>
+
+<h2>Co musí zvládnout MPPT regulátor pro 400 W</h2>
+<p>Regulátor řeší <em>nabíjení baterie</em>, zatímco její kapacita řeší <em>dobu provozu spotřebičů</em>. Jeden 400W panel může za vhodného slunce dodat výkon blízký jmenovité hodnotě, ale proud do baterie závisí na jejím nabíjecím napětí, účinnosti a případném limitu regulátoru. Čistě modelově: <strong>400 / 14,4 ≈ 27,8 A</strong> u 12V systému a <strong>400 / 28,8 ≈ 13,9 A</strong> u 24V systému před ztrátami. Při 12 V může být 20A MPPT výkonově omezený, i když splní absolutní elektrické limity.</p>
+<p>Použijte <a href="/jak-vybrat-mppt-regulator-pro-400w-panel/">srovnání Victron MPPT 100/20, 100/30 a 100/50</a> a zadejte skutečné štítkové parametry do <a href="/mppt-kalkulacka/">MPPT kalkulačky</a>. Důležité jsou zejména <strong>Voc za mrazu, Vmp za horka, Isc, maximální FV výkon regulátoru při zvoleném napětí a jeho nabíjecí proud</strong>. U regulátorů Victron SmartSolar typicky platí požadavek, že FV napětí musí pro zahájení nabíjení přesáhnout napětí baterie o 5 V a pro pokračování o 1 V; vždy ověřte přesný manuál konkrétního modelu. Více v <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/troubleshooting.html" rel="nofollow noopener">návodu Victron SmartSolar</a>.</p>
+
+<h2>Výkon BMS musí odpovídat spotřebičům i měniči</h2>
+<p>Kapacita 1,28 kWh sama neříká, zda baterie zvládne například rychlovarnou konvici, čerpadlo nebo rozběh kompresoru. Při 1 000 W AC a modelové účinnosti 90 % je příkon ze stejnosměrné strany přibližně <strong>1 000 / 0,90 ≈ 1 111 W</strong>; proud bankem je tedy orientačně kolem <strong>87 A při 12,8 V</strong> nebo <strong>43 A při 25,6 V</strong>. Při nižším okamžitém napětí může být proud ještě vyšší. Pokud má 24V baterie BMS trvalý limit 40 A, nemusí být pro takovou zátěž vhodná, přestože v tabulce energie vychází dobře.</p>
+<p>Rozběhové proudy, BMS krátkodobé limity, DC ochrany, průřezy kabelů a jištění se musí navrhnout pro konkrétní systém. Samotné „12 V / 100 Ah“ není vhodné nákupní doporučení bez ověření těchto parametrů. Projděte také <a href="/vyber-menice/">výběr měniče</a> podle kontinuálního a špičkového výkonu.</p>
+
+<h2>Dobíjení LiFePO₄ v zimě: kdy raději nenabíjet</h2>
+<p>U mnoha LiFePO₄ baterií je nabíjení při teplotě článků pod bodem mrazu omezené nebo zakázané, pokud baterie není výrobcem výslovně určena pro takový režim (například s vlastním ohřevem a řízením BMS). <strong>Nezaměňujte přípustnou teplotu vybíjení za nabíjení.</strong> Některé výrobky mají odlišné limity. Nastavte nabíjecí profil MPPT přesně podle datasheetu dané baterie a ověřte, že její BMS dokáže blokovat nebo omezovat nabíjení mimo dovolené teploty. Neobejděte tuto ochranu externí nabíječkou.</p>
+
+<h2>Praktické rozhodnutí podle způsobu používání</h2>
+<table>
+<thead><tr><th>Scénář</th><th>První kandidát ke kontrole</th><th>Typická chyba</th></tr></thead>
+<tbody>
+<tr><td>Malá chata, telefony, LED, notebook, router</td><td>12V 100Ah nebo 24V 50Ah LiFePO₄ jako modelový základ; ověřit skutečných Wh/den a BMS</td><td>Ignorovaná vlastní spotřeba měniče a špatný zimní výnos</td></tr>
+<tr><td>Lednice 230 V a víkendový provoz</td><td>Nejdříve spotřeba kWh/rok, rozběh kompresoru, autonomie; může být vhodná vyšší kapacita</td><td>Výběr baterie pouze podle 400Wp panelu</td></tr>
+<tr><td>Čerpadlo, varná konvice, nářadí</td><td>Samostatně prověřit špičky měniče, BMS, vodiče a jištění; často potřeba jiného banku</td><td>Stejná kWh baterie se automaticky považuje za stejný dostupný výkon</td></tr>
+<tr><td>Celoroční ostrovní systém</td><td>PVGIS pro prosinec–únor, rezerva a možné doplňkové dobíjení</td><td>Dimenzování celé zimy podle letního výkonu 400Wp panelu</td></tr>
+</tbody></table>
+<p>Pro chatu s lednicí využijte <a href="/solarni-sestava-na-chatu-pro-lednici/">samostatný model spotřeby lednice</a>. Pro více spotřebičů a kompletní kompatibilní soupis použijte <a href="/solarni-sestava-na-chatu/">Solar Setup Builder</a>. Výstupy nástrojů jsou technická orientace, nikoli projekt elektroinstalace nebo potvrzení výrobní záruky.</p>
+
+<div class="se-note"><strong>Nejlepší další krok před objednávkou:</strong> zjistěte denní spotřebu ve Wh, napětí systému, spotřebu naprázdno a špičku měniče, bezpečné nabíjecí limity konkrétní baterie. Pak <a href="/vyber-baterii/">porovnejte baterie 12/24/48 V podle kWh a BMS</a> a teprve poté otevřete nabídku vhodného prodejce.</div>
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Zobrazit vhodné baterie a nabídky →</a> <a class="se-btn" href="/mppt-kalkulacka/">Ověřit kompatibilitu MPPT →</a></p>
+
+<h2>Časté otázky</h2>
+<h3>Stačí 12V 100Ah baterie k 400W panelu?</h3>
+<p>Může stačit pro modelový nízký denní odběr, ale z výkonu panelu to samotného neurčíte. Ověřte denní Wh, požadované dny bez slunce, BMS proud, výkon měniče a odpovídající MPPT. Pro lednici nebo dlouhý zimní provoz může být potřeba větší kapacita či FV pole.</p>
+<h3>Co je lepší: 12V 100Ah, nebo 24V 50Ah?</h3>
+<p>Modelová nominální energie je stejná, přibližně 1,28 kWh. Volba záleží na napětí celého systému, skutečném BMS proudu a podmínkách regulátoru a měniče. Jednotlivé komponenty mezi 12V a 24V systémy nelze libovolně zaměňovat.</p>
+<h3>Kolik času bude 400W panel nabíjet 100Ah LiFePO₄?</h3>
+<p>Bez aktuálního stavu nabití, teploty, napětí a průběhu slunečního výkonu nelze uvést poctivý pevný čas. Teoreticky 1,28 kWh / 0,4 kW = 3,2 hodiny při konstantním výkonu 400 W a beze ztrát; takto ideální konstantní výroba v praxi nenastává a závěrečná fáze nabíjení i limity BMS dobíjení dále prodlužují.</p>
+<h3>Mohu připojit panel přímo na LiFePO₄ baterii bez MPPT?</h3>
+<p>Ne jako běžný návrh. Nabíjení musí řídit kompatibilní regulátor s vhodným profilem, limity proudu a napětí a ochranou podle datasheetu baterie. Nespoléhejte na BMS jako na běžný regulátor FV pole.</p>
+
+<h2>Zdroje a přesnost příkladů</h2>
+<ul>
+<li><a href="https://joint-research-centre.ec.europa.eu/pvgis-online-tool_en" rel="nofollow noopener">Evropská komise, JRC – PVGIS: měsíční a hodinová fotovoltaická výroba podle lokality</a></li>
+<li><a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/troubleshooting.html" rel="nofollow noopener">Victron Energy – podmínky zahájení nabíjení MPPT a kontrola FV napětí</a></li>
+<li><a href="/jak-vybrat-mppt-regulator-pro-400w-panel/">Solar Expert – produktové údaje Victron MPPT 100/20, 100/30 a 100/50 s odkazy na originální manuály</a></li>
+</ul>
+<p class="se-muted"><small>Metodika aktualizována 14. 10. 2026. Hodnoty 700 Wh, 3 ekvivalentní sluneční hodiny, účinnosti 0,75/0,90, využití 80 % kapacity, 15W klidového příkonu měniče a uvedené scénáře jsou <strong>výslovně ilustrační</strong>. Skutečné parametry, ceny, skladovou dostupnost a povolené pracovní teploty ověřte u výrobce a prodejce. Elektroinstalaci a ochrany má posoudit kvalifikovaná osoba. Partnerské odkazy na nabídky mohou Solar Expertu přinést provizi bez změny pořadí technických výsledků.</small></p>

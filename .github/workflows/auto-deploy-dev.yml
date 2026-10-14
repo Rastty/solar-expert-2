@@ -1,0 +1,1526 @@
+name: Auto Deploy Solar Expert Dev
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+  checks: read
+  pull-requests: read
+
+concurrency:
+  group: solar-expert-dev-auto-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_URL: ${{ secrets.SOLAR_EXPERT_DEPLOY_URL }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Detect deploy configuration
+        id: config
+        shell: bash
+        run: |
+          if [ -n "$DEPLOY_URL" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SOLAR_EXPERT_DEPLOY_URL is not configured; auto-deploy skipped."
+          fi
+
+      - name: Check out release
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/checkout@v5
+
+      - name: Verify merge came from a previewed PR
+        if: steps.config.outputs.enabled == 'true'
+        id: pr
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          pulls_api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls"
+          pulls="$(curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$pulls_api")"
+
+          pr_number="$(jq -r '[.[] | select(.base.ref=="dev" and .merged_at!=null)] | first | (.number // empty)' <<<"$pulls")"
+          pr_head_sha="$(jq -r '[.[] | select(.base.ref=="dev" and .merged_at!=null)] | first | (.head.sha // empty)' <<<"$pulls")"
+
+          if [ -z "$pr_number" ] || [ -z "$pr_head_sha" ]; then
+            echo "::error::No merged pull request into dev is associated with this commit; automatic production deploy blocked."
+            exit 1
+          fi
+
+          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$pr_head_sha" >> "$GITHUB_OUTPUT"
+          echo "Resolved merged PR #$pr_number with head $pr_head_sha."
+
+      - name: Wait for merge-commit validation
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs"
+          ready=0
+
+          for attempt in {1..36}; do
+            json="$(curl -fsS \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "$api")"
+
+            status="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.status // "missing")' <<<"$json")"
+            conclusion="$(jq -r '[.check_runs[] | select(.name=="validate")] | first | (.conclusion // "")' <<<"$json")"
+            echo "merge validate=${status}/${conclusion:-pending}"
+
+            if [ "$status" = "completed" ] && [ -n "$conclusion" ] && [ "$conclusion" != "success" ]; then
+              echo "::error::Validate Solar Expert failed on the dev merge commit; production deploy blocked."
+              exit 1
+            fi
+
+            if [ "$status" = "completed" ] && [ "$conclusion" = "success" ]; then
+              ready=1
+              break
+            fi
+
+            sleep 10
+          done
+
+          if [ "$ready" != "1" ]; then
+            echo "::error::Timed out waiting for merge-commit validation; production deploy blocked."
+            exit 1
+          fi
+
+      - name: Verify PR WordPress preview
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        env:
+          PR_HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${PR_HEAD_SHA}/check-runs"
+          json="$(curl -fsS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$api")"
+
+          preview_status="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.status // "missing")' <<<"$json")"
+          preview_conclusion="$(jq -r '[.check_runs[] | select(.name=="preview")] | first | (.conclusion // "")' <<<"$json")"
+
+          echo "PR preview=${preview_status}/${preview_conclusion:-missing}"
+
+          if [ "$preview_status" != "completed" ] || [ "$preview_conclusion" != "success" ]; then
+            echo "::error::The merged PR does not have a successful WordPress Playground preview; production deploy blocked."
+            exit 1
+          fi
+
+      - name: Trigger Deployer for Git
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$DEPLOY_URL"
+
+          # Deployer for Git documents that GitHub's branch ZIP may lag briefly
+          # after a push/merge, especially for larger repositories.
+          sleep 15
+
+          body_file="$(mktemp)"
+          python -c 'import html, os; from urllib.parse import parse_qs, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); p=urlsplit(raw); q=parse_qs(p.query, keep_blank_values=True); print("Deployer URL shape: scheme="+(p.scheme or "none")+" host="+(p.hostname or "none")+" path="+(p.path or "/")+" query_keys="+(",".join(sorted(q.keys())) or "none"))'
+          trigger_url="$(python -c 'import html, os; from urllib.parse import parse_qs, quote, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); params=parse_qs(urlsplit(raw).query, keep_blank_values=True); secret=(params.get("secret") or [""])[0]; assert secret, "Push-to-Deploy URL does not contain a secret query parameter"; print("https://solar-expert.cz/wp-json/dfg/v1/package_update?secret="+quote(secret, safe="")+"&type=theme&package=solar-expert-2")')"
+          echo "::add-mask::$trigger_url"
+
+          http_code="$(curl -sSL --max-time 180 --retry 2 --retry-delay 3 \
+            -H "Cache-Control: no-cache, no-store, max-age=0" \
+            -H "Pragma: no-cache" \
+            -o "$body_file" \
+            -w "%{http_code}" \
+            "$trigger_url")"
+
+          echo "Deployer HTTP status: $http_code"
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Deployer for Git failed with HTTP $http_code."
+            exit 1
+          fi
+
+          # Older/current plugin builds may return non-JSON bodies on success.
+          # When a JSON contract is present, still honor an explicit success=false.
+          if jq -e . >/dev/null 2>&1 <"$body_file"; then
+            success="$(jq -r '.success // true' <"$body_file")"
+            message="$(jq -r '.message // ""' <"$body_file")"
+            package_type="$(jq -r '.package_type // ""' <"$body_file")"
+            package_slug="$(jq -r '.package_slug // ""' <"$body_file")"
+            echo "Deployer JSON: success=${success} package_type=${package_type:-unknown} package_slug=${package_slug:-unknown} message=${message:-none}"
+            if [ "$success" = "false" ]; then
+              echo "::error::Deployer for Git rejected the deployment: ${message:-unknown error}"
+              exit 1
+            fi
+          else
+            echo "Deployer returned HTTP 200 with a non-JSON body; accepted per plugin documentation."
+          fi
+
+      - name: Converge managed content
+        id: content-sync
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
+          sync_url="https://solar-expert.cz/wp-json/solar-expert/v1/deploy-sync"
+          payload="$(jq -nc --arg version "$expected" '{expected_version:$version,intent:"managed-content-sync-v1"}')"
+          converged=0
+
+          for attempt in {1..12}; do
+            body_file="$(mktemp)"
+            http_code="$(curl -sS --max-time 180 \
+              -X POST \
+              -H "Content-Type: application/json" \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -H "Pragma: no-cache" \
+              -o "$body_file" \
+              -w "%{http_code}" \
+              --data "$payload" \
+              "$sync_url" || true)"
+
+            if [ "$http_code" = "200" ] && jq -e '.ok == true and .content_sync_required == false and .content_sync_errors == 0 and (.managed_indexability_errors // 0) == 0 and (.managed_indexability_ready // 0) == (.managed_indexability_targets // 0)' "$body_file" >/dev/null 2>&1; then
+              echo "Managed content converged for Solar Expert $expected."
+              echo "performed=$(jq -r '.sync_performed // false' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "updated=$(jq -r '.updated // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "created=$(jq -r '.created // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "meta_updated=$(jq -r '.meta_updated // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              echo "skipped=$(jq -r '.skipped // 0' "$body_file")" >> "$GITHUB_OUTPUT"
+              converged=1
+              break
+            fi
+
+            if [ "$http_code" = "409" ] || [ "$http_code" = "404" ] || [ "$http_code" = "503" ] || [ "$http_code" = "000" ]; then
+              echo "Managed sync not ready yet (HTTP $http_code, attempt $attempt/12); retrying."
+              sleep 5
+              continue
+            fi
+
+            echo "::error::Managed-content deploy sync failed with HTTP $http_code."
+            exit 1
+          done
+
+          if [ "$converged" != "1" ]; then
+            echo "::error::Managed content did not converge after deployment."
+            exit 1
+          fi
+
+      - name: Verify live release and managed-content sync
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
+          if [ -z "$expected" ]; then
+            echo "::error::Could not read expected theme version from style.css."
+            exit 1
+          fi
+
+          health_url="https://solar-expert.cz/wp-json/solar-expert/v1/health"
+          verified=0
+
+          # Deployer may make the site unreachable for a few seconds while files switch.
+          # Treat transport/invalid-JSON failures as transient, but fail fast once a valid
+          # health payload explicitly reports managed-content errors.
+          sleep 5
+
+          for attempt in {1..36}; do
+            probe_url="${health_url}?deploy_probe=${GITHUB_SHA}&attempt=${attempt}&ts=$(date +%s)"
+            health="$(curl -fsS --max-time 15 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -H "Pragma: no-cache" \
+              "$probe_url" 2>/dev/null || true)"
+
+            if [ -z "$health" ] || ! jq -e . >/dev/null 2>&1 <<<"$health"; then
+              echo "Health endpoint temporarily unavailable or returned invalid JSON; retrying (${attempt}/36)."
+              sleep 10
+              continue
+            fi
+
+            status="$(jq -r '.status // empty' <<<"$health")"
+            live_version="$(jq -r '.theme_version // empty' <<<"$health")"
+            sync_required="$(jq -r 'if has("content_sync_required") then (.content_sync_required|tostring) else "true" end' <<<"$health")"
+            sync_errors="$(jq -r '.content_sync_errors // 999' <<<"$health")"
+            sync_last_updated="$(jq -r '.content_sync_last_updated_posts // 0' <<<"$health")"
+            sync_last_created="$(jq -r '.content_sync_last_created_posts // 0' <<<"$health")"
+            sync_last_meta_updated="$(jq -r '.content_sync_last_meta_updated_posts // 0' <<<"$health")"
+            sync_last_skipped="$(jq -r '.content_sync_last_skipped_items // 0' <<<"$health")"
+            index_targets="$(jq -r '.managed_indexability_targets // 0' <<<"$health")"
+            index_ready="$(jq -r '.managed_indexability_ready // 0' <<<"$health")"
+            index_errors="$(jq -r '.managed_indexability_errors // 999' <<<"$health")"
+
+            active_offer_cov="$(jq -r '.affiliate_active_offer_coverage_pct // 0' <<<"$health")"
+            recommendable_offer_cov="$(jq -r '.affiliate_recommendable_offer_coverage_pct // 0' <<<"$health")"
+            recommendable_product_cov="$(jq -r '.affiliate_recommendable_product_coverage_pct // 0' <<<"$health")"
+            monetized_merchants="$(jq -r '.affiliate_monetized_merchants // 0' <<<"$health")"
+            independent_operators="$(jq -r '.affiliate_independent_merchant_operators // 0' <<<"$health")"
+            lead_targets="$(jq -r '.affiliate_lead_targets // 0' <<<"$health")"
+            monetized_lead_targets="$(jq -r '.affiliate_monetized_lead_targets // 0' <<<"$health")"
+            lead_cov="$(jq -r '.affiliate_lead_coverage_pct // 0' <<<"$health")"
+
+            outcome7_views="$(jq -r '.outcome_scoreboard.days_7.tool_views // 0' <<<"$health")"
+            outcome7_starts="$(jq -r '.outcome_scoreboard.days_7.tool_starts // 0' <<<"$health")"
+            outcome7_exposures="$(jq -r '.outcome_scoreboard.days_7.tool_exposures // 0' <<<"$health")"
+            outcome7_activations="$(jq -r '.outcome_scoreboard.days_7.tool_activations // 0' <<<"$health")"
+            outcome7_events="$(jq -r '.outcome_scoreboard.days_7.tool_outcome_events // 0' <<<"$health")"
+            outcome7_outbound="$(jq -r '.outcome_scoreboard.days_7.outbound_clicks // 0' <<<"$health")"
+            outcome28_views="$(jq -r '.outcome_scoreboard.days_28.tool_views // 0' <<<"$health")"
+            outcome28_starts="$(jq -r '.outcome_scoreboard.days_28.tool_starts // 0' <<<"$health")"
+            outcome28_exposures="$(jq -r '.outcome_scoreboard.days_28.tool_exposures // 0' <<<"$health")"
+            outcome28_activations="$(jq -r '.outcome_scoreboard.days_28.tool_activations // 0' <<<"$health")"
+            outcome28_events="$(jq -r '.outcome_scoreboard.days_28.tool_outcome_events // 0' <<<"$health")"
+            outcome28_outbound="$(jq -r '.outcome_scoreboard.days_28.outbound_clicks // 0' <<<"$health")"
+            outcome28_by_tool="$(jq -c '.outcome_scoreboard.days_28.by_tool // {}' <<<"$health")"
+            outcome28_builder_steps="$(jq -c '.outcome_scoreboard.days_28.builder_steps // {}' <<<"$health")"
+            outcome28_by_page="$(jq -c '.outcome_scoreboard.days_28.by_page // {}' <<<"$health")"
+            outcome28_tool_referrals="$(jq -c '.outcome_scoreboard.days_28.tool_referrals // {}' <<<"$health")"
+            outcome28_offers="$(jq -c '.outcome_scoreboard.days_28.offers // {}' <<<"$health")"
+
+            echo "expected=${expected} live=${live_version:-unknown} sync_required=${sync_required} sync_errors=${sync_errors} indexability=${index_ready}/${index_targets} errors=${index_errors}"
+            echo "release content sync performed=${{ steps.content-sync.outputs.performed || 'false' }} updated=${{ steps.content-sync.outputs.updated || '0' }} created=${{ steps.content-sync.outputs.created || '0' }} meta_updated=${{ steps.content-sync.outputs.meta_updated || '0' }} skipped=${{ steps.content-sync.outputs.skipped || '0' }}"
+            echo "last persisted content sync updated=${sync_last_updated} created=${sync_last_created} meta_updated=${sync_last_meta_updated} skipped=${sync_last_skipped}"
+            echo "monetization active_offer_coverage=${active_offer_cov}% recommendable_offer_coverage=${recommendable_offer_cov}% recommendable_product_coverage=${recommendable_product_cov}% merchants=${monetized_merchants} independent_operators=${independent_operators} lead_coverage=${monetized_lead_targets}/${lead_targets} (${lead_cov}%)"
+            echo "outcome 7d tool_views=${outcome7_views} tool_starts=${outcome7_starts} tool_exposures=${outcome7_exposures} tool_activations=${outcome7_activations} outcome_events=${outcome7_events} outbound_clicks=${outcome7_outbound}; 28d tool_views=${outcome28_views} tool_starts=${outcome28_starts} tool_exposures=${outcome28_exposures} tool_activations=${outcome28_activations} outcome_events=${outcome28_events} outbound_clicks=${outcome28_outbound}"
+            echo "outcome 28d by_tool=${outcome28_by_tool}"
+            echo "outcome 28d builder_steps=${outcome28_builder_steps}"
+            echo "outcome 28d by_page=${outcome28_by_page}"
+            echo "outcome 28d tool_referrals=${outcome28_tool_referrals}"
+            echo "outcome 28d offers=${outcome28_offers}"
+
+            if [ "$lead_targets" -gt "0" ] && [ "$monetized_lead_targets" -lt "$lead_targets" ]; then
+              echo "::warning::Lead monetization coverage is incomplete (${monetized_lead_targets}/${lead_targets})."
+            fi
+
+            if [ "$recommendable_product_cov" != "100" ] && [ "$recommendable_product_cov" != "100.0" ]; then
+              echo "::warning::Not every recommendable product currently has an affiliate path (${recommendable_product_cov}%)."
+            fi
+
+            if [ "$status" = "ok" ] && [ "$sync_errors" != "0" ] && [ "$sync_errors" != "999" ]; then
+              echo "::error::Managed-content sync reported errors."
+              exit 1
+            fi
+
+            if [ "$status" = "ok" ] && [ "$index_errors" != "0" ] && [ "$index_errors" != "999" ]; then
+              echo "::error::Managed-page indexability guard reported errors."
+              jq -c '.managed_indexability_issues // []' <<<"$health"
+              exit 1
+            fi
+
+            if [ "$status" = "ok" ] && [ "$live_version" = "$expected" ] \
+              && [ "$sync_required" = "false" ] && [ "$sync_errors" = "0" ] \
+              && [ "$index_errors" = "0" ] && [ "$index_ready" = "$index_targets" ]; then
+              verified=1
+              break
+            fi
+
+            sleep 10
+          done
+
+          if [ "$verified" != "1" ]; then
+            echo "::error::Production health did not converge to the expected release."
+            exit 1
+          fi
+
+          echo "Production deploy verified: Solar Expert ${expected} is live and content sync is current."
+
+      - name: Flush IndexNow discovery queue
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz"
+          expected="$(awk -F': ' '/^Version:/ {gsub(/\r/,"",$2); print $2; exit}' style.css)"
+          health="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/wp-json/solar-expert/v1/health")"
+          provider="$(jq -r '.indexnow.effective_provider // "unknown"' <<<"$health")"
+          key_location="$(jq -r '.indexnow.key_location // empty' <<<"$health")"
+
+          if [ "$provider" = "solar_expert_fallback" ] && [ -n "$key_location" ]; then
+            key_expected="$(basename "$key_location" .txt)"
+            key_live="$(curl -fsSL --max-time 20 -H "Cache-Control: no-cache, no-store, max-age=0" "$key_location" || true)"
+            if [ "$key_live" != "$key_expected" ]; then
+              echo "::warning::IndexNow key endpoint is not publicly verifiable; queue left pending."
+              exit 0
+            fi
+          fi
+
+          body_file="$(mktemp)"
+          http_code="$(curl -sS --max-time 25 \
+            -H "Content-Type: application/json" \
+            -o "$body_file" \
+            -w "%{http_code}" \
+            -X POST \
+            --data "{\"expected_version\":\"${expected}\",\"intent\":\"indexnow-flush-v1\"}" \
+            "$base/wp-json/solar-expert/v1/indexnow-flush" || true)"
+
+          if [ "$http_code" = "200" ] && jq -e '.ok == true' "$body_file" >/dev/null 2>&1; then
+            echo "IndexNow flush OK: $(jq -c '{provider,submitted,pending,http_code}' "$body_file")"
+          else
+            echo "::warning::IndexNow flush was not accepted; production remains healthy. HTTP ${http_code} $(cat "$body_file" 2>/dev/null || true)"
+          fi
+
+      - name: Verify crawler discovery surfaces
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz"
+
+          robots="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/robots.txt")"
+          if ! grep -Fq "Sitemap: $base/sitemap_index.xml" <<<"$robots"; then
+            echo "::error::robots.txt does not advertise the canonical sitemap index."
+            exit 1
+          fi
+
+          sitemap_index="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/sitemap_index.xml")"
+          if ! grep -Fq "$base/page-sitemap.xml" <<<"$sitemap_index"; then
+            echo "::error::Yoast sitemap index does not expose page-sitemap.xml."
+            exit 1
+          fi
+
+          page_sitemap="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/page-sitemap.xml")"
+          mapfile -t indexable_slugs < <(jq -r '.items[] | select(.type == "page" and .indexable == true) | .slug' content/manifest.json)
+
+          if [ "${#indexable_slugs[@]}" -eq 0 ]; then
+            echo "::error::No indexable managed pages were declared in the manifest."
+            exit 1
+          fi
+
+          health="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$base/wp-json/solar-expert/v1/health")"
+          if ! jq -e '.legacy_redirect_count == (.legacy_redirects | length) and .legacy_redirect_count > 0' >/dev/null 2>&1 <<<"$health"; then
+            echo "::error::Health endpoint does not expose a valid legacy redirect map."
+            exit 1
+          fi
+
+          mapfile -t post_sitemap_urls < <(grep -oE 'https://solar-expert\.cz/post-sitemap[0-9]*\.xml' <<<"$sitemap_index" | sort -u)
+          if [ "${#post_sitemap_urls[@]}" -eq 0 ]; then
+            echo "::error::Yoast sitemap index does not expose a post sitemap."
+            exit 1
+          fi
+
+          post_sitemap=""
+          for sitemap_url in "${post_sitemap_urls[@]}"; do
+            post_sitemap+="$(curl -fsSL --max-time 30 -H "Cache-Control: no-cache, no-store, max-age=0" "$sitemap_url")"
+          done
+
+          mapfile -t managed_publish_post_slugs < <(jq -r '.items[] | select(.type == "post" and .create_if_missing == true and ((.status // .status_if_new) == "publish")) | .slug' content/manifest.json)
+          for slug in "${managed_publish_post_slugs[@]}"; do
+            url="$base/$slug/"
+
+            if ! grep -Fq "<loc>$url</loc>" <<<"$post_sitemap"; then
+              echo "::error::Managed publish post is missing from Yoast post sitemap: $url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            body_file="$(mktemp)"
+            http_code="$(curl -sSL --max-time 30 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -D "$headers_file" \
+              -o "$body_file" \
+              -w "%{http_code}" \
+              "$url")"
+
+            if [ "$http_code" != "200" ]; then
+              echo "::error::Managed publish post returned HTTP $http_code: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '^x-robots-tag:.*noindex' "$headers_file" || \
+               grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$body_file"; then
+              echo "::error::Managed publish post exposes noindex: $url"
+              exit 1
+            fi
+
+            echo "Managed publish post crawler surface OK: $url"
+          done
+
+          for slug in "${indexable_slugs[@]}"; do
+            url="$base/$slug/"
+
+            if ! grep -Fq "<loc>$url</loc>" <<<"$page_sitemap"; then
+              echo "::error::Indexable managed page is missing from page-sitemap.xml: $url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            body_file="$(mktemp)"
+            http_code="$(curl -sSL --max-time 30 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -D "$headers_file" \
+              -o "$body_file" \
+              -w "%{http_code}" \
+              "$url")"
+
+            if [ "$http_code" != "200" ]; then
+              echo "::error::Indexable managed page returned HTTP $http_code: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '^x-robots-tag:.*noindex' "$headers_file"; then
+              echo "::error::Indexable managed page exposes X-Robots-Tag noindex: $url"
+              exit 1
+            fi
+
+            if grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$body_file"; then
+              echo "::error::Indexable managed page exposes a robots noindex meta tag: $url"
+              exit 1
+            fi
+
+            echo "Crawler surface OK: $url"
+          done
+
+          while IFS=$'\t' read -r source_slug target_slug; do
+            source_url="$base/$source_slug/"
+            target_url="$base/$target_slug/"
+
+            if grep -Fq "<loc>$source_url</loc>" <<<"$post_sitemap"; then
+              echo "::error::Legacy redirect source is still present in the post sitemap: $source_url"
+              exit 1
+            fi
+
+            headers_file="$(mktemp)"
+            http_code="$(curl -sS --max-time 30 --max-redirs 0 \
+              -D "$headers_file" \
+              -o /dev/null \
+              -w "%{http_code}" \
+              "$source_url" || true)"
+            location="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]+:[[:space:]]*/, ""); sub(/\r$/, ""); print; exit}' "$headers_file")"
+
+            if [ "$http_code" != "301" ] || [ "$location" != "$target_url" ]; then
+              echo "::error::Legacy redirect contract mismatch: $source_url -> HTTP $http_code Location ${location:-missing}, expected $target_url"
+              exit 1
+            fi
+
+            echo "Legacy redirect sitemap hygiene OK: $source_url -> $target_url"
+          done < <(jq -r '.legacy_redirects | to_entries[] | [.key,.value] | @tsv' <<<"$health")
+
+          paged_url="$base/page/2/"
+          paged_headers="$(mktemp)"
+          paged_body="$(mktemp)"
+          paged_http="$(curl -sSL --max-time 30 \
+            -H "Cache-Control: no-cache, no-store, max-age=0" \
+            -D "$paged_headers" \
+            -o "$paged_body" \
+            -w "%{http_code}" \
+            "$paged_url")"
+
+          if [ "$paged_http" != "200" ]; then
+            echo "::error::Paginated archive returned HTTP $paged_http: $paged_url"
+            exit 1
+          fi
+
+          if ! grep -Eiq '^x-robots-tag:.*noindex' "$paged_headers" && \
+             ! grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$paged_body"; then
+            echo "::error::Paginated archive is missing live noindex: $paged_url"
+            exit 1
+          fi
+
+          echo "Paginated archive noindex OK: $paged_url"
+
+          redirect_count="$(jq -r '.legacy_redirect_count' <<<"$health")"
+          echo "Crawler discovery verified: robots + sitemap index + page sitemap + ${#indexable_slugs[@]} managed pages + ${#managed_publish_post_slugs[@]} managed publish posts + ${redirect_count} sitemap-clean 301 redirects + paginated archive noindex."
+
+      - name: Verify editorial bridge from indexed technical guides to buyer guides
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          # Verify actual public HTML, not just theme SHA. The first
+          # legacy sources were inspected in GSC; the heat pump URLs carry
+          # real impressions while their linked new posts await first crawl.
+          # The newer MPPT source
+          # awaits first-crawl confirmation and is NOT claimed indexed.
+          for record in \
+            'kolik-panelu-je-potreba-na-jeden-string|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt' \
+            'jak-zapojit-solarni-panely|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt' \
+            'tepelne-cerpadlo-nebo-elektrokotel|fotovoltaika-a-elektrokotel|kolik-stoji-fotovoltaika|electric-heating-fve' \
+            'jak-vybrat-mppt-regulator-pro-400w-panel|jakou-baterii-k-solarnimu-panelu-400w|vyber-baterii|battery-400w' \
+            'umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda|tepelne-cerpadlo-monoblok|nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu|heatpump-placement' \
+            'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady|tepelne-cerpadlo-monoblok|nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu|heatpump-review' \
+            'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu|tepelne-cerpadlo-vzduch-vzduch|tepelne-cerpadlo-monoblok|heatpump-air-types'; do
+            IFS='|' read -r source guide tool kind <<<"$record"
+            passed=0
+            for attempt in 1 2 3 4 5 6; do
+              html="$(mktemp)"
+              status="$(curl -sSL --max-time 30 \
+                -H 'Cache-Control: no-cache, no-store, max-age=0' \
+                -H 'Pragma: no-cache' \
+                -o "$html" -w '%{http_code}' \
+                "${base}/${source}/?buyer_bridge_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              if [ "$status" = '200' ] \
+                && grep -Fq "data-se-buyer-bridge=\"$kind\"" "$html" \
+                && grep -Fq "href=\"$base/$guide/\"" "$html" \
+                && grep -Fq "href=\"$base/$tool/\"" "$html"; then
+                echo "Indexed guide buyer route ready: $source -> $guide -> $tool"
+                passed=1
+                break
+              fi
+              echo "Indexed buyer link not yet live: $source HTTP ${status:-none}, attempt $attempt/6"
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Missing real crawlable internal buyer route from indexed article: $source"
+              exit 1
+            fi
+          done
+
+      - name: Verify foreign-import noindex pilot on live WordPress
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          # Five previously verified import samples plus three real
+          # generic/trivia articles from the complete 476-post inventory.
+          # 301/410/deletions are not part of this release.
+          for slug in \
+            dnes-v-energetice-us-energy-information-administration-eia-19 \
+            pokyny-k-formulari-5695-narokovani-slevy-na-solarni-dan \
+            solarni-energie-v-queenslandu-informace-statistiky-a-zdroje \
+            solar-for-all-ministerstvo-obchodu-statu-washington \
+            prumerna-denni-vyroba-solarnich-fotovoltaickych-clanku-v-australii \
+            10-faktu-o-solarni-energii-ktera-vas-mozna-prekvapi \
+            8-faktu-o-zmene-klimatu \
+            9-faktu-ktere-jste-o-solarni-energii-pravdepodobne-nevedeli; do
+            ok=0
+            for attempt in 1 2 3 4 5 6; do
+              body="$(mktemp)"
+              http="$(curl -sSL --max-time 30 \
+                -H 'Cache-Control: no-cache, no-store, max-age=0' \
+                -H 'Pragma: no-cache' \
+                -o "$body" -w '%{http_code}' \
+                "$base/$slug/?import_cleanup_probe=${GITHUB_SHA}&attempt=$attempt" || true)"
+              if [ "$http" = '200' ] \
+                && grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$body"; then
+                echo "Published imported URL retained with Yoast noindex: $slug"
+                ok=1
+                break
+              fi
+              echo "Legacy import noindex not yet live: $slug HTTP ${http:-none}, attempt $attempt/6"
+              sleep 10
+            done
+            if [ "$ok" != '1' ]; then
+              echo "::error::Bounded foreign-import noindex is missing; keep sitemap/index hygiene release gated."
+              exit 1
+            fi
+          done
+
+          # Still indexable: an existing GSC near-win. The ordinary production
+          # crawler-surface gate already checks protected managed post slugs.
+          live="$(mktemp)"
+          curl -fsSL --max-time 30 \
+            "$base/kolik-panelu-je-potreba-na-jeden-string/?import_protect_probe=${GITHUB_SHA}" > "$live"
+          if grep -Eiq '<meta[^>]+robots[^>]+noindex|<meta[^>]+noindex[^>]+robots' "$live"; then
+            echo "::error::An indexed and GSC-ranked MPPT post must NEVER be noindexed by the cleanup pilot."
+            exit 1
+          fi
+
+          # Yoast sitemap caches can lag a theme update; inspect and report
+          # transient sitemap state without claiming an immediate deindex.
+          sitemap="$(curl -fsSL --max-time 30 "$base/post-sitemap.xml" || true)"
+          if grep -Fq "$base/dnes-v-energetice-us-energy-information-administration-eia-19/" <<<"$sitemap"; then
+            echo "::warning::Yoast XML sitemap still lists import; recheck sitemap cache after propagation."
+          else
+            echo "Low-value imported EIA article no longer listed in public Yoast post sitemap."
+          fi
+
+      - name: Verify rendered residential FVE CTA
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Theme-version checks alone can miss stale full-page caches or stale
+          # the_content hooks; probe the final publicly rendered legacy post.
+          url="https://solar-expert.cz/fve-panely-na-strechu/?release_scope_probe=${GITHUB_SHA}"
+          verified=0
+
+          for attempt in {1..6}; do
+            body_file="$(mktemp)"
+            code="$(curl -sSL --max-time 30 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -H "Pragma: no-cache" \
+              -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+            if [ "$code" = "200" ] \
+               && grep -Fq 'Checklist nabídky domovní FVE' "$body_file" \
+               && grep -Fq 'data-se-placement="solar_legacy_article"' "$body_file" \
+               && ! grep -Fq 'Nejdřív si nabídku projděte v našem' "$body_file"; then
+              echo "Public FVE CTA scope verified: residential checklist before preserved E.ON lead."
+              verified=1
+              break
+            fi
+
+            echo "Public FVE CTA has not converged yet (HTTP ${code:-none}, attempt $attempt/6); retrying."
+            sleep 10
+          done
+
+          if [ "$verified" != "1" ]; then
+            echo "::error::Rendered public roof-PV CTA is stale or off-scope, despite the correct deployed theme version. Check page cache/the_content rendering before declaring the release healthy."
+            exit 1
+          fi
+
+      - name: Verify rendered editorial FVE purchase paths
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # A healthy theme can still serve a stale managed article from a
+          # full-page cache. Verify the article-owned CTA, not only the
+          # injected WordPress E.ON lead block checked by the preceding step.
+          base="https://solar-expert.cz"
+          for slug in fve-panely-na-strechu fotovoltaika-na-eternitovou-strechu; do
+            case "$slug" in
+              fve-panely-na-strechu)
+                expected='Porovnat nabídku podle checklistu domovní FVE'
+                stale='Zkontrolovat parametry nabídky →'
+                ;;
+              fotovoltaika-na-eternitovou-strechu)
+                expected='Zkontrolovat nabídku domovní FVE'
+                stale='Zkontrolovat nabídku FVE →'
+                ;;
+              *)
+                echo "::error::Unsupported editorial CTA smoke slug: $slug"
+                exit 1
+                ;;
+            esac
+
+            verified=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}/${slug}/?editorial_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              if [ "$code" = "200" ] \
+                 && grep -Fq "$expected" "$body_file" \
+                 && ! grep -Fq "$stale" "$body_file"; then
+                echo "Public editorial FVE CTA verified for ${slug}: grid-tied checklist."
+                verified=1
+                break
+              fi
+
+              echo "Public editorial CTA has not converged for ${slug} (HTTP ${code:-none}, attempt $attempt/6); retrying."
+              sleep 10
+            done
+
+            if [ "$verified" != "1" ]; then
+              echo "::error::Public ${slug} still exposes the stale residential FVE offer path despite repository-managed content sync."
+              exit 1
+            fi
+          done
+
+      - name: Verify public topic-aware article next steps
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Read the publicly rendered post footer, not merely the updated
+          # PHP template: cached HTML must not keep forcing off-grid Builder.
+          base="https://solar-expert.cz"
+          for slug in \
+            fve-panely-na-strechu \
+            recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady \
+            nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu \
+            jak-funguji-solarni-baterie-pruvodce-skladovanim-energie; do
+            case "$slug" in
+              fve-panely-na-strechu)
+                scope='grid-fve'
+                label='Kontrolní seznam nabídky domácí FVE'
+                ;;
+              recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady)
+                scope='heat-pump'
+                label='Průvodce výběrem tepelného čerpadla'
+                ;;
+              nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu)
+                scope='heat-pump-next'
+                label='Spotřeba a náklady tepelného čerpadla'
+                ;;
+              jak-funguji-solarni-baterie-pruvodce-skladovanim-energie)
+                scope='battery'
+                label='Vybrat kompatibilní baterii'
+                ;;
+              *)
+                echo "::error::Unexpected post decision smoke slug: $slug"
+                exit 1
+                ;;
+            esac
+
+            passed=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}/${slug}/?post_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+              if [ "$code" = "200" ] \
+                 && grep -Fq "data-se-decision-path=\"$scope\"" "$body_file" \
+                 && grep -Fq "$label" "$body_file" \
+                 && ! grep -Fq 'Převeďte informace na konkrétní sestavu.' "$body_file"; then
+                echo "Public post decision scope verified: $slug => $scope"
+                passed=1
+                break
+              fi
+              echo "Public next-step scope not converged for $slug (HTTP ${code:-none}, attempt $attempt/6)."
+              sleep 10
+            done
+
+            if [ "$passed" != "1" ]; then
+              echo "::error::Article $slug still serves a stale or off-topic next step. Check page cache and public rendering before accepting release."
+              exit 1
+            fi
+          done
+
+      - name: Verify public homepage decision hub
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          base='https://solar-expert.cz'
+          success=0
+          for attempt in {1..6}; do
+            body_file="$(mktemp)"
+            url="${base}/?home_intent_probe=${GITHUB_SHA}&attempt=${attempt}"
+            code="$(curl -sSL --max-time 30 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -H "Pragma: no-cache" \
+              -o "$body_file" -w "%{http_code}" "$url" || true)"
+            if [ "$code" = "200" ] \
+               && grep -Fq 'id="se-path-heading"' "$body_file" \
+               && grep -Fq 'Domovní fotovoltaika' "$body_file" \
+               && grep -Fq 'Ostrovní solární sestava' "$body_file" \
+               && grep -Fq 'Tepelné čerpadlo' "$body_file" \
+               && grep -Fq 'href="https://solar-expert.cz/kolik-stoji-fotovoltaika/"' "$body_file" \
+               && grep -Fq 'href="https://solar-expert.cz/solarni-sestava-na-chatu/"' "$body_file" \
+               && grep -Fq 'href="https://solar-expert.cz/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/"' "$body_file" \
+               && grep -Fq 'Nejde o kontrolu celé síťové FVE.' "$body_file" \
+               && grep -Fq 'data-se-home-discovery="managed-new-guides"' "$body_file" \
+               && grep -Fq 'href="https://solar-expert.cz/fotovoltaika-na-pozemku/"' "$body_file" \
+               && grep -Fq 'href="https://solar-expert.cz/pruhledne-solarni-panely/"' "$body_file" \
+               && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-monoblok/"' "$body_file" \
+               && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-vzduch-vzduch/"' "$body_file" \
+               && grep -Fq 'class="se-btn se-btn-primary se-demo-cta"' "$body_file" \
+               && grep -Fq 'Zobrazit ukázkovou sestavu zdarma' "$body_file" \
+               && grep -Fq 'Spočítat vlastní sestavu' "$body_file" \
+               && grep -Fq 'Bez registrace a bez zadávání:' "$body_file" \
+               && grep -Fq 'data-se-home-demo="builder-preview"' "$body_file" \
+               && grep -Fq 'solar-expert-open-demo' "$body_file" \
+               && grep -Fq 'solar-expert-builder-activated' "$body_file" \
+               && grep -Fq 'Modelový výsledek, ne návrh na míru.' "$body_file" \
+               && grep -Fq 'Builder pro chatu' "$body_file"; then
+              echo 'Public homepage verified: one-click explicit Builder demo, truthful sample disclosure, all five new SEO article links and three buyer paths.'
+              success=1
+              break
+            fi
+            echo "Homepage routing or cache not converged (HTTP ${code:-none}, attempt $attempt/6)."
+            sleep 10
+          done
+
+          if [ "$success" != "1" ]; then
+            echo '::error::Public homepage does not expose the current topic-scoped decision hub, navigation and owned links.'
+            exit 1
+          fi
+
+      - name: Verify public ground-source routing and Quote Checker SEO title
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # The native post footer and the real Yoast title/description must
+          # match their current topic; cached HTML and stale SEO plugin values
+          # are intentionally not accepted merely because the theme updated.
+          base='https://solar-expert.cz'
+          for check in ground quote; do
+            success=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              if [ "$check" = 'ground' ]; then
+                url="${base}/vrt-pro-tepelne-cerpadlo/?ground_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              else
+                url="${base}/quote-checker/?quote_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              fi
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              if [ "$check" = 'ground' ]; then
+                if [ "$code" = 200 ] \
+                   && grep -Fq 'data-se-decision-path="ground-source-heat-pump"' "$body_file" \
+                   && grep -Fq 'Zvažujete vrt pro tepelné čerpadlo země–voda?' "$body_file" \
+                   && grep -Fq 'Porovnat variantu vzduch–voda' "$body_file" \
+                   && grep -Fq 'Vrt pro tepelné čerpadlo: hloubka, cena a rizika' "$body_file"; then
+                  echo 'Public ground-source article routing and corrected search title verified.'
+                  success=1
+                fi
+              else
+                if [ "$code" = 200 ] \
+                   && grep -Fq 'Kontrola nabídky ostrovní FVE a zálohy' "$body_file" \
+                   && grep -Fq 'Není určen pro síťovou FVE domu.' "$body_file"; then
+                  echo 'Public Quote Checker off-grid SEO title and snippet scope verified.'
+                  success=1
+                fi
+              fi
+
+              if [ "$success" = 1 ]; then break; fi
+              echo "Public $check scope not converged (HTTP ${code:-none}, attempt $attempt/6)."
+              sleep 10
+            done
+
+            if [ "$success" != 1 ]; then
+              echo "::error::Live $check page still has stale/misleading search or decision context."
+              exit 1
+            fi
+          done
+
+      - name: Verify live curated topical category hubs
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz"
+
+          # Preserve original archive URLs and listing while confirming the
+          # new topic hub and article links are really rendered for crawlers.
+          for topic in solarni-panely tepelna-cerpadla; do
+            case "$topic" in
+              solarni-panely)
+                marker='data-se-category-hub="solar-panels"'
+                title='Solární panely: výkon, výběr a návrh FVE'
+                lead='/kolik-stoji-fotovoltaika/'
+                guide='/kolik-panelu-je-potreba-na-jeden-string/'
+                ;;
+              tepelna-cerpadla)
+                marker='data-se-category-hub="heat-pumps"'
+                title='Tepelná čerpadla: výběr, spotřeba a náklady'
+                lead='/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/'
+                guide='/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/'
+                ;;
+            esac
+
+            success=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}/category/${topic}/?category_hub_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              if [ "$code" = "200" ] \
+                && grep -Fq "$marker" "$body_file" \
+                && grep -Fq "$title" "$body_file" \
+                && grep -Fq "href=\"${base}${lead}\"" "$body_file" \
+                && grep -Fq "href=\"${base}${guide}\"" "$body_file" \
+                && grep -Fq 'Další průvodci k' "$body_file" \
+                && grep -Fq 'se-archive-list' "$body_file"; then
+                echo "Public category hub verified: $topic (curated topical content + original archive)."
+                success=1
+                break
+              fi
+
+              echo "Category hub has not converged: $topic HTTP ${code:-none}, attempt $attempt/6."
+              sleep 10
+            done
+
+            if [ "$success" != "1" ]; then
+              echo "::error::Public $topic category lacks current curated guide hub or preserved archive."
+              exit 1
+            fi
+          done
+
+      - name: Verify GSC-intent topic discovery links in live content
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            solar="$(mktemp)"
+            heat="$(mktemp)"
+            pvt="$(mktemp)"
+            eternit="$(mktemp)"
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/category/solarni-panely/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$solar" || true
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/category/tepelna-cerpadla/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$heat" || true
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/vysvetleni-solarnich-panelu-pv-t/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$pvt" || true
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/fotovoltaika-na-eternitovou-strechu/?seo_intent_probe=${GITHUB_SHA}&attempt=${attempt}" > "$eternit" || true
+            if grep -Fq 'data-se-category-hub="solar-panels"' "$solar" \
+               && grep -Fq 'href="https://solar-expert.cz/solarni-panel-definice-a-fakta/"' "$solar" \
+               && grep -Fq 'href="https://solar-expert.cz/fotovoltaika-na-pozemku/"' "$solar" \
+               && grep -Fq 'href="https://solar-expert.cz/pruhledne-solarni-panely/"' "$solar" \
+               && grep -Fq 'data-se-category-hub="heat-pumps"' "$heat" \
+               && grep -Fq 'data-se-category-choice="heat-pump-types"' "$heat" \
+               && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-monoblok/"' "$heat" \
+               && grep -Fq 'href="https://solar-expert.cz/tepelne-cerpadlo-vzduch-vzduch/"' "$heat" \
+               && grep -Fq 'data-se-related="emerging-pv-cluster"' "$pvt" \
+               && grep -Fq 'href="https://solar-expert.cz/solarni-panel-definice-a-fakta/"' "$pvt" \
+               && grep -Fq 'data-se-related="solar-cluster"' "$eternit" \
+               && grep -Fq 'Alternativa k nevhodné střeše: FVE na pozemku' "$eternit" \
+               && grep -Fq 'href="https://solar-expert.cz/fotovoltaika-na-pozemku/"' "$eternit"; then
+              echo "Live SEO discovery verified: solar alternative cards, indexed eternit-to-ground FVE link, and prominent heat-pump choices."
+              passed=1
+              break
+            fi
+            echo "SEO intent links have not converged: attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo '::error::GSC-backed topical internal links are missing from public WordPress HTML.'
+            exit 1
+          fi
+
+      - name: Reconcile managed categories after release convergence
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(awk '/^Version:/ {print $2; exit}' style.css)"
+          # Derive publisher taxonomy requirements from the exact deployed
+          # content manifest. More SEO buyer guides must not break a literal
+          # old 5/5 counter or silently bypass a newly declared category.
+          expected_categories="$(jq '[.items[] | select(.type == "post" and (.category_slug // "") != "")] | length' content/manifest.json)"
+          if ! [[ "$expected_categories" =~ ^[0-9]+$ ]] || [ "$expected_categories" -lt 1 ]; then
+            echo "::error::Invalid managed post taxonomy manifest."
+            exit 1
+          fi
+          # Independently retry after PHP opcode cache convergence.
+          passed=0
+          for attempt in 1 2 3 4 5 6 7 8; do
+            response="$(curl -sSL --max-time 20 \
+              -H 'Content-Type: application/json' \
+              -H 'Cache-Control: no-cache, no-store' \
+              -X POST \
+              -d "{\"intent\":\"managed-content-sync-v1\",\"expected_version\":\"${expected}\"}" \
+              "https://solar-expert.cz/wp-json/solar-expert/v1/deploy-sync?taxonomy_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            if jq -e --argjson expected "$expected_categories" '.ok == true and .managed_taxonomy_targets == $expected and .managed_taxonomy_ready == $expected and .managed_taxonomy_errors == 0' \
+                 <<< "$response" >/dev/null 2>&1; then
+              echo "Managed category reconciliation completed: ${expected_categories}/${expected_categories} topical relationships ready."
+              passed=1
+              break
+            fi
+            echo "Category convergence incomplete (attempt $attempt/8); checking deployed PHP/runtime."
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo "::error::Managed categories did not converge through deploy-sync."
+            exit 1
+          fi
+
+      - name: Verify public thematic categories for new managed posts
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          # Term membership is checked through public REST, not the first
+          # category archive page (which may be paginated).
+          # Check every live-published post with a declared category.
+          # Keep future buyer-guide publishing manifest-driven, not hardcoded.
+          mapfile -t published_pairs < <(jq -r '.items[] | select(.type == "post" and (.category_slug // "") != "" and .create_if_missing == true and ((.status // .status_if_new) == "publish")) | "\(.slug)|\(.category_slug)"' content/manifest.json)
+          if [ "${#published_pairs[@]}" -lt 1 ]; then
+            echo "::error::No declared public managed post category contracts."
+            exit 1
+          fi
+          for pair in "${published_pairs[@]}"; do
+            slug="${pair%%|*}"
+            category="${pair#*|}"
+            passed=0
+            for attempt in 1 2 3 4 5 6; do
+              term_json="$(curl -fsSL --max-time 20 \
+                -H 'Cache-Control: no-cache' \
+                "${base}/wp-json/wp/v2/categories?slug=${category}&_fields=id,slug&release_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              post_json="$(curl -fsSL --max-time 20 \
+                -H 'Cache-Control: no-cache' \
+                "${base}/wp-json/wp/v2/posts?slug=${slug}&_fields=id,slug,categories&release_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+              category_id="$(jq -er '.[0].id' <<< "$term_json" 2>/dev/null || true)"
+              if [[ "$category_id" =~ ^[0-9]+$ ]] &&
+                 jq -e --arg slug "$slug" --argjson id "$category_id" \
+                   'length == 1 and .[0].slug == $slug and (.[0].categories | index($id) != null)' \
+                   <<< "$post_json" >/dev/null 2>&1; then
+                echo "Managed category verified: $slug => $category ($category_id)."
+                passed=1
+                break
+              fi
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Managed post $slug lacks required category $category; abort release."
+              exit 1
+            fi
+          done
+
+      - name: Verify public sitewide decision navigation and mobile style
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            css="$(mktemp)"
+            home_html="$(mktemp)"
+            post_html="$(mktemp)"
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/wp-content/themes/solar-expert-2/style.css?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$css" || true
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$home_html" || true
+            curl -fsSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              "${base}/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/?nav_probe=${GITHUB_SHA}&attempt=${attempt}" > "$post_html" || true
+            if grep -Fq '@media(max-width:1150px)' "$css" \
+               && grep -Fq 'overflow-x:auto' "$css" \
+               && ! grep -Fq '.se-menu{display:none}' "$css" \
+               && python3 - "$home_html" "$post_html" <<'PY'
+          import pathlib
+          import re
+          import sys
+          expected = (
+              '/kolik-stoji-fotovoltaika/',
+              '/nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu/',
+              '/#builder',
+              '/vyber-baterii/',
+              '/mppt-kalkulacka/',
+              '/vyber-menice/',
+          )
+          for file in sys.argv[1:]:
+              html = pathlib.Path(file).read_text(encoding='utf-8', errors='replace')
+              nav = re.search(r'<nav class="se-menu" aria-label="Hlavní navigace">(.*?)</nav>', html, re.S)
+              if not nav or not all('href="https://solar-expert.cz' + path + '"' in nav.group(1) for path in expected):
+                  sys.exit('Missing purpose-matched decision links in sitewide navigation: ' + file)
+          PY
+            then
+              passed=1
+              echo "Public desktop/mobile navigation verified: FVE, heat pumps and four existing tool paths."
+              break
+            fi
+            echo "Navigation HTML/CSS still stale; attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo '::error::Sitewide navigation or mobile visibility has not converged.'
+            exit 1
+          fi
+
+      - name: Verify real public Yoast WebApplication markup on five tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          directory="$(mktemp -d)"
+          verified=0
+          for attempt in 1 2 3 4 5 6; do
+            for slug in solarni-sestava-na-chatu vyber-baterii mppt-kalkulacka vyber-menice quote-checker kolik-stoji-fotovoltaika; do
+              curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+                "${base}/${slug}/?tool_schema_probe=${GITHUB_SHA}&attempt=${attempt}" \
+                > "${directory}/${slug}.html" || true
+            done
+            if python3 - "$directory" <<'PY'
+          import json
+          import pathlib
+          import sys
+          from html.parser import HTMLParser
+
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.capture = False
+                  self.buf = ''
+                  self.scripts = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'script':
+                      self.capture = dict(attrs).get('type') == 'application/ld+json'
+                      self.buf = ''
+              def handle_data(self, data):
+                  if self.capture:
+                      self.buf += data
+              def handle_endtag(self, tag):
+                  if tag == 'script' and self.capture:
+                      self.scripts.append(self.buf)
+                      self.capture = False
+
+          base = pathlib.Path(sys.argv[1])
+          tools = ('solarni-sestava-na-chatu', 'vyber-baterii',
+                   'mppt-kalkulacka', 'vyber-menice', 'quote-checker')
+          for slug in (*tools, 'kolik-stoji-fotovoltaika'):
+              p = Scripts()
+              p.feed((base / (slug + '.html')).read_text(encoding='utf-8',errors='replace'))
+              graphs = []
+              for text in p.scripts:
+                  try:
+                      d = json.loads(text)
+                  except (ValueError, TypeError):
+                      continue
+                  if isinstance(d, dict) and isinstance(d.get('@graph'), list):
+                      graphs.append(d['@graph'])
+              site_graphs = [nodes for nodes in graphs
+                             if any(isinstance(n, dict) and n.get('@type') == 'WebSite'
+                                    for n in nodes)]
+              if len(site_graphs) != 1:
+                  sys.exit('Yoast core site graph missing or duplicated: ' + slug)
+              graph = site_graphs[0]
+              apps = [n for n in graph if isinstance(n, dict) and
+                      'WebApplication' in ([n.get('@type')] if isinstance(n.get('@type'), str)
+                                           else (n.get('@type') or []))]
+              if slug not in tools:
+                  if apps:
+                      sys.exit('Editorial article must not be described as software: ' + slug)
+                  continue
+              if len(apps) != 1:
+                  sys.exit('Exactly one WebApplication required in Yoast graph: ' + slug)
+              app = apps[0]
+              url = 'https://solar-expert.cz/' + slug + '/'
+              if (app.get('url') != url or app.get('@id') != url + '#app'
+                  or app.get('offers', {}).get('price') != 0
+                  or app.get('offers', {}).get('priceCurrency') != 'CZK'
+                  or app.get('isAccessibleForFree') is not True
+                  or 'aggregateRating' in app or 'review' in app):
+                  sys.exit('Invalid application URL, free offer or fabricated ratings: ' + slug)
+          print('Live Yoast graph verified: five truthful free WebApplications; no editorial app or duplicate site graph.')
+          PY
+            then
+              verified=1
+              break
+            fi
+            echo "Public Yoast app schema has not converged, attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$verified" != '1' ]; then
+            echo '::error::Yoast structured tool descriptions are not correctly published.'
+            exit 1
+          fi
+
+      - name: Verify honest merchant operator disclosure on all buying tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          healthy=0
+          for attempt in {1..6}; do
+            health="$(curl -fsSL --max-time 30 -H 'Cache-Control: no-cache' "${base}/wp-json/solar-expert/v1/health?operator_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            count="$(jq -r '.affiliate_monetized_merchants // 0' <<<"$health" 2>/dev/null || echo 0)"
+            operators="$(jq -r '.affiliate_independent_merchant_operators // 0' <<<"$health" 2>/dev/null || echo 0)"
+            if [[ "$count" =~ ^[0-9]+$ && "$operators" =~ ^[0-9]+$ ]] \
+               && [ "$count" -ge 3 ] && [ "$operators" -ge 2 ] && [ "$operators" -lt "$count" ]; then
+              healthy=1
+              break
+            fi
+            sleep 8
+          done
+          if [ "$healthy" != 1 ]; then
+            echo "::error::Live monetization health does not distinguish distinct approved storefronts from independent operators."
+            exit 1
+          fi
+
+          # Download fully first: piping curl into grep -q under pipefail
+          # can generate a false failure (curl receives SIGPIPE when grep
+          # finds a match before the response finishes streaming).
+          for slug in solarni-sestava-na-chatu vyber-baterii mppt-kalkulacka vyber-menice; do
+            html="$(mktemp)"
+            if ! curl -fsSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              "${base}/${slug}/?seller_probe=${GITHUB_SHA}" > "$html"; then
+              echo "::error::Public tool ${slug} could not be fetched for seller disclosure."
+              exit 1
+            fi
+            if ! grep -Fq 'Battery.cz a Solar-Import.cz provozuje stejná společnost Efteria' "$html"; then
+              echo "::error::Missing shared-operator disclosure on public tool ${slug}."
+              exit 1
+            fi
+          done
+          echo "Independent retailer honesty verified: ${count} affiliate storefronts but ${operators} legal seller(s), and all four purchase tools disclose shared operation."
+
+      - name: Verify monetized independent VSelektro SKU links on live site
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in {1..6}; do
+            catalog="$(mktemp)"
+            page="$(mktemp)"
+            code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$catalog" -w '%{http_code}' \
+              "${base}/wp-content/themes/solar-expert-2/assets/data/product-seed.json?vselektro_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            page_code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$page" -w '%{http_code}' \
+              "${base}/mppt-kalkulacka/?vselektro_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            if [ "$code" = '200' ] && [ "$page_code" = '200' ] \
+              && jq -e '
+                ([.products[] | select(.id=="mppt-victron-100-20" or .id=="mppt-victron-100-30" or .id=="mppt-victron-100-50") | .offers[] | select(.merchant=="vselektro-eu")] | length) == 3
+                and
+                ([.products[] | (.offers // [])[] | select(.merchant=="vselektro-eu") | select(.availability=="in_stock" and .verified_at=="2026-10-13" and (.source_url | startswith("https://www.vselektro.eu/")))] | length) == 3
+              ' "$catalog" >/dev/null \
+              && grep -Fq 'vselektro-eu' "$page" \
+              && grep -Fq 'SolarExpertConfig' "$page" \
+              && grep -Fq 'isIndependentAlternative(r.product,o.merchantId)' "$page" \
+              && grep -Fq 'Jiný provozovatel' "$page"; then
+                passed=1
+                echo 'Three dated VSelektro SKU offers live; independent eHUB WP base on MPPT selector page, no click probe.'
+                break
+            fi
+            echo "Independent merchant SKU deployment not converged, attempt $attempt/6."
+            sleep 10
+          done
+          if [ "$passed" != 1 ]; then
+            echo "::error::Three VSelektro offers or their private WP merchant-base injection were not verified on production."
+            exit 1
+          fi
+
+      - name: Verify battery selector published AC-loss and BMS assumptions
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          found=0
+          for attempt in 1 2 3 4 5 6; do
+            body="$(mktemp)"
+            http="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$body" -w '%{http_code}' \
+              "$base/vyber-baterii/?battery_safety_probe=${GITHUB_SHA}&attempt=$attempt" || true)"
+            if [ "$http" = '200' ] \
+              && grep -Fq '80 % využitelné kapacity' "$body" \
+              && grep -Fq '90 % účinností měniče' "$body" \
+              && grep -Fq 'spotřebu samotného měniče naprázdno' "$body"; then
+              found=1
+              break
+            fi
+            echo "Battery safety assumptions not yet live: HTTP ${http:-none}, attempt $attempt/6"
+            sleep 10
+          done
+          if [ "$found" != '1' ]; then
+            echo "::error::New battery-sizing safety model is not disclosed on the live selector."
+            exit 1
+          fi
+          # Script is public and same-origin; require the new exact arithmetic
+          # and DC conversion before declaring real safe recommendations.
+          script="$(curl -fsSL --max-time 30 "$base/wp-content/themes/solar-expert-2/assets/js/selectors.js?battery_safety_probe=${GITHUB_SHA}")"
+          if ! grep -Fq 'usableFraction:0.80,inverterEfficiency:0.90' <<<"$script" \
+            || ! grep -Fq 'get requiredBatteryDcW()' <<<"$script" \
+            || ! grep -Fq 'inverterW:dcW' <<<"$script"; then
+            echo "::error::Public Battery Selector JavaScript still has prior 85%/AC-only assumptions."
+            exit 1
+          fi
+          echo 'Published Battery Selector uses 80% usable battery energy, 90% AC conversion and DC BMS fit.'
+
+      - name: Verify live 400W battery guide to selector model handoff
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          passed=0
+          for attempt in 1 2 3 4 5 6; do
+            guide="$(mktemp)"
+            selector="$(mktemp)"
+            guide_http="$(curl -sSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              -o "$guide" -w '%{http_code}' \
+              "$base/jakou-baterii-k-solarnimu-panelu-400w/?handoff_probe=${GITHUB_SHA}&attempt=$attempt" || true)"
+            selector_http="$(curl -sSL --max-time 30 \
+              -H 'Cache-Control: no-cache, no-store' \
+              -o "$selector" -w '%{http_code}' \
+              "$base/vyber-baterii/?scenario=panel400&handoff_probe=${GITHUB_SHA}&attempt=$attempt" || true)"
+            js="$(curl -fsSL --max-time 30 \
+              "$base/wp-content/themes/solar-expert-2/assets/js/selectors.js?handoff_probe=${GITHUB_SHA}" || true)"
+            if [ "$guide_http" = '200' ] \
+              && [ "$selector_http" = '200' ] \
+              && grep -Fq '/vyber-baterii/?scenario=panel400' "$guide" \
+              && grep -Fq 'data-se-article-example="panel400"' "$selector" \
+              && grep -Fq 'Panel 400 W: 24 V, 0,7 kWh/den' "$selector" \
+              && grep -Fq "new URLSearchParams(search).get('scenario')!=='panel400'" <<<"$js" \
+              && grep -Fq 'this.applyArticleExampleFromUrl();' <<<"$js" \
+              && grep -Fq 'inverterW:800' <<<"$js"; then
+              echo 'Verified live 400W article -> same-origin model token -> safe editable Battery Selector'
+              passed=1
+              break
+            fi
+            echo "400W article handoff not yet live: guide $guide_http selector $selector_http attempt $attempt/6"
+            sleep 10
+          done
+          if [ "$passed" != '1' ]; then
+            echo "::error::Live editorial 400W model-to-battery-selector handoff missing."
+            exit 1
+          fi
+
+      - name: Verify public merchant offer CTA clarity on buying tools
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          for slug in '' vyber-baterii mppt-kalkulacka vyber-menice; do
+            passed=0
+            for attempt in 1 2 3 4 5 6; do
+              html="$(mktemp)"
+              if [ -z "$slug" ]; then
+                url="$base/?offer_cta_probe=${GITHUB_SHA}&attempt=$attempt"
+              else
+                url="$base/$slug/?offer_cta_probe=${GITHUB_SHA}&attempt=$attempt"
+              fi
+              http="$(curl -sSL --max-time 30 \
+                -H 'Cache-Control: no-cache, no-store, max-age=0' \
+                -o "$html" -w '%{http_code}' "$url" || true)"
+              if [ "$http" = '200' ] \
+                && grep -Fq 'class="se-offer-cta"' "$html" \
+                && grep -Fq 'Zobrazit nabídku' "$html" \
+                && grep -Fq 'Ověřit cenu u prodejce' "$html" \
+                && grep -Fq 'SolarExpertAffiliate.trackOffer(' "$html"; then
+                echo "Real merchant CTA template and unchanged outbound tracking present: ${slug:-home}"
+                passed=1
+                break
+              fi
+              echo "Merchant offer CTA not yet live: ${slug:-home} HTTP ${http:-none}, attempt $attempt/6"
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Expected tracked merchant offer CTA missing from public HTML."
+              exit 1
+            fi
+          done
+
+          css="$(curl -fsSL --max-time 30 "$base/wp-content/themes/solar-expert-2/style.css?offer_cta_probe=${GITHUB_SHA}")"
+          if ! grep -Fq '.se-offer-cta{display:inline-flex' <<<"$css"; then
+            echo "::error::Live offer action style missing."
+            exit 1
+          fi
+
+      - name: Verify public conditional tool scripts
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+
+          # Scrape HTML to validate which scripts the browser truly downloads.
+          # Old archives / articles must no longer ship the entire product
+          # selection engine. Lead and affiliate tracking must remain intact.
+          for route in home article archive builder selector quote; do
+            case "$route" in
+              home) path='/' ; require='builder matcher bundles alpine' ; forbid='selectors quote' ;;
+              article) path='/fve-panely-na-strechu/' ; require='' ; forbid='builder matcher bundles alpine selectors quote' ;;
+              archive) path='/category/solarni-panely/' ; require='' ; forbid='builder matcher bundles alpine selectors quote' ;;
+              builder) path='/solarni-sestava-na-chatu/' ; require='builder matcher bundles alpine' ; forbid='selectors quote' ;;
+              selector) path='/vyber-baterii/' ; require='selectors matcher alpine' ; forbid='builder bundles quote' ;;
+              quote) path='/quote-checker/' ; require='quote alpine' ; forbid='builder matcher bundles selectors' ;;
+            esac
+
+            passed=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}${path}?asset_scope_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -H "Pragma: no-cache" \
+                -o "$body_file" -w "%{http_code}" "$url" || true)"
+
+              ok=1
+              if [ "$code" != '200' ]; then ok=0; fi
+              for shared in 'assets/js/analytics.js' 'assets/js/affiliate-adapter.js' 'assets/js/lead-cta.js'; do
+                if ! grep -Fq "$shared" "$body_file"; then ok=0; fi
+              done
+              if ! grep -Fq 'SolarExpertConfig' "$body_file"; then ok=0; fi
+              for asset in $require; do
+                case "$asset" in
+                  builder) token='assets/js/builder.js' ;;
+                  matcher) token='assets/js/product-matcher.js' ;;
+                  bundles) token='assets/js/bundle-composer.js' ;;
+                  selectors) token='assets/js/selectors.js' ;;
+                  quote) token='assets/js/quote-checker.js' ;;
+                  alpine) token='alpinejs@3.14.9' ;;
+                esac
+                if ! grep -Fq "$token" "$body_file"; then ok=0; fi
+              done
+              for asset in $forbid; do
+                case "$asset" in
+                  builder) token='assets/js/builder.js' ;;
+                  matcher) token='assets/js/product-matcher.js' ;;
+                  bundles) token='assets/js/bundle-composer.js' ;;
+                  selectors) token='assets/js/selectors.js' ;;
+                  quote) token='assets/js/quote-checker.js' ;;
+                  alpine) token='alpinejs@3.14.9' ;;
+                esac
+                if grep -Fq "$token" "$body_file"; then ok=0; fi
+              done
+
+              if [ "$ok" = '1' ]; then
+                echo "Public script scope verified: $route ($path) => required=$require, excluded=$forbid, sitewide merchant analytics preserved."
+                passed=1
+                break
+              fi
+              echo "Public script scope has not converged: $route HTTP ${code:-none}, attempt $attempt/6."
+              sleep 10
+            done
+
+            if [ "$passed" != '1' ]; then
+              echo "::error::Public route $route still serves incorrect calculator assets or lacks preserved affiliate runtime."
+              exit 1
+            fi
+          done
+
+      - name: Verify real public Czech buyer guidance (no stale homepage cache)
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          for route in home builder; do
+            case "$route" in
+              home) path='/'
+                required='Praktický solární poradce'
+                secondary='Výběr MPPT regulátoru'
+                forbidden='Decision tools' ;;
+              builder) path='/solarni-sestava-na-chatu/'
+                required='Technické srovnání'
+                secondary='Výsledek je orientační návrh velikosti systému'
+                forbidden='Product comparison' ;;
+            esac
+            passed=0
+            for attempt in {1..6}; do
+              body="$(mktemp)"
+              url="${base}${path}?buyer_copy_probe=${GITHUB_SHA}&attempt=${attempt}"
+              code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store, max-age=0' -H 'Pragma: no-cache' -o "$body" -w '%{http_code}' "$url" || true)"
+              if [ "$code" = '200' ] && grep -Fq "$required" "$body" && grep -Fq "$secondary" "$body" && ! grep -Fq "$forbidden" "$body"; then
+                echo "Public Czech buyer copy current on $route ($path): expected labels present, stale labels absent."
+                passed=1
+                break
+              fi
+              echo "Public $route HTML missing release text or still serving old copy (HTTP ${code:-none}, attempt $attempt/6)."
+              sleep 10
+            done
+            if [ "$passed" != '1' ]; then
+              echo "::error::Public buyer UX copy has not converged; version health alone is not sufficient."
+              exit 1
+            fi
+          done

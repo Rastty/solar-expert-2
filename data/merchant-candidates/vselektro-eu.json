@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "merchant_id": "vselektro-eu",
+  "decision": "owner_confirmed_ehub_integration_three_sku_release",
+  "reviewed_on": "2026-10-13",
+  "seller": {
+    "name": "VS ELEKTRO PLUS s.r.o.",
+    "ico": "09719458",
+    "terms_url": "https://www.vselektro.eu/obchodni-podminky/",
+    "different_from_efteria_ico": "26763028"
+  },
+  "affiliate_program": {
+    "network": "eHUB",
+    "listing_url": "https://ehub.cz/5a89d856-vselektro-eu",
+    "publicly_advertised_commission_range_pct": [
+      2.8,
+      4.8
+    ],
+    "approval_status": "owner_supplied_merchant_specific_ehub_base_and_deep_link",
+    "deeplink_validation_status": "local_generated_desturl_contract_tested_live_redirect_unverified",
+    "approved_base_url_configured": true
+  },
+  "evidence_semantics": "Three first-party seller product pages crawled on 2026-10-13 with EAN, matching technical limits, posted CZK prices and listed stock. Not a test purchase or proof of an affiliate conversion. Actual affiliate link base stored in private WordPress option, not public Git.",
+  "product_candidates": [
+    {
+      "catalog_product_id": "mppt-victron-100-20",
+      "model": "Victron SmartSolar MPPT 100/20",
+      "ean": "8719076043027",
+      "public_page": "https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-20a/",
+      "public_displayed_price_czk_at_research": 2404,
+      "listing_stock_text": "Skladem",
+      "current_price_verified": true,
+      "current_stock_verified": true,
+      "seller_page_observed_on": "2026-10-13",
+      "affiliate_tracking_status": "generated_desturl_parameter_verified_not_conversion_tested"
+    },
+    {
+      "catalog_product_id": "mppt-victron-100-30",
+      "model": "Victron SmartSolar MPPT 100/30",
+      "ean": "8719076040170",
+      "public_page": "https://www.vselektro.eu/solarni-regulator-victron-energy-smartsolar-30a/",
+      "public_displayed_price_czk_at_research": 3444,
+      "listing_stock_text": "Skladem",
+      "current_price_verified": true,
+      "current_stock_verified": true,
+      "seller_page_observed_on": "2026-10-13",
+      "affiliate_tracking_status": "generated_desturl_parameter_verified_not_conversion_tested"
+    },
+    {
+      "catalog_product_id": "mppt-victron-100-50",
+      "model": "Victron SmartSolar MPPT 100/50",
+      "ean": "8719076040194",
+      "public_page": "https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-50a/",
+      "public_displayed_price_czk_at_research": 4946,
+      "listing_stock_text": "Skladem",
+      "current_price_verified": true,
+      "current_stock_verified": true,
+      "seller_page_observed_on": "2026-10-13",
+      "affiliate_tracking_status": "generated_desturl_parameter_verified_not_conversion_tested"
+    }
+  ]
+}

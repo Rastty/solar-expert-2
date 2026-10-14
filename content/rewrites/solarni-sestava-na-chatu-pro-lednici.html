@@ -1,0 +1,61 @@
+<p class="se-lead"><strong>Chcete na chatě bez elektřiny provozovat běžnou lednici na 230 V?</strong> Nejdřív spočítejte spotřebu chladničky za den v kWh. Teprve potom vybírejte solární panely, baterii LiFePO₄, regulátor MPPT a měnič s dostatečnou rozběhovou špičkou. Tento návod ukazuje konkrétní výpočet pro víkendovou chatu — bez slibů, že pár panelů utáhne lednici po celou zimu.</p>
+
+<div class="se-note"><strong>Nejrychlejší cesta k nákupu:</strong> u lednice opište údaj <strong>kWh/rok z energetického štítku</strong>, vydělte ho 365 a přičtěte ztráty měniče, jeho vlastní spotřebu i další spotřebiče. Do <a href="/solarni-sestava-na-chatu/">Builderu solární sestavy</a> zadejte tyto spotřeby a požadovanou sezónu. Nástroj spočítá předběžné parametry a ukáže produktové varianty.</div>
+
+<p><a class="se-btn se-btn-primary" href="/solarni-sestava-na-chatu/">Spočítat solární sestavu pro chatu →</a></p>
+
+<h2>Kolik energie skutečně spotřebuje lednice</h2>
+<p>Chladnička neběží nepřetržitě na plný štítkový výkon: kompresor cykluje podle nastavené teploty, okolního prostředí, otevírání dveří a množství potravin. Proto pro návrh baterie není správné násobit jmenovité watty automaticky 24 hodinami.</p>
+<p><strong>Modelový příklad:</strong> lednice má na energetickém štítku 237 kWh/rok. Průměr vypočtený z tohoto údaje je <strong>237 / 365 ≈ 0,65 kWh/den</strong>. Ve velmi teplé chatě nebo při častém otevírání může být skutečná denní spotřeba odlišná. Když štítek nemáte, použijte zásuvkový elektroměr a několik dní měřte v reálných podmínkách. Na ostrovní chatě zahrňte i spotřebu samotného měniče při nečinnosti.</p>
+
+<h2>Modelový rozpis pro víkendovou chatu</h2>
+<table>
+<thead><tr><th>Spotřebič</th><th>Předpoklad</th><th>Denní spotřeba</th></tr></thead>
+<tbody>
+<tr><td>Lednice 230 V</td><td>237 kWh/rok na štítku</td><td>650 Wh</td></tr>
+<tr><td>LED osvětlení</td><td>20 W × 5 hodin</td><td>100 Wh</td></tr>
+<tr><td>Nabíjení telefonů, drobná elektronika</td><td>Odhad pro příklad</td><td>100 Wh</td></tr>
+<tr><td><strong>Celkem spotřebiče</strong></td><td>Bez DC/AC a klidových ztrát</td><td><strong>850 Wh/den</strong></td></tr>
+</tbody></table>
+<p>Výpočet 850 Wh denně je <em>ilustrační</em>; není to typická spotřeba všech chat ani konkrétní cenová nabídka. U konkrétní lednice a měniče se může výrazně lišit. Návrh děláme s rezervou.</p>
+
+<h2>Jak velkou LiFePO₄ baterii potřebujete</h2>
+<p>Pro výpočet zjednodušeně uvažujme využitelných 80 % nominální kapacity baterie a 90% účinnost DC/AC převodu. Při <strong>24 V × 100 Ah = 2,4 kWh</strong> nominální energie vychází <strong>2,4 × 0,80 × 0,90 = 1,73 kWh</strong> dodané energie. Při 850 Wh/den je to teoreticky přibližně <strong>2 dny</strong> bez dobíjení, ale <strong>bez</strong> započtení stálé vlastní spotřeby měniče, výkonových špiček, nízkých teplot a degradace. Použitelná kapacita, dovolené proudy a teploty závisí na konkrétní baterii a BMS.</p>
+<p>Je-li důležitá dvoudenní autonomie s rezervou, může se vyplatit větší bateriový bank. Nevybírejte ale baterii jen podle Ah: například 12 V/100 Ah a 24 V/100 Ah nejsou stejné množství energie. Projděte <a href="/vyber-baterii/">výběr LiFePO₄ baterie</a> podle kWh, napětí a BMS.</p>
+
+<h2>Kolik solárních panelů na lednici na chatě</h2>
+<p>Panely musí energii <strong>v reálném čase vyrobit</strong>, nikoliv jen mít odpovídající součet Wp. Pro ilustraci mají dva 400Wp panely dohromady <strong>800 Wp</strong>. Při hypotetických 3 ekvivalentních slunečních hodinách a koeficientu ztrát 0,75 by za takový den vzniklo <strong>0,8 kWp × 3 h × 0,75 = 1,8 kWh</strong> elektřiny. To by v daném dni modelových 0,85 kWh pro spotřebiče mohlo pokrýt, ale skutečná výroba kolísá podle lokality, stínu, natočení, roční doby a počasí.</p>
+<p><strong>Nepovažujte tento příklad za návrh na listopad nebo prosinec.</strong> Zimní dny, sníh a dlouhé zatažení mohou dát násobně méně. Výrobu po měsících ověřte v <a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/using-pvgis-5/pvgis-5-tools/grid-connected-pv_en" rel="nofollow noopener">evropském nástroji PVGIS</a>; pro skutečný ostrovní systém navíc posuďte baterii a riziko nedostatku energie.</p>
+
+<h2>Jak vybrat měnič na lednici 230 V</h2>
+<p>U lednice je důležitý nejen průběžný příkon kompresoru, ale i jeho krátkodobý rozběh. <strong>Nenahrazujte ho odhadem „lednice bere 70 W, tedy 100W měnič stačí“.</strong> Zkontrolujte výrobcem požadovaný trvalý výkon, krátkodobý špičkový výkon (surge), kompatibilitu s motorem/kompresorem, čistý sinus, vlastní spotřebu a napětí baterie. Pokud výrobce chladničky rozběhovou špičku neuvádí, lze ji ověřit vhodným měřicím přístrojem nebo s odborníkem.</p>
+<p>U 24V sestavy musí být i měnič na 24 V a BMS musí zvládnout požadovaný proud včetně krátkých špiček. <a href="/vyber-menice/">Výběr měniče</a> kontroluje trvalý a špičkový výkon odděleně.</p>
+
+<h2>Jaký MPPT regulátor k sestavě 800 Wp / 24 V</h2>
+<p>U dvou panelů po 400 W je jedním z možných výkonových kandidátů SmartSolar MPPT 100/30 (jmenovitě až 880 Wp FV výkonu při 24 V). Rozhodující však není jen součet výkonů: v sérii 2S se sčítá <strong>Voc, a to i za mrazu</strong>, v paralelním zapojení 2P se sčítá <strong>Isc</strong>. MPPT musí bezpečně pokrýt oba limity a startovací Vmp. Pokud konkrétní panely při nízkých teplotách přesahují 100V FV limit ve 2S, nelze 100/30 použít s tímto sériovým uspořádáním.</p>
+<p>Pro rychlou orientaci pokračujte na <a href="/jak-vybrat-mppt-regulator-pro-400w-panel/">výběr MPPT pro 400W panel</a> nebo rovnou do <a href="/mppt-kalkulacka/">MPPT kalkulačky</a>. Při větším poli může vyhovět regulátor s jiným napěťovým oknem, nikoli automaticky dražší kus se stejným 100V limitem.</p>
+
+<h2>Nákupní seznam pro malou chatu</h2>
+<ol>
+<li>Panely s ověřeným Voc, Vmp a Isc pro konkrétní místo a roční období.</li>
+<li>MPPT regulátor sladěný s napětím baterie, maximálním Voc za mrazu a Isc panelového pole.</li>
+<li>LiFePO₄ baterie s dostačující použitelnou kWh kapacitou a proudovým limitem BMS.</li>
+<li>Měnič s čistým sinusem, vhodným 24V/12V vstupem, trvalým výkonem a prokazatelnou kompresorovou startovací rezervou.</li>
+<li>Projektem určené jištění, odpojování, ochrany, kabeláž a konstrukce panelů. Tyto položky nelze bezpečně určit jen podle 850 Wh/den.</li>
+</ol>
+<div class="se-note"><strong>Nekupujte komponenty naslepo.</strong> V <a href="/solarni-sestava-na-chatu/">Builderu</a> nastavíte spotřebiče, sezónu a zálohu. Výstup obsahuje technicky předvybrané modely, kusy a datované nabídky obchodů. To není jeden společný nákupní košík ani garance skutečné ceny/skladu. U zadané chladničky ještě ověřte proud při rozběhu.</div>
+
+<h2>Časté otázky</h2>
+<h3>Utáhne 400W solární panel lednici?</h3>
+<p>Někdy může pokrýt část její denní energie, ale výkon „400 W“ neznamená 400 W po celý den. Důležitá je spotřeba chladničky v kWh/den, sezóna, baterie, měnič a ztráty. Bez těchto údajů odpověď neplatí obecně.</p>
+<h3>Musí být na chatě 24 V?</h3>
+<p>Ne. Pro opravdu malé systémy může vyhovovat i 12 V, při vyšším výkonu bývá praktické 24 V. Napětí musí být shodné u baterie, měniče a vhodné pro MPPT; nepřepínejte napětí bez revize celé sestavy.</p>
+<h3>Poběží lednice v zimě i bez sítě?</h3>
+<p>Může, ale vyžaduje návrh na nízkou zimní výrobu, více dní autonomie a případně nezávislé záložní nabíjení. Nelze to slíbit z průměrné letní výroby.</p>
+
+<h2>Zdroje a metodika</h2>
+<ul>
+<li><a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/using-pvgis-5/pvgis-5-tools/grid-connected-pv_en" rel="nofollow noopener">Evropská komise / JRC – PVGIS, výroba a měsíční sezónnost</a></li>
+<li><a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/technical-specifications.html" rel="nofollow noopener">Victron – technické limity SmartSolar 100/30 a 100/50</a></li>
+</ul>
+<p class="se-muted"><small>Aktualizováno 13. 10. 2026. Veškeré Wh, ztráty a energetické příklady jsou výslovně modelové, nikoli laboratorně naměřené údaje konkrétního systému. Instalaci 230 V, ochranných prvků a akumulátorů musí ověřit odborník.</small></p>
