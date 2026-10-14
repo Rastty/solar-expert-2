@@ -12,8 +12,14 @@ function seTrackSelectorOnce(ctx,selector,detail){
 
 window.solarExpertBatterySelector=function(){return{
   voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,
-  get requiredBatteryKwh(){return Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/.85)*10)/10;},
-  get requiredDischargeA(){return Math.max(1,Math.ceil(Number(this.inverterW)/Math.max(1,Number(this.voltage))));},
+  // Conservative illustrative sizing for AC loads: 80% usable nominal
+  // LiFePO4 energy, 90% inverter efficiency. Include inverter losses
+  // in BOTH energy and BMS continuous-current checks; no product may pass
+  // solely because its rated DC watts match the requested AC watts.
+  usableFraction:0.80,inverterEfficiency:0.90,
+  get requiredBatteryKwh(){return Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/(this.usableFraction*this.inverterEfficiency))*10)/10;},
+  get requiredBatteryDcW(){return Math.ceil(Number(this.inverterW)/this.inverterEfficiency);},
+  get requiredDischargeA(){return Math.max(1,Math.ceil(this.requiredBatteryDcW/Math.max(1,Number(this.voltage))));},
   applyExample(kind){
     const examples={
       cottage:{voltage:24,dailyKwh:1,autonomy:1,inverterW:1000},
@@ -34,7 +40,11 @@ window.solarExpertBatterySelector=function(){return{
   run(track=true){
     if(!this.catalog.length){this.matches=[];return;}
     const batteryKwh=this.requiredBatteryKwh;
-    const s={voltage:Number(this.voltage),batteryKwh,inverterW:Number(this.inverterW)};
+    // Both bank composer and single-product fallback expect sizing.inverterW
+    // as the MINIMUM DC discharge capability, not the AC label input.
+    // Keep their common electrical fit filters; do not alter global ranking.
+    const dcW=this.requiredBatteryDcW;
+    const s={voltage:Number(this.voltage),batteryKwh,inverterW:dcW};
     const batteries=this.catalog.filter(p=>p.type==='battery');
     this.matches=window.SolarExpertBundleComposer
       ? window.SolarExpertBundleComposer.batteryBankCandidatesAll(batteries,s).slice(0,5)
@@ -47,7 +57,7 @@ window.solarExpertBatterySelector=function(){return{
           unitPrice:window.SolarExpertProductMatcher.effectivePrice(r.product),
           totalPrice:window.SolarExpertProductMatcher.effectivePrice(r.product)
         })).slice(0,5);
-    if(track) seTrackSelectorOnce(this,'battery',{voltage:s.voltage,batteryKwh,inverterW:s.inverterW});
+    if(track) seTrackSelectorOnce(this,'battery',{voltage:s.voltage,batteryKwh,inverterW:Number(this.inverterW)});
   }
 };};
 
