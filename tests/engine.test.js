@@ -242,10 +242,15 @@ batterySelectorBank.inverterW=5000;
 batterySelectorBank.run();
 const pusungBank=batterySelectorBank.matches.find(x=>x.product.id==='battery-seplos-pusung-48');
 assert(pusungBank,'High-capacity Battery Selector should find a verified parallel bank');
-assert(pusungBank.quantity===2,'48V high-capacity selector should use the minimum two PUSUNG-S modules');
-assert(pusungBank.totalEnergyWh===10240,'Battery Selector should expose 10.24kWh for two PUSUNG-S modules');
-assert(pusungBank.totalDischargeA===Number(pusungBank.product.max_discharge_a)*2,'Battery Selector should sum verified parallel BMS discharge current');
-assert(batterySelectorBank.matches.every(x=>x.totalEnergyWh>=9500),'Battery Selector must not return an undersized bank');
+// 8 kWh/day AC / (0.80 usable battery × 0.90 inverter) = 11.11 kWh
+// nominal, rounded UP to 11.2. Two 5.12kWh modules total only 10.24kWh
+// and must NOT be advertised as sufficient any more.
+assert(batterySelectorBank.requiredBatteryKwh===11.2,
+  '48V daily 8kWh AC load requires >=11.2kWh nominal at 80%/90%');
+assert(pusungBank.quantity===3,'48V high-capacity selector now needs THREE PUSUNG-S modules, not two');
+assert(pusungBank.totalEnergyWh===15360,'Battery Selector should expose 15.36kWh for three PUSUNG-S modules');
+assert(pusungBank.totalDischargeA===Number(pusungBank.product.max_discharge_a)*3,'Battery Selector should sum three verified parallel BMS limits');
+assert(batterySelectorBank.matches.every(x=>x.totalEnergyWh>=11200),'Battery Selector must never return a bank below 11.2kWh nominal');
 
 
 const mpptSelectorStart=global.window.solarExpertMpptSelector();
