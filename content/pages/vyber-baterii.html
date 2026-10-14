@@ -7,9 +7,11 @@
 <p>Baterie, měnič a regulátor musí pracovat se stejnou napěťovou třídou. 12V baterie nepatří do 24V nebo 48V návrhu jen proto, že má dostatečnou kapacitu.</p>
 
 <h3>2. Energie v kWh</h3>
+<p><strong>Výpočet pro 230V spotřebiče:</strong> používáme model 80 % využitelné nominální energie LiFePO₄ a 90 % účinnosti měniče. Nominální baterie proto musí pokrýt zadané kWh × počet dní / (0,80 × 0,90). Denní kWh musí zahrnout i spotřebu samotného měniče naprázdno; uvedené podíly jsou modelové, ne záruka pro všechny výrobky.</p>
 <p>Ah lze porovnávat pouze při stejném napětí. Pro skutečné množství uložené energie je praktičtější kWh. Přibližně platí: nominální energie = napětí × kapacita v Ah. Dvě 100Ah baterie mohou mít při různém napětí úplně jinou energetickou kapacitu.</p>
 
 <h3>3. Maximální vybíjecí proud BMS</h3>
+<p>Pro kontrolu modelově převádíme požadovaný trvalý výkon spotřebičů na DC příkon s 90% účinností měniče a dělíme konzervativně jmenovitou napěťovou třídou. Skutečný proud za nízkého stavu nabití může být vyšší; před nákupem je vždy nutné ověřit datasheet a ochrany konkrétní instalace.</p>
 <p>Velká baterie nemusí automaticky utáhnout velký měnič. BMS musí dovolit dostatečný proud. Selector proto kontroluje, zda výkon odvozený z napětí a maximálního vybíjecího proudu pokryje požadovaný trvalý výkon měniče.</p>
 
 <h3>4. Autonomie</h3>
