@@ -74,6 +74,10 @@
           <strong>Solár na chatu pro lednici 230 V <span aria-hidden="true">→</span></strong>
           <span>Modelová spotřeba, potřebná baterie LiFePO₄, rozběh měniče a jak se dostat ke konkrétnímu nákupnímu seznamu.</span>
         </a>
+        <a class="se-home-guide" href="<?php echo esc_url(home_url('/jakou-baterii-k-solarnimu-panelu-400w/')); ?>">
+          <strong>Jakou baterii k panelu 400 W? <span aria-hidden="true">→</span></strong>
+          <span>LiFePO₄ 12V 100Ah vs. 24V 50Ah, výpočet kWh, limity BMS a výběr konkrétní baterie.</span>
+        </a>
         <a class="se-home-guide" href="<?php echo esc_url(home_url('/jak-vybrat-mppt-regulator-pro-400w-panel/')); ?>">
           <strong>Jaký MPPT k 400W solárnímu panelu <span aria-hidden="true">→</span></strong>
           <span>12 nebo 24 V, srovnání Victron 100/20, 100/30 a 100/50 a kontrola před koupí.</span>
