@@ -42,6 +42,8 @@ jobs:
         run: node tests/selector-first-use.test.js
       - name: Battery Selector AC energy efficiency and BMS current safety
         run: node tests/battery-selector-safety.test.js
+      - name: 400W buyer guide to editable Battery Selector handoff
+        run: node tests/battery-article-handoff.test.js
       - name: Actual merchant offer CTA labels, price freshness and tracking
         run: node --test tests/offer-cta-clarity.test.mjs
       - name: Buyer SEO guides claim, intent and indexability validation
