@@ -540,12 +540,14 @@ jobs:
         run: |
           set -euo pipefail
           base='https://solar-expert.cz'
-          # These source URLs were already indexed according to the 13 Oct
-          # read-only GSC inspection. Verify real HTML, not merely theme SHA.
+          # Verify actual public HTML, not just theme SHA. The first
+          # legacy sources were inspected in GSC; the newer MPPT source
+          # awaits first-crawl confirmation and is NOT claimed indexed.
           for record in \
             'kolik-panelu-je-potreba-na-jeden-string|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt' \
             'jak-zapojit-solarni-panely|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt' \
-            'tepelne-cerpadlo-nebo-elektrokotel|fotovoltaika-a-elektrokotel|kolik-stoji-fotovoltaika|electric-heating-fve'; do
+            'tepelne-cerpadlo-nebo-elektrokotel|fotovoltaika-a-elektrokotel|kolik-stoji-fotovoltaika|electric-heating-fve' \
+            'jak-vybrat-mppt-regulator-pro-400w-panel|jakou-baterii-k-solarnimu-panelu-400w|vyber-baterii|battery-400w'; do
             IFS='|' read -r source guide tool kind <<<"$record"
             passed=0
             for attempt in 1 2 3 4 5 6; do

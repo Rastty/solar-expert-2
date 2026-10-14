@@ -38,6 +38,15 @@ function solar_expert_buyer_bridge_map() {
       'tool_slug' => 'mppt-kalkulacka',
       'tool_label' => 'Ověřit regulátor pro nové pole →',
     ),
+    'jak-vybrat-mppt-regulator-pro-400w-panel' => array(
+      'kind' => 'battery-400w',
+      'headline' => 'Regulátor už máte vybraný. Jak velkou baterii k 400W panelu?',
+      'explanation' => 'MPPT kontroluje nabíjení, ale kapacitu a trvalý BMS proud musí určovat denní Wh spotřeba a příkon měniče.',
+      'guide_slug' => 'jakou-baterii-k-solarnimu-panelu-400w',
+      'guide_label' => 'Baterie k panelu 400 W: výpočet a konkrétní výběr →',
+      'tool_slug' => 'vyber-baterii',
+      'tool_label' => 'Vybrat baterii podle kWh a BMS →',
+    ),
     'tepelne-cerpadlo-nebo-elektrokotel' => array(
       'kind' => 'electric-heating-fve',
       'headline' => 'Topíte elektrokotlem a uvažujete o solárech?',

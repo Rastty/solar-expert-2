@@ -12,6 +12,7 @@
         <a class="se-btn se-btn-primary" href="<?php echo esc_url(solar_expert_public_url('vyber-baterii')); ?>">Spustit Battery Selector →</a>
       </div>
 
+      <p><a class="se-btn" href="<?php echo esc_url(home_url('/jakou-baterii-k-solarnimu-panelu-400w/')); ?>">Baterie k panelu 400 W: výpočet a výběr →</a></p>
       <h2>Články o bateriích</h2>
     <?php elseif ( is_category('solarni-panely') ) : ?>
       <div class="se-kicker">Solar Expert · solární panely</div>
@@ -35,6 +36,7 @@
           <h3>Chata a ostrovní systém: co vybrat před nákupem</h3>
           <p class="se-muted">Máte konkrétní spotřebič nebo panel? Začněte ověřením kompatibility a spotřeby, ne univerzálním žebříčkem produktů.</p>
           <div class="se-category-curated-grid se-category-choice-grid">
+            <a class="se-category-guide" href="<?php echo esc_url(home_url('/jakou-baterii-k-solarnimu-panelu-400w/')); ?>"><strong>Jakou LiFePO₄ baterii k panelu 400 W?</strong><span>12 V nebo 24 V, energie ve Wh, BMS, MPPT a konkrétní produktové nabídky →</span></a>
             <a class="se-category-guide" href="<?php echo esc_url(home_url('/jak-vybrat-mppt-regulator-pro-400w-panel/')); ?>"><strong>Jaký MPPT pro panel 400 W?</strong><span>12 V versus 24 V, Victron 100/20–100/50, Voc, Vmp a vstup do výběru regulátoru →</span></a>
             <a class="se-category-guide" href="<?php echo esc_url(home_url('/solarni-sestava-na-chatu-pro-lednici/')); ?>"><strong>Solár na chatu pro lednici 230 V</strong><span>Kolik energie spotřebuje, jak určit baterii, panely a měnič a jak sestavit vlastní řešení →</span></a>
           </div>

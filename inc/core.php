@@ -2226,6 +2226,10 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'MPPT kalkulačka: Voc, Vmp a výběr regulátoru | Solar Expert',
       'description' => 'Zkontrolujte MPPT regulátor podle výkonu FV pole, nabíjecího proudu, startovacího Vmp a cold Voc panelového stringu.'
     ),
+    'jakou-baterii-k-solarnimu-panelu-400w' => array(
+      'title' => 'Jaká baterie k 400W panelu? LiFePO4 12 V nebo 24 V | Solar Expert',
+      'description' => 'Jakou LiFePO4 baterii ke 400W panelu? Výpočet Wh a Ah, 12V 100Ah vs. 24V 50Ah, proud BMS, MPPT a doporučené ověřené nabídky.'
+    ),
     'jak-vybrat-mppt-regulator-pro-400w-panel' => array(
       'title' => 'MPPT pro 400W panel: 100/20, 100/30, 100/50 | Solar Expert',
       'description' => 'Jaký MPPT regulátor pro jeden 400W solární panel na 12 V či 24 V? Srovnání Victron 100/20, 100/30 a 100/50, limity Voc/Isc a výběr produktu.'

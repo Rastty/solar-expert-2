@@ -26,7 +26,7 @@ verify(in_array(array('the_content','solar_expert_append_buyer_bridge',22),$GLOB
 $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/content/manifest.json'),true);
 $slugs = array_column($manifest['items'],'slug');
 $map=solar_expert_buyer_bridge_map();
-verify(count($map)===6,'Six explicitly intent-matched articles, never sitewide spam');
+verify(count($map)===7,'Seven explicitly intent-matched articles, never sitewide spam');
 foreach ($map as $source=>$bridge) {
   verify(in_array($source,$slugs,true),'Source must be editorially managed: '.$source);
   verify(in_array($bridge['guide_slug'],$slugs,true),'Target must be source-controlled: '.$source);
@@ -61,4 +61,4 @@ foreach (array('test_loop','test_main','test_singular') as $flag) {
   verify(solar_expert_append_buyer_bridge('Base')==='Base','Only primary public post content: '.$flag);
   $GLOBALS[$flag]=true;
 }
-echo "PASS: six intent-matched article-to-buyer paths, no off-topic links, no duplicates or metadata edits\n";
+echo "PASS: seven intent-matched article-to-buyer paths, no off-topic links, no duplicates or metadata edits\n";

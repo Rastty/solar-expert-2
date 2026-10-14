@@ -515,6 +515,18 @@
       "indexable": true,
       "category_slug": "solarni-panely",
       "file": "content/rewrites/fotovoltaika-a-elektrokotel.html"
+    },
+    {
+      "type": "post",
+      "slug": "jakou-baterii-k-solarnimu-panelu-400w",
+      "title": "Jakou LiFePO4 baterii k 400W solárnímu panelu: 12 V, 24 V a výpočet kapacity",
+      "status_if_new": "publish",
+      "status": "publish",
+      "create_if_missing": true,
+      "publish_ready": true,
+      "indexable": true,
+      "category_slug": "solarni-panely",
+      "file": "content/rewrites/jakou-baterii-k-solarnimu-panelu-400w.html"
     }
   ]
 }
