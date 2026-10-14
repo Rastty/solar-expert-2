@@ -1,7 +1,8 @@
 <?php
 /**
- * Bounded editorial bridges from existing topic guides to two published
- * purchase-intent articles. These are crawlable links, not affiliate ads.
+ * Bounded editorial bridges from Google-observed guides to the relevant
+ * managed purchase-intent and technical decision pages. Crawlable links,
+ * not paid offers; never imply equipment suitability from page association.
  *
  * Do not modify indexed post bodies, canonical URLs, post dates or metadata.
  * Keeping the guide choice source-specific also avoids sending residential
@@ -55,6 +56,36 @@ function solar_expert_buyer_bridge_map() {
       'guide_label' => 'FVE k elektrokotli: spotřeba a návratnost →',
       'tool_slug' => 'kolik-stoji-fotovoltaika',
       'tool_label' => 'Domovní FVE: porovnání nabídky →',
+    ),
+    // 14 October read-only GSC near-wins: preserve the recently edited source
+    // bodies while handing existing observed search traffic to two newly
+    // published decision pages that Google has not yet confirmed discovered.
+    'umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda' => array(
+      'kind' => 'heatpump-placement',
+      'headline' => 'Řešíte umístění venkovní jednotky k sousedovi?',
+      'explanation' => 'Monoblok i split vyžadují posouzení hlučnosti, odstupů a konkrétní instalace. Typ jednotky sám o sobě nesplní hygienické limity.',
+      'guide_slug' => 'tepelne-cerpadlo-monoblok',
+      'guide_label' => 'Monoblok vs. split: co ověřit před montáží →',
+      'tool_slug' => 'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu',
+      'tool_label' => 'Porovnat varianty a hlučnost TČ →',
+    ),
+    'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady' => array(
+      'kind' => 'heatpump-review',
+      'headline' => 'Zvažujete Samsung EHS R290 Mono?',
+      'explanation' => 'Nejdřív odlište monoblok od splitu, hydraulické a protimrazové řešení i akustiku. Marketingový název modelu nenahrazuje technický návrh domu.',
+      'guide_slug' => 'tepelne-cerpadlo-monoblok',
+      'guide_label' => 'Monoblok: rizika a kontrola nabídky →',
+      'tool_slug' => 'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu',
+      'tool_label' => 'Srovnat možnosti vytápění vzduch–voda →',
+    ),
+    'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu' => array(
+      'kind' => 'heatpump-air-types',
+      'headline' => 'Potřebujete topit do radiátorů, nebo přímo do vzduchu?',
+      'explanation' => 'Tepelné čerpadlo vzduch–vzduch předává teplo jinak než venkovní monoblok vzduch–voda. Zvolte správnou technologii podle domu, ne pouze značky.',
+      'guide_slug' => 'tepelne-cerpadlo-vzduch-vzduch',
+      'guide_label' => 'Vzduch–vzduch: kdy dává smysl →',
+      'tool_slug' => 'tepelne-cerpadlo-monoblok',
+      'tool_label' => 'Monoblok vzduch–voda: co kontrolovat →',
     ),
     'sady-pro-solarni-napajeni-kompletni-pruvodce' => array(
       'kind' => 'cottage',

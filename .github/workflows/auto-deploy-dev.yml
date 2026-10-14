@@ -541,13 +541,18 @@ jobs:
           set -euo pipefail
           base='https://solar-expert.cz'
           # Verify actual public HTML, not just theme SHA. The first
-          # legacy sources were inspected in GSC; the newer MPPT source
+          # legacy sources were inspected in GSC; the heat pump URLs carry
+          # real impressions while their linked new posts await first crawl.
+          # The newer MPPT source
           # awaits first-crawl confirmation and is NOT claimed indexed.
           for record in \
             'kolik-panelu-je-potreba-na-jeden-string|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt' \
             'jak-zapojit-solarni-panely|jak-vybrat-mppt-regulator-pro-400w-panel|mppt-kalkulacka|mppt' \
             'tepelne-cerpadlo-nebo-elektrokotel|fotovoltaika-a-elektrokotel|kolik-stoji-fotovoltaika|electric-heating-fve' \
-            'jak-vybrat-mppt-regulator-pro-400w-panel|jakou-baterii-k-solarnimu-panelu-400w|vyber-baterii|battery-400w'; do
+            'jak-vybrat-mppt-regulator-pro-400w-panel|jakou-baterii-k-solarnimu-panelu-400w|vyber-baterii|battery-400w' \
+            'umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda|tepelne-cerpadlo-monoblok|nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu|heatpump-placement' \
+            'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady|tepelne-cerpadlo-monoblok|nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu|heatpump-review' \
+            'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu|tepelne-cerpadlo-vzduch-vzduch|tepelne-cerpadlo-monoblok|heatpump-air-types'; do
             IFS='|' read -r source guide tool kind <<<"$record"
             passed=0
             for attempt in 1 2 3 4 5 6; do

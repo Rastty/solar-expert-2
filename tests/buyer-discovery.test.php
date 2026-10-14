@@ -26,7 +26,7 @@ verify(in_array(array('the_content','solar_expert_append_buyer_bridge',22),$GLOB
 $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/content/manifest.json'),true);
 $slugs = array_column($manifest['items'],'slug');
 $map=solar_expert_buyer_bridge_map();
-verify(count($map)===7,'Seven explicitly intent-matched articles, never sitewide spam');
+verify(count($map)===10,'Ten strictly named, GSC-intent-matched source posts only; never a sitewide CTA');
 foreach ($map as $source=>$bridge) {
   verify(in_array($source,$slugs,true),'Source must be editorially managed: '.$source);
   verify(in_array($bridge['guide_slug'],$slugs,true),'Target must be source-controlled: '.$source);
@@ -46,9 +46,25 @@ foreach ($map as $source=>$bridge) {
   $present='<p>Existing copy <a href="/'.$bridge['guide_slug'].'/">guide</a></p>';
   verify(solar_expert_append_buyer_bridge($present)===$present,'Respect pre-existing editorial links');
 }
-foreach (array('fotovoltaika-na-eternitovou-strechu','nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu','solarni-sestava-na-chatu-pro-lednici') as $slug) {
+foreach (array('fotovoltaika-na-eternitovou-strechu','fotovoltaika-na-pozemku','solarni-sestava-na-chatu-pro-lednici') as $slug) {
   $GLOBALS['test_post_slug']=$slug;
   verify(solar_expert_append_buyer_bridge('Base')==='Base','Never inject off-topic CTA: '.$slug);
+}
+// Explicit GSC-driven indexed-near-win → underdiscovered-post routes.
+$gscTargets=array(
+ 'umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda'=>array('tepelne-cerpadlo-monoblok','nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu','heatpump-placement'),
+ 'recenze-tepelneho-cerpadla-samsung-klady-zapory-a-naklady'=>array('tepelne-cerpadlo-monoblok','nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu','heatpump-review'),
+ 'nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu'=>array('tepelne-cerpadlo-vzduch-vzduch','tepelne-cerpadlo-monoblok','heatpump-air-types')
+);
+foreach ($gscTargets as $source=>$targets) {
+  verify(isset($map[$source]),'Observed GSC source included: '.$source);
+  verify($map[$source]['guide_slug']===$targets[0] && $map[$source]['tool_slug']===$targets[1],
+    'Two independent decision links for '.$source);
+  verify($map[$source]['kind']===$targets[2],'Unique source-scoped bridge type: '.$source);
+  verify(strpos($map[$source]['explanation'],'hlučnost')!==false ||
+         strpos($map[$source]['explanation'],'akustik')!==false ||
+         strpos($map[$source]['explanation'],'správnou technologii')!==false,
+    'Placement/technology accuracy must not suggest a specific model is automatically compliant: '.$source);
 }
 $GLOBALS['test_post_slug']='kolik-panelu-je-potreba-na-jeden-string';
 foreach (array('test_admin','test_feed') as $flag) {
@@ -61,4 +77,4 @@ foreach (array('test_loop','test_main','test_singular') as $flag) {
   verify(solar_expert_append_buyer_bridge('Base')==='Base','Only primary public post content: '.$flag);
   $GLOBALS[$flag]=true;
 }
-echo "PASS: seven intent-matched article-to-buyer paths, no off-topic links, no duplicates or metadata edits\n";
+echo "PASS: ten GSC-driven article-to-buyer discovery paths, no off-topic links, duplicate blocks or body edits\n";
