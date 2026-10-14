@@ -21,6 +21,7 @@ require('../assets/js/selectors.js');
 const specs=[
   {kind:'battery',ctor:'solarExpertBatterySelector',part:'template-parts/battery-selector.php',
     examples:{
+      panel400:{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800},
       cottage:{voltage:24,dailyKwh:1,autonomy:1,inverterW:1000},
       backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000}}},
   {kind:'mppt',ctor:'solarExpertMpptSelector',part:'template-parts/mppt-selector.php',
@@ -74,5 +75,5 @@ for(const spec of specs){
     assert.equal(window.dataLayer.filter(e=>e.event==='selector_engaged'&&e.selector===spec.kind).length,1,
       'Early click must count exactly once after loading: '+spec.kind);
   }
-  console.log('PASS: six genuine one-click selector scenarios, real matching and once-only engagement incl. early clicks');
+  console.log('PASS: seven genuine one-click selector scenarios, real matching and once-only engagement incl. early clicks');
 })().catch(error=>{console.error(error);process.exitCode=1;});
