@@ -1292,6 +1292,43 @@ jobs:
             exit 1
           fi
 
+      - name: Verify battery selector published AC-loss and BMS assumptions
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://solar-expert.cz'
+          found=0
+          for attempt in 1 2 3 4 5 6; do
+            body="$(mktemp)"
+            http="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
+              -o "$body" -w '%{http_code}' \
+              "$base/vyber-baterii/?battery_safety_probe=${GITHUB_SHA}&attempt=$attempt" || true)"
+            if [ "$http" = '200' ] \
+              && grep -Fq '80 % využitelné kapacity' "$body" \
+              && grep -Fq '90 % účinností měniče' "$body" \
+              && grep -Fq 'spotřebu samotného měniče naprázdno' "$body"; then
+              found=1
+              break
+            fi
+            echo "Battery safety assumptions not yet live: HTTP ${http:-none}, attempt $attempt/6"
+            sleep 10
+          done
+          if [ "$found" != '1' ]; then
+            echo "::error::New battery-sizing safety model is not disclosed on the live selector."
+            exit 1
+          fi
+          # Script is public and same-origin; require the new exact arithmetic
+          # and DC conversion before declaring real safe recommendations.
+          script="$(curl -fsSL --max-time 30 "$base/wp-content/themes/solar-expert-2/assets/js/selectors.js?battery_safety_probe=${GITHUB_SHA}")"
+          if ! grep -Fq 'usableFraction:0.80,inverterEfficiency:0.90' <<<"$script" \
+            || ! grep -Fq 'get requiredBatteryDcW()' <<<"$script" \
+            || ! grep -Fq 'inverterW:dcW' <<<"$script"; then
+            echo "::error::Public Battery Selector JavaScript still has prior 85%/AC-only assumptions."
+            exit 1
+          fi
+          echo 'Published Battery Selector uses 80% usable battery energy, 90% AC conversion and DC BMS fit.'
+
       - name: Verify public merchant offer CTA clarity on buying tools
         if: steps.config.outputs.enabled == 'true'
         shell: bash
