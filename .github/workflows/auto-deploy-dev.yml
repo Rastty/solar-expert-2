@@ -369,6 +369,44 @@ jobs:
 
           echo "Production deploy verified: Solar Expert ${expected} is live and content sync is current."
 
+      - name: Verify public deployed source bytes
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz/wp-content/themes/solar-expert-2"
+          # Health version and rendered CTA alone cannot prove that the
+          # theme ZIP actually contained the expected source files.
+          for relative in style.css assets/js/selectors.js assets/js/affiliate-adapter.js assets/data/product-seed.json; do
+            if [ ! -f "$relative" ]; then
+              echo "::error::Release source file missing from checkout: $relative"
+              exit 1
+            fi
+            expected="$(sha256sum "$relative" | cut -d' ' -f1)"
+            verified=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}/${relative}?source_hash_probe=${GITHUB_SHA}&attempt=${attempt}"
+              if curl -fsS --max-redirs 0 --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -o "$body_file" "$url"; then
+                actual="$(sha256sum "$body_file" | cut -d' ' -f1)"
+                if [ "$actual" = "$expected" ]; then
+                  verified=1
+                  rm -f "$body_file"
+                  break
+                fi
+              fi
+              rm -f "$body_file"
+              sleep 10
+            done
+            if [ "$verified" != "1" ]; then
+              echo "::error::Public theme source hash did not match checked-out release: $relative"
+              exit 1
+            fi
+            echo "Verified public source SHA256 for $relative."
+          done
+
       - name: Flush IndexNow discovery queue
         if: steps.config.outputs.enabled == 'true'
         shell: bash
