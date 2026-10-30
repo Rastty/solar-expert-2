@@ -152,6 +152,28 @@ try {
   fs.rmSync(tmpDir,{recursive:true,force:true});
 }
 
+// Public theme source bytes must match the exact reviewed checkout, not only
+// a reused style.css version or a previously cached buyer CTA.
+const sourceBytes=shellStep('Verify public deployed source bytes');
+for(const file of [
+  'style.css',
+  'assets/js/selectors.js',
+  'assets/js/affiliate-adapter.js',
+  'assets/data/product-seed.json'
+]){
+  assert(sourceBytes.includes(file),'Missing release source parity target: '+file);
+}
+assert(sourceBytes.includes('sha256sum "$relative"') &&
+       sourceBytes.includes('sha256sum "$body_file"'),
+  'Public static source bytes must be hashed and compared with checkout');
+assert(sourceBytes.includes('if [ "$actual" = "$expected" ]'),
+  'Only exact SHA256 parity can pass the public release source gate');
+assert(sourceBytes.includes('curl -fsS --max-redirs 0'),
+  'Source parity must reject login/challenge redirects');
+assert(sourceBytes.includes('if [ "$verified" != "1" ]') &&
+       sourceBytes.includes('Public theme source hash did not match'),
+  'Missing/stale source bytes must fail closed, never count as deployed');
+
 const categories=shellStep('Reconcile managed categories after release convergence');
 const publicVerify=shellStep('Verify public thematic categories for new managed posts');
 const targets=manifest.items.filter(x=>x.type==='post'&&x.category_slug);
