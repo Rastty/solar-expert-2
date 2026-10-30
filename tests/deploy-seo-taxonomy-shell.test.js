@@ -68,10 +68,10 @@ const deployTrigger=shellStep('Trigger Deployer for Git');
 // following -H as a separate command and blocks every guarded live release.
 // Execute only the GitHub-ref read with a mock curl: no network or secrets.
 const refStart=deployTrigger.indexOf('remote_dev_sha="$(curl');
-const refEnd=deployTrigger.indexOf('\\nif [ "$remote_dev_sha"',refStart);
+const refEnd=deployTrigger.indexOf('\nif [ "$remote_dev_sha"',refStart);
 assert(refStart>=0&&refEnd>refStart,'Expected exact pre-deploy dev SHA read');
 const devRefSnippet=deployTrigger.slice(refStart,refEnd);
-assert(!/\\\\{2,}[ \\t]*$/m.test(devRefSnippet),
+assert(!devRefSnippet.split('\n').some(line=>line.endsWith('\\\\')),
   'Double-escaped shell continuation breaks dev SHA verification at runtime');
 const mockedDevShaProbe=[
   'set -euo pipefail',
@@ -83,7 +83,7 @@ const mockedDevShaProbe=[
   '}',
   devRefSnippet,
   'printf \'sha=%s\\n\' "$remote_dev_sha"',
-].join('\\n');
+].join('\n');
 const devShaProbe=cp.spawnSync('bash',['-c',mockedDevShaProbe],{encoding:'utf8'});
 assert.equal(devShaProbe.status,0,
   'Pre-deploy dev SHA shell must execute with all curl headers: '+devShaProbe.stderr);
