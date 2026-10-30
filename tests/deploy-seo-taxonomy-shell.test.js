@@ -129,7 +129,7 @@ try {
     ['bare-null', 'null', false],
     ['json-array', '[]', false],
     ['json-string', '"success"', false],
-    ['multiple-json', '{"success":false}\\n{"success":true,"package_type":"theme","package_slug":"solar-expert-2"}', false],
+    ['multiple-json', '{"success":false}\n{"success":true,"package_type":"theme","package_slug":"solar-expert-2"}', false],
     ['malformed-json', '{"success":true,"package_type":"theme",', false],
     ['empty-body', '', false],
     ['legacy-text', 'OK: updated theme', false],
@@ -137,7 +137,7 @@ try {
   ]) {
     const fixture=path.join(tmpDir,name+'.txt');
     fs.writeFileSync(fixture,body);
-    const out=cp.spawnSync('bash',['-c','set -euo pipefail\\n'+receiptScript],
+    const out=cp.spawnSync('bash',['-c','set -euo pipefail\n'+receiptScript],
       {env:{...process.env,body_file:fixture},encoding:'utf8'});
     assert.equal(out.status===0,allowed,
       'Deployer receipt gate gave wrong verdict for '+name+': '+out.stdout+' '+out.stderr);
