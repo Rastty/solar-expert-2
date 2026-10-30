@@ -22,6 +22,19 @@ for(let i=0;i<lines.length;i++){
   }
 }
 assert(workflowBlocks>=20,'Production deploy must retain complete expected verification stages');
+// A second dev push must not cancel an in-flight Deployer update after it has
+// mutated WordPress but before health, public CTA and content checks finish.
+// GitHub queues the next run rather than abandoning an unverified live release.
+const releaseWorkflow=lines.join('\\n');
+assert.match(releaseWorkflow,/concurrency:\\n  group: solar-expert-dev-auto-deploy\\n  cancel-in-progress: false/,
+  'Never cancel an in-flight production deploy; queue subsequent dev pushes');
+assert(!/group: solar-expert-dev-auto-deploy\\n  cancel-in-progress: true/.test(releaseWorkflow),
+  'A cancelled release could leave an unverified public WordPress mutation');
+assert(lines.some(x=>x.includes('Verify live release and managed-content sync')),
+  'Preserve actual live release readback');
+assert(lines.some(x=>x.includes('Verify rendered residential FVE CTA')),
+  'Preserve buyer-facing public CTA gate');
+
 const finalCheck='- name: Verify real public Czech buyer guidance (no stale homepage cache)';
 assert.equal(lines.filter(x=>x.trim()===finalCheck).length,1,'Workflow must not append duplicate trailing step fragments');
 assert.equal(lines.filter(x=>x.trim()).at(-1).trim(),'done',
