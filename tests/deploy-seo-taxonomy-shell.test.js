@@ -116,6 +116,42 @@ for(const [body, expected] of [
     'Wrong Deployer response verdict for '+JSON.stringify(body));
 }
 
+
+assert(deployTrigger.includes("jq -s 'length'"),
+  'Valid JSON false/null must never be treated as a legacy non-JSON success');
+assert(deployTrigger.includes('type == "object"'),
+  'Only a single JSON object is a valid structured Deployer receipt');
+assert(deployTrigger.includes('Deployer returned an empty receipt.'),
+  'HTTP 200 with no receipt cannot prove that Deployer accepted the update');
+// Execute the real production receipt gate against offline fixtures. A bare
+// JSON false used to bypass jq -e . and enter the permissive legacy path.
+const receiptStart=deployTrigger.indexOf('if json_items="$(jq -s');
+assert(receiptStart>=0,'Expected strict JSON receipt parsing block');
+const receiptScript=deployTrigger.slice(receiptStart);
+const tmpDir=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'solar-deployer-receipt-'));
+try {
+  for(const [name,body,allowed] of [
+    ['accepted', '{"success":true}', true],
+    ['explicit-rejection', '{"success":false}', false],
+    ['bare-false', 'false', false],
+    ['bare-null', 'null', false],
+    ['json-array', '[]', false],
+    ['json-string', '"success"', false],
+    ['multiple-json', '{"success":true}\\n{"success":true}', false],
+    ['empty-body', '', false],
+    ['legacy-text', 'OK: updated theme', true]
+  ]){
+    const fixture=path.join(tmpDir,name+'.txt');
+    fs.writeFileSync(fixture,body);
+    const out=cp.spawnSync('bash',['-c','set -euo pipefail\\n'+receiptScript],
+      {env:{...process.env,body_file:fixture},encoding:'utf8'});
+    assert.equal(out.status===0,allowed,
+      'Deployer receipt gate gave wrong verdict for '+name+': '+out.stdout+' '+out.stderr);
+  }
+} finally {
+  fs.rmSync(tmpDir,{recursive:true,force:true});
+}
+
 const categories=shellStep('Reconcile managed categories after release convergence');
 const publicVerify=shellStep('Verify public thematic categories for new managed posts');
 const targets=manifest.items.filter(x=>x.type==='post'&&x.category_slug);
