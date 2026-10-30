@@ -59,6 +59,33 @@ function shellStep(name){
   return body;
 }
 
+// The Deployer endpoint can redirect to a login page, and jq's false // true
+// silently turns an explicit rejected deployment into success. Neither may
+// authorize managed-content mutation or public-live claims.
+const deployTrigger=shellStep('Trigger Deployer for Git');
+assert(deployTrigger.includes('curl -sS --max-redirs 0'),
+  'Deployer trigger must not follow a redirect to an unrelated 200 page');
+assert(!deployTrigger.includes('curl -sSL'),
+  'A redirected login page must never be accepted as a Deployer receipt');
+assert(deployTrigger.includes('Deployer returned HTML instead of a deployment receipt'),
+  'Reject HTML login/challenge bodies even when HTTP 200');
+const deploySuccessJq='if has("success") then (.success == true) else true end';
+assert(deployTrigger.includes(deploySuccessJq),
+  'Deployer must reject explicit JSON success=false (jq // loses false)');
+assert(!deployTrigger.includes('.success // true'),
+  'Never coalesce explicit JSON false to true');
+for(const [body, expected] of [
+  [{success:true},'true'],[{success:false},'false'],
+  [{success:null},'false'],[{success:'false'},'false'],
+  [{message:'legacy plugin success'},'true']
+]){
+  const out=cp.spawnSync('jq',['-r',deploySuccessJq],
+    {input:JSON.stringify(body),encoding:'utf8'});
+  assert.equal(out.status,0,'jq response parsing failed: '+out.stderr);
+  assert.equal(out.stdout.trim(),expected,
+    'Wrong Deployer response verdict for '+JSON.stringify(body));
+}
+
 const categories=shellStep('Reconcile managed categories after release convergence');
 const publicVerify=shellStep('Verify public thematic categories for new managed posts');
 const targets=manifest.items.filter(x=>x.type==='post'&&x.category_slug);
