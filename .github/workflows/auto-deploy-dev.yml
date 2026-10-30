@@ -10,9 +10,11 @@ permissions:
   checks: read
   pull-requests: read
 
+# Never cancel a release after the Deployer trigger: a newer push must wait
+# for the previous release's health, public CTA and managed-content readback.
 concurrency:
   group: solar-expert-dev-auto-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
