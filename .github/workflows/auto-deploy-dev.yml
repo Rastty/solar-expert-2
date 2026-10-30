@@ -178,7 +178,13 @@ jobs:
           # Older/current plugin builds may return non-JSON bodies on success.
           # jq's `false // true` is TRUE: preserve an explicit success=false.
           # Reject malformed success fields; only the missing field is optional.
-          if jq -e . >/dev/null 2>&1 <"$body_file"; then
+          # jq -e . returns failure for valid JSON false/null. That must not
+          # fall through to the legacy non-JSON success path.
+          if json_items="$(jq -s 'length' "$body_file" 2>/dev/null)"; then
+            if [ "$json_items" != "1" ] || ! jq -e 'type == "object"' "$body_file" >/dev/null 2>&1; then
+              echo "::error::Deployer returned an invalid JSON receipt (expected one object)."
+              exit 1
+            fi
             success="$(jq -r 'if has("success") then (.success == true) else true end' <"$body_file")"
             message="$(jq -r '.message // ""' <"$body_file")"
             package_type="$(jq -r '.package_type // ""' <"$body_file")"
@@ -189,6 +195,10 @@ jobs:
               exit 1
             fi
           else
+            if [ ! -s "$body_file" ]; then
+              echo "::error::Deployer returned an empty receipt."
+              exit 1
+            fi
             echo "Deployer returned HTTP 200 with a non-JSON body; accepted per plugin documentation."
           fi
 
