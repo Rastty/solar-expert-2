@@ -140,10 +140,10 @@ jobs:
 
           # Deployer downloads the current dev branch, not this checkout.
           # A queued older workflow must not deploy newer unverified files.
-          remote_dev_sha="$(curl -fsS --max-time 20 \\
-            -H "Authorization: Bearer ${GH_TOKEN}" \\
-            -H "Accept: application/vnd.github+json" \\
-            -H "X-GitHub-Api-Version: 2022-11-28" \\
+          remote_dev_sha="$(curl -fsS --max-time 20 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/dev" | jq -er '.object.sha')"
           if [ "$remote_dev_sha" != "$GITHUB_SHA" ]; then
             echo "::error::dev advanced since this run; refusing stale Deployer trigger."
