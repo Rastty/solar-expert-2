@@ -25,10 +25,10 @@ assert(workflowBlocks>=20,'Production deploy must retain complete expected verif
 // A second dev push must not cancel an in-flight Deployer update after it has
 // mutated WordPress but before health, public CTA and content checks finish.
 // GitHub queues the next run rather than abandoning an unverified live release.
-const releaseWorkflow=lines.join('\\n');
-assert.match(releaseWorkflow,/concurrency:\\n  group: solar-expert-dev-auto-deploy\\n  cancel-in-progress: false/,
+const releaseWorkflow=lines.join('\n');
+assert.match(releaseWorkflow,/concurrency:\n  group: solar-expert-dev-auto-deploy\n  cancel-in-progress: false/,
   'Never cancel an in-flight production deploy; queue subsequent dev pushes');
-assert(!/group: solar-expert-dev-auto-deploy\\n  cancel-in-progress: true/.test(releaseWorkflow),
+assert(!/group: solar-expert-dev-auto-deploy\n  cancel-in-progress: true/.test(releaseWorkflow),
   'A cancelled release could leave an unverified public WordPress mutation');
 assert(lines.some(x=>x.includes('Verify live release and managed-content sync')),
   'Preserve actual live release readback');
@@ -70,7 +70,7 @@ assert(categories.includes('managed_taxonomy_targets == $expected'),'Health must
 assert(publicVerify.includes('published_pairs < <(jq -r'),'Every public managed post gets a category check');
 assert(publicVerify.includes('slug="${pair%%|*}"'),'Pair parsing must not lose slug');
 assert(publicVerify.includes('category="${pair#*|}"'),'Pair parsing must not lose category');
-assert(!publicVerify.includes('for pair in \\\n'),'No static slug list allowed in category release check');
+assert(!publicVerify.includes('for pair in \\n'),'No static slug list allowed in category release check');
 // The site currently renders Yoast's real robots tag with SINGLE quotes:
  // <meta name='robots' content='noindex, follow' />. Do not gate on
  // a double-quote-only synthetic fixture or report a false failed release.
