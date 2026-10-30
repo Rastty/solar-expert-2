@@ -1496,7 +1496,10 @@ assert(autoDeploy.includes("package=solar-expert-2"),'Auto-deploy must target th
 assert(autoDeploy.includes("html.unescape"),'Auto-deploy must tolerate an HTML-escaped URL copied from the plugin UI');
 assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Deployer trigger must bypass intermediary caches without changing the endpoint query contract');
 assert(autoDeploy.includes('-w "%{http_code}"'),'Auto-deploy must validate Deployer HTTP status');
-assert(autoDeploy.includes("jq -r '.success // true'"),'Auto-deploy should honor an explicit JSON failure when the plugin returns JSON');
+assert(autoDeploy.includes('if has("success") then (.success == true) else true end'),'Auto-deploy must preserve explicit JSON success=false and reject malformed success fields');
+assert(!autoDeploy.includes('.success // true'),'jq false // true must not hide an explicit rejected deployment');
+assert(autoDeploy.includes('curl -sS --max-redirs 0'),'Auto-deploy must not follow a redirect to a login or challenge page');
+assert(autoDeploy.includes('Deployer returned HTML instead of a deployment receipt'),'Auto-deploy must reject HTML masquerading as a successful trigger');
 assert(autoDeploy.includes('Deployer for Git failed with HTTP'),'Auto-deploy must fail on a non-200 Deployer response');
 assert(autoDeploy.includes('Deployer for Git rejected the deployment'),'Auto-deploy must fail on an explicit JSON rejection');
 assert(autoDeploy.includes('package_slug'),'Auto-deploy diagnostics must expose the returned package slug without exposing the secret');
