@@ -63,6 +63,32 @@ function shellStep(name){
 // silently turns an explicit rejected deployment into success. Neither may
 // authorize managed-content mutation or public-live claims.
 const deployTrigger=shellStep('Trigger Deployer for Git');
+// CI previously passed even though a new dev-ref curl command used doubled
+// backslashes at line ends. Bash -n accepts that, but execution treats the
+// following -H as a separate command and blocks every guarded live release.
+// Execute only the GitHub-ref read with a mock curl: no network or secrets.
+const refStart=deployTrigger.indexOf('remote_dev_sha="$(curl');
+const refEnd=deployTrigger.indexOf('\\nif [ "$remote_dev_sha"',refStart);
+assert(refStart>=0&&refEnd>refStart,'Expected exact pre-deploy dev SHA read');
+const devRefSnippet=deployTrigger.slice(refStart,refEnd);
+assert(!/\\\\{2,}[ \\t]*$/m.test(devRefSnippet),
+  'Double-escaped shell continuation breaks dev SHA verification at runtime');
+const mockedDevShaProbe=[
+  'set -euo pipefail',
+  'GH_TOKEN=offline-fixture',
+  'GITHUB_REPOSITORY=Rastty/solar-expert-2',
+  'curl() {',
+  '  if [ "$#" -ne 10 ]; then echo "Unexpected curl args: $#" >&2; return 91; fi',
+  '  printf \'%s\\n\' \'{"object":{"sha":"verified-dev-sha"}}\'',
+  '}',
+  devRefSnippet,
+  'printf \'sha=%s\\n\' "$remote_dev_sha"',
+].join('\\n');
+const devShaProbe=cp.spawnSync('bash',['-c',mockedDevShaProbe],{encoding:'utf8'});
+assert.equal(devShaProbe.status,0,
+  'Pre-deploy dev SHA shell must execute with all curl headers: '+devShaProbe.stderr);
+assert.equal(devShaProbe.stdout.trim(),'sha=verified-dev-sha',
+  'Ref gate must parse the mocked GitHub SHA before allowing a deploy');
 assert(deployTrigger.includes('git/ref/heads/dev') && deployTrigger.includes('remote_dev_sha') && deployTrigger.includes('remote_dev_sha\" != \"$GITHUB_SHA'),
   'A queued stale workflow must not trigger Deployer for a newer dev branch');
 assert(deployTrigger.indexOf('remote_dev_sha') < deployTrigger.indexOf('body_file='),
