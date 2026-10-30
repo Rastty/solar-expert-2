@@ -99,51 +99,45 @@ assert(!deployTrigger.includes('curl -sSL'),
   'A redirected login page must never be accepted as a Deployer receipt');
 assert(deployTrigger.includes('Deployer returned HTML instead of a deployment receipt'),
   'Reject HTML login/challenge bodies even when HTTP 200');
-const deploySuccessJq='if has("success") then (.success == true) else true end';
-assert(deployTrigger.includes(deploySuccessJq),
-  'Deployer must reject explicit JSON success=false (jq // loses false)');
+// Actual production deployment on 2026-10-14 returned a JSON receipt with
+// success=true, package_type=theme, package_slug=solar-expert-2. Do not accept
+// generic HTTP 200 text or a success for a different package.
+assert(deployTrigger.includes("jq -s -e 'length == 1"),
+  'Require exactly one structured Deployer receipt');
+assert(deployTrigger.includes('.success == true') &&
+       deployTrigger.includes('.package_type == "theme"') &&
+       deployTrigger.includes('.package_slug == "solar-expert-2"'),
+  'Require exact successful target theme in Deployer receipt');
 assert(!deployTrigger.includes('.success // true'),
   'Never coalesce explicit JSON false to true');
-for(const [body, expected] of [
-  [{success:true},'true'],[{success:false},'false'],
-  [{success:null},'false'],[{success:'false'},'false'],
-  [{message:'legacy plugin success'},'true']
-]){
-  const out=cp.spawnSync('jq',['-r',deploySuccessJq],
-    {input:JSON.stringify(body),encoding:'utf8'});
-  assert.equal(out.status,0,'jq response parsing failed: '+out.stderr);
-  assert.equal(out.stdout.trim(),expected,
-    'Wrong Deployer response verdict for '+JSON.stringify(body));
-}
-
-
-assert(deployTrigger.includes("jq -s 'length'"),
-  'Valid JSON false/null must never be treated as a legacy non-JSON success');
-assert(deployTrigger.includes('type == "object"'),
-  'Only a single JSON object is a valid structured Deployer receipt');
-assert(deployTrigger.includes('Deployer returned an empty receipt.'),
-  'HTTP 200 with no receipt cannot prove that Deployer accepted the update');
-// Execute the real production receipt gate against offline fixtures. A bare
-// JSON false used to bypass jq -e . and enter the permissive legacy path.
-const receiptStart=deployTrigger.indexOf('if json_items="$(jq -s');
-assert(receiptStart>=0,'Expected strict JSON receipt parsing block');
+assert(!deployTrigger.includes('non-JSON body; accepted'),
+  'Arbitrary HTTP 200 text must never authorize a release');
+const receiptStart=deployTrigger.indexOf('if ! jq -s -e');
+assert(receiptStart>=0,'Expected exact JSON Deployer receipt gate');
 const receiptScript=deployTrigger.slice(receiptStart);
 const tmpDir=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'solar-deployer-receipt-'));
 try {
   for(const [name,body,allowed] of [
-    ['accepted', '{"success":true}', true],
-    ['explicit-rejection', '{"success":false}', false],
+    ['accepted', '{"success":true,"package_type":"theme","package_slug":"solar-expert-2","message":"Package updated successfully."}', true],
+    ['explicit-rejection', '{"success":false,"package_type":"theme","package_slug":"solar-expert-2"}', false],
+    ['wrong-theme', '{"success":true,"package_type":"theme","package_slug":"another-theme"}', false],
+    ['wrong-type', '{"success":true,"package_type":"plugin","package_slug":"solar-expert-2"}', false],
+    ['missing-success', '{"package_type":"theme","package_slug":"solar-expert-2"}', false],
+    ['missing-package', '{"success":true}', false],
+    ['success-as-string', '{"success":"true","package_type":"theme","package_slug":"solar-expert-2"}', false],
     ['bare-false', 'false', false],
     ['bare-null', 'null', false],
     ['json-array', '[]', false],
     ['json-string', '"success"', false],
-    ['multiple-json', '{"success":true}\n{"success":true}', false],
+    ['multiple-json', '{"success":false}\\n{"success":true,"package_type":"theme","package_slug":"solar-expert-2"}', false],
+    ['malformed-json', '{"success":true,"package_type":"theme",', false],
     ['empty-body', '', false],
-    ['legacy-text', 'OK: updated theme', true]
-  ]){
+    ['legacy-text', 'OK: updated theme', false],
+    ['fake-text', 'Unauthorized', false]
+  ]) {
     const fixture=path.join(tmpDir,name+'.txt');
     fs.writeFileSync(fixture,body);
-    const out=cp.spawnSync('bash',['-c','set -euo pipefail\n'+receiptScript],
+    const out=cp.spawnSync('bash',['-c','set -euo pipefail\\n'+receiptScript],
       {env:{...process.env,body_file:fixture},encoding:'utf8'});
     assert.equal(out.status===0,allowed,
       'Deployer receipt gate gave wrong verdict for '+name+': '+out.stdout+' '+out.stderr);
