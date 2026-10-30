@@ -63,6 +63,10 @@ function shellStep(name){
 // silently turns an explicit rejected deployment into success. Neither may
 // authorize managed-content mutation or public-live claims.
 const deployTrigger=shellStep('Trigger Deployer for Git');
+assert(deployTrigger.includes('git/ref/heads/dev') && deployTrigger.includes('remote_dev_sha') && deployTrigger.includes('remote_dev_sha\" != \"$GITHUB_SHA'),
+  'A queued stale workflow must not trigger Deployer for a newer dev branch');
+assert(deployTrigger.indexOf('remote_dev_sha') < deployTrigger.indexOf('body_file='),
+  'Verify dev HEAD before preparing or calling the production Deployer trigger');
 assert(deployTrigger.includes('curl -sS --max-redirs 0'),
   'Deployer trigger must not follow a redirect to an unrelated 200 page');
 assert(!deployTrigger.includes('curl -sSL'),
