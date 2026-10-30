@@ -1501,7 +1501,7 @@ assert(!autoDeploy.includes('.success // true'),'jq false // true must not hide 
 assert(autoDeploy.includes('curl -sS --max-redirs 0'),'Auto-deploy must not follow a redirect to a login or challenge page');
 assert(autoDeploy.includes('Deployer returned HTML instead of a deployment receipt'),'Auto-deploy must reject HTML masquerading as a successful trigger');
 assert(autoDeploy.includes('Deployer for Git failed with HTTP'),'Auto-deploy must fail on a non-200 Deployer response');
-assert(autoDeploy.includes('Deployer for Git rejected the deployment'),'Auto-deploy must fail on an explicit JSON rejection');
+assert(autoDeploy.includes('Deployer returned no exact successful Solar Expert theme receipt'),'Auto-deploy must reject explicit failures, malformed receipts and incorrect package targets');
 assert(autoDeploy.includes('package_slug'),'Auto-deploy diagnostics must expose the returned package slug without exposing the secret');
 assert(autoDeploy.includes('select(.name=="validate")'),'Auto-deploy must wait for the validate check');
 assert(autoDeploy.includes('/commits/${GITHUB_SHA}/pulls'),'Auto-deploy must resolve the merged PR for the dev commit');
