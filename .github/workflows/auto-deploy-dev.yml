@@ -175,32 +175,20 @@ jobs:
             exit 1
           fi
 
-          # Older/current plugin builds may return non-JSON bodies on success.
-          # jq's `false // true` is TRUE: preserve an explicit success=false.
-          # Reject malformed success fields; only the missing field is optional.
-          # jq -e . returns failure for valid JSON false/null. That must not
-          # fall through to the legacy non-JSON success path.
-          if json_items="$(jq -s 'length' "$body_file" 2>/dev/null)"; then
-            if [ "$json_items" != "1" ] || ! jq -e 'type == "object"' "$body_file" >/dev/null 2>&1; then
-              echo "::error::Deployer returned an invalid JSON receipt (expected one object)."
-              exit 1
-            fi
-            success="$(jq -r 'if has("success") then (.success == true) else true end' <"$body_file")"
-            message="$(jq -r '.message // ""' <"$body_file")"
-            package_type="$(jq -r '.package_type // ""' <"$body_file")"
-            package_slug="$(jq -r '.package_slug // ""' <"$body_file")"
-            echo "Deployer JSON: success=${success} package_type=${package_type:-unknown} package_slug=${package_slug:-unknown} message=${message:-none}"
-            if [ "$success" = "false" ]; then
-              echo "::error::Deployer for Git rejected the deployment: ${message:-unknown error}"
-              exit 1
-            fi
-          else
-            if [ ! -s "$body_file" ]; then
-              echo "::error::Deployer returned an empty receipt."
-              exit 1
-            fi
-            echo "Deployer returned HTTP 200 with a non-JSON body; accepted per plugin documentation."
+          # The actual production Deployer has returned structured JSON with
+          # success=true, package_type=theme and package_slug=solar-expert-2.
+          # A 200 response with HTML, text, malformed/multiple JSON objects,
+          # missing fields or a different package must NOT authorize content sync.
+          # Use slurp so a second JSON document cannot override a failure.
+          if ! jq -s -e 'length == 1 and (.[0] |
+            type == "object" and
+            .success == true and
+            .package_type == "theme" and
+            .package_slug == "solar-expert-2")' "$body_file" >/dev/null 2>&1; then
+            echo "::error::Deployer returned no exact successful Solar Expert theme receipt."
+            exit 1
           fi
+          echo "Deployer confirmed success=true package_type=theme package_slug=solar-expert-2."
 
       - name: Converge managed content
         id: content-sync
