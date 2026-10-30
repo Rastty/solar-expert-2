@@ -1496,7 +1496,7 @@ assert(autoDeploy.includes("package=solar-expert-2"),'Auto-deploy must target th
 assert(autoDeploy.includes("html.unescape"),'Auto-deploy must tolerate an HTML-escaped URL copied from the plugin UI');
 assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Deployer trigger must bypass intermediary caches without changing the endpoint query contract');
 assert(autoDeploy.includes('-w "%{http_code}"'),'Auto-deploy must validate Deployer HTTP status');
-assert(autoDeploy.includes('if has("success") then (.success == true) else true end'),'Auto-deploy must preserve explicit JSON success=false and reject malformed success fields');
+assert(autoDeploy.includes("jq -s -e 'length == 1") && autoDeploy.includes('.success == true') && autoDeploy.includes('.package_type == "theme"') && autoDeploy.includes('.package_slug == "solar-expert-2"'),'Auto-deploy must require one exact successful theme receipt, not arbitrary HTTP 200');
 assert(!autoDeploy.includes('.success // true'),'jq false // true must not hide an explicit rejected deployment');
 assert(autoDeploy.includes('curl -sS --max-redirs 0'),'Auto-deploy must not follow a redirect to a login or challenge page');
 assert(autoDeploy.includes('Deployer returned HTML instead of a deployment receipt'),'Auto-deploy must reject HTML masquerading as a successful trigger');
