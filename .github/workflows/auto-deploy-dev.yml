@@ -143,7 +143,7 @@ jobs:
           trigger_url="$(python -c 'import html, os; from urllib.parse import parse_qs, quote, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); params=parse_qs(urlsplit(raw).query, keep_blank_values=True); secret=(params.get("secret") or [""])[0]; assert secret, "Push-to-Deploy URL does not contain a secret query parameter"; print("https://solar-expert.cz/wp-json/dfg/v1/package_update?secret="+quote(secret, safe="")+"&type=theme&package=solar-expert-2")')"
           echo "::add-mask::$trigger_url"
 
-          http_code="$(curl -sSL --max-time 180 --retry 2 --retry-delay 3 \
+          http_code="$(curl -sS --max-redirs 0 --max-time 180 --retry 2 --retry-delay 3 \
             -H "Cache-Control: no-cache, no-store, max-age=0" \
             -H "Pragma: no-cache" \
             -o "$body_file" \
@@ -156,10 +156,18 @@ jobs:
             exit 1
           fi
 
+          # A redirected login/challenge page may return HTTP 200 but is not a
+          # Deployer receipt. Never follow redirects or accept an HTML page.
+          if grep -Eiq '^[[:space:]]*(<!doctype[[:space:]]+html|<html([[:space:]>]))' "$body_file"; then
+            echo "::error::Deployer returned HTML instead of a deployment receipt."
+            exit 1
+          fi
+
           # Older/current plugin builds may return non-JSON bodies on success.
-          # When a JSON contract is present, still honor an explicit success=false.
+          # jq's `false // true` is TRUE: preserve an explicit success=false.
+          # Reject malformed success fields; only the missing field is optional.
           if jq -e . >/dev/null 2>&1 <"$body_file"; then
-            success="$(jq -r '.success // true' <"$body_file")"
+            success="$(jq -r 'if has("success") then (.success == true) else true end' <"$body_file")"
             message="$(jq -r '.message // ""' <"$body_file")"
             package_type="$(jq -r '.package_type // ""' <"$body_file")"
             package_slug="$(jq -r '.package_slug // ""' <"$body_file")"
