@@ -66,7 +66,7 @@ function shellStep(name){
 // authorize managed-content mutation or public-live claims.
 const deployTrigger=shellStep('Trigger Deployer for Git');
 const mutatingCurlStart=deployTrigger.indexOf('http_code="$(curl');
-const mutatingCurlEnd=deployTrigger.indexOf('\\necho "Deployer HTTP status:',mutatingCurlStart);
+const mutatingCurlEnd=deployTrigger.indexOf('echo "Deployer HTTP status:',mutatingCurlStart);
 assert(mutatingCurlStart>=0&&mutatingCurlEnd>mutatingCurlStart,
   'Expected a bounded Deployer HTTP trigger');
 assert(!/--retry(?:[ =]|$)/m.test(deployTrigger.slice(mutatingCurlStart,mutatingCurlEnd)),
