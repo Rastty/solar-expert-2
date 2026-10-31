@@ -19,7 +19,8 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Validation polling + guarded Deployer + five public source-hash retries can exceed 15m.
+    timeout-minutes: 30
     env:
       DEPLOY_URL: ${{ secrets.SOLAR_EXPERT_DEPLOY_URL }}
       GH_TOKEN: ${{ github.token }}
