@@ -1514,7 +1514,9 @@ assert(!autoDeploy.includes('wp-cron.php?'),'Auto-deploy must not depend on WP-C
 assert(!autoDeploy.includes('doing_wp_cron=$(date'),'Auto-deploy must not forge the WordPress cron lock token');
 assert(autoDeploy.includes('deploy_probe=${GITHUB_SHA}'),'Auto-deploy health probes must use a unique release cache-buster');
 assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Auto-deploy health probes must explicitly bypass intermediary caches');
-assert(autoDeploy.includes('timeout-minutes: 15'),'Auto-deploy must leave enough time for asynchronous managed-content convergence');
+const deployTimeout=Number(autoDeploy.match(/^\s*timeout-minutes:\s*(\d+)\s*$/m)?.[1]);
+assert(Number.isInteger(deployTimeout)&&deployTimeout>=30&&deployTimeout<=60,
+  'Auto-deploy must allow full guarded verification while retaining a bounded timeout');
 assert(autoDeploy.includes('sleep 5'),'Auto-deploy must allow a short deploy switchover grace period');
 assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped to the dev branch');
 
