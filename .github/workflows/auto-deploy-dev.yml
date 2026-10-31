@@ -156,7 +156,9 @@ jobs:
           trigger_url="$(python -c 'import html, os; from urllib.parse import parse_qs, quote, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); params=parse_qs(urlsplit(raw).query, keep_blank_values=True); secret=(params.get("secret") or [""])[0]; assert secret, "Push-to-Deploy URL does not contain a secret query parameter"; print("https://solar-expert.cz/wp-json/dfg/v1/package_update?secret="+quote(secret, safe="")+"&type=theme&package=solar-expert-2")')"
           echo "::add-mask::$trigger_url"
 
-          http_code="$(curl -sS --max-redirs 0 --max-time 180 --retry 2 --retry-delay 3 \
+          # Do not replay an ambiguous production mutation on timeout/connection loss.
+          # A second Deployer GET could overlap the first still-running update.
+          http_code="$(curl -sS --max-redirs 0 --max-time 180 \
             -H "Cache-Control: no-cache, no-store, max-age=0" \
             -H "Pragma: no-cache" \
             -o "$body_file" \
