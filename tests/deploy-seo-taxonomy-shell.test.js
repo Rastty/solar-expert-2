@@ -65,6 +65,13 @@ function shellStep(name){
 // silently turns an explicit rejected deployment into success. Neither may
 // authorize managed-content mutation or public-live claims.
 const deployTrigger=shellStep('Trigger Deployer for Git');
+const mutatingCurlStart=deployTrigger.indexOf('http_code="$(curl');
+const mutatingCurlEnd=deployTrigger.indexOf('\\necho "Deployer HTTP status:',mutatingCurlStart);
+assert(mutatingCurlStart>=0&&mutatingCurlEnd>mutatingCurlStart,
+  'Expected a bounded Deployer HTTP trigger');
+assert(!/--retry(?:[ =]|$)/m.test(deployTrigger.slice(mutatingCurlStart,mutatingCurlEnd)),
+  'Do not replay an ambiguous production Deployer request after a timeout');
+
 // CI previously passed even though a new dev-ref curl command used doubled
 // backslashes at line ends. Bash -n accepts that, but execution treats the
 // following -H as a separate command and blocks every guarded live release.
