@@ -9,7 +9,7 @@ assert.ok(button, 'Quote Checker needs an explicit submit action');
 assert.match(template, /x-show="result"[^>]*x-ref="quoteResult"[^>]*tabindex="-1"[^>]*role="region"[^>]*aria-labelledby="se-quote-result-title"/);
 assert.ok(template.includes('id="se-quote-result-title" x-text="result?.status'), 'Result heading must label the focusable region');
 assert.match(template, /role="alert"/, 'Input errors must retain their alert');
-assert.equal(button[1], 'evaluate(); $nextTick(() => { if(result) $refs.quoteResult.focus({preventScroll:true}); })');
+assert.equal(button[1], 'evaluate(); $nextTick(() => { if(result) $refs.quoteResult.focus(); })');
 
 for (const valid of [true, false]) {
   const sandbox = { window: { dataLayer: [] } };
@@ -23,7 +23,7 @@ for (const valid of [true, false]) {
     get result() { return quote.result; },
     $nextTick(callback) { pending.push(callback); },
     $refs: { quoteResult: { focus(options) {
-      assert.equal(options.preventScroll, true);
+      assert.equal(options, undefined, 'Focus must scroll the newly revealed result into view');
       focusCalls++;
     } } }
   };
