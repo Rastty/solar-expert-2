@@ -193,8 +193,6 @@ jobs:
           fi
           echo "Deployer confirmed success=true package_type=theme package_slug=solar-expert-2."
 
-      # Deployer downloads a mutable branch ZIP, not an immutable commit. A
-      # new push during its HTTP request must not authorize a content POST.
       - name: Refuse managed-content writes after dev ref drift
         if: steps.config.outputs.enabled == 'true'
         shell: bash
