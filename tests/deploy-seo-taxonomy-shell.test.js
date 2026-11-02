@@ -72,6 +72,44 @@ assert(mutatingCurlStart>=0&&mutatingCurlEnd>mutatingCurlStart,
 assert(!/--retry(?:[ =]|$)/m.test(deployTrigger.slice(mutatingCurlStart,mutatingCurlEnd)),
   'Do not replay an ambiguous production Deployer request after a timeout');
 
+
+// Managed-content sync is a mutating POST. A 503 or transport failure may
+// arrive AFTER WordPress already applied part of the manifest. The release
+// must fail closed, not issue another POST based only on an ambiguous status.
+const contentSync=shellStep('Converge managed content');
+assert.match(contentSync,/if \[ "\$http_code" = "409" \] \|\| \[ "\$http_code" = "404" \]; then/,
+  'Only non-mutating readiness statuses may be retried');
+assert.match(contentSync,/if \[ "\$http_code" = "503" \] \|\| \[ "\$http_code" = "000" \]/,
+  'Ambiguous HTTP/transport statuses must have an explicit fail-closed branch');
+const syncProbeDir=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'solar-sync-no-replay-'));
+try {
+  for(const [status,expectedCalls] of [['503',1],['000',1],['',1],['409',12]]) {
+    const countFile=path.join(syncProbeDir,'calls-'+(status||'empty'));
+    const offlineScript=[
+      'set -euo pipefail',
+      'awk() { printf "0.12.27\\n"; }',
+      'jq() { printf "{}\\n"; }',
+      'mktemp() { printf "/tmp/solar-sync-offline-body"; }',
+      'sleep() { :; }',
+      'curl() { printf "call\\n" >> "$COUNT_FILE"; printf "%s" "$MOCK_CODE"; }',
+      contentSync
+    ].join('\\n');
+    const probe=cp.spawnSync('bash',['-c',offlineScript],{
+      encoding:'utf8',timeout:5000,
+      env:{...process.env,COUNT_FILE:countFile,MOCK_CODE:status,GITHUB_OUTPUT:path.join(syncProbeDir,'output')}
+    });
+    assert.notEqual(probe.status,0,'Ambiguous or unready sync must not claim a successful deploy: '+status);
+    const calls=fs.readFileSync(countFile,'utf8').trim().split('\\n').length;
+    assert.equal(calls,expectedCalls,'Unexpected replay count for HTTP '+(status||'empty'));
+    if(status==='503'||status==='000'||status===''){
+      assert.match(probe.stdout,/refusing automatic replay/,
+        'Ambiguous WordPress mutation must explain fail-closed recovery');
+    }
+  }
+} finally {
+  fs.rmSync(syncProbeDir,{recursive:true,force:true});
+}
+
 // CI previously passed even though a new dev-ref curl command used doubled
 // backslashes at line ends. Bash -n accepts that, but execution treats the
 // following -H as a separate command and blocks every guarded live release.
