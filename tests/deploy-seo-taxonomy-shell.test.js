@@ -76,6 +76,28 @@ assert(!/--retry(?:[ =]|$)/m.test(deployTrigger.slice(mutatingCurlStart,mutating
 // Managed-content sync is a mutating POST. A 503 or transport failure may
 // arrive AFTER WordPress already applied part of the manifest. The release
 // must fail closed, not issue another POST based only on an ambiguous status.
+// A mutable dev ref can advance while Deployer is downloading its ZIP.
+// Never run the subsequent mutating managed-content POST after that drift.
+const postDeployRef=shellStep('Refuse managed-content writes after dev ref drift');
+assert(releaseWorkflow.indexOf('- name: Trigger Deployer for Git') <
+       releaseWorkflow.indexOf('- name: Refuse managed-content writes after dev ref drift') &&
+       releaseWorkflow.indexOf('- name: Refuse managed-content writes after dev ref drift') <
+       releaseWorkflow.indexOf('- name: Converge managed content'),
+  'Recheck dev ref after Deployer and before any managed-content mutation');
+assert(postDeployRef.includes('post_deploy_dev_sha') &&
+       postDeployRef.includes('git/ref/heads/dev') &&
+       postDeployRef.includes('"$post_deploy_dev_sha" != "$GITHUB_SHA"'),
+  'A changed dev ref must fail closed before content sync');
+for(const [remoteSha,allowed] of [['expected-release-sha',true],['newer-unreviewed-sha',false]]) {
+  const probe=cp.spawnSync('bash',['-c',[
+    'set -euo pipefail',
+    'curl() { printf \'{"object":{"sha":"%s"}}\\n\' "$MOCK_REMOTE_SHA"; }',
+    postDeployRef
+  ].join('\\n')],{encoding:'utf8',env:{...process.env,MOCK_REMOTE_SHA:remoteSha,
+    GH_TOKEN:'offline-only',GITHUB_REPOSITORY:'Rastty/solar-expert-2',GITHUB_SHA:'expected-release-sha'}});
+  assert.equal(probe.status===0,allowed,
+    'Post-Deployer ref gate verdict for '+remoteSha+': '+probe.stdout+' '+probe.stderr);
+}
 const contentSync=shellStep('Converge managed content');
 assert.match(contentSync,/if \[ "\$http_code" = "409" \] \|\| \[ "\$http_code" = "404" \]; then/,
   'Only non-mutating readiness statuses may be retried');
