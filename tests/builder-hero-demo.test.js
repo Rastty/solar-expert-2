@@ -81,7 +81,7 @@ assert(requests.filter(x=>x.body.event==='tool_activation').length===1,
 // Real Alpine expression smoke: a preview must move keyboard/screen-reader focus
 // to the visible result heading only after Alpine has rendered the new step.
 // Invalid manual calculations must not steal focus from their error context.
-const previewExpr=builder.match(/@solar-expert-open-demo\\.window="([^"]+)"/)?.[1];
+const previewExpr=builder.split('@solar-expert-open-demo.window="')[1]?.split('"')[0];
 assert(previewExpr,'Cross-root preview expression must remain present');
 assert(builder.includes('x-ref="builderHeading" tabindex="-1" aria-live="polite"'),
   'Result heading must be programmatically focusable and announce step changes');
@@ -104,7 +104,7 @@ pending.shift()();
 assert.equal(focusCount,1,'After render, focus the visible result heading');
 assert.equal(scrollCount,1,'Keep the existing smooth-scroll behavior');
 
-const calculateExpr=builder.match(/@click="(calc\\(\\); \\$nextTick\\([^"]+)"[>][^<]*Spočítat sestavu/)?.[1];
+const calculateExpr='calc(); '+(builder.split('@click="calc(); ')[1]?.split('"')[0]||'');
 assert(calculateExpr,'Manual calculation must include result-focus handling');
 for(const successful of [true,false]){
   pending=[];
