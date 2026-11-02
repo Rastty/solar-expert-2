@@ -93,7 +93,7 @@ for(const [remoteSha,allowed] of [['expected-release-sha',true],['newer-unreview
     'set -euo pipefail',
     'curl() { printf \'{"object":{"sha":"%s"}}\\n\' "$MOCK_REMOTE_SHA"; }',
     postDeployRef
-  ].join('\\n')],{encoding:'utf8',env:{...process.env,MOCK_REMOTE_SHA:remoteSha,
+  ].join('\n')],{encoding:'utf8',env:{...process.env,MOCK_REMOTE_SHA:remoteSha,
     GH_TOKEN:'offline-only',GITHUB_REPOSITORY:'Rastty/solar-expert-2',GITHUB_SHA:'expected-release-sha'}});
   assert.equal(probe.status===0,allowed,
     'Post-Deployer ref gate verdict for '+remoteSha+': '+probe.stdout+' '+probe.stderr);
