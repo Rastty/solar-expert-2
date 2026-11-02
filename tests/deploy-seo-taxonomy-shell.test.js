@@ -93,13 +93,13 @@ try {
       'sleep() { :; }',
       'curl() { printf "call\\n" >> "$COUNT_FILE"; printf "%s" "$MOCK_CODE"; }',
       contentSync
-    ].join('\\n');
+    ].join('\n');
     const probe=cp.spawnSync('bash',['-c',offlineScript],{
       encoding:'utf8',timeout:5000,
       env:{...process.env,COUNT_FILE:countFile,MOCK_CODE:status,GITHUB_OUTPUT:path.join(syncProbeDir,'output')}
     });
     assert.notEqual(probe.status,0,'Ambiguous or unready sync must not claim a successful deploy: '+status);
-    const calls=fs.readFileSync(countFile,'utf8').trim().split('\\n').length;
+    const calls=fs.readFileSync(countFile,'utf8').trim().split('\n').length;
     assert.equal(calls,expectedCalls,'Unexpected replay count for HTTP '+(status||'empty'));
     if(status==='503'||status==='000'||status===''){
       assert.match(probe.stdout,/refusing automatic replay/,
