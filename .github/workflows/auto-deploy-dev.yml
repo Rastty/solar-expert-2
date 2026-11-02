@@ -227,10 +227,21 @@ jobs:
               break
             fi
 
-            if [ "$http_code" = "409" ] || [ "$http_code" = "404" ] || [ "$http_code" = "503" ] || [ "$http_code" = "000" ]; then
-              echo "Managed sync not ready yet (HTTP $http_code, attempt $attempt/12); retrying."
+            # A 409 lock/version conflict or 404 missing route is a known
+            # non-mutating readiness response. It is safe to wait for the
+            # freshly deployed handler, without replaying a completed write.
+            if [ "$http_code" = "409" ] || [ "$http_code" = "404" ]; then
+              echo "Managed sync not ready (HTTP $http_code, attempt $attempt/12); waiting."
               sleep 5
               continue
+            fi
+
+            # 503 and transport failures are ambiguous: WordPress may have
+            # already changed posts before the proxy timed out. Never replay
+            # the POST without a separate authenticated state reconciliation.
+            if [ "$http_code" = "503" ] || [ "$http_code" = "000" ] || [ -z "$http_code" ]; then
+              echo "::error::Ambiguous managed-content POST outcome (HTTP ${http_code:-none}); refusing automatic replay. Inspect read-only live health and rollback evidence."
+              exit 1
             fi
 
             echo "::error::Managed-content deploy sync failed with HTTP $http_code."
