@@ -18,12 +18,12 @@
     <div class="se-field"><label for="se-quote-price">Cena nabídky (Kč, volitelné)</label><input id="se-quote-price" class="se-input" type="number" min="0" step="1000" x-model.number="quotePrice"></div>
   </div>
 
-  <div class="se-actions"><button class="se-btn se-btn-primary" @click="evaluate()">Prověřit nabídku →</button><button class="se-btn" x-show="result || inputError" @click="reset()">Vymazat výsledek</button></div>
+  <div class="se-actions"><button class="se-btn se-btn-primary" @click="evaluate(); $nextTick(() => { if(result) $refs.quoteResult.focus({preventScroll:true}); })">Prověřit nabídku →</button><button class="se-btn" x-show="result || inputError" @click="reset()">Vymazat výsledek</button></div>
   <div class="se-note se-note-error" x-show="inputError" x-cloak style="margin-top:14px" role="alert"><span x-text="inputError"></span></div>
 
-  <div x-show="result" x-cloak style="margin-top:22px">
+  <div x-show="result" x-cloak x-ref="quoteResult" tabindex="-1" role="region" aria-labelledby="se-quote-result-title" style="margin-top:22px">
     <div class="se-quote-summary" :class="result?.status">
-      <strong x-text="result?.status==='pass'?'Základní sizing vypadá dobře':(result?.status==='warn'?'Nabídka potřebuje několik kontrol':'Nabídka má zásadní rozpor')"></strong>
+      <strong id="se-quote-result-title" x-text="result?.status==='pass'?'Základní sizing vypadá dobře':(result?.status==='warn'?'Nabídka potřebuje několik kontrol':'Nabídka má zásadní rozpor')"></strong>
       <span>Orientační cíle: <b x-text="result?.recommendedPanelWp"></b> Wp · <b x-text="result?.recommendedBatteryKwh"></b> kWh baterie · měnič ≥ <b x-text="result?.recommendedInverterW"></b> W · typicky <b x-text="result?.recommendedVoltage"></b> V · BMS orientačně ≥ <b x-text="result?.recommendedBmsA"></b> A.</span>
     </div>
     <div class="se-note se-quote-next" style="margin-top:14px">
