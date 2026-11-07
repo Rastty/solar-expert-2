@@ -67,10 +67,11 @@ def existing(content, *, id=1618):
 
 
 class FakeWordPress:
-    def __init__(self, *, existing_post=None, fail_write=False, recently_published=False):
+    def __init__(self, *, existing_post=None, fail_write=False, recently_published=False, missing_post_id=False):
         self.record = existing_post
         self.fail_write = fail_write
         self.recently_published = recently_published
+        self.missing_post_id = missing_post_id
         self.posts = 0
         self.reads = 0
 
@@ -100,7 +101,7 @@ class FakeWordPress:
             assert self.record is not None
             self.record = {**self.record, "content": {"raw": body["content"]},
                            "modified_gmt": "2026-11-07T12:03:00"}
-        return dict(self.record)
+        return {} if self.missing_post_id else dict(self.record)
 
 
 class PublisherTests(unittest.TestCase):
@@ -227,6 +228,21 @@ class PublisherTests(unittest.TestCase):
                 e.apply(self.m, d)
         self.assertEqual(wp.posts, 1)
         self.assertEqual(json.loads(self.report.read_text())["status"], "outcome_unknown_do_not_retry")
+
+
+    def test_post_without_response_id_is_uncertain_even_if_wordpress_wrote(self):
+        wp = FakeWordPress(missing_post_id=True)
+        d = e.sha(e.canonical(self.m))
+        with patch.object(e, "github_source", return_value=self.html), patch.object(e, "wp", new=wp):
+            e.prepare(self.m, d)
+            with patch.dict(os.environ, {"SOLAR_EDITORIAL_LIVE": "YES"}), self.assertRaises(e.Blocked):
+                e.apply(self.m, d)
+        self.assertEqual(wp.posts, 1, "Server made exactly one WordPress write")
+        self.assertIsNotNone(wp.record, "The actual server-side content may have been published")
+        receipt = json.loads(self.report.read_text())
+        self.assertEqual(receipt["status"], "outcome_unknown_do_not_retry")
+        self.assertEqual(receipt["writes_attempted"], 1)
+        self.assertEqual(receipt["reason"], "missing_post_id")
 
     def test_workflow_secret_scope_and_artifact_order(self):
         source = (e.ROOT / ".github/workflows/solar-editorial-publisher.yml").read_text()
