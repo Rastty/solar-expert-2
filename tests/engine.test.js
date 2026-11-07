@@ -19,6 +19,22 @@ const assert = (condition, message) => {
 };
 
 const catalog = require('./fixtures/catalog-20261014.json');
+// Preserve immutable October retailer prices/dates for legacy ranking
+// regressions while overlaying independently sourced, noncommercial
+// November 2026 PV Isc electrical specifications. Do not edit old snapshot
+// evidence or treat its 2026-10-14 timestamps as 2026-11-07 merchant checks.
+const currentElectricalSource = require('../data/product-seed.json').products;
+for (const product of catalog.products) {
+  const technical=currentElectricalSource.find(x=>x.id===product.id);
+  if(!technical)continue;
+  if(product.type==='mppt') {
+    if(!(Number(technical.max_pv_isc_a)>0))throw Error('Missing independently verified MPPT Isc for '+product.id);
+    product.max_pv_isc_a=technical.max_pv_isc_a;
+  }
+  if(product.type==='panel' && Number(technical.isc_a)>0){
+    product.isc_a=technical.isc_a;
+  }
+}
 const M = global.window.SolarExpertProductMatcher;
 const B = global.window.SolarExpertBundleComposer;
 const A = global.window.SolarExpertAffiliate;
