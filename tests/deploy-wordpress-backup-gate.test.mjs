@@ -53,7 +53,7 @@ ${bash()}`;
 function rejected(receipt,reason){
  const p=run(receipt);
  assert.notEqual(p.status,0,'Expected backup proof failure for '+reason);
- assert.match(p.stderr,/::error::/);
+ assert.match(p.stdout+p.stderr,/::error::/,'Fail-closed gate must emit a GitHub Actions error annotation');
  assert(!p.stdout.includes('attestation gate passed'),'An invalid receipt must not authorize release');
  const printed=p.stdout+p.stderr;
  assert(!printed.includes('private-host-db-restore-point-001'),'Never leak secret backup reference in logs');
