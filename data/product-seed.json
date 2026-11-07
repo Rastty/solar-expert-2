@@ -21,21 +21,21 @@
       "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-12-8--100ah--12-8v/",
       "price_czk": 8650,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-06",
+      "verified_at": "2026-11-07",
       "offers": [
         {
           "merchant": "battery-cz",
           "price_czk": 8650,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-12-8--100ah--12-8v/",
-          "verified_at": "2026-10-06"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "solar-import-cz",
           "price_czk": 8650,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-12-8--100ah--12-8v/",
-          "verified_at": "2026-10-06"
+          "verified_at": "2026-11-07"
         }
       ]
     },
@@ -53,26 +53,26 @@
       "max_discharge_a": 120,
       "max_charge_a": 100,
       "chemistry": "LiFePO4",
-      "availability": "in_stock",
+      "availability": "on_request",
       "price_czk_snapshot": 14690,
       "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
       "price_czk": 14690,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-06",
+      "verified_at": "2026-11-07",
       "offers": [
         {
           "merchant": "battery-cz",
           "price_czk": 14690,
-          "availability": "in_stock",
+          "availability": "on_request",
           "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
-          "verified_at": "2026-10-06"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "solar-import-cz",
           "price_czk": 14690,
-          "availability": "in_stock",
+          "availability": "on_request",
           "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
-          "verified_at": "2026-10-06"
+          "verified_at": "2026-11-07"
         }
       ]
     },
@@ -94,21 +94,21 @@
       "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp50-25-6--50ah--25-6v/",
       "price_czk": 8650,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-06",
+      "verified_at": "2026-11-07",
       "offers": [
         {
           "merchant": "battery-cz",
           "price_czk": 8650,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp50-25-6--50ah--25-6v/",
-          "verified_at": "2026-10-06"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "solar-import-cz",
           "price_czk": 8650,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp50-25-6--50ah--25-6v/",
-          "verified_at": "2026-10-06"
+          "verified_at": "2026-11-07"
         }
       ]
     },
@@ -130,21 +130,21 @@
       "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-25-6--100ah--25-6v/",
       "price_czk": 14690,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-05",
+      "verified_at": "2026-11-07",
       "offers": [
         {
           "merchant": "battery-cz",
           "price_czk": 14690,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-25-6--100ah--25-6v/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "solar-import-cz",
           "price_czk": 14690,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-25-6--100ah--25-6v/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         }
       ]
     },
@@ -175,7 +175,7 @@
           "price_czk": 22900,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "solar-import-cz",
@@ -187,7 +187,8 @@
       ],
       "parallel_max_units": 16,
       "parallel_evidence_url": "https://en.pylontech.com.cn/products/c23/134.html",
-      "parallel_verified_at": "2026-10-05"
+      "parallel_verified_at": "2026-10-05",
+      "verified_at": "2026-11-07"
     },
     {
       "id": "battery-seplos-pusung-48",
@@ -218,19 +219,20 @@
           "price_czk": 20990,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "solar-import-cz",
           "price_czk": 21834,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/seplos/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         }
       ],
       "parallel_max_units": 16,
       "parallel_evidence_url": "https://www.battery.cz/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
-      "parallel_verified_at": "2026-10-05"
+      "parallel_verified_at": "2026-10-05",
+      "verified_at": "2026-11-07"
     },
     {
       "id": "battery-seplos-polo-w-48",
@@ -289,21 +291,21 @@
       "price_czk": 2251,
       "price_mode": "snapshot",
       "cold_voc_factor": 1.12,
-      "verified_at": "2026-10-05",
+      "verified_at": "2026-11-07",
       "offers": [
         {
           "merchant": "solar-import-cz",
           "price_czk": 2251,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/ramove-male/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "battery-cz",
           "price_czk": 2496,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         }
       ]
     },
@@ -346,10 +348,10 @@
         "24": 580,
         "48": 1160
       },
-      "price_czk_snapshot": 2091,
+      "price_czk_snapshot": 2098,
       "availability": "in_stock",
       "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-20--12-24-48v--20a/",
-      "price_czk": 2091,
+      "price_czk": 2098,
       "price_mode": "snapshot",
       "min_pv_start_v_by_voltage": {
         "12": 17,
@@ -360,17 +362,17 @@
       "offers": [
         {
           "merchant": "solar-import-cz",
-          "price_czk": 2091,
+          "price_czk": 2098,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-20--12-24-48v--20a/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "battery-cz",
           "price_czk": 2091,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-20--12-24v--20a/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "vselektro-eu",
@@ -379,7 +381,8 @@
           "source_url": "https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-20a/",
           "verified_at": "2026-10-13"
         }
-      ]
+      ],
+      "verified_at": "2026-11-07"
     },
     {
       "id": "mppt-victron-100-30",
@@ -398,10 +401,10 @@
         "12": 440,
         "24": 880
       },
-      "price_czk_snapshot": 2984,
+      "price_czk_snapshot": 2995,
       "availability": "in_stock",
       "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
-      "price_czk": 2984,
+      "price_czk": 2995,
       "price_mode": "snapshot",
       "min_pv_start_v_by_voltage": {
         "12": 17,
@@ -411,17 +414,17 @@
       "offers": [
         {
           "merchant": "solar-import-cz",
-          "price_czk": 2984,
+          "price_czk": 2995,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "battery-cz",
           "price_czk": 2984,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "vselektro-eu",
@@ -430,7 +433,8 @@
           "source_url": "https://www.vselektro.eu/solarni-regulator-victron-energy-smartsolar-30a/",
           "verified_at": "2026-10-13"
         }
-      ]
+      ],
+      "verified_at": "2026-11-07"
     },
     {
       "id": "mppt-victron-100-50",
@@ -643,21 +647,21 @@
       "price_czk_snapshot": 7431,
       "price_czk": 7431,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-07",
+      "verified_at": "2026-11-07",
       "offers": [
         {
           "merchant": "solar-import-cz",
           "price_czk": 7431,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/off-grid/victron-energy-menic-napeti-sinus-phoenix-ve-direct-1200va-24v/",
-          "verified_at": "2026-10-07"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "battery-cz",
           "price_czk": 7431,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/menic-napeti-sinus-victron-energy-phoenix-ve-direct-1200va-24v/",
-          "verified_at": "2026-10-07"
+          "verified_at": "2026-11-07"
         }
       ]
     },
@@ -756,21 +760,21 @@
       "source_url": "https://www.solar-import.cz/hybridni/growatt-spf-3500es-menic-3-5kw-48v/",
       "price_czk": 11990,
       "price_mode": "snapshot",
-      "verified_at": "2026-10-06",
+      "verified_at": "2026-11-07",
       "offers": [
         {
           "merchant": "solar-import-cz",
           "price_czk": 11990,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/hybridni/growatt-spf-3500es-menic-3-5kw-48v/",
-          "verified_at": "2026-10-06"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "battery-cz",
           "price_czk": 11990,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/growatt-spf-3500es-menic-3-5kw-48v/",
-          "verified_at": "2026-10-06"
+          "verified_at": "2026-11-07"
         }
       ]
     },
@@ -796,21 +800,21 @@
         "mppt_v_max": 450,
         "charge_a_max": 100
       },
-      "verified_at": "2026-10-07",
+      "verified_at": "2026-11-07",
       "offers": [
         {
           "merchant": "solar-import-cz",
           "price_czk": 13490,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/growatt/growatt-spf-6000-es-plus-menic-6kw-48v/",
-          "verified_at": "2026-10-07"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "battery-cz",
           "price_czk": 13490,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/growatt-spf-6000-es-plus-menic-6kw-48v/",
-          "verified_at": "2026-10-07"
+          "verified_at": "2026-11-07"
         }
       ]
     },
@@ -932,21 +936,21 @@
       "price_mode": "snapshot",
       "availability": "in_stock",
       "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/",
-      "verified_at": "2026-10-05",
+      "verified_at": "2026-11-07",
       "offers": [
         {
           "merchant": "battery-cz",
           "price_czk": 4990,
           "availability": "in_stock",
           "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         },
         {
           "merchant": "solar-import-cz",
-          "price_czk": 6950,
+          "price_czk": 4990,
           "availability": "in_stock",
           "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/",
-          "verified_at": "2026-10-05"
+          "verified_at": "2026-11-07"
         }
       ]
     }
