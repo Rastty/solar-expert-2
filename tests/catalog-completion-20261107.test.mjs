@@ -58,10 +58,10 @@ test('second seller-page audit is exact, distinct and genuinely dated',()=>{
   }
  }
  assert.equal(seen.size,20);
- assert.equal(catalog.products.flatMap(p=>p.offers||[]).filter(o=>o.verified_at===CHECKED_AT).length,45);
+ assert.equal(catalog.products.flatMap(p=>p.offers||[]).filter(o=>o.verified_at===CHECKED_AT).length,48);
  const remaining=catalog.products.flatMap(p=>p.offers||[]).filter(o=>o.verified_at!==CHECKED_AT);
- assert.equal(remaining.length,3);
- assert.ok(remaining.every(o=>o.merchant==='vselektro-eu'&&o.verified_at==='2026-10-13'),'Never invent an audit of independent merchant');
+ assert.equal(remaining.length,0);
+ assert.ok(catalog.products.flatMap(p=>p.offers||[]).every(o=>o.verified_at===CHECKED_AT),'All independent third-party offers now have actual fresh seller-page evidence');
 });
 test('source product identity and bundle offer receipts',()=>{
  const p=catalog.products.find(p=>p.id==='battery-pylontech-us5000');
@@ -102,4 +102,23 @@ test('standalone POLO-W availability and incompatible lead-acid charger never be
  const rep=catalog.products.find(p=>p.id==='inverter-rogerele-rep1500-24');
  assert.equal(rep.availability,'in_stock','Refreshed stock can differ from historic quote');
  assert.equal(rep.tier,'reference','Stock alone does not promote an unreviewed recommendation tier');
+});
+
+test('three independent VSelektro MPPT product pages are independently dated, stocked and priced',()=>{
+ const verified=[
+   ['mppt-victron-100-20',2404,'https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-20a/'],
+   ['mppt-victron-100-30',3444,'https://www.vselektro.eu/solarni-regulator-victron-energy-smartsolar-30a/'],
+   ['mppt-victron-100-50',4946,'https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-50a/'],
+ ];
+ for(const [id,price,url] of verified){
+   const p=catalog.products.find(x=>x.id===id);
+   assert.ok(p,'VSelektro model exists: '+id);
+   const offer=p.offers.find(x=>x.merchant==='vselektro-eu');
+   assert.ok(offer);
+   assert.equal(offer.source_url,url,'Exact independent seller SKU');
+   assert.equal(offer.price_czk,price,'2026-11-07 public price including VAT');
+   assert.equal(offer.availability,'in_stock','Product page says Skladem');
+   assert.equal(offer.verified_at,CHECKED_AT,'True dated seller verification');
+ }
+ assert.equal(catalog.products.flatMap(p=>p.offers||[]).filter(x=>x.merchant==='vselektro-eu').length,3);
 });

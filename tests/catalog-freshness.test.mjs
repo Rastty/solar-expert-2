@@ -35,7 +35,9 @@ test('full catalog source and public-runtime mirror are equal and status totals 
   assert.equal(result.by_kind.product,48);
   assert.equal(result.by_kind.bundle,4);
   assert.equal(result.total_offers,52);
-  assert.equal(result.counts.expiring_soon,3,'The existing October 13 VSelektro source receipts need imminent recheck');
+  assert.equal(result.counts.expiring_soon,0,'All three independently verified VSelektro offers now have fresh 2026-11-07 evidence');
+  assert.equal(result.counts.fresh,52,'48 product offers and four bundle offers must all be date-fresh in the fully reverified source');
+  assert.equal(result.counts.stale,0,'No expired merchant evidence in final source as of November 7');
   assert.ok(result.attention.every(x=>x.state!=='fresh'));
   assert.ok(result.attention.every(x=>x.kind==='bundle'||x.kind==='product'));
   assert.ok(freshnessSummaryMarkdown(result).includes('catalog price evidence watch'));

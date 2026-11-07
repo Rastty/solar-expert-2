@@ -23,7 +23,7 @@ The watch runs on `dev` changes and by `workflow_dispatch` after it is reviewed 
 ## Current expected baseline
 
 - Before the catalog-refresh PR #146 lands in `dev`, the 2026-11-07 source snapshot has **45 stale product offers**, **4 stale bundle-deal offers**, and **3 VSelektro offers with October 13 verification approaching expiry**.
-- PR #146 provides **45 newly checked product offers, 4 checked bundle offers**, and retains the true **October 13** date for the remaining 3 independent-merchant VSelektro SKUs. Following that approved release the monitor will show those three as approaching expiry and later stale if no true recheck is performed.
+- PR #146 now provides **all 48 newly checked product merchant offers, plus 4 exact checked bundle-deal merchant listings**, including **3 independently rechecked VSelektro MPPT models** with matching 2026-11-07 public prices and stock. Following that approved release, **52/52** source offers are fresh as-of 2026-11-07 and next expire on **2026-12-09 00:00 UTC** if never reverified.
 - The watcher cannot establish product identity, VAT-inclusive price, stock, merchant affiliate attribution, or actual commission. A vendor's HTTP 200 is not evidence of those facts. Use exact retailer pages before updating the catalog.
 
 ## Release safety

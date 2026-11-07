@@ -41,7 +41,7 @@ First cohort: 25 exact product pages checked from the *retailer's own domain* on
 | `inverter-rogerele-rep2000-24` | battery-cz | 4990 | `in_stock` | 4990 | `in_stock` | [Exact product](https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/) |
 | `inverter-rogerele-rep2000-24` | solar-import-cz | 4990 | `in_stock` | 6950 | `in_stock` | [Exact product](https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/) |
 
-## Required release checks
+## First-cohort release checklist (historical; see completed cohorts below)
 
 1. Run catalog parity, matcher, seller attribution, source-host allowlist and seller-page freshness tests; no synthetic affiliate clicks.
 2. Verify the live catalog JSON and visible offer cards on Builder, Battery and MPPT Selector after approved release. A source commit is **not** a live WordPress update.
@@ -54,7 +54,7 @@ Issue: https://github.com/Rastty/solar-expert-2/issues/145
 
 Latest observed merchant-owned pages were checked on 2026-11-07 for model/SKU, public CZK price incl. VAT and explicit availability. No eHUB click/redirect, checkout, simulated visitor session or WordPress write was used. This supplements, not replaces, the first 25-offer batch above.
 
-- **48/48 product offer rows are inside the existing 30-day freshness window as of 2026-11-07:** 45 retailer listings checked today + 3 VSelektro MPPT listings last verified 2026-10-13, which must **not** be silently relabelled.
+- **48/48 product offer rows are inside the existing 30-day freshness window as of 2026-11-07:** 45 first/second-cohort listings checked today + 3 VSelektro independently rechecked on their exact vendor product pages in the third cohort documented below.
 - Both source and runtime JSON catalog mirrors contain the same 24 products, 48 offers and 2 bundle deals / 4 exact seller offers. The global `verifiedAt` stays 2026-10-07 since this is not an all-fields, all-merchants inventory refresh.
 - The separate **four bundle-deal retailer listings** were source-checked at 32,990 Kč per listing and marked `2026-11-07`. Bundle-stock evidence is independent of whether the standalone battery is available.
 - New stock alert: standalone **SEPLOS POLO-W** is `on_request` at both Battery.cz and Solar-Import.cz, so its catalog tier changes from `premium` to `reference`. Separate exact Polo-W + Growatt bundles are publicly `in_stock` (2 units), not a basis for pretending standalone units can be purchased.
@@ -102,7 +102,7 @@ Latest observed merchant-owned pages were checked on 2026-11-07 for model/SKU, p
 1. The PR branch is **code only**; do not claim public delivery, increased affiliate earnings or live commission attribution without guarded production deploy and real first-party outcome evidence.
 2. Confirm CI tests of the source/runtime mirror, all 45 dated newly reviewed product entries, 4 dated bundle offers, disabled on-request stock, and fail-closed charger chemistry. Keep historic engine fixtures isolated from the live-source snapshot.
 3. Resolve [release safety PR #142](https://github.com/Rastty/solar-expert-2/pull/142), independently approve its **current** head and verify persisted rollback availability before an authorized merge/release; then validate exact public SHA and live Buyer/Selector readback.
-4. Independently refresh **3 VSelektro offers** before the existing freshness window expires (13 November under the `>30` day logic). Maintain source-owned product details and no artificial eHub clicks.
+4. **Completed later that day:** all 3 VSelektro listings were rechecked against independent exact seller pages. See third cohort and dated source evidence below. No affiliate endpoint clicks.
 
 ### Changed source fields in second batch
 
@@ -114,3 +114,17 @@ Latest observed merchant-owned pages were checked on 2026-11-07 for model/SKU, p
 - `mppt-victron-250-100@solar-import-cz`: price 14246 → 14294; stock `in_stock` → `in_stock`
 - `inverter-kosun-12-1000@battery-cz`: price 6580 → 4990; stock `in_stock` → `in_stock`
 - `inverter-rogerele-rep1500-24@battery-cz`: price 4190 → 4190; stock `on_request` → `in_stock`
+
+## Third cohort: independent VSelektro MPPT offers (2026-11-07)
+
+Source ownership: **VS ELEKTRO PLUS s.r.o.**, an independent retail operator, not a second Efteria storefront. Seller-owned SKU pages were directly checked on **2026-11-07**; each product name/MPPT model, VAT-inclusive CZK price and **"Skladem"** stock label were individually verified. Affiliate redirect links were **not** followed. These three offer rows were last verified 2026-10-13; this **actual recheck** justifies moving their `verified_at` to 2026-11-07 without changing the three unchanged prices.
+
+| SKU | Retailer | Public CZK incl. VAT | Stock | Date updated | Exact primary product evidence |
+|---|---|---:|---|---|---|
+| `mppt-victron-100-20` | vselektro-eu | 2,404 Kč | Skladem | 2026-10-13 → 2026-11-07 | [Victron MPPT SmartSolar 100V/20A](https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-20a/) |
+| `mppt-victron-100-30` | vselektro-eu | 3,444 Kč | Skladem | 2026-10-13 → 2026-11-07 | [Victron MPPT SmartSolar 100V/30A](https://www.vselektro.eu/solarni-regulator-victron-energy-smartsolar-30a/) |
+| `mppt-victron-100-50` | vselektro-eu | 4,946 Kč | Skladem | 2026-10-13 → 2026-11-07 | [Victron MPPT SmartSolar 100V/50A](https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-50a/) |
+
+**Final measured source state:** 24 products, **48/48 individually verified product-level merchant offers**, all `verified_at=2026-11-07`, plus 2 sets with 4 individually verified exact merchant listings (`verified_at=2026-11-07`). Both catalog JSON mirrors are identical. As-of November 7, **52/52 offer entries are fresh by the engine's 30-day date rule**; this is **not** a guarantee that seller stock/price will remain unchanged or that public WordPress runs this branch. New verified prices become stale **2026-12-09 00:00 UTC** under the existing `ageDays > 30` rule if no further retailer verification is performed. The global `verifiedAt` stays **2026-10-07** because global metadata was not falsely refreshed.
+
+See also the separately proposed [automatic price-evidence watcher PR #147](https://github.com/Rastty/solar-expert-2/pull/147). It reports date-only freshness, not live current prices. Pending independent release approval / verified rollback and authorized WordPress deploy remain separate required gates.
