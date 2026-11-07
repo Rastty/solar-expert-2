@@ -72,7 +72,10 @@ test('backup signoff is mandatory BEFORE code archive and all Deployer operation
  assert(gate.index<snapshot.index);
  assert(snapshot.index<upload.index);
  assert(upload.index<mutation.index);
- assert.match(workflow,/WORDPRESS_BACKUP_RECEIPT: \$\{\{ secrets\.SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT \}\}/);
+ assert.match(gate.lines.join('\n'),/env:\s*WORDPRESS_BACKUP_RECEIPT: \$\{\{ secrets\.SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT \}\}/,
+   'The private receipt must be scoped only to the preflight step');
+ assert(!workflow.slice(0,workflow.indexOf('      - name: '+gateName)).includes('WORDPRESS_BACKUP_RECEIPT'),
+   'The private receipt must never be exposed job-wide to checkout/third-party actions');
  assert(!gate.lines.some(x=>x.includes('continue-on-error')),'The release guard cannot be advisory');
  assert(!/curl|wget|rm -rf|git push/.test(bash()),'Attestation is read-only');
 });
