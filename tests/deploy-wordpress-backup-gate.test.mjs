@@ -46,7 +46,7 @@ function run(receipt){
  const env={...process.env,
    GITHUB_SHA:'approved-pr-merge',
    WORDPRESS_BACKUP_RECEIPT:receipt===undefined?'':typeof receipt==='string'?receipt:JSON.stringify(receipt)};
- const code=`git(){ if [ "$1" = "rev-parse" ] && [ "$2" = "${GITHUB_SHA}^1" ]; then printf '%s\\n' old-dev-revision-verified-public; else return 91; fi; }
+ const code=`git(){ if [ "$1" = "rev-parse" ] && [ "$2" = "\${GITHUB_SHA}^1" ]; then printf '%s\\n' old-dev-revision-verified-public; else return 91; fi; }
 ${bash()}`;
  return cp.spawnSync('bash',['-c',code],{env,encoding:'utf8',timeout:8000});
 }
