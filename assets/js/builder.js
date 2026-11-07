@@ -121,6 +121,9 @@ window.solarExpertBuilder=function(){return{
   advanceToUsage(){
     this.inputError=this.validateSelections();
     if(this.inputError)return;
+    // The article link merely prefilled the second step. Count step_2
+    // only after this explicit continue click, not on page load.
+    if(this.articleExample)this.trackStep('step_2');
     this.step=3;
     this.trackStep('step_3');
   },
