@@ -9,9 +9,11 @@ globalThis.window={
 };
 require('../assets/js/product-matcher.js');
 require('../assets/js/affiliate-adapter.js');
+require('../assets/js/bundle-composer.js');
 
 const M=window.SolarExpertProductMatcher;
 const A=window.SolarExpertAffiliate;
+const B=window.SolarExpertBundleComposer;
 const todayUtc=()=>new Date().toISOString().slice(0,10);
 function offer(date,price=2499){
   return {
@@ -101,4 +103,23 @@ test('bundle offers use identical fail-closed evidence rules without losing merc
   const fresh=A.resolveBundleDealOffer(item,o);
   assert.equal(fresh.price_czk,9999);
   assert.equal(fresh.availability,'in_stock');
+});
+
+test('bundle discount is not permitted by a parent timestamp when merchant offer is unverified',()=>{
+ const components=['battery-example','inverter-example'];
+ const root={
+   id:'undated-discount',components,merchant:'battery-cz',
+   price_czk:10000,availability:'in_stock',verified_at:todayUtc(),
+   offers:[{merchant:'battery-cz',price_czk:10000,availability:'in_stock',verified_at:null}],
+ };
+ assert.equal(B.findBundleDeal([root],components,20000),null,'Fresh deal parent is not an offer-level verification');
+ for(const badDate of ['2000-01-01','2999-01-01','2026-02-31']){
+   const deal={...root,offers:[{...root.offers[0],verified_at:badDate}]};
+   assert.equal(B.findBundleDeal([deal],components,20000),null,'Invalid dated deal must never create a false discount');
+ }
+ const real={...root,offers:[{...root.offers[0],verified_at:todayUtc()}]};
+ const selected=B.findBundleDeal([real],components,20000);
+ assert.ok(selected);
+ assert.equal(selected.price_czk,10000);
+ assert.equal(selected.savings_czk,10000);
 });
