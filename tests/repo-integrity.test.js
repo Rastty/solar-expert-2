@@ -1496,9 +1496,12 @@ assert(autoDeploy.includes("package=solar-expert-2"),'Auto-deploy must target th
 assert(autoDeploy.includes("html.unescape"),'Auto-deploy must tolerate an HTML-escaped URL copied from the plugin UI');
 assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Deployer trigger must bypass intermediary caches without changing the endpoint query contract');
 assert(autoDeploy.includes('-w "%{http_code}"'),'Auto-deploy must validate Deployer HTTP status');
-assert(autoDeploy.includes("jq -r '.success // true'"),'Auto-deploy should honor an explicit JSON failure when the plugin returns JSON');
+assert(autoDeploy.includes("jq -s -e 'length == 1") && autoDeploy.includes('.success == true') && autoDeploy.includes('.package_type == "theme"') && autoDeploy.includes('.package_slug == "solar-expert-2"'),'Auto-deploy must require one exact successful theme receipt, not arbitrary HTTP 200');
+assert(!autoDeploy.includes('.success // true'),'jq false // true must not hide an explicit rejected deployment');
+assert(autoDeploy.includes('curl -sS --max-redirs 0'),'Auto-deploy must not follow a redirect to a login or challenge page');
+assert(autoDeploy.includes('Deployer returned HTML instead of a deployment receipt'),'Auto-deploy must reject HTML masquerading as a successful trigger');
 assert(autoDeploy.includes('Deployer for Git failed with HTTP'),'Auto-deploy must fail on a non-200 Deployer response');
-assert(autoDeploy.includes('Deployer for Git rejected the deployment'),'Auto-deploy must fail on an explicit JSON rejection');
+assert(autoDeploy.includes('Deployer returned no exact successful Solar Expert theme receipt'),'Auto-deploy must reject explicit failures, malformed receipts and incorrect package targets');
 assert(autoDeploy.includes('package_slug'),'Auto-deploy diagnostics must expose the returned package slug without exposing the secret');
 assert(autoDeploy.includes('select(.name=="validate")'),'Auto-deploy must wait for the validate check');
 assert(autoDeploy.includes('/commits/${GITHUB_SHA}/pulls'),'Auto-deploy must resolve the merged PR for the dev commit');
@@ -1511,7 +1514,9 @@ assert(!autoDeploy.includes('wp-cron.php?'),'Auto-deploy must not depend on WP-C
 assert(!autoDeploy.includes('doing_wp_cron=$(date'),'Auto-deploy must not forge the WordPress cron lock token');
 assert(autoDeploy.includes('deploy_probe=${GITHUB_SHA}'),'Auto-deploy health probes must use a unique release cache-buster');
 assert(autoDeploy.includes('Cache-Control: no-cache, no-store, max-age=0'),'Auto-deploy health probes must explicitly bypass intermediary caches');
-assert(autoDeploy.includes('timeout-minutes: 15'),'Auto-deploy must leave enough time for asynchronous managed-content convergence');
+const deployTimeout=Number(autoDeploy.match(/^\s*timeout-minutes:\s*(\d+)\s*$/m)?.[1]);
+assert(Number.isInteger(deployTimeout)&&deployTimeout>=30&&deployTimeout<=60,
+  'Auto-deploy must allow full guarded verification while retaining a bounded timeout');
 assert(autoDeploy.includes('sleep 5'),'Auto-deploy must allow a short deploy switchover grace period');
 assert(autoDeploy.includes('branches:\n      - dev'),'Auto-deploy must be scoped to the dev branch');
 

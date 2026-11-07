@@ -10,14 +10,17 @@ permissions:
   checks: read
   pull-requests: read
 
+# Never cancel a release after the Deployer trigger: a newer push must wait
+# for the previous release's health, public CTA and managed-content readback.
 concurrency:
   group: solar-expert-dev-auto-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Validation polling + guarded Deployer + five public source-hash retries can exceed 15m.
+    timeout-minutes: 30
     env:
       DEPLOY_URL: ${{ secrets.SOLAR_EXPERT_DEPLOY_URL }}
       GH_TOKEN: ${{ github.token }}
@@ -37,6 +40,10 @@ jobs:
       - name: Check out release
         if: steps.config.outputs.enabled == 'true'
         uses: actions/checkout@v5
+        with:
+          # The first parent of this PR merge is the previously reviewed dev source.
+          # Needed for exact, pre-mutation git archive and public hash readback.
+          fetch-depth: 2
 
       - name: Verify merge came from a previewed PR
         if: steps.config.outputs.enabled == 'true'
@@ -125,6 +132,147 @@ jobs:
             exit 1
           fi
 
+      - name: Require release-scoped WordPress database and uploads restore attestation
+        if: steps.config.outputs.enabled == 'true'
+        env:
+          WORDPRESS_BACKUP_RECEIPT: ${{ secrets.SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # This is an owner-controlled private attestation, NOT an automatic
+          # proof that backup bytes exist or that a restore actually worked.
+          # Each merge changes the previous-dev SHA, preventing simple reuse.
+          if [ -z "${WORDPRESS_BACKUP_RECEIPT:-}" ]; then
+            echo "::error::No release-scoped DB/uploads restore attestation. No Deployer call is permitted; see issue #148."
+            exit 1
+          fi
+
+          previous_sha="$(git rev-parse "${GITHUB_SHA}^1")"
+          if ! jq -e --arg previous "$previous_sha" '
+            type=="object" and
+            .site=="solar-expert.cz" and
+            .previous_dev_sha==$previous and
+            (.database_backup_ref | type=="string" and length>=8) and
+            (.uploads_backup_ref | type=="string" and length>=8) and
+            (.restore_rehearsal_ref | type=="string" and length>=8) and
+            (.restore_owner | type=="string" and length>=3) and
+            .database_and_uploads_restorable==true and
+            .staging_restore_passed==true and
+            (.backup_completed_at_utc | type=="string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")) and
+            (.restore_rehearsal_at_utc | type=="string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"))
+          ' <<<"$WORDPRESS_BACKUP_RECEIPT" >/dev/null 2>&1; then
+            echo "::error::Private backup receipt is missing fields, not approved, or does not match the prior dev commit. Deployment blocked."
+            exit 1
+          fi
+
+          backup_time="$(jq -r '.backup_completed_at_utc' <<<"$WORDPRESS_BACKUP_RECEIPT")"
+          drill_time="$(jq -r '.restore_rehearsal_at_utc' <<<"$WORDPRESS_BACKUP_RECEIPT")"
+          now_epoch="$(date -u +%s)"
+          if ! backup_epoch="$(date -u -d "$backup_time" +%s 2>/dev/null)" ||
+             ! drill_epoch="$(date -u -d "$drill_time" +%s 2>/dev/null)"; then
+            echo "::error::Backup/restore attestation timestamps are invalid."
+            exit 1
+          fi
+
+          # Require a recent real pre-release snapshot; a month-old backup or
+          # historic "we have backups" flag is not release-scoped evidence.
+          if [ "$backup_epoch" -gt "$now_epoch" ] ||
+             [ "$backup_epoch" -lt "$((now_epoch - 86400))" ]; then
+            echo "::error::DB/uploads backup receipt must be <=24h old, not future-dated. Deployment blocked."
+            exit 1
+          fi
+          if [ "$drill_epoch" -gt "$now_epoch" ] ||
+             [ "$drill_epoch" -lt "$((now_epoch - 2592000))" ]; then
+            echo "::error::Restore rehearsal attestation must be <=30 days old, not future-dated. Deployment blocked."
+            exit 1
+          fi
+
+          echo "Private release-scoped backup and restore attestation gate passed for preceding dev SHA. Backup bytes remain host-private; CI cannot independently certify their recoverability."
+
+      - name: Capture verified previous-theme rollback snapshot
+        if: steps.config.outputs.enabled == 'true'
+        id: rollback
+        shell: bash
+        run: |
+          set -euo pipefail
+          # A successful prior PR merge has a first parent representing dev
+          # immediately before this release. It is only a rollback candidate
+          # if the LIVE four-file fingerprint matches that exact parent.
+          previous_sha="$(git rev-parse "${GITHUB_SHA}^1")"
+          if ! git cat-file -e "${previous_sha}^{commit}" 2>/dev/null; then
+            echo "::error::Previous release commit is not available in checkout; refusing deployment."
+            exit 1
+          fi
+
+          archive_dir="${RUNNER_TEMP}/solar-expert-rollback"
+          mkdir -p "$archive_dir"
+          manifest="$archive_dir/live-source-sha256.txt"
+          : > "$manifest"
+          base="https://solar-expert.cz/wp-content/themes/solar-expert-2"
+
+          for relative in style.css assets/js/selectors.js assets/js/affiliate-adapter.js assets/data/product-seed.json; do
+            previous_file="$(mktemp)"
+            live_file="$(mktemp)"
+            if ! git show "${previous_sha}:${relative}" > "$previous_file"; then
+              echo "::error::Previous release is missing source: $relative"
+              exit 1
+            fi
+            expected="$(sha256sum "$previous_file" | cut -d' ' -f1)"
+            probe_url="${base}/${relative}?rollback_preflight=${GITHUB_SHA}&ts=$(date +%s)"
+            if ! curl -fsS --max-redirs 0 --max-time 30 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -o "$live_file" "$probe_url"; then
+              echo "::error::Cannot fetch current live rollback-source evidence: $relative"
+              exit 1
+            fi
+            actual="$(sha256sum "$live_file" | cut -d' ' -f1)"
+            rm -f "$previous_file" "$live_file"
+            if [ "$expected" != "$actual" ]; then
+              echo "::error::LIVE source differs from first-parent rollback candidate: $relative; do not deploy into an unknown state."
+              exit 1
+            fi
+            printf '%s  %s\n' "$expected" "$relative" >> "$manifest"
+            echo "Previous release public SHA256 matched: $relative."
+          done
+
+          git archive --format=tar.gz --prefix=solar-expert-2/ \
+            --output="$archive_dir/previous-theme-source.tar.gz" "$previous_sha"
+          test -s "$archive_dir/previous-theme-source.tar.gz"
+          # Verify the actual saved archive can restore each critical old file.
+          # The baseline manifest is derived from PREVIOUS git and public LIVE bytes;
+          # the tar extraction must independently hash to those exact values.
+          for relative in style.css assets/js/selectors.js assets/js/affiliate-adapter.js assets/data/product-seed.json; do
+            expected="$(awk -v name="$relative" '$2==name {print $1}' "$manifest")"
+            if [ -z "$expected" ]; then
+              echo "::error::Missing rollback-source manifest entry: $relative"
+              exit 1
+            fi
+            if ! recovered="$(tar -xOzf "$archive_dir/previous-theme-source.tar.gz" "solar-expert-2/$relative" | sha256sum | cut -d' ' -f1)"; then
+              echo "::error::Rollback archive cannot recover old source: $relative"
+              exit 1
+            fi
+            if [ "$recovered" != "$expected" ]; then
+              echo "::error::Rollback archive entry hash mismatch for $relative"
+              exit 1
+            fi
+          done
+          sha256sum "$archive_dir/previous-theme-source.tar.gz" > "$archive_dir/archive-sha256.txt"
+          printf 'previous_dev_commit=%s\nnew_release_commit=%s\nverified_public_files=4\n' \
+            "$previous_sha" "$GITHUB_SHA" > "$archive_dir/release-ids.txt"
+          printf 'Read-only previous-source code archive; NOT a full WordPress database/media/options backup.\nRollback is NOT performed automatically; require an independently approved restore runbook.\n' \
+            > "$archive_dir/RESTORE-LIMITATIONS.txt"
+          echo "previous_sha=$previous_sha" >> "$GITHUB_OUTPUT"
+          echo "Verified existing public theme matches prior dev commit $previous_sha; code rollback package prepared."
+
+      - name: Persist verified previous-theme rollback snapshot
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-expert-verified-predeploy-${{ github.run_id }}
+          path: ${{ runner.temp }}/solar-expert-rollback/
+          if-no-files-found: error
+          retention-days: 90
+
       - name: Trigger Deployer for Git
         if: steps.config.outputs.enabled == 'true'
         shell: bash
@@ -136,12 +284,26 @@ jobs:
           # after a push/merge, especially for larger repositories.
           sleep 15
 
+          # Deployer downloads the current dev branch, not this checkout.
+          # A queued older workflow must not deploy newer unverified files.
+          remote_dev_sha="$(curl -fsS --max-time 20 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/dev" | jq -er '.object.sha')"
+          if [ "$remote_dev_sha" != "$GITHUB_SHA" ]; then
+            echo "::error::dev advanced since this run; refusing stale Deployer trigger."
+            exit 1
+          fi
+
           body_file="$(mktemp)"
           python -c 'import html, os; from urllib.parse import parse_qs, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); p=urlsplit(raw); q=parse_qs(p.query, keep_blank_values=True); print("Deployer URL shape: scheme="+(p.scheme or "none")+" host="+(p.hostname or "none")+" path="+(p.path or "/")+" query_keys="+(",".join(sorted(q.keys())) or "none"))'
           trigger_url="$(python -c 'import html, os; from urllib.parse import parse_qs, quote, urlsplit; raw=html.unescape(os.environ["DEPLOY_URL"].strip()); params=parse_qs(urlsplit(raw).query, keep_blank_values=True); secret=(params.get("secret") or [""])[0]; assert secret, "Push-to-Deploy URL does not contain a secret query parameter"; print("https://solar-expert.cz/wp-json/dfg/v1/package_update?secret="+quote(secret, safe="")+"&type=theme&package=solar-expert-2")')"
           echo "::add-mask::$trigger_url"
 
-          http_code="$(curl -sSL --max-time 180 --retry 2 --retry-delay 3 \
+          # Do not replay an ambiguous production mutation on timeout/connection loss.
+          # A second Deployer GET could overlap the first still-running update.
+          http_code="$(curl -sS --max-redirs 0 --max-time 180 \
             -H "Cache-Control: no-cache, no-store, max-age=0" \
             -H "Pragma: no-cache" \
             -o "$body_file" \
@@ -154,20 +316,41 @@ jobs:
             exit 1
           fi
 
-          # Older/current plugin builds may return non-JSON bodies on success.
-          # When a JSON contract is present, still honor an explicit success=false.
-          if jq -e . >/dev/null 2>&1 <"$body_file"; then
-            success="$(jq -r '.success // true' <"$body_file")"
-            message="$(jq -r '.message // ""' <"$body_file")"
-            package_type="$(jq -r '.package_type // ""' <"$body_file")"
-            package_slug="$(jq -r '.package_slug // ""' <"$body_file")"
-            echo "Deployer JSON: success=${success} package_type=${package_type:-unknown} package_slug=${package_slug:-unknown} message=${message:-none}"
-            if [ "$success" = "false" ]; then
-              echo "::error::Deployer for Git rejected the deployment: ${message:-unknown error}"
-              exit 1
-            fi
-          else
-            echo "Deployer returned HTTP 200 with a non-JSON body; accepted per plugin documentation."
+          # A redirected login/challenge page may return HTTP 200 but is not a
+          # Deployer receipt. Never follow redirects or accept an HTML page.
+          if grep -Eiq '^[[:space:]]*(<!doctype[[:space:]]+html|<html([[:space:]>]))' "$body_file"; then
+            echo "::error::Deployer returned HTML instead of a deployment receipt."
+            exit 1
+          fi
+
+          # The actual production Deployer has returned structured JSON with
+          # success=true, package_type=theme and package_slug=solar-expert-2.
+          # A 200 response with HTML, text, malformed/multiple JSON objects,
+          # missing fields or a different package must NOT authorize content sync.
+          # Use slurp so a second JSON document cannot override a failure.
+          if ! jq -s -e 'length == 1 and (.[0] |
+            type == "object" and
+            .success == true and
+            .package_type == "theme" and
+            .package_slug == "solar-expert-2")' "$body_file" >/dev/null 2>&1; then
+            echo "::error::Deployer returned no exact successful Solar Expert theme receipt."
+            exit 1
+          fi
+          echo "Deployer confirmed success=true package_type=theme package_slug=solar-expert-2."
+
+      - name: Refuse managed-content writes after dev ref drift
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          post_deploy_dev_sha="$(curl -fsS --max-time 20 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/dev" | jq -er '.object.sha')"
+          if [ "$post_deploy_dev_sha" != "$GITHUB_SHA" ]; then
+            echo "::error::dev advanced during Deployer update; refuse managed-content POST. Inspect public source hashes and reconcile release before retry."
+            exit 1
           fi
 
       - name: Converge managed content
@@ -204,10 +387,21 @@ jobs:
               break
             fi
 
-            if [ "$http_code" = "409" ] || [ "$http_code" = "404" ] || [ "$http_code" = "503" ] || [ "$http_code" = "000" ]; then
-              echo "Managed sync not ready yet (HTTP $http_code, attempt $attempt/12); retrying."
+            # A 409 lock/version conflict or 404 missing route is a known
+            # non-mutating readiness response. It is safe to wait for the
+            # freshly deployed handler, without replaying a completed write.
+            if [ "$http_code" = "409" ] || [ "$http_code" = "404" ]; then
+              echo "Managed sync not ready (HTTP $http_code, attempt $attempt/12); waiting."
               sleep 5
               continue
+            fi
+
+            # 503 and transport failures are ambiguous: WordPress may have
+            # already changed posts before the proxy timed out. Never replay
+            # the POST without a separate authenticated state reconciliation.
+            if [ "$http_code" = "503" ] || [ "$http_code" = "000" ] || [ -z "$http_code" ]; then
+              echo "::error::Ambiguous managed-content POST outcome (HTTP ${http_code:-none}); refusing automatic replay. Inspect read-only live health and rollback evidence."
+              exit 1
             fi
 
             echo "::error::Managed-content deploy sync failed with HTTP $http_code."
@@ -336,6 +530,44 @@ jobs:
           fi
 
           echo "Production deploy verified: Solar Expert ${expected} is live and content sync is current."
+
+      - name: Verify public deployed source bytes
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://solar-expert.cz/wp-content/themes/solar-expert-2"
+          # Health version and rendered CTA alone cannot prove that the
+          # theme ZIP actually contained the expected source files.
+          for relative in style.css assets/js/selectors.js assets/js/affiliate-adapter.js assets/data/product-seed.json; do
+            if [ ! -f "$relative" ]; then
+              echo "::error::Release source file missing from checkout: $relative"
+              exit 1
+            fi
+            expected="$(sha256sum "$relative" | cut -d' ' -f1)"
+            verified=0
+            for attempt in {1..6}; do
+              body_file="$(mktemp)"
+              url="${base}/${relative}?source_hash_probe=${GITHUB_SHA}&attempt=${attempt}"
+              if curl -fsS --max-redirs 0 --max-time 30 \
+                -H "Cache-Control: no-cache, no-store, max-age=0" \
+                -o "$body_file" "$url"; then
+                actual="$(sha256sum "$body_file" | cut -d' ' -f1)"
+                if [ "$actual" = "$expected" ]; then
+                  verified=1
+                  rm -f "$body_file"
+                  break
+                fi
+              fi
+              rm -f "$body_file"
+              sleep 10
+            done
+            if [ "$verified" != "1" ]; then
+              echo "::error::Public theme source hash did not match checked-out release: $relative"
+              exit 1
+            fi
+            echo "Verified public source SHA256 for $relative."
+          done
 
       - name: Flush IndexNow discovery queue
         if: steps.config.outputs.enabled == 'true'

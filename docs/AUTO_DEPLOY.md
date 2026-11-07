@@ -20,17 +20,39 @@ The workflow:
 1. verifies the `dev` commit came from a merged pull request; direct pushes to `dev` are not auto-deployed;
 2. waits for **Validate Solar Expert** (`validate`) on the merge commit;
 3. resolves the merged PR head and requires its **WordPress Playground Preview** (`preview`) to be successful;
-4. calls the secret Deployer for Git Push-to-Deploy URL;
-5. polls `/wp-json/solar-expert/v1/health`;
-6. succeeds only when the live theme version matches `style.css`, managed content is current and sync errors are zero.
+4. requires the release-scoped private database/uploads backup receipt and staging-restore attestation; then snapshots previous live theme source before mutations;
+5. calls the secret Deployer for Git Push-to-Deploy URL;
+6. polls `/wp-json/solar-expert/v1/health`;
+7. succeeds only when the live theme version matches `style.css`, managed content is current and sync errors are zero.
 
 If `SOLAR_EXPERT_DEPLOY_URL` is not configured, the workflow exits safely without deploying.
+
+## Mandatory pre-release WordPress database + media recovery attestation
+
+A release is **blocked before the first Deployer request** unless the private GitHub Actions secret `SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT` contains a valid owner-attested snapshot **for this exact previous `dev` commit**, backed by BOTH a database and `wp-content/uploads` backup no older than 24 hours and a successful staging restore rehearsal no older than 30 days. Missing evidence, wrong SHA, stale timestamps, missing upload copy or a failed rehearsal **hard fail the release**. The guard is checked even when the Deployer webhook secret is configured.
+
+This is a **private administrator attestation** and a replay-resistant code safety check, not proof that GitHub examined actual database/media backup bytes or performed a real restoration. **Do not invent an attestation before host-level backup and staging restore have actually been verified.** Complete receipt format and workflow: [WordPress Restore Attestation](WORDPRESS_RESTORE_ATTESTATION.md) and [issue #148](https://github.com/Rastty/solar-expert-2/issues/148).
+
+**Offline regression:** `node --test tests/deploy-wordpress-backup-gate.test.mjs` executes the actual inline Bash preflight with mocked sources and rejects missing, stale, malformed, wrongly bound and unapproved backup receipts.
+
+## Verified previous-theme source package — pre-deploy gate
+
+Before **any** Deployer request on an approved `dev` PR merge, the guarded workflow now:
+
+1. Uses the merge commit's **first parent** as a previous-code rollback *candidate*, fetched with `actions/checkout` depth 2.
+2. Fetches four real public live theme files via cache-busted, read-only URLs: `style.css`, `assets/js/selectors.js`, `assets/js/affiliate-adapter.js`, and `assets/data/product-seed.json`. Each **SHA256 must equal the byte content from that candidate Git commit**, not just a reused theme version string. A missing file, unexpected redirect, transport failure or changed hash **blocks the release before WordPress is mutated**.
+3. Creates a `git archive` snapshot from that exact old Git commit and an SHA256 manifest with its public verification fingerprint, two commit IDs and explicit restore limitations.
+4. Uploads the source package as `solar-expert-verified-predeploy-<run-id>`, retained for **90 days**. The **upload must succeed before Deployer can be triggered**; no secrets, private WP affiliate options, WordPress database or customer files are included.
+
+This is **persisted previous-theme CODE evidence, not a verified end-to-end WordPress rollback**. A code archive alone does not restore the managed-post database, private affiliate settings or content-sync side effects. Before authorizing a live release, maintain a separately reviewed/verified *WordPress content/data rollback procedure*, including the ability to restore the pre-release database or safely reconcile post state. If the prior live state differs from Git's first parent, investigate the source drift; never override the mismatch just to ship.
+
+**Offline regression:** `node --test tests/deploy-rollback-evidence.test.mjs` executes the real preflight shell against mocked prior git/public live bytes, checking both successful archive creation and fail-closed mismatch/unknown-parent cases. It never calls an actual production endpoint.
 
 ## Rollback
 
 Production remains repo-driven. If a release is bad, revert the offending commit(s) on `dev`. The same gated auto-deploy path will ship the reverted state after CI passes.
 
-For an urgent manual fallback, use Deployer for Git's normal Pull/Update action.
+For an urgent manual fallback, use Deployer for Git's normal Pull/Update action. **This manual WordPress action bypasses the GitHub Actions restore-receipt gate. It must not be used to work around missing database/uploads backup or an untested restore; the operator must verify the same safeguards independently before taking it.**
 
 ## Safety rule
 
