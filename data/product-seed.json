@@ -44,7 +44,7 @@
       "type": "battery",
       "merchant": "battery-cz",
       "sku": "E8284",
-      "tier": "best",
+      "tier": "reference",
       "name": "GOOWEI ENERGY CNLFP200-12.8 12.8V 200Ah",
       "system_voltage_class": 12,
       "nominal_voltage_v": 12.8,
