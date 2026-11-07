@@ -8,6 +8,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const vm=require('node:vm');
 const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
 
 global.window={
@@ -108,6 +109,45 @@ async function main(){
  assert.equal(fromGuide.dailyWh,1448);
  assert.equal(window.dataLayer.filter(e=>e.event==='solar_builder_complete').length,0,
    'Quick preview must not claim personalized Builder completion');
+
+ // Real frontend attribution, not a fabricated server referral. The direct
+ // article link must be counted only AFTER a real visitor click; query/fragment
+ // must not make the destination fail the same-origin route allowlist.
+ const listenerMap={};
+ const requests=[];
+ const articleLocation={
+   href:'https://solar-expert.cz/solarni-sestava-na-chatu-pro-lednici/',
+   pathname:'/solarni-sestava-na-chatu-pro-lednici/',
+   origin:'https://solar-expert.cz'
+ };
+ const analyticDocument={
+   readyState:'complete',body:{},
+   querySelector(){return null;},
+   querySelectorAll(){return [];},
+   addEventListener(type,callback){(listenerMap[type]||(listenerMap[type]=[])).push(callback);}
+ };
+ const analyticWindow={
+   location:articleLocation,dataLayer:[],
+   SolarExpertAnalyticsConfig:{endpoint:'/wp-json/solar-expert/v1/track'}
+ };
+ vm.runInNewContext(read('assets/js/analytics.js'),{
+   window:analyticWindow,document:analyticDocument,URL,console,
+   fetch(url,options){requests.push({url,body:JSON.parse(options.body)});return Promise.resolve({ok:true});},
+   setTimeout(){return 1;},clearTimeout(){}
+ },{filename:'analytics.js'});
+ assert.equal(requests.length,0,'Rendering an article link must not fabricate a referral click');
+ const targetHref='https://solar-expert.cz/solarni-sestava-na-chatu/?scenario=fridge230#builder';
+ for(const callback of listenerMap.click||[]){
+   callback({target:{closest(selector){return selector==='a[href]'?{href:targetHref}:null;}}});
+ }
+ const inboundClicks=requests.filter(x=>x.body.event==='tool_referral_click');
+ assert.equal(inboundClicks.length,1,'One actual article click must count exactly one tool referral');
+ assert.equal(inboundClicks[0].body.tool,'builder','Query/fragment must retain owned Builder route');
+ assert.equal(inboundClicks[0].body.page,'solarni-sestava-na-chatu-pro-lednici',
+   'First-party analytics must attribute the referral to the actual buyer guide');
+ assert.equal(requests.filter(x=>x.body.event==='affiliate_click').length,0,
+   'Article navigation is not an affiliate click or sale');
+
  console.log('PASS: fridge article 850Wh model, strict token, honest prefill, editable watts, no synthetic starts, reset and surge guard');
 }
 main().catch(err=>{console.error(err);process.exitCode=1;});
