@@ -2,7 +2,8 @@
 
 <div class="se-note"><strong>Rychlá orientace pro jeden panel 400 W:</strong> U <strong>12 V</strong> je Victron SmartSolar 100/30 výkonově blízko jmenovité hodnotě (440 Wp při 12 V), model 100/50 nabízí větší rezervu. <strong>100/20 je pro 400 Wp na 12 V pod jmenovitým výkonem</strong> (290 Wp) a může omezovat výstup; není to automaticky vadný nebo nebezpečný návrh, ale je třeba zkontrolovat podmínky výrobce. U <strong>24 V</strong> má 100/20 jmenovitý FV výkon 580 Wp, takže jeden 400W panel může výkonově stačit, pokud vyhoví Voc, Isc a startovací Vmp. Bez parametrů panelu a baterie nejde žádný model označit za univerzálně vhodný.</div>
 
-<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Zadat Voc, Vmp a výkon do MPPT kalkulačky →</a></p>
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/?scenario=mppt400">Otevřít model 400 W / 24 V v MPPT kalkulačce →</a></p>
+<p class="se-muted"><small>Model předvyplní <strong>24V baterii, jeden 400Wp panel, Voc 49 V, Vmp 40 V a Isc 11 A</strong>. Jde o ilustrační elektrické údaje, nikoliv datasheet libovolného 400W panelu. Ve vlastním výpočtu přepište Voc, Vmp i <strong>Isc</strong> podle štítku a nastavte skutečný počet paralelních stringů. Přechod na nástroj není automatický nákup ani potvrzení kompatibility.</small></p>
 
 <h2>Victron SmartSolar 100/20 vs 100/30 vs 100/50</h2>
 <p>Čísla 100/20 znamenají <strong>100 V maximální FV Voc</strong> a <strong>20 A jmenovitého nabíjecího proudu</strong>, nikoliv „panel s napětím 100 V“. Hodnoty v tabulce jsou specifikace výrobců pro příslušnou produktovou řadu, ne měření výkonu na naší instalaci.</p>
@@ -38,7 +39,7 @@
 <p>Celkem 800 Wp. Pro 12V baterii je 100/30 (440 Wp) silně pod výkonem pole a i 100/50 (700 Wp) může špičky omezit. Pro 24V baterii má 100/30 výkonovou kapacitu 880 Wp, avšak <strong>zapojení 2S může za mrazu překročit 100V Voc</strong> podle typu panelu; u 2P se zase sečte Isc. Nepoužívejte hotovou kombinaci bez elektrického ověření.</p>
 
 <div class="se-note">
-<strong>Chcete už konkrétní produkt a obchod?</strong> <a href="/mppt-kalkulacka/">MPPT kalkulačka</a> zkontroluje základní proudové a napěťové podmínky, pak nabídne odpovídající modely a odkazy na aktuálně evidované obchody včetně nezávislého VSelektro. <strong>Nedoporučujeme regulátor jen podle výše provize.</strong> Ceny jsou datované orientační snapshoty; finální parametry a sklad ověřte na stránce prodejce.
+<strong>Chcete už konkrétní produkt a obchod?</strong> <a href="/mppt-kalkulacka/">MPPT kalkulačka</a> zkontroluje základní výkonové, napěťové a Isc limity podle vašeho počtu paralelních větví, pak nabídne odpovídající modely a odkazy na aktuálně evidované obchody včetně nezávislého VSelektro. <strong>Nedoporučujeme regulátor jen podle výše provize.</strong> Ceny jsou datované orientační snapshoty; finální parametry a sklad ověřte na stránce prodejce.
 </div>
 
 <h2>Časté otázky</h2>
@@ -49,4 +50,4 @@
 <h3>Je rozdíl mezi MPPT 100/30 a MPPT 150/35?</h3>
 <p>Ano. „150“ znamená vyšší dovolené maximální FV napětí, což může být rozhodující pro delší sériové stringy. Nestačí porovnat jen nabíjecí proud; opět rozhoduje datasheet konkrétního regulátoru.</p>
 
-<p class="se-muted"><small>Redakční kontrola: 13. 10. 2026. Modelové scénáře nejsou montážním návodem. Návrh jištění, průřezů, ochrany proti úrazu a bezpečné připojení akumulátoru vyžaduje odborné posouzení.</small></p>
+<p class="se-muted"><small>Redakční kontrola technických tvrzení: 13. 10. 2026; kontrola Isc podle manuálů výrobce a nový bezpečný příklad pro MPPT kalkulačku: 7. 11. 2026. Modelové scénáře nejsou montážním návodem. Návrh jištění, průřezů, ochrany proti úrazu a bezpečné připojení akumulátoru vyžaduje odborné posouzení.</small></p>
