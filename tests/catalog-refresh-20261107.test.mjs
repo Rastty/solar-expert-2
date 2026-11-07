@@ -43,15 +43,15 @@ const checked=[
  ['inverter-growatt-48-6000','solar-import-cz',13490,'in_stock'],
 ];
 
-test('runtime and source catalogs remain byte-identical; do not claim full audit',()=>{
+test('runtime and source catalogs remain byte-identical; preserve source/runtime mirror and whole-catalog date',()=>{
  assert.equal(runtime,raw);
  assert.equal(catalog.products.length,24);
  assert.equal(catalog.verifiedAt,'2026-10-07','Partial recheck must not move whole-catalog verification date');
  assert.equal(catalog.bundle_deals.length,2,'Original bundle deals must stay distinct, not silently refreshed');
- assert.ok(catalog.bundle_deals.every(d=>d.offers.every(o=>o.verified_at==='2026-10-07')),'Bundles were not checked and their evidence date must remain unchanged');
+ assert.ok(catalog.bundle_deals.every(d=>d.offers.every(o=>o.verified_at===AUDIT_DAY)),'All four bundle offers have new source-page evidence');
 });
 
-test('only 25 exact retailer offers have 2026-11-07 price, stock and source evidence',()=>{
+test('first 25 exact retailer offers retain the initial 2026-11-07 evidence',()=>{
  assert.equal(CHECKED_SIZE(),25);
  const observed=new Set();
  for(const [id,merchant,price,stock] of checked){
@@ -70,7 +70,7 @@ test('only 25 exact retailer offers have 2026-11-07 price, stock and source evid
    assert.equal(url.hostname,merchant==='battery-cz'?'www.battery.cz':'www.solar-import.cz');
    assert.ok(!url.searchParams.has('desturl')&&!url.hostname.includes('ehub'),'No affiliate tracking request in evidence');
  }
- assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===AUDIT_DAY)).length,25,'Never advance unobserved snapshots');
+ assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===AUDIT_DAY)).length,45,'Only 45 exact merchant rows were checked, not three old VSelektro snapshots');
  assert.equal(new Set(checked.map(x=>x[0])).size,13);
  for(const id of new Set(checked.map(x=>x[0]))){
    const product=catalog.products.find(x=>x.id===id);
@@ -93,21 +93,18 @@ test('seller on-request signal prevents unsupported 12V ready-to-buy bank',()=>{
  assert.ok(!candidates.some(x=>x.product.id===product.id),'Do not recommend unstocked 12V 200Ah battery');
 });
 
-test('actual 30-day gate: 28 fresh, 20 stale product offers on 2026-11-07',()=>{
+test('actual 30-day gate: all 48 product offers fresh as-of 2026-11-07 and expire automatically',()=>{
  const offers=catalog.products.flatMap(p=>p.offers||[]);
  assert.equal(offers.length,48);
  const now='2026-11-07T12:00:00Z';
- const fresh=offers.filter(o=>M.verificationState(o.verified_at,now)==='fresh');
- const stale=offers.filter(o=>M.verificationState(o.verified_at,now)==='stale');
- assert.equal(fresh.length,28);
- assert.equal(stale.length,20);
- const stalePrice=catalog.products.find(x=>x.id==='mppt-victron-100-50').offers.find(x=>x.merchant==='battery-cz');
- assert.equal(M.verificationState(stalePrice.verified_at,now),'stale');
- // Evaluate with the real wall clock too: expired offer prices must never leak.
- if(M.verificationState(stalePrice.verified_at)==='stale'){
-   const resolved=A.resolveOffer(catalog.products.find(x=>x.id==='mppt-victron-100-50'),stalePrice);
-   assert.equal(resolved.price_czk,null,'Old public price must remain suppressed');
- }
- assert.equal(M.verificationState(AUDIT_DAY,'2026-12-09T00:00:00Z'),'stale','New snapshots must age out automatically');
- assert.equal(M.verificationState('2000-01-01',now),'stale');
+ assert.equal(offers.filter(o=>M.verificationState(o.verified_at,now)==='fresh').length,48);
+ assert.equal(offers.filter(o=>M.verificationState(o.verified_at,now)==='stale').length,0);
+ const vselektro=offers.filter(o=>o.merchant==='vselektro-eu');
+ assert.equal(vselektro.length,3);
+ assert.ok(vselektro.every(o=>o.verified_at==='2026-10-13'),'Do not falsely refresh VSelektro');
+ assert.equal(M.verificationState(AUDIT_DAY,'2026-12-09T00:00:00Z'),'stale','New checks must expire');
+ assert.equal(M.verificationState('2026-10-13','2026-11-14T00:00:00Z'),'stale','VSelektro offers must expire soon');
+ const synthetic={id:'old-price',type:'battery',offers:[{merchant:'battery-cz',price_czk:1,availability:'in_stock',source_url:'https://www.battery.cz/sku/',verified_at:'2000-01-01'}]};
+ assert.equal(M.verificationState(synthetic.offers[0].verified_at,now),'stale');
+ assert.equal(A.resolveOffer(synthetic,synthetic.offers[0]).price_czk,null,'Stale prices must stay hidden');
 });
