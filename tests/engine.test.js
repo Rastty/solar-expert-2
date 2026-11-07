@@ -1,3 +1,9 @@
+// Legacy economic baseline uses October 2026 catalogue offer snapshots.
+// This regression exercises deterministic compatibility and historical
+// ranking, not fresh November retailer prices. Freeze only this legacy
+// test clock; CURRENT merchant evidence belongs to separate live audits.
+const {mock}=require('node:test');
+mock.timers.enable({apis:['Date'],now:new Date('2026-10-14T12:00:00Z')});
 global.window = {SolarExpertConfig:{affiliateMap:{products:{},leads:{}},affiliateBases:{}}};
 require('../assets/js/affiliate-adapter.js');
 require('../assets/js/product-matcher.js');
