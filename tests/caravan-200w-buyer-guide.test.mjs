@@ -58,6 +58,18 @@ test('published solar kit guide adds one relevant 12V caravan buyer bridge',()=>
    'A linked caravan shopping guide must not imply hardware certification');
 });
 
+test('published 400Wp MPPT guide does not claim unshipped Isc checks',()=>{
+ const article=read('content/rewrites/jak-vybrat-mppt-regulator-pro-400w-panel.html');
+ assert(article.includes('současná veřejná kalkulačka zatím automaticky neověřuje Isc panelů ani počet paralelních stringů'),
+   'Live MPPT tool lacks this feature until guarded technical PR #150 releases');
+ assert(article.includes('maximální vstupní Isc regulátoru ověřte samostatně před nákupem'),
+   'Explain how buyer must verify PV Isc without risking unverified equipment');
+ assert(!article.includes('zkontroluje základní proudové a napěťové podmínky'),
+   'Ambiguous current wording can imply false PV Isc verification and unsafe purchase');
+ assert(article.includes('včetně nezávislého VSelektro'),
+   'Do not remove valid verified independent retailer discovery when clarifying safety');
+});
+
 test('model calculations and limits are transparent, not claimed as observed output',()=>{
  for(const part of ['0,20 kWp × 3,5 h × 0,75 = 0,525 kWh','525 Wh','338 Wh','12,8 V','640 Wh','1 280 Wh','461 Wh','922 Wh','25,5 × 1,12 = 28,56 V','Isc 9,17 A']){
    assert(article.includes(part),'Model math or safety note missing: '+part);
