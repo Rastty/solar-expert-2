@@ -26,6 +26,19 @@ The workflow:
 
 If `SOLAR_EXPERT_DEPLOY_URL` is not configured, the workflow exits safely without deploying.
 
+## Verified previous-theme source package — pre-deploy gate
+
+Before **any** Deployer request on an approved `dev` PR merge, the guarded workflow now:
+
+1. Uses the merge commit's **first parent** as a previous-code rollback *candidate*, fetched with `actions/checkout` depth 2.
+2. Fetches four real public live theme files via cache-busted, read-only URLs: `style.css`, `assets/js/selectors.js`, `assets/js/affiliate-adapter.js`, and `assets/data/product-seed.json`. Each **SHA256 must equal the byte content from that candidate Git commit**, not just a reused theme version string. A missing file, unexpected redirect, transport failure or changed hash **blocks the release before WordPress is mutated**.
+3. Creates a `git archive` snapshot from that exact old Git commit and an SHA256 manifest with its public verification fingerprint, two commit IDs and explicit restore limitations.
+4. Uploads the source package as `solar-expert-verified-predeploy-<run-id>`, retained for **90 days**. The **upload must succeed before Deployer can be triggered**; no secrets, private WP affiliate options, WordPress database or customer files are included.
+
+This is **persisted previous-theme CODE evidence, not a verified end-to-end WordPress rollback**. A code archive alone does not restore the managed-post database, private affiliate settings or content-sync side effects. Before authorizing a live release, maintain a separately reviewed/verified *WordPress content/data rollback procedure*, including the ability to restore the pre-release database or safely reconcile post state. If the prior live state differs from Git's first parent, investigate the source drift; never override the mismatch just to ship.
+
+**Offline regression:** `node --test tests/deploy-rollback-evidence.test.mjs` executes the real preflight shell against mocked prior git/public live bytes, checking both successful archive creation and fail-closed mismatch/unknown-parent cases. It never calls an actual production endpoint.
+
 ## Rollback
 
 Production remains repo-driven. If a release is bad, revert the offending commit(s) on `dev`. The same gated auto-deploy path will ship the reverted state after CI passes.
