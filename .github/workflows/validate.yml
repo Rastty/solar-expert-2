@@ -48,6 +48,8 @@ jobs:
         run: node --test tests/offer-cta-clarity.test.mjs
       - name: Buyer SEO guides claim, intent and indexability validation
         run: node --test tests/buyer-seo-posts.test.mjs
+      - name: Caravan 200Wp buyer guide evidence, calculations, SEO and publication-readiness
+        run: node --test tests/caravan-200w-buyer-guide.test.mjs
       - name: Existing indexed guides to new buying paths
         run: php tests/buyer-discovery.test.php
       - name: Managed category discovery
