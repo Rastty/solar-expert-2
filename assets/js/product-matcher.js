@@ -53,7 +53,9 @@ window.SolarExpertProductMatcher={
     }
 
     const state=this.verificationState(product.verified_at);
-    if(state==='stale'){
+    if(state!=='fresh'){
+      // No confirmed merchant date means uncertain stock, never full "in stock".
+      // Keep only a downgraded technical candidate while buyer verifies the shop.
       return product.availability==='in_stock'||product.availability==='usually_in_stock'?1:0;
     }
     if(product.availability==='in_stock')return 2;
