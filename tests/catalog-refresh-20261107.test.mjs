@@ -70,7 +70,7 @@ test('first 25 exact retailer offers retain the initial 2026-11-07 evidence',()=
    assert.equal(url.hostname,merchant==='battery-cz'?'www.battery.cz':'www.solar-import.cz');
    assert.ok(!url.searchParams.has('desturl')&&!url.hostname.includes('ehub'),'No affiliate tracking request in evidence');
  }
- assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===AUDIT_DAY)).length,45,'Only 45 exact merchant rows were checked, not three old VSelektro snapshots');
+ assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===AUDIT_DAY)).length,48,'All 48 exact retailer offers now have fresh real seller-page evidence');
  assert.equal(new Set(checked.map(x=>x[0])).size,13);
  for(const id of new Set(checked.map(x=>x[0]))){
    const product=catalog.products.find(x=>x.id===id);
@@ -101,9 +101,9 @@ test('actual 30-day gate: all 48 product offers fresh as-of 2026-11-07 and expir
  assert.equal(offers.filter(o=>M.verificationState(o.verified_at,now)==='stale').length,0);
  const vselektro=offers.filter(o=>o.merchant==='vselektro-eu');
  assert.equal(vselektro.length,3);
- assert.ok(vselektro.every(o=>o.verified_at==='2026-10-13'),'Do not falsely refresh VSelektro');
+ assert.ok(vselektro.every(o=>o.verified_at===AUDIT_DAY),'Three VSelektro prices were independently rechecked on exact 2026-11-07 seller pages');
  assert.equal(M.verificationState(AUDIT_DAY,'2026-12-09T00:00:00Z'),'stale','New checks must expire');
- assert.equal(M.verificationState('2026-10-13','2026-11-14T00:00:00Z'),'stale','VSelektro offers must expire soon');
+ assert.equal(M.verificationState('2026-10-13','2026-11-14T00:00:00Z'),'stale','Historic October evidence must expire according to 30-day policy');
  const synthetic={id:'old-price',type:'battery',offers:[{merchant:'battery-cz',price_czk:1,availability:'in_stock',source_url:'https://www.battery.cz/sku/',verified_at:'2000-01-01'}]};
  assert.equal(M.verificationState(synthetic.offers[0].verified_at,now),'stale');
  assert.equal(A.resolveOffer(synthetic,synthetic.offers[0]).price_czk,null,'Stale prices must stay hidden');
