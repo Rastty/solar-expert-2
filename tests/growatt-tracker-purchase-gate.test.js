@@ -50,9 +50,9 @@ assert.deepEqual(p3500.trackerStringCounts,[1]);
 assert.equal(p3500.pvIscVerified,false,'Safe operating current alone cannot verify absolute short-circuit ceiling');
 assert(p3500.iscPerTracker>0&&p3500.iscPerTracker<22);
 
-const reject3500=B.findPanelPlan([panel],{voltage:48,panelWp:2500},grow3500,true,'best');
+const reject3500=B.findPanelPlan([panel],{voltage:48,panelWp:3000},grow3500,true,'best');
 assert.equal(reject3500,null,
-  'One-tracker Growatt must NOT accept extra 2P/3P strings merely because watts fit 4500W');
+  'One-tracker Growatt must NOT allow 16S exceeding cold Voc or extra parallel strings');
 
 const p6000=B.findPanelPlan([panel],{voltage:48,panelWp:2500},grow6000,true,'best');
 assert(p6000&&p6000.parallel===2,'Dual MPPT can use one separate string per tracker');
@@ -63,8 +63,8 @@ assert.equal(p6000.iscPerTracker,9.17);
 assert(p6000.series*panel.rated_wp<=4000,'Each independent tracker must respect 4000Wp maximum');
 assert.equal(p6000.pvIscVerified,false);
 
-assert.equal(B.findPanelPlan([panel],{voltage:48,panelWp:4500},grow6000,true,'best'),null,
-  'Two single-string trackers cannot silently accommodate a third parallel string');
+assert.equal(B.findPanelPlan([panel],{voltage:48,panelWp:7000},grow6000,true,'best'),null,
+  'Two single-string trackers cannot silently accommodate a third parallel string or over-cold-Voc 19S');
 const tooMuchIsc={...panel,id:'synthetic-18A',isc_a:18};
 assert.equal(B.findPanelPlan([tooMuchIsc],{voltage:48,panelWp:2500},grow6000,true,'best'),null,
   '18A per tracker must not pass a 16A OPERATING PV input screen');
