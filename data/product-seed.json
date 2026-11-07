@@ -285,6 +285,10 @@
       "rated_wp": 190,
       "voc_v": 25.5,
       "vmp_v": 21.8,
+      "isc_a": 9.17,
+      "imp_a": 8.71,
+      "isc_source_url": "https://www.solar-import.cz/ramove-male/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
+      "isc_verified_on": "2026-11-07",
       "price_czk_snapshot": 2251,
       "availability": "in_stock",
       "source_url": "https://www.solar-import.cz/ramove-male/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
@@ -343,6 +347,9 @@
       ],
       "rated_charge_a": 20,
       "max_pv_voc_v": 100,
+      "max_pv_isc_a": 20,
+      "max_pv_isc_source_url": "https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_75-10_up_to_100-20/en/technical-specifications.html",
+      "max_pv_isc_verified_on": "2026-11-07",
       "max_pv_w_by_voltage": {
         "12": 290,
         "24": 580,
@@ -397,6 +404,9 @@
       ],
       "rated_charge_a": 30,
       "max_pv_voc_v": 100,
+      "max_pv_isc_a": 35,
+      "max_pv_isc_source_url": "https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/technical-specifications.html",
+      "max_pv_isc_verified_on": "2026-11-07",
       "max_pv_w_by_voltage": {
         "12": 440,
         "24": 880
@@ -449,6 +459,9 @@
       ],
       "rated_charge_a": 50,
       "max_pv_voc_v": 100,
+      "max_pv_isc_a": 60,
+      "max_pv_isc_source_url": "https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/technical-specifications.html",
+      "max_pv_isc_verified_on": "2026-11-07",
       "max_pv_w_by_voltage": {
         "12": 700,
         "24": 1400
@@ -502,6 +515,9 @@
       ],
       "rated_charge_a": 35,
       "max_pv_voc_v": 150,
+      "max_pv_isc_a": 35,
+      "max_pv_isc_source_url": "https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_150-35__150-45/en/technical-specifications.html",
+      "max_pv_isc_verified_on": "2026-11-07",
       "max_pv_w_by_voltage": {
         "12": 500,
         "24": 1000,
@@ -550,6 +566,8 @@
       ],
       "rated_charge_a": 70,
       "max_pv_voc_v": 150,
+      "max_pv_isc_source_url": "https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_150-70_up_to_250-100_VE.Can/en/technical-specifications.html",
+      "max_pv_isc_verified_on": "2026-11-07",
       "max_pv_w_by_voltage": {
         "12": 1000,
         "24": 2000,
@@ -599,6 +617,9 @@
       ],
       "rated_charge_a": 100,
       "max_pv_voc_v": 250,
+      "max_pv_isc_a": 70,
+      "max_pv_isc_source_url": "https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_150-70_up_to_250-100_VE.Can/en/technical-specifications.html",
+      "max_pv_isc_verified_on": "2026-11-07",
       "max_pv_w_by_voltage": {
         "12": 1450,
         "24": 2900,
