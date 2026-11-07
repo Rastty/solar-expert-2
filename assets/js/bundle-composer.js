@@ -67,15 +67,31 @@ window.SolarExpertBundleComposer = {
   controllerLimits(controller, sizing, integrated) {
     if (integrated) {
       const i = controller.integrated_mppt || {};
-      if (i.evidence_complete_for_bundle === false || !i.pv_w_max || !i.pv_voc_max) {
-        return null;
-      }
+      // Integrated PV input current is not BATTERY charging current.
+      // SPF 6000 ES Plus has TWO independent trackers and ONE input string
+      // per tracker: never sum both 16A inputs into a mythical 32A port.
+      const trackerCount=Number(i.pv_tracker_count || 0);
+      const stringsPerTracker=Number(i.pv_strings_per_tracker || 0);
+      const operatingA=Number(i.pv_input_operating_a_per_tracker || 0);
+      const perTrackerWp=Number(i.pv_w_max_per_tracker || 0);
+      if (i.evidence_complete_for_bundle === false || !i.pv_w_max || !i.pv_voc_max ||
+          !Number.isInteger(trackerCount) || trackerCount<1 ||
+          !Number.isInteger(stringsPerTracker) || stringsPerTracker<1 ||
+          !(operatingA>0) || !(perTrackerWp>0) ||
+          !i.pv_operating_current_source_url) return null;
+      const verifiedAbsoluteIsc=Number(i.pv_isc_absolute_limit_a || 0);
+      const pvIscVerified=i.pv_isc_absolute_status === 'verified' && verifiedAbsoluteIsc>0;
       return {
         maxWp: Number(i.pv_w_max),
         maxVoc: Number(i.pv_voc_max),
         minVmp: Number(i.mppt_v_min || i.pv_v_min || 0),
         maxVmp: Number(i.mppt_v_max || Infinity),
-        maxIsc: Number(i.pv_current_max_a || 0) || null
+        maxIsc: pvIscVerified ? verifiedAbsoluteIsc : null,
+        pvIscVerified,
+        trackerCount,
+        stringsPerTracker,
+        perTrackerWp,
+        operatingA
       };
     }
 
@@ -131,9 +147,24 @@ window.SolarExpertBundleComposer = {
         // Integrated inverter input limits are tracked separately: do not
         // reinterpret its MPPT battery charge current as PV input Isc.
         if (!integrated && !(Number(panel.isc_a)>0)) continue;
-        if (limits.maxIsc) {
-          const arrayIsc = parallel * Number(panel.isc_a || 0);
-          if (!(arrayIsc>0) || arrayIsc > limits.maxIsc * 0.98) continue;
+        let iscPerTracker=null;
+        let trackerStringCounts=null;
+        if(integrated){
+          if(!(Number(panel.isc_a)>0) || !Number.isFinite(Number(panel.isc_a))) continue;
+          if(parallel>limits.trackerCount*limits.stringsPerTracker) continue;
+          trackerStringCounts=Array.from({length:limits.trackerCount},(_,index)=>
+            Math.floor(parallel/limits.trackerCount)+(index<(parallel%limits.trackerCount)?1:0));
+          const mostStrings=Math.max(...trackerStringCounts);
+          iscPerTracker=mostStrings*Number(panel.isc_a);
+          const wpPerTracker=mostStrings*series*Number(panel.rated_wp);
+          if(!(iscPerTracker>0) || iscPerTracker>limits.operatingA*0.98 ||
+              wpPerTracker>limits.perTrackerWp)continue;
+          // This is only a conservative OPERATING input screen; an absolute
+          // Isc limit must be independently sourced to authorize buying.
+          if(limits.maxIsc && iscPerTracker>limits.maxIsc*0.98)continue;
+        }else if(limits.maxIsc){
+          const arrayIsc=parallel*Number(panel.isc_a || 0);
+          if(!(arrayIsc>0) || arrayIsc>limits.maxIsc*0.98)continue;
         }
 
         const stringVmp = series * Number(panel.vmp_v);
@@ -156,6 +187,9 @@ window.SolarExpertBundleComposer = {
           totalWp,
           stringVmp: Math.round(stringVmp * 10) / 10,
           coldStringVoc: Math.round(coldStringVoc * 10) / 10,
+          pvIscVerified: integrated ? limits.pvIscVerified : true,
+          iscPerTracker,
+          trackerStringCounts,
           maxControllerWp: limits.maxWp,
           oversizeWp,
           score
@@ -271,7 +305,8 @@ window.SolarExpertBundleComposer = {
               tier,
               label: labels[tier],
               complete: true,
-              status: 'preliminarily_compatible',
+              status: panelPlan.pvIscVerified ? 'preliminarily_compatible' : 'pv_isc_limit_unverified',
+              pvIscVerified: panelPlan.pvIscVerified,
               battery,
               batteryQuantity: batteryBank.quantity,
               batteryBank,
@@ -287,7 +322,8 @@ window.SolarExpertBundleComposer = {
                 'přesný teplotní koeficient Voc pro lokalitu',
                 'BMS ↔ měnič komunikace',
                 ...(batteryBank.quantity > 1 ? ['paralelní bateriové propojení / sběrnice a jištění každé větve'] : []),
-                'aktuální dostupnost a affiliate URL'
+                'aktuální dostupnost a affiliate URL',
+                ...(!panelPlan.pvIscVerified ? ['Absolutní PV Isc limit konkrétní revize integrovaného MPPT není doložen: nákup této sestavy je pozastaven.'] : [])
               ]
             };
           }
