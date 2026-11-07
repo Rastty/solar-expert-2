@@ -539,7 +539,7 @@ assert(M.effectivePrice(rep2000Freshness)===4990,'REP2000-24 must use the cheape
 
 const kosun48Sizing={voltage:48,inverterW:2500,peak:5000};
 const kosun48Matches=M.rank(catalog.products.filter(p=>p.type==='inverter'||p.type==='inverter_hybrid'),kosun48Sizing);
-assert(kosun48Matches.some(x=>x.product.id==='inverter-kosun-48-3000'),'48V selector should include verified KOSUN 3000W budget inverter');
+assert(!kosun48Matches.some(x=>x.product.id==='inverter-kosun-48-3000'),'LiFePO4 selector must reject KOSUN 3000W with lead-acid-only integrated charger');
 const kosun48=catalog.products.find(p=>p.id==='inverter-kosun-48-3000');
 const pusung48=catalog.products.find(p=>p.id==='battery-seplos-pusung-48');
 assert(kosun48&&kosun48.lifepo4_charge_supported===false,'KOSUN 48V charger must declare LiFePO4 incompatibility');
