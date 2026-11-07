@@ -1,0 +1,1020 @@
+{
+  "schemaVersion": "1.0.0",
+  "mode": "verified-public-seed; affiliate URLs added separately",
+  "verifiedAt": "2026-10-07",
+  "products": [
+    {
+      "id": "battery-goowei-12-100",
+      "type": "battery",
+      "merchant": "battery-cz",
+      "sku": "E8282",
+      "tier": "budget",
+      "name": "GOOWEI ENERGY CNLFP100-12.8 12.8V 100Ah",
+      "system_voltage_class": 12,
+      "nominal_voltage_v": 12.8,
+      "capacity_ah": 100,
+      "energy_wh": 1280,
+      "max_discharge_a": 100,
+      "chemistry": "LiFePO4",
+      "availability": "in_stock",
+      "price_czk_snapshot": 8650,
+      "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-12-8--100ah--12-8v/",
+      "price_czk": 8650,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 8650,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-12-8--100ah--12-8v/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 8650,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-12-8--100ah--12-8v/",
+          "verified_at": "2026-10-06"
+        }
+      ]
+    },
+    {
+      "id": "battery-goowei-12-200",
+      "type": "battery",
+      "merchant": "battery-cz",
+      "sku": "E8284",
+      "tier": "best",
+      "name": "GOOWEI ENERGY CNLFP200-12.8 12.8V 200Ah",
+      "system_voltage_class": 12,
+      "nominal_voltage_v": 12.8,
+      "capacity_ah": 200,
+      "energy_wh": 2560,
+      "max_discharge_a": 120,
+      "max_charge_a": 100,
+      "chemistry": "LiFePO4",
+      "availability": "in_stock",
+      "price_czk_snapshot": 14690,
+      "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
+      "price_czk": 14690,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 14690,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 14690,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp200-12-8--200ah--12-8v/",
+          "verified_at": "2026-10-06"
+        }
+      ]
+    },
+    {
+      "id": "battery-goowei-24-50",
+      "type": "battery",
+      "merchant": "battery-cz",
+      "sku": "E8285",
+      "tier": "budget",
+      "name": "GOOWEI ENERGY CNLFP50-25.6 25.6V 50Ah",
+      "system_voltage_class": 24,
+      "nominal_voltage_v": 25.6,
+      "capacity_ah": 50,
+      "energy_wh": 1280,
+      "max_discharge_a": 40,
+      "chemistry": "LiFePO4",
+      "availability": "in_stock",
+      "price_czk_snapshot": 8650,
+      "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp50-25-6--50ah--25-6v/",
+      "price_czk": 8650,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 8650,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp50-25-6--50ah--25-6v/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 8650,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp50-25-6--50ah--25-6v/",
+          "verified_at": "2026-10-06"
+        }
+      ]
+    },
+    {
+      "id": "battery-goowei-24-100",
+      "type": "battery",
+      "merchant": "battery-cz",
+      "sku": "E8286",
+      "tier": "best",
+      "name": "GOOWEI ENERGY CNLFP100-25.6 25.6V 100Ah",
+      "system_voltage_class": 24,
+      "nominal_voltage_v": 25.6,
+      "capacity_ah": 100,
+      "energy_wh": 2560,
+      "max_discharge_a": 100,
+      "chemistry": "LiFePO4",
+      "availability": "in_stock",
+      "price_czk_snapshot": 14690,
+      "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-25-6--100ah--25-6v/",
+      "price_czk": 14690,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 14690,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-25-6--100ah--25-6v/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 14690,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/goowei-energy-2/goowei-energy-trakcni-baterie--lifepo4--cnlfp100-25-6--100ah--25-6v/",
+          "verified_at": "2026-10-05"
+        }
+      ]
+    },
+    {
+      "id": "battery-pylontech-us5000",
+      "type": "battery",
+      "merchant": "battery-cz",
+      "sku": "E8221",
+      "tier": "premium",
+      "name": "Pylontech US5000 48V 4.8kWh",
+      "system_voltage_class": 48,
+      "nominal_voltage_v": 48,
+      "energy_wh": 4800,
+      "max_discharge_a": 80,
+      "chemistry": "LiFePO4",
+      "communications": [
+        "CAN",
+        "RS485"
+      ],
+      "availability": "in_stock",
+      "price_czk_snapshot": 22900,
+      "source_url": "https://www.battery.cz/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
+      "price_czk": 22900,
+      "price_mode": "snapshot",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 22900,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 22900,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/pylontech/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
+          "verified_at": "2026-10-05"
+        }
+      ],
+      "parallel_max_units": 16,
+      "parallel_evidence_url": "https://en.pylontech.com.cn/products/c23/134.html",
+      "parallel_verified_at": "2026-10-05"
+    },
+    {
+      "id": "battery-seplos-pusung-48",
+      "type": "battery",
+      "merchant": "battery-cz",
+      "sku": "E7884",
+      "tier": "best",
+      "name": "SEPLOS PUSUNG-S 48V 5.12kWh",
+      "system_voltage_class": 48,
+      "nominal_voltage_v": 51.2,
+      "capacity_ah": 100,
+      "energy_wh": 5120,
+      "max_discharge_a": 100,
+      "max_charge_a": 100,
+      "chemistry": "LiFePO4",
+      "communications": [
+        "CAN",
+        "RS485"
+      ],
+      "availability": "in_stock",
+      "price_czk_snapshot": 20990,
+      "source_url": "https://www.battery.cz/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
+      "price_czk": 20990,
+      "price_mode": "snapshot",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 20990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 21834,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/seplos/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
+          "verified_at": "2026-10-05"
+        }
+      ],
+      "parallel_max_units": 16,
+      "parallel_evidence_url": "https://www.battery.cz/seplos-lithiova-baterie-pusung-s-48v-5kwh--bms-a-can-komunikace/",
+      "parallel_verified_at": "2026-10-05"
+    },
+    {
+      "id": "battery-seplos-polo-w-48",
+      "type": "battery",
+      "merchant": "battery-cz",
+      "sku": "E8190",
+      "tier": "premium",
+      "name": "SEPLOS POLO-W 48V 5.12kWh",
+      "system_voltage_class": 48,
+      "nominal_voltage_v": 51.2,
+      "capacity_ah": 100,
+      "energy_wh": 5120,
+      "max_discharge_a": 100,
+      "max_charge_a": 100,
+      "chemistry": "LiFePO4",
+      "communications": [
+        "CAN",
+        "RS485"
+      ],
+      "availability": "in_stock",
+      "price_czk_snapshot": 20990,
+      "source_url": "https://www.battery.cz/seplos-lithiova-nastenna-baterie-polo-w--48v-5kwh-s-bms/",
+      "price_czk": 20990,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 20990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/seplos-lithiova-nastenna-baterie-polo-w--48v-5kwh-s-bms/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 20990,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/seplos/seplos-lithiova-nastenna-baterie-polo-w--48v-5kwh-s-bms/",
+          "verified_at": "2026-10-07"
+        }
+      ]
+    },
+    {
+      "id": "panel-victron-190",
+      "type": "panel",
+      "merchant": "solar-import-cz",
+      "sku": "E8934",
+      "tier": "best",
+      "name": "Victron BlueSolar Mono 190Wp",
+      "rated_wp": 190,
+      "voc_v": 25.5,
+      "vmp_v": 21.8,
+      "price_czk_snapshot": 2251,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/ramove-male/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
+      "price_czk": 2251,
+      "price_mode": "snapshot",
+      "cold_voc_factor": 1.12,
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 2251,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/ramove-male/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 2496,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-energy-solarni-panel-190w-12v--monokrystalicky/",
+          "verified_at": "2026-10-05"
+        }
+      ]
+    },
+    {
+      "id": "panel-dah-555",
+      "type": "panel",
+      "merchant": "solar-import-cz",
+      "tier": "premium",
+      "name": "DAH Solar DHM-T72X10/FS(BW) 555Wp",
+      "rated_wp": 555,
+      "voc_v": 74.9,
+      "vmp_v": 63.2,
+      "isc_a": 9.37,
+      "imp_a": 8.78,
+      "availability": "discontinued",
+      "source_url": "https://www.solar-import.cz/solarni-panely/dah-solar-solarni-panel-dhm-t72x10-fs-bw-555w/",
+      "cold_voc_factor": 1.12,
+      "sku": "E8126",
+      "price_czk_snapshot": 5280,
+      "price_czk": 5280,
+      "price_mode": "historical_snapshot",
+      "availability_note": "Prodej ukončen u ověřeného zdroje 2026-10-05"
+    },
+    {
+      "id": "mppt-victron-100-20",
+      "type": "mppt",
+      "merchant": "solar-import-cz",
+      "sku": "E7357",
+      "tier": "budget",
+      "name": "Victron SmartSolar MPPT 100/20",
+      "battery_voltages": [
+        12,
+        24,
+        48
+      ],
+      "rated_charge_a": 20,
+      "max_pv_voc_v": 100,
+      "max_pv_w_by_voltage": {
+        "12": 290,
+        "24": 580,
+        "48": 1160
+      },
+      "price_czk_snapshot": 2091,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-20--12-24-48v--20a/",
+      "price_czk": 2091,
+      "price_mode": "snapshot",
+      "min_pv_start_v_by_voltage": {
+        "12": 17,
+        "24": 29,
+        "48": 53
+      },
+      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 2091,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-20--12-24-48v--20a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 2091,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-20--12-24v--20a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "vselektro-eu",
+          "price_czk": 2404,
+          "availability": "in_stock",
+          "source_url": "https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-20a/",
+          "verified_at": "2026-10-13"
+        }
+      ]
+    },
+    {
+      "id": "mppt-victron-100-30",
+      "type": "mppt",
+      "merchant": "solar-import-cz",
+      "sku": "E7358",
+      "tier": "best",
+      "name": "Victron SmartSolar MPPT 100/30",
+      "battery_voltages": [
+        12,
+        24
+      ],
+      "rated_charge_a": 30,
+      "max_pv_voc_v": 100,
+      "max_pv_w_by_voltage": {
+        "12": 440,
+        "24": 880
+      },
+      "price_czk_snapshot": 2984,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
+      "price_czk": 2984,
+      "price_mode": "snapshot",
+      "min_pv_start_v_by_voltage": {
+        "12": 17,
+        "24": 29
+      },
+      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 2984,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 2984,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-30--12-24v--30a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "vselektro-eu",
+          "price_czk": 3444,
+          "availability": "in_stock",
+          "source_url": "https://www.vselektro.eu/solarni-regulator-victron-energy-smartsolar-30a/",
+          "verified_at": "2026-10-13"
+        }
+      ]
+    },
+    {
+      "id": "mppt-victron-100-50",
+      "type": "mppt",
+      "merchant": "solar-import-cz",
+      "sku": "E7359",
+      "tier": "best",
+      "name": "Victron SmartSolar MPPT 100/50",
+      "battery_voltages": [
+        12,
+        24
+      ],
+      "rated_charge_a": 50,
+      "max_pv_voc_v": 100,
+      "max_pv_w_by_voltage": {
+        "12": 700,
+        "24": 1400
+      },
+      "price_czk_snapshot": 3899,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-50--12-24v--50a/",
+      "price_czk": 3899,
+      "price_mode": "snapshot",
+      "min_pv_start_v_by_voltage": {
+        "12": 17,
+        "24": 29
+      },
+      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 3899,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-100-50--12-24v--50a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 4305,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-100-50--12-24v--50a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "vselektro-eu",
+          "price_czk": 4946,
+          "availability": "in_stock",
+          "source_url": "https://www.vselektro.eu/solarni-regulator-victron-energy-mppt-smartsolar-100v-50a/",
+          "verified_at": "2026-10-13"
+        }
+      ]
+    },
+    {
+      "id": "mppt-victron-150-35",
+      "type": "mppt",
+      "merchant": "solar-import-cz",
+      "sku": "E7783",
+      "tier": "premium",
+      "name": "Victron SmartSolar MPPT 150/35",
+      "battery_voltages": [
+        12,
+        24,
+        48
+      ],
+      "rated_charge_a": 35,
+      "max_pv_voc_v": 150,
+      "max_pv_w_by_voltage": {
+        "12": 500,
+        "24": 1000,
+        "48": 2000
+      },
+      "price_czk_snapshot": 4291,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-150-35--12-24-48v--35a/",
+      "price_czk": 4291,
+      "price_mode": "snapshot",
+      "min_pv_start_v_by_voltage": {
+        "12": 17,
+        "24": 29,
+        "48": 53
+      },
+      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 4291,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-150-35--12-24-48v--35a/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 4291,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-150-35--12-24-48v--35a/",
+          "verified_at": "2026-10-07"
+        }
+      ]
+    },
+    {
+      "id": "mppt-victron-150-70",
+      "type": "mppt",
+      "merchant": "solar-import-cz",
+      "sku": "E7785",
+      "tier": "premium",
+      "name": "Victron SmartSolar MPPT 150/70-Tr VE.Can",
+      "battery_voltages": [
+        12,
+        24,
+        48
+      ],
+      "rated_charge_a": 70,
+      "max_pv_voc_v": 150,
+      "max_pv_w_by_voltage": {
+        "12": 1000,
+        "24": 2000,
+        "48": 4000
+      },
+      "price_czk_snapshot": 9650,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-150-70-tr-ve-can--12-24-48v--70a/",
+      "price_czk": 9650,
+      "price_mode": "snapshot",
+      "min_pv_start_v_by_voltage": {
+        "12": 17,
+        "24": 29,
+        "48": 53
+      },
+      "evidence_note": "Victron MPPT requires PV voltage to exceed battery voltage by about 5V to start tracking.",
+      "max_pv_isc_a": 50,
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 9650,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-150-70-tr-ve-can--12-24-48v--70a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 9650,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-150-70-tr-ve-can--12-24-48v--70a/",
+          "verified_at": "2026-10-05"
+        }
+      ]
+    },
+    {
+      "id": "mppt-victron-250-100",
+      "type": "mppt",
+      "merchant": "solar-import-cz",
+      "sku": "E7786",
+      "tier": "premium",
+      "name": "Victron SmartSolar MPPT 250/100-Tr VE.Can",
+      "battery_voltages": [
+        12,
+        24,
+        48
+      ],
+      "rated_charge_a": 100,
+      "max_pv_voc_v": 250,
+      "max_pv_w_by_voltage": {
+        "12": 1450,
+        "24": 2900,
+        "48": 5800
+      },
+      "price_czk_snapshot": 14246,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-250-100-tr-ve-can--12-24-48v--100a/",
+      "price_czk": 14246,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-05",
+      "min_pv_start_v_by_voltage": {
+        "12": 17,
+        "24": 29,
+        "48": 53
+      },
+      "evidence_note": "Solar-Import lists 12/24/48V support, 100A charge current, 250V max PV voltage and 1450/2900/5800Wp PV limits; Victron start requires PV voltage about 5V above battery voltage.",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 14246,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/regulatory/victron-energy-solarni-regulator-smartsolar-mppt-250-100-tr-ve-can--12-24-48v--100a/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 14246,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/victron-solarni-regulator-smartsolar-mppt-250-100-tr-ve-can--12-24-48v--100a/",
+          "verified_at": "2026-10-05"
+        }
+      ]
+    },
+    {
+      "id": "inverter-victron-24-1200",
+      "type": "inverter",
+      "merchant": "solar-import-cz",
+      "sku": "E7540",
+      "tier": "best",
+      "name": "Victron Phoenix VE.Direct 24/1200",
+      "dc_voltage": 24,
+      "continuous_w": 1000,
+      "peak_w": 2200,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/off-grid/victron-energy-menic-napeti-sinus-phoenix-ve-direct-1200va-24v/",
+      "price_czk_snapshot": 7431,
+      "price_czk": 7431,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 7431,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/off-grid/victron-energy-menic-napeti-sinus-phoenix-ve-direct-1200va-24v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 7431,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/menic-napeti-sinus-victron-energy-phoenix-ve-direct-1200va-24v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
+    },
+    {
+      "id": "inverter-victron-48-1200",
+      "type": "inverter",
+      "merchant": "solar-import-cz",
+      "sku": "E8930",
+      "tier": "budget",
+      "name": "Victron Phoenix VE.Direct 48/1200",
+      "dc_voltage": 48,
+      "continuous_w": 1000,
+      "peak_w": 2200,
+      "price_czk_snapshot": 7623,
+      "availability": "usually_in_stock",
+      "source_url": "https://www.solar-import.cz/victron-energy-3/victron-energy-menic-napeti-sinus-ve-direct-1200va-48v/",
+      "price_czk": 7623,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 7623,
+          "availability": "usually_in_stock",
+          "source_url": "https://www.solar-import.cz/victron-energy-3/victron-energy-menic-napeti-sinus-ve-direct-1200va-48v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 7623,
+          "availability": "usually_in_stock",
+          "source_url": "https://www.battery.cz/victron-energy-menic-napeti-sinus-ve-direct-1200va-48v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
+    },
+    {
+      "id": "inverter-kosun-48-3000",
+      "type": "inverter",
+      "merchant": "solar-import-cz",
+      "sku": "E8203",
+      "tier": "budget",
+      "name": "KOSUN 48V / 3000W + nabíječka",
+      "dc_voltage": 48,
+      "continuous_w": 3000,
+      "peak_w": 6000,
+      "waveform": "pure_sine",
+      "charger": true,
+      "ups": true,
+      "availability": "in_stock",
+      "price_czk_snapshot": 9563,
+      "price_czk": 9563,
+      "price_mode": "snapshot",
+      "source_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 9563,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 7990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
+          "verified_at": "2026-10-06"
+        }
+      ],
+      "lifepo4_charge_supported": false,
+      "charger_note": "Integrovaná AC nabíječka je ověřena pro olověné baterie WET/GEL/AGM/EFB; pro Li-ion/LiFePO4 nabíjení ji Battery.cz ani Solar-Import nedoporučují.",
+      "charger_evidence_url": "https://www.solar-import.cz/hybridni/kosun-menic-napeti-s-nabijeckou-dc48v-ac230v--3000w/",
+      "charger_verified_at": "2026-10-06"
+    },
+    {
+      "id": "inverter-growatt-48-3500",
+      "type": "inverter_hybrid",
+      "merchant": "solar-import-cz",
+      "sku": "E8053",
+      "tier": "best",
+      "name": "Growatt SPF 3500ES 48V",
+      "dc_voltage": 48,
+      "continuous_w": 3500,
+      "peak_w": 7000,
+      "price_czk_snapshot": 11990,
+      "availability": "in_stock",
+      "integrated_mppt": {
+        "pv_w_max": 4500,
+        "pv_voc_max": 450,
+        "mppt_v_min": 120,
+        "mppt_v_max": 430,
+        "charge_a_max": 80
+      },
+      "source_url": "https://www.solar-import.cz/hybridni/growatt-spf-3500es-menic-3-5kw-48v/",
+      "price_czk": 11990,
+      "price_mode": "snapshot",
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 11990,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/hybridni/growatt-spf-3500es-menic-3-5kw-48v/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 11990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/growatt-spf-3500es-menic-3-5kw-48v/",
+          "verified_at": "2026-10-06"
+        }
+      ]
+    },
+    {
+      "id": "inverter-growatt-48-6000",
+      "type": "inverter_hybrid",
+      "merchant": "solar-import-cz",
+      "sku": "E8667",
+      "tier": "premium",
+      "name": "Growatt SPF 6000 ES Plus 48V",
+      "dc_voltage": 48,
+      "continuous_w": 6000,
+      "peak_w": 12000,
+      "price_czk_snapshot": 13490,
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/growatt/growatt-spf-6000-es-plus-menic-6kw-48v/",
+      "price_czk": 13490,
+      "price_mode": "snapshot",
+      "integrated_mppt": {
+        "pv_w_max": 8000,
+        "pv_voc_max": 500,
+        "mppt_v_min": 120,
+        "mppt_v_max": 450,
+        "charge_a_max": 100
+      },
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 13490,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/growatt/growatt-spf-6000-es-plus-menic-6kw-48v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 13490,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/growatt-spf-6000-es-plus-menic-6kw-48v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
+    },
+    {
+      "id": "inverter-kosun-12-1000",
+      "type": "inverter_hybrid",
+      "merchant": "solar-import-cz",
+      "sku": "E8689",
+      "tier": "budget",
+      "name": "KOSUN 12V / 1000W + nabíječka + MPPT",
+      "dc_voltage": 12,
+      "continuous_w": 1000,
+      "peak_w": 2000,
+      "price_czk_snapshot": 6580,
+      "price_czk": 6580,
+      "price_mode": "snapshot",
+      "availability": "in_stock",
+      "integrated_mppt": {
+        "pv_v_min": 15,
+        "pv_voc_max": 70,
+        "pv_current_max_a": 20,
+        "evidence_complete_for_bundle": false,
+        "evidence_note": "15–70V PV input and 20A solar charge current verified; maximum recommended PV array power not yet explicitly verified."
+      },
+      "lifepo4_charge_supported": true,
+      "source_url": "https://www.solar-import.cz/kosun-menic-napeti-s-nabijeckou-a-mppt-regulatorem-dc12v-ac230v--1000w/",
+      "verified_at": "2026-10-07",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 6580,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/kosun-menic-napeti-s-nabijeckou-a-mppt-regulatorem-dc12v-ac230v--1000w/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 6580,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/kosun-menic-napeti-s-nabijeckou-a-mppt-regulatorem-dc12v-ac230v--1000w/",
+          "verified_at": "2026-10-07"
+        }
+      ]
+    },
+    {
+      "id": "inverter-rogerele-rep1000-12",
+      "type": "inverter",
+      "merchant": "solar-import-cz",
+      "sku": "E7927",
+      "tier": "budget",
+      "name": "ROGERELE REP1000-12 12V 1000W",
+      "dc_voltage": 12,
+      "continuous_w": 1000,
+      "peak_w": 2000,
+      "waveform": "pure_sine",
+      "price_czk_snapshot": 2890,
+      "price_czk": 2890,
+      "price_mode": "snapshot",
+      "availability": "in_stock",
+      "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/",
+      "verified_at": "2026-10-06",
+      "offers": [
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 2890,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/",
+          "verified_at": "2026-10-06"
+        },
+        {
+          "merchant": "battery-cz",
+          "price_czk": 2890,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep1000-12--1000w/",
+          "verified_at": "2026-10-06"
+        }
+      ]
+    },
+    {
+      "id": "inverter-rogerele-rep1500-24",
+      "type": "inverter",
+      "merchant": "battery-cz",
+      "sku": "E7934",
+      "tier": "reference",
+      "name": "ROGERELE REP1500-24 24V 1500W",
+      "dc_voltage": 24,
+      "continuous_w": 1500,
+      "peak_w": 3000,
+      "waveform": "pure_sine",
+      "price_czk_snapshot": 4190,
+      "price_czk": 4190,
+      "price_mode": "snapshot",
+      "availability": "on_request",
+      "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep1500-24--1500w/",
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 4190,
+          "availability": "on_request",
+          "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep1500-24--1500w/",
+          "verified_at": "2026-10-05"
+        }
+      ]
+    },
+    {
+      "id": "inverter-rogerele-rep2000-24",
+      "type": "inverter",
+      "merchant": "battery-cz",
+      "sku": "E7935",
+      "tier": "best",
+      "name": "ROGERELE REP2000-24 24V 2000W",
+      "dc_voltage": 24,
+      "continuous_w": 2000,
+      "peak_w": 4000,
+      "waveform": "pure_sine",
+      "price_czk_snapshot": 4990,
+      "price_czk": 4990,
+      "price_mode": "snapshot",
+      "availability": "in_stock",
+      "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/",
+      "verified_at": "2026-10-05",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 4990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/",
+          "verified_at": "2026-10-05"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 6950,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/off-grid/rogerele-sinusovy-menic-napeti-rep2000-24--2000w/",
+          "verified_at": "2026-10-05"
+        }
+      ]
+    }
+  ],
+  "bundle_deals": [
+    {
+      "id": "deal-battery-pusung-growatt6000",
+      "merchant": "battery-cz",
+      "sku": "E9019",
+      "label": "SEPLOS PUSUNG-S + Growatt SPF 6000 ES Plus",
+      "components": [
+        "battery-seplos-pusung-48",
+        "inverter-growatt-48-6000"
+      ],
+      "price_czk": 32990,
+      "availability": "in_stock",
+      "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-pusung-s--5kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+      "verified_price_source_url": "https://www.battery.cz/baterie-menic/",
+      "verified_at": "2026-10-07",
+      "price_mode": "snapshot",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 32990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-pusung-s--5kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 32990,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/solarni-sestavy-ac/set-lithiova-baterie-seplos-pusung-s--5kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
+    },
+    {
+      "id": "deal-battery-polo-w-growatt6000",
+      "merchant": "battery-cz",
+      "sku": "E9021",
+      "label": "SEPLOS POLO-W + Growatt SPF 6000 ES Plus",
+      "components": [
+        "battery-seplos-polo-w-48",
+        "inverter-growatt-48-6000"
+      ],
+      "price_czk": 32990,
+      "availability": "in_stock",
+      "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-polo-w--5-12kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+      "verified_price_source_url": "https://www.battery.cz/baterie-menic/",
+      "verified_at": "2026-10-07",
+      "price_mode": "snapshot",
+      "offers": [
+        {
+          "merchant": "battery-cz",
+          "price_czk": 32990,
+          "availability": "in_stock",
+          "source_url": "https://www.battery.cz/set-lithiova-baterie-seplos-polo-w--5-12kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+          "verified_at": "2026-10-07"
+        },
+        {
+          "merchant": "solar-import-cz",
+          "price_czk": 32990,
+          "availability": "in_stock",
+          "source_url": "https://www.solar-import.cz/solarni-sestavy-ac/set-lithiova-baterie-seplos-polo-w--5-12kwh--menic-growatt-spf-6000es-plus--6000w-48v/",
+          "verified_at": "2026-10-07"
+        }
+      ]
+    }
+  ]
+}
