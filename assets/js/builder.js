@@ -15,8 +15,14 @@ window.solarExpertBuilder=function(){return{
   get dailyWh(){return Math.round(this.selectedAppliances.reduce((s,a)=>s+a.watts*a.hours*a.qty,0));},
   get runningWatts(){return Math.round(this.selectedAppliances.reduce((s,a)=>s+a.watts*a.qty,0));},
   get estimatedPeak(){if(!this.selectedAppliances.length)return 0;const b=this.runningWatts;return Math.round(Math.max(b,...this.selectedAppliances.map(a=>b-a.watts*a.qty+Math.max(a.surge,a.watts)*a.qty)));},
-  get completeBundles(){return this.bundles.filter(b=>b&&b.complete);},
-  get incompleteBundles(){return this.bundles.filter(b=>b&&!b.complete);},
+  // A component-count-complete hybrid set is NOT purchase-ready without a
+  // source-proven absolute PV Isc ceiling for the installed inverter revision.
+  // The technical model may exist for diagnostics but never reaches offers,
+  // checkout links, price comparisons or the default shopping list.
+  get completeBundles(){return this.bundles.filter(b=>b&&b.complete&&
+    (!b.integratedMppt||b.pvIscVerified===true));},
+  get incompleteBundles(){return this.bundles.filter(b=>b&&(!b.complete||
+    (b.integratedMppt&&b.pvIscVerified!==true)));},
   get primaryBundle(){return this.completeBundles.find(b=>b.tier==='best')||this.completeBundles[0]||null;},
   pctReserve(actual,target){if(!Number(target))return 0;return Math.round(((Number(actual)-Number(target))/Number(target))*100);},
   comparisonFor(bundle){
@@ -36,6 +42,7 @@ window.solarExpertBuilder=function(){return{
     return {batteryKwh,batteryQuantity,inverterW,surgeW,panelWp,reasons};
   },
   purchaseBreakdownFor(bundle){
+    if(bundle?.integratedMppt&&bundle.pvIscVerified!==true)return null;
     if(!bundle||!bundle.complete||!bundle.priceComplete||
        !Number.isFinite(Number(bundle.totalPrice))||Number(bundle.totalPrice)<=0)return null;
     const matcher=window.SolarExpertProductMatcher;
