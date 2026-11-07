@@ -81,7 +81,9 @@ window.SolarExpertBundleComposer = {
 
     const maxWp = Number((controller.max_pv_w_by_voltage || {})[String(sizing.voltage)] || 0);
     const minVmp = Number((controller.min_pv_start_v_by_voltage || {})[String(sizing.voltage)] || 0);
-    if (!maxWp || !controller.max_pv_voc_v) return null;
+    // Independent MPPT may only be matched with manufacturer-documented
+    // short-circuit input current. Unknown limit is not a verified fit.
+    if (!maxWp || !controller.max_pv_voc_v || !(Number(controller.max_pv_isc_a)>0)) return null;
 
     return {
       maxWp,
@@ -124,9 +126,14 @@ window.SolarExpertBundleComposer = {
 
         if (totalWp < Number(sizing.panelWp) || totalWp > limits.maxWp) continue;
 
-        if (limits.maxIsc && panel.isc_a) {
-          const arrayIsc = parallel * Number(panel.isc_a);
-          if (arrayIsc > limits.maxIsc * 0.98) continue;
+        // A missing panel Isc is not a safe current match. Standalone
+        // regulators require BOTH verified panel Isc and controller max Isc.
+        // Integrated inverter input limits are tracked separately: do not
+        // reinterpret its MPPT battery charge current as PV input Isc.
+        if (!integrated && !(Number(panel.isc_a)>0)) continue;
+        if (limits.maxIsc) {
+          const arrayIsc = parallel * Number(panel.isc_a || 0);
+          if (!(arrayIsc>0) || arrayIsc > limits.maxIsc * 0.98) continue;
         }
 
         const stringVmp = series * Number(panel.vmp_v);
@@ -179,7 +186,7 @@ window.SolarExpertBundleComposer = {
             }];
         const validOffers = offers
           .filter(o => o && o.availability === 'in_stock')
-          .filter(o => !matcher || matcher.verificationState(o.verified_at || deal.verified_at) !== 'stale')
+          .filter(o => matcher && matcher.verificationState(o.verified_at) === 'fresh')
           .filter(o => Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
           .sort((a,b)=>Number(a.price_czk)-Number(b.price_czk));
         const bestOffer = validOffers[0] || null;

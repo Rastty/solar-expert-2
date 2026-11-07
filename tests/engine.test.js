@@ -1,3 +1,11 @@
+// Legacy compatibility/score baselines below were authored from the documented
+// 2026-10-14 verified catalog. Pin ONLY this historical fixture clock so old
+// physical-product snapshots do not masquerade as freshly checked in 2026-11.
+// This test runs against the immutable historic catalog fixture; current-day
+// retailer availability, price and age-out are tested separately by
+// catalog-refresh-20261107.test.mjs (unfrozen clock).
+const {mock} = require('node:test');
+mock.timers.enable({apis:['Date'],now:new Date('2026-10-14T12:00:00Z')});
 global.window = {SolarExpertConfig:{affiliateMap:{products:{},leads:{}},affiliateBases:{}}};
 require('../assets/js/affiliate-adapter.js');
 require('../assets/js/product-matcher.js');
@@ -10,7 +18,23 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
-const catalog = require('../assets/data/product-seed.json');
+const catalog = require('./fixtures/catalog-20261014.json');
+// Preserve immutable October retailer prices/dates for legacy ranking
+// regressions while overlaying independently sourced, noncommercial
+// November 2026 PV Isc electrical specifications. Do not edit old snapshot
+// evidence or treat its 2026-10-14 timestamps as 2026-11-07 merchant checks.
+const currentElectricalSource = require('../data/product-seed.json').products;
+for (const product of catalog.products) {
+  const technical=currentElectricalSource.find(x=>x.id===product.id);
+  if(!technical)continue;
+  if(product.type==='mppt') {
+    if(!(Number(technical.max_pv_isc_a)>0))throw Error('Missing independently verified MPPT Isc for '+product.id);
+    product.max_pv_isc_a=technical.max_pv_isc_a;
+  }
+  if(product.type==='panel' && Number(technical.isc_a)>0){
+    product.isc_a=technical.isc_a;
+  }
+}
 const M = global.window.SolarExpertProductMatcher;
 const B = global.window.SolarExpertBundleComposer;
 const A = global.window.SolarExpertAffiliate;
@@ -517,7 +541,7 @@ assert(budget12Verified.mppt.id==='mppt-victron-100-20', 'Small 12V Budget bundl
 
 const battery12LargerSizing={voltage:12,batteryKwh:2,inverterW:800};
 const larger12Batteries=M.rank(catalog.products.filter(p=>p.type==='battery'),battery12LargerSizing);
-assert(larger12Batteries.some(x=>x.product.id==='battery-goowei-12-200'),'12V 2kWh scenario should find verified GOOWEI 200Ah battery');
+assert(larger12Batteries.some(x=>x.product.id==='battery-goowei-12-200'),'Historical 2026-10-14 fixture should still find GOOWEI 200Ah as it was in stock then');
 assert(!larger12Batteries.some(x=>x.product.id==='battery-goowei-12-100'),'12V 100Ah battery must not pass a 2kWh nominal target');
 
 const rep1500Freshness=catalog.products.find(p=>p.id==='inverter-rogerele-rep1500-24');
@@ -531,7 +555,7 @@ assert(M.effectivePrice(rep2000Freshness)===4990,'REP2000-24 must use the cheape
 
 const kosun48Sizing={voltage:48,inverterW:2500,peak:5000};
 const kosun48Matches=M.rank(catalog.products.filter(p=>p.type==='inverter'||p.type==='inverter_hybrid'),kosun48Sizing);
-assert(kosun48Matches.some(x=>x.product.id==='inverter-kosun-48-3000'),'48V selector should include verified KOSUN 3000W budget inverter');
+assert(!kosun48Matches.some(x=>x.product.id==='inverter-kosun-48-3000'),'LiFePO4 selector must reject KOSUN 3000W with lead-acid-only integrated charger');
 const kosun48=catalog.products.find(p=>p.id==='inverter-kosun-48-3000');
 const pusung48=catalog.products.find(p=>p.id==='battery-seplos-pusung-48');
 assert(kosun48&&kosun48.lifepo4_charge_supported===false,'KOSUN 48V charger must declare LiFePO4 incompatibility');
