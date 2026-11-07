@@ -181,6 +181,24 @@ jobs:
           git archive --format=tar.gz --prefix=solar-expert-2/ \
             --output="$archive_dir/previous-theme-source.tar.gz" "$previous_sha"
           test -s "$archive_dir/previous-theme-source.tar.gz"
+          # Verify the actual saved archive can restore each critical old file.
+          # The baseline manifest is derived from PREVIOUS git and public LIVE bytes;
+          # the tar extraction must independently hash to those exact values.
+          for relative in style.css assets/js/selectors.js assets/js/affiliate-adapter.js assets/data/product-seed.json; do
+            expected="$(awk -v name="$relative" '$2==name {print $1}' "$manifest")"
+            if [ -z "$expected" ]; then
+              echo "::error::Missing rollback-source manifest entry: $relative"
+              exit 1
+            fi
+            if ! recovered="$(tar -xOzf "$archive_dir/previous-theme-source.tar.gz" "solar-expert-2/$relative" | sha256sum | cut -d' ' -f1)"; then
+              echo "::error::Rollback archive cannot recover old source: $relative"
+              exit 1
+            fi
+            if [ "$recovered" != "$expected" ]; then
+              echo "::error::Rollback archive entry hash mismatch for $relative"
+              exit 1
+            fi
+          done
           sha256sum "$archive_dir/previous-theme-source.tar.gz" > "$archive_dir/archive-sha256.txt"
           printf 'previous_dev_commit=%s\nnew_release_commit=%s\nverified_public_files=4\n' \
             "$previous_sha" "$GITHUB_SHA" > "$archive_dir/release-ids.txt"
