@@ -777,7 +777,15 @@
         "pv_voc_max": 450,
         "mppt_v_min": 120,
         "mppt_v_max": 430,
-        "charge_a_max": 80
+        "charge_a_max": 80,
+        "pv_input_operating_a_per_tracker": 22,
+        "pv_tracker_count": 1,
+        "pv_strings_per_tracker": 1,
+        "pv_w_max_per_tracker": 4500,
+        "pv_operating_current_source_url": "https://www.growatt.tech/wp-content/uploads/2023/02/SPF-3500-5000-ES-User-Manual-EN-202109.pdf",
+        "pv_operating_current_checked_on": "2026-11-07",
+        "pv_isc_absolute_status": "unverified",
+        "pv_isc_absolute_note": "Maximum operating PV input current is not a proven absolute short-circuit Isc ceiling; confirm the exact hardware revision before calling a complete system purchase-ready."
       },
       "source_url": "https://www.solar-import.cz/hybridni/growatt-spf-3500es-menic-3-5kw-48v/",
       "price_czk": 11990,
@@ -820,7 +828,15 @@
         "pv_voc_max": 500,
         "mppt_v_min": 120,
         "mppt_v_max": 450,
-        "charge_a_max": 100
+        "charge_a_max": 100,
+        "pv_input_operating_a_per_tracker": 16,
+        "pv_tracker_count": 2,
+        "pv_strings_per_tracker": 1,
+        "pv_w_max_per_tracker": 4000,
+        "pv_operating_current_source_url": "https://growatt.tech/wp-content/uploads/shared-files/11396/?SPF_6000_ES_Plus_Datasheet_EN_202211+%281%29.pdf=&download=1",
+        "pv_operating_current_checked_on": "2026-11-07",
+        "pv_isc_absolute_status": "unverified",
+        "pv_isc_absolute_note": "Maximum operating PV input current is not a proven absolute short-circuit Isc ceiling; confirm the exact hardware revision before calling a complete system purchase-ready."
       },
       "verified_at": "2026-11-07",
       "offers": [
