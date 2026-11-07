@@ -1,8 +1,9 @@
 // Legacy compatibility/score baselines below were authored from the documented
 // 2026-10-14 verified catalog. Pin ONLY this historical fixture clock so old
 // physical-product snapshots do not masquerade as freshly checked in 2026-11.
-// Current-date price suppression and the new 2026-11-07 retailer evidence are
-// covered by independent catalog-refresh-20261107.test.mjs (unfrozen clock).
+// This test runs against the immutable historic catalog fixture; current-day
+// retailer availability, price and age-out are tested separately by
+// catalog-refresh-20261107.test.mjs (unfrozen clock).
 const {mock} = require('node:test');
 mock.timers.enable({apis:['Date'],now:new Date('2026-10-14T12:00:00Z')});
 global.window = {SolarExpertConfig:{affiliateMap:{products:{},leads:{}},affiliateBases:{}}};
@@ -17,7 +18,7 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
-const catalog = require('../assets/data/product-seed.json');
+const catalog = require('./fixtures/catalog-20261014.json');
 const M = global.window.SolarExpertProductMatcher;
 const B = global.window.SolarExpertBundleComposer;
 const A = global.window.SolarExpertAffiliate;
@@ -524,7 +525,7 @@ assert(budget12Verified.mppt.id==='mppt-victron-100-20', 'Small 12V Budget bundl
 
 const battery12LargerSizing={voltage:12,batteryKwh:2,inverterW:800};
 const larger12Batteries=M.rank(catalog.products.filter(p=>p.type==='battery'),battery12LargerSizing);
-assert(!larger12Batteries.some(x=>x.product.id==='battery-goowei-12-200'),'GOOWEI 200Ah is now on_request at both sellers and must never appear as a ready-to-buy match');
+assert(larger12Batteries.some(x=>x.product.id==='battery-goowei-12-200'),'Historical 2026-10-14 fixture should still find GOOWEI 200Ah as it was in stock then');
 assert(!larger12Batteries.some(x=>x.product.id==='battery-goowei-12-100'),'12V 100Ah battery must not pass a 2kWh nominal target');
 
 const rep1500Freshness=catalog.products.find(p=>p.id==='inverter-rogerele-rep1500-24');
