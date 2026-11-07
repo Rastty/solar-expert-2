@@ -98,7 +98,7 @@ window.SolarExpertAffiliate = {
     const target = offer.source_url || product.source_url || null;
     const generated = this.merchantDeepLink(offer.merchant, target);
     const href = mapped || offer.affiliate_url || generated || target || '#';
-    const verifiedAt = offer.verified_at || product.verified_at || null;
+    const verifiedAt = offer.verified_at || null; // Exact merchant evidence only; never borrow another shop's date.
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
@@ -169,7 +169,7 @@ window.SolarExpertAffiliate = {
     if (!deal || !offer) return {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null, raw:null};
     const target = offer.source_url || deal.source_url || null;
     const generated = this.merchantDeepLink(offer.merchant, target);
-    const verifiedAt = offer.verified_at || deal.verified_at || null;
+    const verifiedAt = offer.verified_at || null; // Exact merchant evidence only; never borrow another shop's date.
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
@@ -182,8 +182,8 @@ window.SolarExpertAffiliate = {
       availability: freshness === 'fresh' ? (offer.availability || deal.availability || null) : 'unverified',
       verified_at: verifiedAt,
       price_freshness: freshness,
-      savings_czk: Number(deal.savings_czk || 0) || null,
-      bank_savings_czk: Number(deal.bankSavingsCzk || deal.savings_czk || 0) || null,
+      savings_czk: freshness === 'fresh' ? (Number(deal.savings_czk || 0) || null) : null,
+      bank_savings_czk: freshness === 'fresh' ? (Number(deal.bankSavingsCzk || deal.savings_czk || 0) || null) : null,
       extra_battery_units: Number(deal.extraBatteryUnits || 0),
       raw: offer
     };
