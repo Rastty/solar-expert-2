@@ -202,6 +202,14 @@
       </template>
     </div>
 
+    <div class="se-note se-note-error" data-se-integrated-pv-isc-blocked="true"
+         x-show="bundles.some(b => b && b.status==='pv_isc_limit_unverified')" x-cloak
+         role="status" aria-live="polite" style="margin-top:14px">
+      <strong>Nákup hybridní sestavy zatím nedoporučujeme.</strong>
+      U některých měničů Growatt známe provozní proud FV vstupu, ale nemáme ověřený absolutní Isc limit konkrétní hardwarové verze.
+      Dva nezávislé MPPT vstupy nelze sčítat jako jeden. Dokud chybí výrobní potvrzení, nezobrazujeme nákupní odkazy ani cenu celé takové sestavy.
+      Pro ověření kontaktujte odborníka nebo výrobce s přesným modelem a revizí.
+    </div>
     <div class="se-note" x-show="!completeBundles.length" style="margin-top:14px">
       Pro zadané parametry zatím nemáme v ověřeném katalogu kompletní sestavu. Raději nezobrazíme neověřenou kombinaci, než doporučit technicky slabou variantu.
     </div>
