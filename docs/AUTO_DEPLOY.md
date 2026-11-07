@@ -22,8 +22,8 @@ The workflow:
 3. resolves the merged PR head and requires its **WordPress Playground Preview** (`preview`) to be successful;
 4. requires the release-scoped private database/uploads backup receipt and staging-restore attestation; then snapshots previous live theme source before mutations;
 5. calls the secret Deployer for Git Push-to-Deploy URL;
-5. polls `/wp-json/solar-expert/v1/health`;
-6. succeeds only when the live theme version matches `style.css`, managed content is current and sync errors are zero.
+6. polls `/wp-json/solar-expert/v1/health`;
+7. succeeds only when the live theme version matches `style.css`, managed content is current and sync errors are zero.
 
 If `SOLAR_EXPERT_DEPLOY_URL` is not configured, the workflow exits safely without deploying.
 
@@ -52,7 +52,7 @@ This is **persisted previous-theme CODE evidence, not a verified end-to-end Word
 
 Production remains repo-driven. If a release is bad, revert the offending commit(s) on `dev`. The same gated auto-deploy path will ship the reverted state after CI passes.
 
-For an urgent manual fallback, use Deployer for Git's normal Pull/Update action.
+For an urgent manual fallback, use Deployer for Git's normal Pull/Update action. **This manual WordPress action bypasses the GitHub Actions restore-receipt gate. It must not be used to work around missing database/uploads backup or an untested restore; the operator must verify the same safeguards independently before taking it.**
 
 ## Safety rule
 
