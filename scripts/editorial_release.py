@@ -410,8 +410,13 @@ def apply(m: dict, manifest_sha: str) -> None:
                 writes_attempted=1, canonical_url=SITE + "/" + m["slug"] + "/")
         raise
     result_id = result.get("id") if type(result) is dict else None
-    require(type(result_id) is int and result_id > 0,
-            "WordPress POST response lacked post ID; outcome unknown, no retry")
+    if type(result_id) is not int or result_id < 1:
+        # The request may have mutated WordPress despite returning an incomplete
+        # response; never claim zero writes or silently re-submit that POST.
+        receipt("outcome_unknown_do_not_retry", operation_id=m["operation_id"],
+                writes_attempted=1, canonical_url=SITE + "/" + m["slug"] + "/",
+                reason="missing_post_id")
+        raise Blocked("WordPress POST response lacked post ID; inspect the live slug before any action")
     try:
         ok, after = verify_after(m, sha(source), cat, result_id)
         if not ok:
