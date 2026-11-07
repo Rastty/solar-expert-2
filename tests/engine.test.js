@@ -1,3 +1,10 @@
+// This engine/offer ranking fixture records the known October 2026 seller
+// snapshots. Keep its decision baselines at that observation date. Current
+// price expiry is covered by separate synthetic age-gate tests and by the
+// new live-source catalog re-verification regression in PR #146.
+// Never move any production offer verification date to appease these tests.
+const {mock} = require('node:test');
+mock.timers.enable({apis:['Date'],now:new Date('2026-10-14T12:00:00Z')});
 global.window = {SolarExpertConfig:{affiliateMap:{products:{},leads:{}},affiliateBases:{}}};
 require('../assets/js/affiliate-adapter.js');
 require('../assets/js/product-matcher.js');
