@@ -55,6 +55,8 @@ test('unknown and future-dated offers cannot drive price ranking or a public sto
   const fallback={id:'without-offers',type:'battery',price_czk:10,availability:'in_stock'};
   assert.equal(M.effectivePrice(fallback),Number.MAX_SAFE_INTEGER,
     'Legacy offer lacking verifiedAt may not supply a best-price comparison');
+ assert.equal(M.availabilityRank(fallback),1,
+    'Legacy stock without a source date may only be a downgraded technical candidate');
 });
 test('expired prices/stock are not current while real fresh prices still rank normally',()=>{
   const stale=offer('2000-01-01',100);
@@ -71,6 +73,10 @@ test('expired prices/stock are not current while real fresh prices still rank no
   assert.equal(freshResolved.price_czk,2599);
   assert.equal(freshResolved.availability,'in_stock');
   assert.equal(freshResolved.price_freshness,'fresh');
+ assert.equal(A.resolve(p).merchantId,'solar-import-cz',
+   'A cheaper stale seller must not be first recommended merchant');
+ assert.equal(A.offers(p)[0].price_czk,2599,
+   'First buyer link must have a verified-current price if one exists');
 });
 test('a different merchant or enclosing product cannot lend verification dates',()=>{
  const freshParent=product(todayUtc(),1200);
@@ -122,4 +128,24 @@ test('bundle discount is not permitted by a parent timestamp when merchant offer
  assert.ok(selected);
  assert.equal(selected.price_czk,10000);
  assert.equal(selected.savings_czk,10000);
+});
+
+test('independently fresh bundle retailer outranks an older apparently cheaper merchant',()=>{
+ const deal={
+   id:'price-order',merchant:'battery-cz',price_czk:1000,availability:'in_stock',
+   offers:[
+     {merchant:'battery-cz',price_czk:1000,availability:'in_stock',
+       verified_at:'2000-01-01',source_url:'https://www.battery.cz/stale/'},
+     {merchant:'solar-import-cz',price_czk:2500,availability:'in_stock',
+       verified_at:todayUtc(),source_url:'https://www.solar-import.cz/current/'},
+   ]
+ };
+ const quotes=A.bundleDealOffers(deal);
+ assert.equal(quotes.length,2);
+ assert.equal(quotes[0].merchantId,'solar-import-cz');
+ assert.equal(quotes[0].price_czk,2500);
+ assert.equal(quotes[0].availability,'in_stock');
+ assert.equal(quotes[1].merchantId,'battery-cz');
+ assert.equal(quotes[1].price_czk,null);
+ assert.equal(quotes[1].availability,'unverified');
 });
