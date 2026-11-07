@@ -52,10 +52,11 @@ test('persist old source fingerprint and actual archived rollback candidate BEFO
   assert.ok(bash.includes('sha256sum "$previous_file"')&&bash.includes('sha256sum "$live_file"'));
   assert.ok(bash.includes('if [ "$expected" != "$actual" ]'),'Mismatching public bytes must abort deployment');
   assert.ok(bash.includes('git archive --format=tar.gz')&&bash.includes('previous-theme-source.tar.gz'),'Actual prior tree must be archived');
+  assert.ok(bash.includes('tar -xOzf')&&bash.includes('if [ "$recovered" != "$expected" ]'),'Archive must round-trip all four old source files before shipping');
   assert.ok(!/\bDEPLOY_URL\b|system\/scripts\/click\.php|secret=/.test(bash),'No webhook tokens or affiliate test clicks in rollback capture');
 });
 
-function trySnapshot({match=true,parentPresent=true}={}){
+function trySnapshot({match=true,parentPresent=true,corruptArchive=false}={}){
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'solar-rollback-proof-'));
  try{
    const output=path.join(dir,'actions-output');
@@ -66,7 +67,17 @@ function trySnapshot({match=true,parentPresent=true}={}){
      '  rev-parse) printf "historical-source-sha\\n";;',
      '  cat-file) if [ "$MOCK_PARENT_PRESENT" = "yes" ]; then return 0; else return 1; fi;;',
      '  show) relative="${2#*:}"; printf "old-reviewed-source:%s" "$relative";;',
-     '  archive) for arg in "$@"; do case "$arg" in --output=*) archive="${arg#--output=}";; esac; done; test -n "${archive:-}" || return 8; printf "historical-theme-archive" > "$archive";;',
+"  archive) for arg in \"$@\"; do case \"$arg\" in --output=*) archive=\"${arg#--output=}\";; esac; done",
+"           test -n \"${archive:-}\" || return 8",
+"           if [ \"$MOCK_CORRUPT_ARCHIVE\" = \"yes\" ]; then printf \"broken-archive\" > \"$archive\"; else",
+"             temporary=\"$(mktemp -d)\"",
+"             for relative in style.css assets/js/selectors.js assets/js/affiliate-adapter.js assets/data/product-seed.json; do",
+"               mkdir -p \"$temporary/solar-expert-2/$(dirname \"$relative\")\"",
+"               printf \"old-reviewed-source:%s\" \"$relative\" > \"$temporary/solar-expert-2/$relative\"",
+"             done",
+"             tar -czf \"$archive\" -C \"$temporary\" solar-expert-2",
+"             rm -rf \"$temporary\"",
+"           fi;;",
      '  *) echo "Unexpected git command: $1" >&2; return 77;;',
      ' esac',
      '}',
@@ -87,7 +98,8 @@ function trySnapshot({match=true,parentPresent=true}={}){
    ].join('\n');
    const proc=cp.spawnSync('bash',['-c',stub],{
      env:{...process.env,GITHUB_SHA:'approved-test-sha',RUNNER_TEMP:dir,GITHUB_OUTPUT:output,
-       MOCK_PARENT_PRESENT:parentPresent?'yes':'no',MOCK_PUBLIC_MATCH:match?'yes':'no'},
+       MOCK_PARENT_PRESENT:parentPresent?'yes':'no',MOCK_PUBLIC_MATCH:match?'yes':'no',
+       MOCK_CORRUPT_ARCHIVE:corruptArchive?'yes':'no'},
      encoding:'utf8',timeout:8000,
    });
    const saved=path.join(dir,'solar-expert-rollback');
@@ -115,4 +127,11 @@ test('wrong live bytes or missing old commit prevents any rollback archive and f
    assert.ok(!result.evidence.includes('previous-theme-source.tar.gz'),'Never prepare a falsely verified rollback artifact');
    assert.equal(result.marker,'','Never authorize release step output after a failed preflight');
  }
+});
+
+test('corrupt prior-source archive fails before any upload-authorizing output',()=>{
+ const result=trySnapshot({corruptArchive:true});
+ assert.notEqual(result.status,0,'Corrupt archive must fail');
+ assert.ok(!result.evidence.includes('archive-sha256.txt'),'Broken archives must never get a valid checksum receipt');
+ assert.equal(result.marker,'','Corrupt package must not be approved');
 });
