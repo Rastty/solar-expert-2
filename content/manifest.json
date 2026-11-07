@@ -527,6 +527,18 @@
       "indexable": true,
       "category_slug": "solarni-panely",
       "file": "content/rewrites/jakou-baterii-k-solarnimu-panelu-400w.html"
+    },
+    {
+      "type": "post",
+      "slug": "solarni-panel-na-karavan-200w",
+      "title": "Solární panel na karavan 200 W: jakou 12V baterii a MPPT vybrat",
+      "status_if_new": "publish",
+      "status": "publish",
+      "publish_ready": true,
+      "indexable": true,
+      "category_slug": "solarni-panely",
+      "create_if_missing": true,
+      "file": "content/rewrites/solarni-panel-na-karavan-200w.html"
     }
   ]
 }
