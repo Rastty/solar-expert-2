@@ -20,11 +20,20 @@ The workflow:
 1. verifies the `dev` commit came from a merged pull request; direct pushes to `dev` are not auto-deployed;
 2. waits for **Validate Solar Expert** (`validate`) on the merge commit;
 3. resolves the merged PR head and requires its **WordPress Playground Preview** (`preview`) to be successful;
-4. calls the secret Deployer for Git Push-to-Deploy URL;
+4. requires the release-scoped private database/uploads backup receipt and staging-restore attestation; then snapshots previous live theme source before mutations;
+5. calls the secret Deployer for Git Push-to-Deploy URL;
 5. polls `/wp-json/solar-expert/v1/health`;
 6. succeeds only when the live theme version matches `style.css`, managed content is current and sync errors are zero.
 
 If `SOLAR_EXPERT_DEPLOY_URL` is not configured, the workflow exits safely without deploying.
+
+## Mandatory pre-release WordPress database + media recovery attestation
+
+A release is **blocked before the first Deployer request** unless the private GitHub Actions secret `SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT` contains a valid owner-attested snapshot **for this exact previous `dev` commit**, backed by BOTH a database and `wp-content/uploads` backup no older than 24 hours and a successful staging restore rehearsal no older than 30 days. Missing evidence, wrong SHA, stale timestamps, missing upload copy or a failed rehearsal **hard fail the release**. The guard is checked even when the Deployer webhook secret is configured.
+
+This is a **private administrator attestation** and a replay-resistant code safety check, not proof that GitHub examined actual database/media backup bytes or performed a real restoration. **Do not invent an attestation before host-level backup and staging restore have actually been verified.** Complete receipt format and workflow: [WordPress Restore Attestation](WORDPRESS_RESTORE_ATTESTATION.md) and [issue #148](https://github.com/Rastty/solar-expert-2/issues/148).
+
+**Offline regression:** `node --test tests/deploy-wordpress-backup-gate.test.mjs` executes the actual inline Bash preflight with mocked sources and rejects missing, stale, malformed, wrongly bound and unapproved backup receipts.
 
 ## Verified previous-theme source package — pre-deploy gate
 
