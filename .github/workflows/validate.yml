@@ -24,6 +24,8 @@ jobs:
         run: node --test tests/catalog-refresh-20261107.test.mjs
       - name: Daily 52-offer evidence age monitoring and UTC expiry check
         run: node --test tests/catalog-freshness.test.mjs
+      - name: Never publish unverified or future-dated seller prices and stock
+        run: node --test tests/offer-evidence-fail-closed.test.mjs
       - name: Completed seller-price audit, exact bundle offers and LiFePO4 charging safety
         run: node --test tests/catalog-completion-20261107.test.mjs
       - name: JSON validity
