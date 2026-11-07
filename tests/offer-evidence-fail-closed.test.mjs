@@ -70,6 +70,24 @@ test('expired prices/stock are not current while real fresh prices still rank no
   assert.equal(freshResolved.availability,'in_stock');
   assert.equal(freshResolved.price_freshness,'fresh');
 });
+test('a different merchant or enclosing product cannot lend verification dates',()=>{
+ const freshParent=product(todayUtc(),1200);
+ freshParent.offers[0].verified_at=null;
+ assert.equal(M.effectivePrice(freshParent),Number.MAX_SAFE_INTEGER);
+ const productQuote=A.resolveOffer(freshParent,freshParent.offers[0]);
+ assert.equal(productQuote.verified_at,null);
+ assert.equal(productQuote.price_czk,null);
+ assert.equal(productQuote.availability,'unverified');
+ const deal={id:'deal-with-unaudited-seller',verified_at:todayUtc(),
+   price_czk:10000,availability:'in_stock',savings_czk:500,bankSavingsCzk:500};
+ const missingDate=offer(null,10000);
+ const bundleQuote=A.resolveBundleDealOffer(deal,missingDate);
+ assert.equal(bundleQuote.verified_at,null);
+ assert.equal(bundleQuote.price_czk,null);
+ assert.equal(bundleQuote.availability,'unverified');
+ assert.equal(bundleQuote.savings_czk,null,'Undated merchant offer cannot claim set savings');
+ assert.equal(bundleQuote.bank_savings_czk,null);
+});
 test('bundle offers use identical fail-closed evidence rules without losing merchant links',()=>{
   const item={id:'deal',merchant:'battery-cz',availability:'in_stock',price_czk:9999};
   for(const date of [null,'2000-01-01','2026-02-31','2999-01-01']){
