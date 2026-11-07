@@ -86,6 +86,7 @@ function CHECKED_SIZE(){return checked.length;}
 test('seller on-request signal prevents unsupported 12V ready-to-buy bank',()=>{
  const product=catalog.products.find(p=>p.id==='battery-goowei-12-200');
  assert.equal(product.availability,'on_request');
+ assert.equal(product.tier,'reference','On-request offer cannot remain an active Best Value recommendation');
  assert.ok(product.offers.every(o=>o.availability==='on_request'));
  assert.equal(M.availabilityRank(product),0);
  const candidates=B.batteryBankCandidatesAll(catalog.products,{voltage:12,batteryKwh:2,inverterW:800});
