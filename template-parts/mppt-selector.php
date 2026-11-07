@@ -1,6 +1,10 @@
 <div class="se-panel" x-data="solarExpertMpptSelector()" x-init="init()">
   <div class="se-kicker">Výběr MPPT regulátoru</div><h2>Vyberte regulátor podle FV pole</h2>
-  <div class="se-note" style="margin-bottom:14px"><strong>Upravte parametry svého pole.</strong> Hodnoty níže jsou jen výchozí příklad; výsledek se po každé změně přepočítá automaticky.</div>
+  <div class="se-note" style="margin-bottom:14px"><strong>Upravte parametry svého pole.</strong> Hodnoty níže jsou jen výchozí příklad; výsledek se po každé změně přepočítá automaticky. Před výběrem potřebujete také <strong>Isc panelu</strong> a počet paralelních stringů.</div>
+  <div class="se-note" x-show="articleExample" x-cloak role="status" data-se-article-example="mppt400" style="margin-bottom:14px">
+    <strong>Model z článku o regulátoru k 400W panelu (24V baterie).</strong>
+    Pro výpočet jsme předvyplnili ilustrační Voc 49 V, Vmp 40 V a Isc 11 A, jeden panel v sérii a jednu paralelní větev. <strong>Nejsou to parametry všech 400W panelů.</strong> Opište vlastní Voc, Vmp a Isc z datasheetu a ověřte minimální teplotu lokality.
+  </div>
   <div class="se-note se-selector-examples" data-se-selector-examples="mppt" style="margin-bottom:14px">
     <strong>Nemáte zatím parametry? Vyzkoušejte ukázkové zapojení.</strong>
     <p class="se-muted">Voc a Vmp jsou modelové hodnoty, nikoli parametry libovolného 400W či 190W panelu. Před nákupem opište hodnoty z datasheetu svého panelu.</p>
@@ -14,15 +18,19 @@
     <div class="se-field"><label for="se-mppt-panel-wp">Výkon pole (Wp)</label><input id="se-mppt-panel-wp" class="se-input" type="number" min="50" step="50" x-model.number="panelWp" @input.debounce.200ms="run()"></div>
     <div class="se-field"><label for="se-mppt-panel-voc">Voc panelu (V)</label><input id="se-mppt-panel-voc" class="se-input" type="number" min=".1" step=".1" x-model.number="panelVoc" @input.debounce.200ms="run()"></div>
     <div class="se-field"><label for="se-mppt-panel-vmp">Vmp panelu (V)</label><input id="se-mppt-panel-vmp" class="se-input" type="number" min=".1" step=".1" x-model.number="panelVmp" @input.debounce.200ms="run()"></div>
-    <div class="se-field"><label for="se-mppt-series-count">Panelů v sérii</label><input id="se-mppt-series-count" class="se-input" type="number" min="1" step="1" x-model.number="seriesCount" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-mppt-panel-isc">Isc jednoho panelu (A)</label><input id="se-mppt-panel-isc" class="se-input" type="number" min=".01" max="250" step=".01" x-model.number="panelIsc" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-mppt-series-count">Panelů v sérii (S)</label><input id="se-mppt-series-count" class="se-input" type="number" min="1" max="20" step="1" x-model.number="seriesCount" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-mppt-parallel-count">Počet paralelních stringů (P)</label><input id="se-mppt-parallel-count" class="se-input" type="number" min="1" max="20" step="1" x-model.number="parallelCount" @input.debounce.200ms="run()"></div>
   </div>
   <div class="se-note" style="margin-top:14px">
     String Vmp: <strong><span x-text="stringVmp.toFixed(1)"></span> V</strong> · konzervativní cold Voc (×1,12): <strong><span x-text="coldStringVoc.toFixed(1)"></span> V</strong> ·
+    celkové Isc pole: <strong><span x-text="Number.isFinite(arrayIsc)?arrayIsc.toFixed(2):'—'"></span> A</strong> ·
     požadovaný nabíjecí proud regulátoru alespoň <strong><span x-text="requiredChargeA"></span> A</strong>.
-    Výběr hlídá startovací MPPT napětí i rezervu pod maximálním Voc. Před nákupem ověřte přesný teplotní koeficient Voc a minimální návrhovou teplotu lokality.
+    Výběr hlídá startovací MPPT napětí, rezervu pod maximálním Voc a Isc všech paralelních větví pod výrobcem uvedeným limitem regulátoru s 2% bezpečnostní rezervou.
+    Isc vstupu a nabíjecí proud baterie jsou <strong>dva rozdílné parametry</strong>. Před nákupem ověřte přesný teplotní koeficient Voc, návrhovou teplotu, proudové součinitele a jištění podle konkrétního projektu.
   </div>
   <div class="se-note se-note-error" x-show="!inputValid" style="margin-top:14px" role="alert">
-    Zkontrolujte vstupy: výkon a napětí musí být kladné a Voc panelu musí být vyšší než Vmp.
+    Zkontrolujte vstupy: výkon, Voc, Vmp a Isc musí být kladná konečná čísla, Voc vyšší než Vmp a počty panelů v sérii i paralelních větví musí být celé kladné hodnoty.
   </div>
   <div class="se-note" x-show="catalogLoading" style="margin-top:14px" role="status" aria-live="polite">Načítám ověřený katalog MPPT regulátorů…</div>
   <div class="se-note se-note-error" x-show="catalogError" style="margin-top:14px" role="alert">
@@ -53,6 +61,6 @@
         </div>
       </div>
     </template>
-    <div x-show="!catalogLoading && !catalogError && inputValid && !matches.length" class="se-note">Žádný MPPT v ověřeném katalogu současně nesplňuje výkon, potřebný nabíjecí proud a napěťové okno. U 48V nebo větších polí může jít o mezeru našeho současného katalogu, ne o chybu vašeho návrhu.</div>
+    <div x-show="!catalogLoading && !catalogError && inputValid && !matches.length" class="se-note">Žádný MPPT v ověřeném katalogu současně nesplňuje výkon, nabíjecí proud, napěťové okno a bezpečný Isc vstupu. U 48V nebo větších polí může jít o mezeru našeho současného katalogu, ne o chybu vašeho návrhu.</div>
   </div>
 </div>
