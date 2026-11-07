@@ -6,7 +6,7 @@ window.SolarExpertProductMatcher={
     // Only exact, real UTC calendar dates qualify. JavaScript silently
     // normalizes invalid dates (e.g. February 31), and future-dated records
     // must not become "fresh" quotes or stock evidence.
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(verifiedAt)))return 'unknown';
+    if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(String(verifiedAt)))return 'unknown';
     const verified=new Date(String(verifiedAt)+'T00:00:00Z');
     const now=nowValue?new Date(nowValue):new Date();
     if(Number.isNaN(verified.getTime())||Number.isNaN(now.getTime())
