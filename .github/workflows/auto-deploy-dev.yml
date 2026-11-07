@@ -40,6 +40,10 @@ jobs:
       - name: Check out release
         if: steps.config.outputs.enabled == 'true'
         uses: actions/checkout@v5
+        with:
+          # The first parent of this PR merge is the previously reviewed dev source.
+          # Needed for exact, pre-mutation git archive and public hash readback.
+          fetch-depth: 2
 
       - name: Verify merge came from a previewed PR
         if: steps.config.outputs.enabled == 'true'
@@ -127,6 +131,72 @@ jobs:
             echo "::error::The merged PR does not have a successful WordPress Playground preview; production deploy blocked."
             exit 1
           fi
+
+      - name: Capture verified previous-theme rollback snapshot
+        if: steps.config.outputs.enabled == 'true'
+        id: rollback
+        shell: bash
+        run: |
+          set -euo pipefail
+          # A successful prior PR merge has a first parent representing dev
+          # immediately before this release. It is only a rollback candidate
+          # if the LIVE four-file fingerprint matches that exact parent.
+          previous_sha="$(git rev-parse "${GITHUB_SHA}^1")"
+          if ! git cat-file -e "${previous_sha}^{commit}" 2>/dev/null; then
+            echo "::error::Previous release commit is not available in checkout; refusing deployment."
+            exit 1
+          fi
+
+          archive_dir="${RUNNER_TEMP}/solar-expert-rollback"
+          mkdir -p "$archive_dir"
+          manifest="$archive_dir/live-source-sha256.txt"
+          : > "$manifest"
+          base="https://solar-expert.cz/wp-content/themes/solar-expert-2"
+
+          for relative in style.css assets/js/selectors.js assets/js/affiliate-adapter.js assets/data/product-seed.json; do
+            previous_file="$(mktemp)"
+            live_file="$(mktemp)"
+            if ! git show "${previous_sha}:${relative}" > "$previous_file"; then
+              echo "::error::Previous release is missing source: $relative"
+              exit 1
+            fi
+            expected="$(sha256sum "$previous_file" | cut -d' ' -f1)"
+            probe_url="${base}/${relative}?rollback_preflight=${GITHUB_SHA}&ts=$(date +%s)"
+            if ! curl -fsS --max-redirs 0 --max-time 30 \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -o "$live_file" "$probe_url"; then
+              echo "::error::Cannot fetch current live rollback-source evidence: $relative"
+              exit 1
+            fi
+            actual="$(sha256sum "$live_file" | cut -d' ' -f1)"
+            rm -f "$previous_file" "$live_file"
+            if [ "$expected" != "$actual" ]; then
+              echo "::error::LIVE source differs from first-parent rollback candidate: $relative; do not deploy into an unknown state."
+              exit 1
+            fi
+            printf '%s  %s\n' "$expected" "$relative" >> "$manifest"
+            echo "Previous release public SHA256 matched: $relative."
+          done
+
+          git archive --format=tar.gz --prefix=solar-expert-2/ \
+            --output="$archive_dir/previous-theme-source.tar.gz" "$previous_sha"
+          test -s "$archive_dir/previous-theme-source.tar.gz"
+          sha256sum "$archive_dir/previous-theme-source.tar.gz" > "$archive_dir/archive-sha256.txt"
+          printf 'previous_dev_commit=%s\nnew_release_commit=%s\nverified_public_files=4\n' \
+            "$previous_sha" "$GITHUB_SHA" > "$archive_dir/release-ids.txt"
+          printf 'Read-only previous-source code archive; NOT a full WordPress database/media/options backup.\nRollback is NOT performed automatically; require an independently approved restore runbook.\n' \
+            > "$archive_dir/RESTORE-LIMITATIONS.txt"
+          echo "previous_sha=$previous_sha" >> "$GITHUB_OUTPUT"
+          echo "Verified existing public theme matches prior dev commit $previous_sha; code rollback package prepared."
+
+      - name: Persist verified previous-theme rollback snapshot
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-expert-verified-predeploy-${{ github.run_id }}
+          path: ${{ runner.temp }}/solar-expert-rollback/
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Trigger Deployer for Git
         if: steps.config.outputs.enabled == 'true'
