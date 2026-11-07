@@ -270,14 +270,83 @@ def category_id() -> int:
     return result
 
 
-def recent_posts_gate() -> None:
-    since = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%S")
-    rows = wp("GET", "/wp/v2/posts", query={
-        "after": since, "context": "edit", "status": "publish",
-        "per_page": 100, "_fields": "id,date_gmt,slug",
-    })
-    require(type(rows) is list, "Cannot prove last-24h publication count")
-    require(len(rows) == 0, "At most one new site-wide post in 24 hours; stop")
+def parse_wp_gmt_utc(value: object) -> datetime:
+    """WordPress's date_gmt is UTC even though its ISO field often omits Z.
+
+    Never interpret date_gmt through the local machine timezone. Reject any
+    malformed/null/offset-ambiguous evidence instead of opening a publish gate.
+    """
+    require(isinstance(value, str) and re.fullmatch(
+        r"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|\\+00:00)?", value
+    ) is not None, "WordPress date_gmt is missing or not an explicit UTC field")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        raise Blocked("WordPress date_gmt is not a real UTC date") from None
+    return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed.astimezone(timezone.utc)
+
+
+def parse_wp_local_date(value: object) -> datetime:
+    """Read the date field ONLY to validate WordPress's local-date sorting.
+
+    No local date is ever compared with UTC publication cutoff.
+    """
+    require(isinstance(value, str) and re.fullmatch(
+        r"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}", value
+    ) is not None, "Missing or malformed WordPress local sort date")
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        raise Blocked("WordPress local sort date is impossible") from None
+
+
+def recent_posts_gate(*, now_utc: datetime | None = None) -> None:
+    """Fail closed on any published post in the rolling 24h UTC window.
+
+    Do NOT use WP REST 'after': some WP versions interpret its timezone-less
+    filter against post.date in the *site-local* timezone. Instead page the
+    canonical published-post date sort and compare actual post.date_gmt in UTC.
+    The 14h conservative local-date margin handles all normal UTC offsets,
+    DST and backtracking near the boundary without trusting client clocks for
+    WordPress local-date -> UTC conversion.
+    """
+    now = now_utc if now_utc is not None else datetime.now(timezone.utc)
+    require(isinstance(now, datetime) and now.tzinfo is not None,
+            "Publishing clock must be UTC-offset aware")
+    now = now.astimezone(timezone.utc)
+    cutoff = now - timedelta(hours=24)
+    # WordPress sorts by local 'date', not by date_gmt. A local timestamp older
+    # than UTC cutoff MINUS 14h cannot represent a newer UTC post for any
+    # ordinary timezone (even with a DST shift); only then may paging stop.
+    conservative_local_stop = cutoff.replace(tzinfo=None) - timedelta(hours=14)
+    prev_local: datetime | None = None
+    pages = 0
+    for page in range(1, 31):
+        pages += 1
+        rows = wp("GET", "/wp/v2/posts", query={
+            "context": "edit", "status": "publish",
+            "orderby": "date", "order": "desc", "page": page,
+            "per_page": 100, "_fields": "id,slug,status,date,date_gmt",
+        })
+        require(type(rows) is list and len(rows) <= 100,
+                "Cannot prove last-24h post window: invalid or truncated REST page")
+        for item in rows:
+            require(type(item) is dict and type(item.get("id")) is int
+                    and item["id"] > 0 and item.get("status") == "publish",
+                    "Published WordPress post evidence is incomplete")
+            local = parse_wp_local_date(item.get("date"))
+            stamp = parse_wp_gmt_utc(item.get("date_gmt"))
+            require(prev_local is None or local <= prev_local,
+                    "WordPress published date sorting drifted across pages")
+            prev_local = local
+            require(stamp < cutoff,
+                    "A published WordPress post exists within the last 24h UTC; stop")
+        if len(rows) < 100:
+            return  # reached final complete page, including an empty site
+        if prev_local is not None and prev_local < conservative_local_stop:
+            return  # source-backed proof all subsequent local dates are older
+    raise Blocked("Too many recent posts to safely prove the 24h publication window: stop")
+
 
 
 def check_existing(m: dict, source: str, cat: int, *, for_update: bool) -> tuple[str, dict | None]:
