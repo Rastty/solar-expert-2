@@ -1,6 +1,7 @@
 """Offline publisher guarantees. NEVER uses live WordPress or GitHub in tests."""
 import json
 import os
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import tempfile
 import unittest
@@ -67,11 +68,14 @@ def existing(content, *, id=1618):
 
 
 class FakeWordPress:
-    def __init__(self, *, existing_post=None, fail_write=False, recently_published=False, missing_post_id=False):
+    def __init__(self, *, existing_post=None, fail_write=False, recently_published=False,
+                 missing_post_id=False, recent_pages=None):
         self.record = existing_post
         self.fail_write = fail_write
         self.recently_published = recently_published
         self.missing_post_id = missing_post_id
+        self.recent_pages = recent_pages
+        self.recent_get_pages = []
         self.posts = 0
         self.reads = 0
 
@@ -84,8 +88,20 @@ class FakeWordPress:
                 return [self.record] if self.record else []
             if route == "/wp/v2/pages":
                 return []
-            if route == "/wp/v2/posts" and query and query.get("after"):
-                return [{"id": 9, "date_gmt": "2026-11-07T13:00:00"}] if self.recently_published else []
+            if route == "/wp/v2/posts" and query and query.get("orderby") == "date":
+                assert query.get("order") == "desc"
+                assert query.get("status") == "publish"
+                assert query.get("per_page") == 100
+                assert query.get("context") == "edit"
+                assert "after" not in query and "after_gmt" not in query
+                page = query["page"]
+                self.recent_get_pages.append(page)
+                if self.recent_pages is not None:
+                    return self.recent_pages.get(page, [])
+                if self.recently_published:
+                    return [{"id": 9, "date": "2026-11-07T14:00:00",
+                             "date_gmt": "2026-11-07T13:00:00", "status": "publish"}]
+                return []
             if route.startswith("/wp/v2/posts/"):
                 if self.record is None:
                     raise e.Blocked("post missing")
@@ -195,6 +211,97 @@ class PublisherTests(unittest.TestCase):
                 e.prepare(self.m, e.sha(e.canonical(self.m)))
         self.assertFalse(self.backup.exists())
         self.assertEqual(wp.posts, 0)
+
+
+    @staticmethod
+    def wp_row(identifier, date_gmt, site_local_date):
+        return {"id": identifier, "date_gmt": date_gmt, "date": site_local_date,
+                "status": "publish"}
+
+    def test_cet_24h_utc_boundary_does_not_use_local_after_filter(self):
+        now = datetime(2026, 11, 7, 17, 0, tzinfo=timezone.utc)
+        recent = self.wp_row(99, "2026-11-06T17:30:00", "2026-11-06T18:30:00")
+        wp = FakeWordPress(recent_pages={1: [recent]})
+        with patch.object(e, "wp", new=wp), self.assertRaises(e.Blocked):
+            e.recent_posts_gate(now_utc=now)
+        self.assertEqual(wp.recent_get_pages, [1])
+        old = self.wp_row(99, "2026-11-06T16:30:00", "2026-11-06T17:30:00")
+        wp = FakeWordPress(recent_pages={1: [old]})
+        with patch.object(e, "wp", new=wp):
+            e.recent_posts_gate(now_utc=now)
+        self.assertEqual(wp.recent_get_pages, [1])
+
+    def test_cest_24h_utc_boundary_does_not_miss_earlier_local_day(self):
+        now = datetime(2026, 7, 11, 12, 0, tzinfo=timezone.utc)
+        recent = self.wp_row(88, "2026-07-10T12:30:00", "2026-07-10T14:30:00")
+        wp = FakeWordPress(recent_pages={1: [recent]})
+        with patch.object(e, "wp", new=wp), self.assertRaises(e.Blocked):
+            e.recent_posts_gate(now_utc=now)
+        old = self.wp_row(88, "2026-07-10T11:30:00", "2026-07-10T13:30:00")
+        with patch.object(e, "wp", new=FakeWordPress(recent_pages={1: [old]})):
+            e.recent_posts_gate(now_utc=now)
+
+    def test_autumn_dst_backshift_does_not_open_second_publication_slot(self):
+        # Prague jumps from +02:00 to +01:00 on 2026-10-25.
+        # The comparisons must depend ONLY on UTC date_gmt.
+        now = datetime(2026, 10, 25, 1, 30, tzinfo=timezone.utc)
+        recent = self.wp_row(77, "2026-10-24T01:45:00", "2026-10-24T03:45:00")
+        with patch.object(e, "wp", new=FakeWordPress(recent_pages={1: [recent]})), self.assertRaises(e.Blocked):
+            e.recent_posts_gate(now_utc=now)
+        old = self.wp_row(77, "2026-10-24T01:00:00", "2026-10-24T03:00:00")
+        with patch.object(e, "wp", new=FakeWordPress(recent_pages={1: [old]})):
+            e.recent_posts_gate(now_utc=now)
+
+    def test_paginates_over_100_posts_without_trusting_first_page(self):
+        # 120 posts published 25-50 hours ago. The first page is FULL,
+        # but its last local date is still inside the conservative UTC
+        # ordering margin. The gate must read page 2 (not assume 100 is all).
+        now = datetime(2026, 11, 7, 17, 0, tzinfo=timezone.utc)
+        one = [self.wp_row(i + 1, "2026-11-06T16:00:00",
+                           "2026-11-06T17:00:00") for i in range(100)]
+        two = [self.wp_row(i + 101, "2026-11-05T09:00:00",
+                           "2026-11-05T10:00:00") for i in range(20)]
+        wp = FakeWordPress(recent_pages={1: one, 2: two})
+        with patch.object(e, "wp", new=wp):
+            e.recent_posts_gate(now_utc=now)
+        self.assertEqual(wp.recent_get_pages, [1, 2])
+
+    def test_more_than_100_recent_posts_blocks_publication(self):
+        now = datetime(2026, 11, 7, 17, 0, tzinfo=timezone.utc)
+        recent = [self.wp_row(i+1, "2026-11-07T12:00:00",
+                              "2026-11-07T13:00:00") for i in range(100)]
+        older = [self.wp_row(101, "2026-11-06T10:00:00",
+                             "2026-11-06T11:00:00")]
+        wp = FakeWordPress(recent_pages={1: recent, 2: older})
+        with patch.object(e, "wp", new=wp), self.assertRaises(e.Blocked):
+            e.recent_posts_gate(now_utc=now)
+        self.assertEqual(wp.recent_get_pages, [1])
+
+    def test_invalid_gmt_absent_gmt_and_unsorted_pages_fail_closed(self):
+        now = datetime(2026, 11, 7, 17, 0, tzinfo=timezone.utc)
+        for invalid in (None, "", "2026-11-31T01:00:00", "2026-11-06T10:00:00+02:00"):
+            with self.subTest(gmt=invalid):
+                wp = FakeWordPress(recent_pages={
+                    1: [self.wp_row(4, invalid, "2026-11-06T11:00:00")]
+                })
+                with patch.object(e, "wp", new=wp), self.assertRaises(e.Blocked):
+                    e.recent_posts_gate(now_utc=now)
+        wrong = [self.wp_row(1, "2026-11-06T09:00:00", "2026-11-06T11:00:00"),
+                 self.wp_row(2, "2026-11-06T08:00:00", "2026-11-06T13:00:00")]
+        with patch.object(e, "wp", new=FakeWordPress(recent_pages={1: wrong})), self.assertRaises(e.Blocked):
+            e.recent_posts_gate(now_utc=now)
+
+    def test_truncated_rest_page_or_nonterminating_pagination_is_blocked(self):
+        now = datetime(2026, 11, 7, 17, 0, tzinfo=timezone.utc)
+        too_many = [self.wp_row(i+1, "2026-11-06T16:00:00",
+                                "2026-11-06T17:00:00") for i in range(101)]
+        with patch.object(e, "wp", new=FakeWordPress(recent_pages={1: too_many})), self.assertRaises(e.Blocked):
+            e.recent_posts_gate(now_utc=now)
+        full = too_many[:100]
+        wp = FakeWordPress(recent_pages={i: full for i in range(1, 31)})
+        with patch.object(e, "wp", new=wp), self.assertRaises(e.Blocked):
+            e.recent_posts_gate(now_utc=now)
+        self.assertEqual(wp.recent_get_pages[-1], 30)
 
     def test_existing_post_requires_exact_hash_and_modified_before_an_edit(self):
         m = manifest(self.html, kind="post_update")
