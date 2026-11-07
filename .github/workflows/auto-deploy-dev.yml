@@ -24,7 +24,6 @@ jobs:
     env:
       DEPLOY_URL: ${{ secrets.SOLAR_EXPERT_DEPLOY_URL }}
       GH_TOKEN: ${{ github.token }}
-      WORDPRESS_BACKUP_RECEIPT: ${{ secrets.SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT }}
 
     steps:
       - name: Detect deploy configuration
@@ -135,6 +134,8 @@ jobs:
 
       - name: Require release-scoped WordPress database and uploads restore attestation
         if: steps.config.outputs.enabled == 'true'
+        env:
+          WORDPRESS_BACKUP_RECEIPT: ${{ secrets.SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT }}
         shell: bash
         run: |
           set -euo pipefail
