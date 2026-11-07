@@ -3,9 +3,15 @@ window.SolarExpertProductMatcher={
 
   verificationState(verifiedAt, nowValue){
     if(!verifiedAt)return 'unknown';
+    // Only exact, real UTC calendar dates qualify. JavaScript silently
+    // normalizes invalid dates (e.g. February 31), and future-dated records
+    // must not become "fresh" quotes or stock evidence.
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(verifiedAt)))return 'unknown';
     const verified=new Date(String(verifiedAt)+'T00:00:00Z');
     const now=nowValue?new Date(nowValue):new Date();
-    if(Number.isNaN(verified.getTime())||Number.isNaN(now.getTime()))return 'unknown';
+    if(Number.isNaN(verified.getTime())||Number.isNaN(now.getTime())
+      ||verified.toISOString().slice(0,10)!==verifiedAt
+      ||verified.getTime()>now.getTime())return 'unknown';
     const ageDays=Math.floor((now.getTime()-verified.getTime())/86400000);
     return ageDays>this.priceFreshnessDays?'stale':'fresh';
   },
@@ -39,7 +45,7 @@ window.SolarExpertProductMatcher={
   availabilityRank(product){
     const offers=Array.isArray(product.offers)?product.offers:[];
     if(offers.length){
-      const usable=offers.filter(o=>this.verificationState(o.verified_at)!=='stale');
+      const usable=offers.filter(o=>this.verificationState(o.verified_at)==='fresh');
       if(usable.some(o=>o.availability==='in_stock'))return 2;
       if(usable.some(o=>o.availability==='usually_in_stock'))return 1;
       if(offers.some(o=>o.availability==='in_stock'||o.availability==='usually_in_stock'))return 1;
@@ -61,7 +67,7 @@ window.SolarExpertProductMatcher={
       const freshOffers=offers.filter(o=>
         o.availability==='in_stock'&&
         Number(o.price_czk)>0&&
-        this.verificationState(o.verified_at)!=='stale'
+        this.verificationState(o.verified_at)==='fresh'
       );
       if(freshOffers.length)return Math.min(...freshOffers.map(o=>Number(o.price_czk)));
 
@@ -69,7 +75,7 @@ window.SolarExpertProductMatcher={
       if(hadPricedOffers)return Number.MAX_SAFE_INTEGER;
     }
 
-    if(this.verificationState(product.verified_at)==='stale')return Number.MAX_SAFE_INTEGER;
+    if(this.verificationState(product.verified_at)!=='fresh')return Number.MAX_SAFE_INTEGER;
     return Number(product.price_czk||Number.MAX_SAFE_INTEGER);
   },
 
