@@ -277,7 +277,7 @@ def parse_wp_gmt_utc(value: object) -> datetime:
     malformed/null/offset-ambiguous evidence instead of opening a publish gate.
     """
     require(isinstance(value, str) and re.fullmatch(
-        r"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|\\+00:00)?", value
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|\+00:00)?", value
     ) is not None, "WordPress date_gmt is missing or not an explicit UTC field")
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -292,7 +292,7 @@ def parse_wp_local_date(value: object) -> datetime:
     No local date is ever compared with UTC publication cutoff.
     """
     require(isinstance(value, str) and re.fullmatch(
-        r"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}", value
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", value
     ) is not None, "Missing or malformed WordPress local sort date")
     try:
         return datetime.fromisoformat(value)
