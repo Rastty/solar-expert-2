@@ -48,6 +48,16 @@ test('a published adjacent 400Wp battery guide discovers the smaller caravan use
    'The 190Wp-200Wp caravan topic must not be confused with a 400Wp 12V/24V battery sizing article');
 });
 
+test('published solar kit guide adds one relevant 12V caravan buyer bridge',()=>{
+ const kits=read('content/rewrites/sady-pro-solarni-napajeni-kompletni-pruvodce.html');
+ assert.equal(kits.split('href="/solarni-panel-na-karavan-200w/"').length-1,1,
+   'Only one related 12V caravan link in established solar kit buyer context');
+ assert(kits.includes('Pro malou 12V sestavu na cestách'),
+   'Link must appear at genuine system-voltage comparison, not an unrelated global footer');
+ assert(kits.includes('Nejde o automaticky ověřenou univerzální sadu'),
+   'A linked caravan shopping guide must not imply hardware certification');
+});
+
 test('model calculations and limits are transparent, not claimed as observed output',()=>{
  for(const part of ['0,20 kWp × 3,5 h × 0,75 = 0,525 kWh','525 Wh','338 Wh','12,8 V','640 Wh','1 280 Wh','461 Wh','922 Wh','25,5 × 1,12 = 28,56 V','Isc 9,17 A']){
    assert(article.includes(part),'Model math or safety note missing: '+part);
