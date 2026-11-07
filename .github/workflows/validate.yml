@@ -20,6 +20,8 @@ jobs:
         run: find assets/js tests -name '*.js' -print0 | xargs -0 -n1 node --check
       - name: Affiliate source link audit fixture
         run: node --test tests/affiliate-source-audit.test.mjs
+      - name: Retail offer price evidence age and daily recheck queue
+        run: node --test tests/catalog-freshness.test.mjs
       - name: JSON validity
         run: |
           find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
