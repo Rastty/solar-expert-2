@@ -19,6 +19,10 @@ window.SolarExpertProductMatcher={
       else if(product.system_voltage_class*product.max_discharge_a<sizing.inverterW){pass=false;reasons.push('insufficient_discharge_power');}
     }
     if(product.type==='inverter'||product.type==='inverter_hybrid'){
+      // This selector and Builder assemble LiFePO4 systems. Do not surface an
+      // inverter whose integrated charger explicitly forbids LiFePO4, even if
+      // its standalone DC/AC voltage and surge rating otherwise fit.
+      if(product.lifepo4_charge_supported===false){pass=false;reasons.push('lifepo4_charger_not_supported');}
       if(product.dc_voltage!==sizing.voltage){pass=false;reasons.push('wrong_dc_voltage');}
       if((product.continuous_w||0)<sizing.inverterW){pass=false;reasons.push('continuous_power_too_low');}
       if((product.peak_w||0)<sizing.peak){pass=false;reasons.push('surge_power_too_low');}
