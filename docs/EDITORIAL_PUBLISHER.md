@@ -61,6 +61,18 @@ Workflow `.github/workflows/solar-editorial-publisher.yml` testuje PR bez jakéh
 5. Po nejasné odpovědi, timeoutu, 5xx, změně obsahu nebo nedoloženém výsledku **nikdy automaticky neopakuje POST**. Zanechá `outcome_unknown_do_not_retry` nebo `readback_inconclusive_do_not_retry` a je nutné ručně zkontrolovat skutečný stav.
 6. Při opakovaném hodinovém běhu už hotová operace vrátí `already_live_verified` (**0 nových zápisů**). Novou operaci je třeba explicitně přepnout přes Git PR do `main`. Jen změna obsahu na proměnlivé větvi `dev` žádné WordPress publikování nespouští.
 
+## UTC a stránkování: nezávisle připomínkovaná oprava 2026-11-07
+
+Při revizi [PR #154](https://github.com/Rastty/solar-expert-2/pull/154) byl nalezen problém původní kontroly 24h publikací: filtr WordPress REST `after` s časem bez zóny může WordPress interpretovat podle místního `date` a na českém webu propustit článek o 1–2 hodiny předčasně.
+
+**Opravené pravidlo:** `recent_posts_gate()` neodesílá žádný serverový `after` filtr. Čte `/wp/v2/posts` se `status=publish`, `context=edit`, `orderby=date`, `order=desc`, `per_page=100`, `page=N` a s poli `id,slug,status,date,date_gmt`. Každé `date_gmt` musí být skutečně parsovatelný kalendářní datum/čas **UTC**, bez místního přeinterpretování. Pokud je jediné datum `date_gmt >= nyní_UTC−24h`, další `post_create` se zablokuje.
+
+WordPress řadí podle lokálního `date`, proto se `date` používá **pouze** k ověření monotónního řazení a k konzervativnímu ukončení stránkování, když je nejstarší lokální datum alespoň 14 hodin **před** UTC hranicí. Čtrnáctihodinová rezerva pokrývá i záporné časové zóny a přechody CET/CEST; bez bezpečně prokázaného konce skenu se kontrola nevydá za úspěšnou. U plné stránky 100 pokračuje na další stránku; víc než 30 plných, nedostatečně starých stránek, nekonzistentní pořadí, neplatná data, chybějící stav nebo čas publikace => **fail closed**. Nepoužívá se žádné hádané místní `after` ani přeskočení prvních 100 záznamů.
+
+**Ověření na živém REST, pouze GET:** `solar-expert.cz` dne 7. 11. 2026 úspěšně vrátilo přesný produkční dotaz s `per_page=100`, `status=publish` a oběma datovými poli pro 100 publikovaných příspěvků, sestupně seřazených podle `date`. Nejnovější položka WP **#1618**, `date_gmt=2026-11-07T13:00:39`; nejstarší na první stránce WP **#1304** z roku 2025. Poslední nový příspěvek je tedy při dnešním běhu v UTC 24h okně a další nový článek by byl bezpečně odmítnut. To je pouze ověření dostupného API, **nikoli první skutečná GitHub Actions publikace**.
+
+**Offline testy:** fixované okamžiky CET a CEST, podzimní posun času, přesná 24h hrana, 101+ záznamů a více stránek, chybná či chybějící `date_gmt`, rozbité řazení a limit stránkování. Nezávislý schvalovatel musí zkontrolovat opravený SHA PR, ne považovat starší komentář `COMMENTED` za schválení.
+
 ## Záměrná bezpečnostní omezení
 
 - Jeden globální `concurrency` zámek proti současným běhům tohoto workflow. **Nekryje externí WordPress editory**; proto se kontroluje SHA + `modified_gmt` znovu těsně před zápisem. WordPress Core REST neposkytuje atomické compare-and-swap, závod mezi posledním GET a POST není matematiky vyloučen.
