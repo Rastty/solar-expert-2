@@ -77,6 +77,12 @@ window.SolarExpertAffiliate = {
     return offers
       .filter(o => o && o.merchant)
       .sort((a,b) => {
+        // Display independently current retailer quotes first. A cheaper
+        // unverified/expired snapshot must never become the default merchant.
+        const matcher=window.SolarExpertProductMatcher;
+        const aFresh=matcher && matcher.verificationState(a.verified_at)==='fresh' ? 1 : 0;
+        const bFresh=matcher && matcher.verificationState(b.verified_at)==='fresh' ? 1 : 0;
+        if(aFresh!==bFresh)return bFresh-aFresh;
         const aStock = a.availability === 'in_stock' ? 1 : 0;
         const bStock = b.availability === 'in_stock' ? 1 : 0;
         if (aStock !== bStock) return bStock - aStock;
@@ -156,6 +162,12 @@ window.SolarExpertAffiliate = {
     return offers
       .filter(o => o && o.merchant)
       .sort((a,b) => {
+        // Display independently current retailer quotes first. A cheaper
+        // unverified/expired snapshot must never become the default merchant.
+        const matcher=window.SolarExpertProductMatcher;
+        const aFresh=matcher && matcher.verificationState(a.verified_at)==='fresh' ? 1 : 0;
+        const bFresh=matcher && matcher.verificationState(b.verified_at)==='fresh' ? 1 : 0;
+        if(aFresh!==bFresh)return bFresh-aFresh;
         const aStock = a.availability === 'in_stock' ? 1 : 0;
         const bStock = b.availability === 'in_stock' ? 1 : 0;
         if (aStock !== bStock) return bStock - aStock;
