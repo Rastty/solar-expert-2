@@ -24,6 +24,7 @@ jobs:
     env:
       DEPLOY_URL: ${{ secrets.SOLAR_EXPERT_DEPLOY_URL }}
       GH_TOKEN: ${{ github.token }}
+      WORDPRESS_BACKUP_RECEIPT: ${{ secrets.SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT }}
 
     steps:
       - name: Detect deploy configuration
@@ -131,6 +132,61 @@ jobs:
             echo "::error::The merged PR does not have a successful WordPress Playground preview; production deploy blocked."
             exit 1
           fi
+
+      - name: Require release-scoped WordPress database and uploads restore attestation
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # This is an owner-controlled private attestation, NOT an automatic
+          # proof that backup bytes exist or that a restore actually worked.
+          # Each merge changes the previous-dev SHA, preventing simple reuse.
+          if [ -z "${WORDPRESS_BACKUP_RECEIPT:-}" ]; then
+            echo "::error::No release-scoped DB/uploads restore attestation. No Deployer call is permitted; see issue #148."
+            exit 1
+          fi
+
+          previous_sha="$(git rev-parse "${GITHUB_SHA}^1")"
+          if ! jq -e --arg previous "$previous_sha" '
+            type=="object" and
+            .site=="solar-expert.cz" and
+            .previous_dev_sha==$previous and
+            (.database_backup_ref | type=="string" and length>=8) and
+            (.uploads_backup_ref | type=="string" and length>=8) and
+            (.restore_rehearsal_ref | type=="string" and length>=8) and
+            (.restore_owner | type=="string" and length>=3) and
+            .database_and_uploads_restorable==true and
+            .staging_restore_passed==true and
+            (.backup_completed_at_utc | type=="string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")) and
+            (.restore_rehearsal_at_utc | type=="string" and test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"))
+          ' <<<"$WORDPRESS_BACKUP_RECEIPT" >/dev/null 2>&1; then
+            echo "::error::Private backup receipt is missing fields, not approved, or does not match the prior dev commit. Deployment blocked."
+            exit 1
+          fi
+
+          backup_time="$(jq -r '.backup_completed_at_utc' <<<"$WORDPRESS_BACKUP_RECEIPT")"
+          drill_time="$(jq -r '.restore_rehearsal_at_utc' <<<"$WORDPRESS_BACKUP_RECEIPT")"
+          now_epoch="$(date -u +%s)"
+          if ! backup_epoch="$(date -u -d "$backup_time" +%s 2>/dev/null)" ||
+             ! drill_epoch="$(date -u -d "$drill_time" +%s 2>/dev/null)"; then
+            echo "::error::Backup/restore attestation timestamps are invalid."
+            exit 1
+          fi
+
+          # Require a recent real pre-release snapshot; a month-old backup or
+          # historic "we have backups" flag is not release-scoped evidence.
+          if [ "$backup_epoch" -gt "$now_epoch" ] ||
+             [ "$backup_epoch" -lt "$((now_epoch - 86400))" ]; then
+            echo "::error::DB/uploads backup receipt must be <=24h old, not future-dated. Deployment blocked."
+            exit 1
+          fi
+          if [ "$drill_epoch" -gt "$now_epoch" ] ||
+             [ "$drill_epoch" -lt "$((now_epoch - 2592000))" ]; then
+            echo "::error::Restore rehearsal attestation must be <=30 days old, not future-dated. Deployment blocked."
+            exit 1
+          fi
+
+          echo "Private release-scoped backup and restore attestation gate passed for preceding dev SHA. Backup bytes remain host-private; CI cannot independently certify their recoverability."
 
       - name: Capture verified previous-theme rollback snapshot
         if: steps.config.outputs.enabled == 'true'
