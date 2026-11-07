@@ -1,5 +1,5 @@
 window.solarExpertBuilder=function(){return{
-  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,catalogLoading:true,catalogError:false,bundles:[],result:null,trackedSteps:[],inputError:'',previewMode:false,
+  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,catalogLoading:true,catalogError:false,bundles:[],result:null,trackedSteps:[],inputError:'',previewMode:false,articleExample:false,articleExampleDefaults:null,articleExampleApplied:false,
   appliances:[
     {id:'fridge',name:'Lednice',watts:70,surge:700,hours:10,qty:1,selected:false},
     {id:'lights',name:'LED osvětlení',watts:40,surge:40,hours:5,qty:1,selected:false},
@@ -10,11 +10,11 @@ window.solarExpertBuilder=function(){return{
     {id:'kettle',name:'Rychlovarná konvice',watts:2000,surge:2000,hours:.12,qty:1,selected:false},
     {id:'tools',name:'Elektrické nářadí',watts:1000,surge:1800,hours:.5,qty:1,selected:false}
   ],
-  async init(){this.catalogLoading=true;this.catalogError=false;try{const r=await fetch(window.SolarExpertConfig.catalogUrl,{credentials:'same-origin'});if(!r.ok)throw new Error('catalog_http_'+r.status);const d=await r.json();this.catalog=d.products||[];this.bundleDeals=d.bundle_deals||[];this.catalogReady=true;if(this.result)this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result,this.bundleDeals);}catch(_){this.catalogReady=false;this.catalogError=true;}finally{this.catalogLoading=false;}},
+  async init(){this.catalogLoading=true;this.catalogError=false;this.applyInboundArticleExample();try{const r=await fetch(window.SolarExpertConfig.catalogUrl,{credentials:'same-origin'});if(!r.ok)throw new Error('catalog_http_'+r.status);const d=await r.json();this.catalog=d.products||[];this.bundleDeals=d.bundle_deals||[];this.catalogReady=true;if(this.result)this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result,this.bundleDeals);}catch(_){this.catalogReady=false;this.catalogError=true;}finally{this.catalogLoading=false;}},
   get selectedAppliances(){return this.appliances.filter(a=>a.selected);},
   get dailyWh(){return Math.round(this.selectedAppliances.reduce((s,a)=>s+a.watts*a.hours*a.qty,0));},
   get runningWatts(){return Math.round(this.selectedAppliances.reduce((s,a)=>s+a.watts*a.qty,0));},
-  get estimatedPeak(){if(!this.selectedAppliances.length)return 0;const b=this.runningWatts;return Math.round(Math.max(b,...this.selectedAppliances.map(a=>b-a.watts*a.qty+a.surge*a.qty)));},
+  get estimatedPeak(){if(!this.selectedAppliances.length)return 0;const b=this.runningWatts;return Math.round(Math.max(b,...this.selectedAppliances.map(a=>b-a.watts*a.qty+Math.max(a.surge,a.watts)*a.qty)));},
   get completeBundles(){return this.bundles.filter(b=>b&&b.complete);},
   get incompleteBundles(){return this.bundles.filter(b=>b&&!b.complete);},
   get primaryBundle(){return this.completeBundles.find(b=>b.tier==='best')||this.completeBundles[0]||null;},
@@ -102,7 +102,10 @@ window.solarExpertBuilder=function(){return{
   validateSelections(){
     if(!this.selectedAppliances.length)return 'Vyberte alespoň jeden spotřebič.';
     for(const a of this.selectedAppliances){
-      const hours=Number(a.hours),qty=Number(a.qty);
+      const hours=Number(a.hours),qty=Number(a.qty),watts=Number(a.watts);
+      if(!Number.isInteger(watts)||watts<1||watts>10000){
+        return a.name+': zadejte příkon od 1 do 10 000 W. U lednice zkontrolujte cyklování kompresoru; nejde o trvalý odběr 24 hodin.';
+      }
       if(!Number.isFinite(hours)||hours<=0||hours>24){
         return a.name+': zadejte dobu provozu větší než 0 a nejvýše 24 hodin denně. Pokud spotřebič nepoužíváte, odškrtněte jej.';
       }
@@ -118,6 +121,9 @@ window.solarExpertBuilder=function(){return{
   advanceToUsage(){
     this.inputError=this.validateSelections();
     if(this.inputError)return;
+    // The article link merely prefilled the second step. Count step_2
+    // only after this explicit continue click, not on page load.
+    if(this.articleExample)this.trackStep('step_2');
     this.step=3;
     this.trackStep('step_3');
   },
@@ -127,9 +133,49 @@ window.solarExpertBuilder=function(){return{
     ids.forEach(id=>{const a=this.appliances.find(x=>x.id===id);if(a)a.selected=true;});
     this.scenario=type;
   },
+  // One editor-approved token from the fridge buyer guide. No URL numbers
+  // are ever interpreted as power, hours, prices or a merchant preference.
+  // A landing page view is NOT a user activation or completed Builder run.
+  applyInboundArticleExample(){
+    if(this.articleExampleApplied)return false;
+    this.articleExampleApplied=true;
+    const params=new URLSearchParams(window.location?.search || '');
+    if(params.get('scenario')!=='fridge230')return false;
+    this.selectPresetAppliances('chata');
+    const models=[['fridge',65,10],['lights',20,5],['laptop',50,2]];
+    this.articleExampleDefaults=models.map(([id])=>{
+      const a=this.appliances.find(x=>x.id===id);
+      return {id,watts:a.watts,hours:a.hours,qty:a.qty};
+    });
+    this.appliances.forEach(a=>a.selected=models.some(([id])=>id===a.id));
+    for(const [id,watts,hours] of models){
+      const a=this.appliances.find(x=>x.id===id);
+      a.watts=watts;
+      a.hours=hours;
+      a.qty=1;
+    }
+    this.articleExample=true;
+    this.step=2;
+    this.season='three';
+    this.autonomy=1;
+    this.manualPeak=null;
+    this.previewMode=false;
+    return true;
+  },
+  restoreArticleExample(){
+    if(this.articleExample&&this.articleExampleDefaults){
+      for(const row of this.articleExampleDefaults){
+        const a=this.appliances.find(x=>x.id===row.id);
+        if(a){a.watts=row.watts;a.hours=row.hours;a.qty=row.qty;}
+      }
+    }
+    this.articleExample=false;
+    this.articleExampleDefaults=null;
+  },
   preset(type){
     this.inputError='';
     this.previewMode=false;
+    this.restoreArticleExample();
     this.selectPresetAppliances(type);
     this.step=2;
     this.trackStep('step_2');
@@ -138,6 +184,7 @@ window.solarExpertBuilder=function(){return{
     // A complete example, not a user-tailored sizing result.
     // Do not fabricate step_2 / step_3 progress or emit builder_complete.
     this.inputError='';
+    this.restoreArticleExample();
     this.selectPresetAppliances('chata');
     this.season='three';
     this.autonomy=1;
@@ -192,5 +239,5 @@ window.solarExpertBuilder=function(){return{
       if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'solar_builder_complete',scenario:this.scenario,voltage,panelWp,batteryKwh,inverterW,peak});
     }
   },
-  reset(){this.step=1;this.inputError='';this.previewMode=false;this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}
+  reset(){this.restoreArticleExample();this.step=1;this.inputError='';this.previewMode=false;this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}
 };};

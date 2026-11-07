@@ -20,6 +20,14 @@ jobs:
         run: find assets/js tests -name '*.js' -print0 | xargs -0 -n1 node --check
       - name: Affiliate source link audit fixture
         run: node --test tests/affiliate-source-audit.test.mjs
+      - name: Evidence-backed retailer prices, stock and 30-day expiry regression
+        run: node --test tests/catalog-refresh-20261107.test.mjs
+      - name: Daily 52-offer evidence age monitoring and UTC expiry check
+        run: node --test tests/catalog-freshness.test.mjs
+      - name: Never publish unverified or future-dated seller prices and stock
+        run: node --test tests/offer-evidence-fail-closed.test.mjs
+      - name: Completed seller-price audit, exact bundle offers and LiFePO4 charging safety
+        run: node --test tests/catalog-completion-20261107.test.mjs
       - name: JSON validity
         run: |
           find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
@@ -44,6 +52,8 @@ jobs:
         run: node tests/battery-selector-safety.test.js
       - name: 400W buyer guide to editable Battery Selector handoff
         run: node tests/battery-article-handoff.test.js
+      - name: Fridge 850Wh buyer article to editable Builder without fabricated starts
+        run: node tests/fridge-article-builder-handoff.test.js
       - name: Actual merchant offer CTA labels, price freshness and tracking
         run: node --test tests/offer-cta-clarity.test.mjs
       - name: Buyer SEO guides claim, intent and indexability validation
