@@ -75,24 +75,45 @@ window.solarExpertBatterySelector=function(){return{
 };};
 
 window.solarExpertMpptSelector=function(){return{
-  voltage:24,panelWp:760,panelVoc:25.5,panelVmp:21.8,seriesCount:2,coldFactor:1.12,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,
+  voltage:24,panelWp:760,panelVoc:25.5,panelVmp:21.8,panelIsc:9.17,seriesCount:2,parallelCount:2,coldFactor:1.12,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,articleExample:false,
   get coldStringVoc(){return Number(this.panelVoc)*Number(this.seriesCount)*Number(this.coldFactor);},
   get stringVmp(){return Number(this.panelVmp)*Number(this.seriesCount);},
+  get arrayIsc(){return Number(this.panelIsc)*Number(this.parallelCount);},
   get requiredChargeA(){const voltage=Math.max(1,Number(this.voltage));return Math.max(10,Math.ceil(((Number(this.panelWp)/voltage)*1.25)/5)*5);},
-  get inputValid(){return Number(this.panelWp)>0&&Number(this.panelVoc)>0&&Number(this.panelVmp)>0&&Number(this.panelVoc)>Number(this.panelVmp)&&Number(this.seriesCount)>=1;},
+  get inputValid(){
+    const numeric=[this.panelWp,this.panelVoc,this.panelVmp,this.panelIsc,this.seriesCount,this.parallelCount];
+    return numeric.every(value=>Number.isFinite(Number(value))) &&
+      [12,24,48].includes(Number(this.voltage)) &&
+      Number(this.panelWp)>0 && Number(this.panelWp)<=15000 &&
+      Number(this.panelVoc)>0 && Number(this.panelVoc)<=600 &&
+      Number(this.panelVmp)>0 && Number(this.panelVmp)<Number(this.panelVoc) &&
+      Number(this.panelIsc)>0 && Number(this.panelIsc)<=250 &&
+      Number.isInteger(Number(this.seriesCount)) && Number(this.seriesCount)>=1 && Number(this.seriesCount)<=20 &&
+      Number.isInteger(Number(this.parallelCount)) && Number(this.parallelCount)>=1 && Number(this.parallelCount)<=20;
+  },
+  applyArticleExampleFromUrl(){
+    // Immutable, illustrative 400 W / 24 V example ONLY; arbitrary URL
+    // parameters may not change any electrical input or select a merchant.
+    const search=window.location&&typeof window.location.search==='string'?window.location.search:'';
+    if(new URLSearchParams(search).get('scenario')!=='mppt400')return;
+    Object.assign(this,{voltage:24,panelWp:400,panelVoc:49,panelVmp:40,panelIsc:11,seriesCount:1,parallelCount:1});
+    this.articleExample=true;
+  },
   applyExample(kind){
     // Illustrative datasheet-like electrical inputs, not manufacturer data for a particular module.
     const examples={
-      single400:{voltage:24,panelWp:400,panelVoc:49,panelVmp:40,seriesCount:1},
-      pair190:{voltage:12,panelWp:380,panelVoc:24,panelVmp:20,seriesCount:2}
+      single400:{voltage:24,panelWp:400,panelVoc:49,panelVmp:40,panelIsc:11,seriesCount:1,parallelCount:1},
+      pair190:{voltage:12,panelWp:380,panelVoc:25.5,panelVmp:21.8,panelIsc:9.17,seriesCount:2,parallelCount:1}
     };
     const selection=examples[kind];
     if(!selection)return;
     Object.assign(this,selection);
+    this.articleExample=false;
     if(this.catalogLoading||!this.catalog.length){this.pendingExample=true;return;}
     this.run(true);
   },
   async init(){
+    this.applyArticleExampleFromUrl();
     this.catalogLoading=true;this.catalogError=false;
     try{this.catalog=await seCatalog();this.run(this.pendingExample);this.pendingExample=false;}
     catch(_){this.catalog=[];this.matches=[];this.catalogError=true;}
@@ -107,10 +128,15 @@ window.solarExpertMpptSelector=function(){return{
         const p=x.product;
         const maxVoc=Number(p.max_pv_voc_v||0);
         const minVmp=Number((p.min_pv_start_v_by_voltage||{})[String(voltage)]||0);
-        return this.coldStringVoc < maxVoc*.98 && this.stringVmp >= minVmp;
+        const maxIsc=Number(p.max_pv_isc_a||0);
+        // Series increases voltage, PARALLEL strings increase short-circuit
+        // current. Never recommend a controller without audited Isc limit.
+        // Preserve existing 2% guard margin from the full-system Builder.
+        return maxIsc>0 && this.arrayIsc<=maxIsc*.98 &&
+          this.coldStringVoc<maxVoc*.98 && this.stringVmp>=minVmp;
       })
       .slice(0,5);
-    if(track) seTrackSelectorOnce(this,'mppt',{voltage,panelWp,requiredChargeA:mpptA,seriesCount:Number(this.seriesCount),stringVmp:this.stringVmp,coldStringVoc:this.coldStringVoc});
+    if(track) seTrackSelectorOnce(this,'mppt',{voltage,panelWp,requiredChargeA:mpptA,seriesCount:Number(this.seriesCount),parallelCount:Number(this.parallelCount),arrayIsc:this.arrayIsc,stringVmp:this.stringVmp,coldStringVoc:this.coldStringVoc});
   }
 };};
 

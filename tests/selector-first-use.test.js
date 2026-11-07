@@ -26,8 +26,8 @@ const specs=[
       backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000}}},
   {kind:'mppt',ctor:'solarExpertMpptSelector',part:'template-parts/mppt-selector.php',
     examples:{
-      single400:{voltage:24,panelWp:400,panelVoc:49,panelVmp:40,seriesCount:1},
-      pair190:{voltage:12,panelWp:380,panelVoc:24,panelVmp:20,seriesCount:2}}},
+      single400:{voltage:24,panelWp:400,panelVoc:49,panelVmp:40,panelIsc:11,seriesCount:1,parallelCount:1},
+      pair190:{voltage:12,panelWp:380,panelVoc:25.5,panelVmp:21.8,panelIsc:9.17,seriesCount:2,parallelCount:1}}},
   {kind:'inverter',ctor:'solarExpertInverterSelector',part:'template-parts/inverter-selector.php',
     examples:{
       cottage:{voltage:24,continuousW:1000,peakW:2000},

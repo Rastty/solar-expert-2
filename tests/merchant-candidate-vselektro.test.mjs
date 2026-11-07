@@ -20,6 +20,8 @@ test('only three evidence-bound approved product offers are in both published ca
   assert.equal(candidate.affiliate_program.approval_status,'owner_supplied_merchant_specific_ehub_base_and_deep_link');
   assert.match(candidate.affiliate_program.deeplink_validation_status,/live_redirect_unverified/);
   assert.equal(candidate.product_candidates.length,3);
+  assert.equal(candidate.reviewed_on,'2026-10-13','Historical owner approval date is not silently rewritten');
+  assert.equal(candidate.last_price_stock_recheck_on,'2026-11-07','Public vendor price recheck date');
   const live=[...catalog.products,...(catalog.bundle_deals||[])].flatMap(p=>(p.offers||[]).filter(o=>o.merchant==='vselektro-eu').map(o=>({id:p.id,type:p.type,offer:o})));
   assert.equal(live.length,3,'No unvetted additional offers or bundle set links');
   assert.deepEqual(live.map(o=>o.id).sort(),allowedIds.slice().sort());
@@ -29,7 +31,7 @@ test('only three evidence-bound approved product offers are in both published ca
     assert(evidence,'No unresearched merchant SKU');
     assert.equal(row.offer.source_url,evidence.public_page);
     assert.equal(row.offer.price_czk,snapshotPrices[allowedIds.indexOf(row.id)]);
-    assert.equal(row.offer.verified_at,'2026-10-13');
+    assert.equal(row.offer.verified_at,'2026-11-07');
     assert.equal(row.offer.availability,'in_stock');
     assert.equal(evidence.seller_page_observed_on,row.offer.verified_at);
     assert.equal(evidence.current_price_verified,true);
