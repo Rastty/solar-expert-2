@@ -132,13 +132,14 @@ const homeGuideSlugs=[
   'fotovoltaika-na-pozemku','pruhledne-solarni-panely',
   'tepelne-cerpadlo-monoblok','tepelne-cerpadlo-vzduch-vzduch',
   'solarni-sestava-na-chatu-pro-lednici','jak-vybrat-mppt-regulator-pro-400w-panel',
-  'fotovoltaika-a-elektrokotel','jakou-baterii-k-solarnimu-panelu-400w'
+  'fotovoltaika-a-elektrokotel','jakou-baterii-k-solarnimu-panelu-400w',
+  'solarni-panel-na-karavan-200w'
 ];
 const managedNewPosts=manifest.items.filter(item=>
   item.type==='post' && item.create_if_missing===true &&
   (item.status||item.status_if_new)==='publish'
 ).map(item=>item.slug);
-assert(managedNewPosts.length===9 &&
+assert(managedNewPosts.length===10 &&
   managedNewPosts.every(slug=>slug==='kolik-stoji-fotovoltaika'||homeGuideSlugs.includes(slug)),
   'Homepage discovery must cover every published managed post, including FVE + electric boiler');
 for (const slug of homeGuideSlugs) {
