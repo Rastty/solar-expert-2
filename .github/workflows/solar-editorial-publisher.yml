@@ -1,0 +1,82 @@
+name: Solar Expert guarded editorial WordPress publisher
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/solar-editorial-publisher.yml"
+      - "scripts/editorial_release.py"
+      - "tests/test_solar_editorial_release.py"
+      - "ops/editorial-release.json"
+      - "ops/editorial-manifests/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/solar-editorial-publisher.yml"
+      - "scripts/editorial_release.py"
+      - "ops/editorial-release.json"
+      - "ops/editorial-manifests/**"
+  schedule:
+    - cron: "11 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - name: Check out pinned main/editorial review branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify Python syntax
+        run: python -m py_compile scripts/editorial_release.py tests/test_solar_editorial_release.py
+      - name: Safe publishing one-write regression (offline; no WP credentials)
+        run: python -m unittest discover -s tests -p 'test_solar_editorial_release.py' -v
+
+  one-post-wordpress-publisher:
+    needs: offline-contract
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout publisher contract from protected default branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exact Git source, WordPress preflight and private source rollback
+        id: prepare
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/editorial_release.py --prepare
+      - name: Archive PREWRITE WordPress snapshot before the only possible POST
+        if: steps.prepare.outputs.status == 'prepared'
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-editorial-private-prewrite-${{ github.run_id }}
+          path: artifacts/editorial-prewrite-private.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: ONE guarded WordPress REST write, never retry POST
+        if: steps.prepare.outputs.status == 'prepared'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+          SOLAR_EDITORIAL_LIVE: "YES"
+        run: python scripts/editorial_release.py --apply
+      - name: Persist execution receipt including blocks and ambiguous results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-editorial-public-safe-receipt-${{ github.run_id }}
+          path: artifacts/editorial-release-receipt.json
+          if-no-files-found: warn
+          retention-days: 30
