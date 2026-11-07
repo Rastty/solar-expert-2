@@ -7,7 +7,7 @@ Source: 25 exact product pages checked from the *retailer's own domain* on 2026-
 - Product offers: **48**. Previously stale by 30-day window: **45**; after these edits **20** remain stale and **28** are within 30 days (25 newly verified + 3 dated 2026-10-13).
 - **25 verified offer rows / 13 products**. Both `data/product-seed.json` and runtime `assets/data/product-seed.json` stay byte-identical.
 - **3 changed merchant prices**: Solar-Import MPPT 100/20 2,091 → 2,098 Kč; Solar-Import MPPT 100/30 2,984 → 2,995 Kč; Solar-Import REP2000-24 6,950 → 4,990 Kč.
-- **2 stock changes**: GOOWEI CNLFP200-12.8 at Battery.cz and Solar-Import.cz changed `in_stock` → `on_request`. Its product-level primary state is also `on_request`; it must not fill a ready-to-buy tier.
+- **2 stock changes**: GOOWEI CNLFP200-12.8 at Battery.cz and Solar-Import.cz changed `in_stock` → `on_request`. Its product-level primary state is also `on_request`, and its tier is demoted from `best` → `reference` so repo integrity can correctly exclude it from active ready-to-buy recommendations.
 - Catalog-wide `verifiedAt` deliberately remains **2026-10-07** because the entire catalog was not reverified. Bundle-deal prices/dates are unchanged.
 - Do not infer new affiliate clicks, paid conversions, or live release from this source-only update.
 
