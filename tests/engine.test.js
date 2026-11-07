@@ -34,6 +34,16 @@ for (const product of catalog.products) {
   if(product.type==='panel' && Number(technical.isc_a)>0){
     product.isc_a=technical.isc_a;
   }
+  if(product.integrated_mppt && technical.integrated_mppt){
+    // Historical economics scenarios exercise real 2-tracker topology
+    // without pretending October merchant evidence is newly verified.
+    for(const name of ['pv_input_operating_a_per_tracker','pv_tracker_count',
+      'pv_strings_per_tracker','pv_w_max_per_tracker',
+      'pv_operating_current_source_url','pv_isc_absolute_status']){
+      if(technical.integrated_mppt[name]!==undefined)
+        product.integrated_mppt[name]=technical.integrated_mppt[name];
+    }
+  }
 }
 const M = global.window.SolarExpertProductMatcher;
 const B = global.window.SolarExpertBundleComposer;
@@ -431,6 +441,19 @@ assert(high48Premium.bundleDeal===null,'Bundle deal must not apply when battery 
 // Conversion safety: the buyer's actual parts list must reconcile exactly
 // with the compatibility-checked bundle, including discounted sets.
 const shoppingTester=window.solarExpertBuilder();
+// This is a HISTORICAL financial arithmetic fixture, not a hardware approval.
+// Test-only boolean intentionally models a separate independent current
+// review so quantity-aware price math is still covered. Actual Growatt
+// models below remain purchase-blocked and do NOT receive this marker.
+const costMathOnly=(bundle)=>bundle?.integratedMppt
+  ? {...bundle,pvIscVerified:true}
+  : bundle;
+for(const unsafe of [best48,withDeal,high48Best,high48Premium]){
+  assert(unsafe?.status==='pv_isc_limit_unverified'&&unsafe.pvIscVerified===false,
+    'Actual Growatt configuration must declare source-dependent PV Isc gap');
+  assert(shoppingTester.purchaseBreakdownFor(unsafe)===null,
+    'Actual Growatt configuration must not provide a buyer shopping list');
+}
 const shoppingStandalone12=B.compose(catalog.products,{
   voltage:12,batteryKwh:1,inverterW:800,peak:1800,panelWp:180,mpptA:20
 },[]).find(bundle=>bundle.tier==='budget');
@@ -442,7 +465,7 @@ for(const [label,bundle] of [
   ['parallel-battery discounted set',high48Best],
   ['parallel-battery separate products',high48Premium]
 ]){
-  const list=shoppingTester.purchaseBreakdownFor(bundle);
+  const list=shoppingTester.purchaseBreakdownFor(costMathOnly(bundle));
   assert(list&&list.rows.length>=2,'Buyer parts list must exist for '+label);
   assert(list.total===bundle.totalPrice,'Parts list must reconcile exact main-parts total for '+label);
   assert(list.rows.reduce((total,row)=>total+row.subtotal,0)===bundle.totalPrice,
@@ -456,19 +479,19 @@ for(const [label,bundle] of [
   assert(Boolean(mppt)===!bundle.integratedMppt,
     'Integrated MPPT must never add a duplicate standalone purchase for '+label);
 }
-const oneSetItems=shoppingTester.purchaseBreakdownFor(withDeal).rows;
+const oneSetItems=shoppingTester.purchaseBreakdownFor(costMathOnly(withDeal)).rows;
 assert(oneSetItems.filter(row=>row.label==='Set baterie + měnič').length===1,
   'Discounted set must appear as one purchasable row');
 assert(!oneSetItems.some(row=>row.label==='Měnič'||row.label==='Baterie'),
   'Discounted set must not double-count included inverter or battery');
-const parallelSetItems=shoppingTester.purchaseBreakdownFor(high48Best).rows;
+const parallelSetItems=shoppingTester.purchaseBreakdownFor(costMathOnly(high48Best)).rows;
 assert(parallelSetItems.find(row=>row.label==='Baterie navíc')?.quantity===1,
   'Two-battery set must explicitly list the extra battery outside the kit');
 assert(parallelSetItems.find(row=>row.label==='Set baterie + měnič')?.quantity===1,
   'Multi-battery purchase must not recommend buying two inverter sets');
-assert(shoppingTester.purchaseBreakdownFor({...high48Best,totalPrice:high48Best.totalPrice+10})===null,
+assert(shoppingTester.purchaseBreakdownFor({...costMathOnly(high48Best),totalPrice:high48Best.totalPrice+10})===null,
   'Price discrepancy must fail safely instead of inventing a reconciled shopping list');
-assert(shoppingTester.purchaseBreakdownFor({...high48Best,priceComplete:false})===null,
+assert(shoppingTester.purchaseBreakdownFor({...costMathOnly(high48Best),priceComplete:false})===null,
   'Incomplete price evidence must never produce a precise buyer subtotal');
 
 const pusungParallel=catalog.products.find(p=>p.id==='battery-seplos-pusung-48');
