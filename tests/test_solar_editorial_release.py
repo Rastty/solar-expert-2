@@ -101,8 +101,9 @@ class FakeWordPress:
                 if self.recent_pages is not None:
                     return self.recent_pages.get(page, [])
                 if self.recently_published:
-                    return [{"id": 9, "date": "2026-11-07T14:00:00",
-                             "date_gmt": "2026-11-07T13:00:00", "status": "publish"}]
+                    recent = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S")
+                    return [{"id": 9, "date": recent,
+                             "date_gmt": recent, "status": "publish"}]
                 return []
             if route.startswith("/wp/v2/posts/"):
                 if self.record is None:
