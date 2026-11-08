@@ -11,14 +11,22 @@ function seTrackSelectorOnce(ctx,selector,detail){
 }
 
 window.solarExpertBatterySelector=function(){return{
-  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,articleExample:false,
-  // Conservative illustrative sizing for AC loads: 80% usable nominal
-  // LiFePO4 energy, 90% inverter efficiency. Include inverter losses
-  // in BOTH energy and BMS continuous-current checks; no product may pass
-  // solely because its rated DC watts match the requested AC watts.
+  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,supplyMode:'ac',catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,articleExample:false,
+  // AC: 80% usable LiFePO4 nominal energy and 90% inverter efficiency
+  // for BOTH daily energy and continuous BMS current. DC: input energy
+  // already includes DC-DC/PoE losses; do NOT impose a fictitious 230V
+  // inverter inefficiency a second time. The hardware DC converter/PoE
+  // matching, cable protection and low-temperature charge limits are
+  // external safety checks, not automatically certified by this selector.
   usableFraction:0.80,inverterEfficiency:0.90,
-  get requiredBatteryKwh(){return Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/(this.usableFraction*this.inverterEfficiency))*10)/10;},
-  get requiredBatteryDcW(){return Math.ceil(Number(this.inverterW)/this.inverterEfficiency);},
+  get inputValid(){
+    return [12,24,48].includes(Number(this.voltage)) &&
+      ['ac','dc'].includes(this.supplyMode) &&
+      [this.dailyKwh,this.autonomy,this.inverterW].every(x=>Number.isFinite(Number(x))&&Number(x)>0);
+  },
+  get outputEfficiency(){return this.supplyMode==='dc'?1:this.inverterEfficiency;},
+  get requiredBatteryKwh(){return Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/(this.usableFraction*this.outputEfficiency))*10)/10;},
+  get requiredBatteryDcW(){return Math.ceil(Number(this.inverterW)/this.outputEfficiency);},
   get requiredDischargeA(){return Math.max(1,Math.ceil(this.requiredBatteryDcW/Math.max(1,Number(this.voltage))));},
   applyArticleExampleFromUrl(){
     // Only one immutable, editorially reviewed deep-link scenario is allowed.
@@ -27,14 +35,18 @@ window.solarExpertBatterySelector=function(){return{
     const search=window.location&&typeof window.location.search==='string'
       ?window.location.search:'';
     if(new URLSearchParams(search).get('scenario')!=='panel400')return;
-    Object.assign(this,{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800});
+    Object.assign(this,{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800,supplyMode:'ac'});
     this.articleExample=true;
   },
   applyExample(kind){
     const examples={
-      panel400:{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800},
-      cottage:{voltage:24,dailyKwh:1,autonomy:1,inverterW:1000},
-      backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000}
+      panel400:{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800,supplyMode:'ac'},
+      cottage:{voltage:24,dailyKwh:1,autonomy:1,inverterW:1000,supplyMode:'ac'},
+      backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000,supplyMode:'ac'},
+      // Camera 6W + router 10W run 24h = 384Wh/day. The editorial
+      // 20% DC/PoE supply-loss allowance yields 461Wh/day and a
+      // conservative 20W continuous DC draw. These are illustrative.
+      camera24h:{voltage:12,dailyKwh:0.461,autonomy:2,inverterW:20,supplyMode:'dc'}
     };
     const selection=examples[kind];
     if(!selection)return;
@@ -51,11 +63,11 @@ window.solarExpertBatterySelector=function(){return{
     finally{this.catalogLoading=false;}
   },
   run(track=true){
-    if(!this.catalog.length){this.matches=[];return;}
+    if(!this.inputValid||!this.catalog.length){this.matches=[];return;}
     const batteryKwh=this.requiredBatteryKwh;
     // Both bank composer and single-product fallback expect sizing.inverterW
-    // as the MINIMUM DC discharge capability, not the AC label input.
-    // Keep their common electrical fit filters; do not alter global ranking.
+    // as the MINIMUM required battery DC discharge capability (despite
+    // legacy property name). Keep identical electrical pass/fail filters.
     const dcW=this.requiredBatteryDcW;
     const s={voltage:Number(this.voltage),batteryKwh,inverterW:dcW};
     const batteries=this.catalog.filter(p=>p.type==='battery');
