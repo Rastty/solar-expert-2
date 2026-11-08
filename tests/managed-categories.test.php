@@ -60,6 +60,7 @@ $expected = array(
   'jak-vybrat-mppt-regulator-pro-400w-panel' => 'solarni-panely',
   'fotovoltaika-a-elektrokotel' => 'solarni-panely',
   'jakou-baterii-k-solarnimu-panelu-400w' => 'solarni-panely',
+  'solarni-panel-pro-wifi-kameru-a-router-na-chate' => 'solarni-panely',
 );
 $categorized = array();
 foreach ($manifest['items'] as $item) {
@@ -69,7 +70,7 @@ foreach ($manifest['items'] as $item) {
   }
 }
 check($categorized === $expected || count(array_diff_assoc($expected,$categorized))===0 && count($categorized)===count($expected),
-  'All nine declared new published buyer guides must be categorized');
+  'All declared managed buyer guides must be categorized');
 $source = file_get_contents(dirname(__DIR__) . '/inc/core.php');
 $from = strpos($source, 'function solar_expert_ensure_managed_category(');
 $to = strpos($source, 'function solar_expert_sync_managed_content(', $from);
