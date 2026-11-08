@@ -421,13 +421,47 @@ def verify_after(m: dict, expected_sha: str, cat: int, post_id: int) -> tuple[bo
     return False, last
 
 
+class VisibleText(HTMLParser):
+    """Extract visible text, ignoring metadata/script/style used by the theme."""
+    IGNORE = {"script", "style", "noscript", "svg", "template"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self.ignored_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in self.IGNORE:
+            self.ignored_depth += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in self.IGNORE and self.ignored_depth:
+            self.ignored_depth -= 1
+
+    def handle_data(self, data: str) -> None:
+        if not self.ignored_depth:
+            self.parts.append(data)
+
+
+def normalized_visible_text(fragment: str) -> str:
+    parser = VisibleText()
+    parser.feed(fragment)
+    # WordPress/theming may add tags and whitespace without changing content.
+    return " ".join(" ".join(parser.parts).split())
+
+
 def public_probe(url: str, sample: str) -> str:
     # Read-only, best-effort. Cache propagation may lag; do not reissue POST.
     try:
+        expected = " ".join(sample.split())
+        if len(expected) < 45:
+            return "public_pending"  # A tiny/generic fragment is not proof.
         req = request.Request(url, headers={"User-Agent": "SolarExpert-PostReadback/1"})
         with OPENER.open(req, timeout=12) as response:
             page = response.read(350_000).decode("utf-8", errors="replace")
-        return "public_content_seen" if response.status == 200 and sample in page else "public_pending"
+            if response.status != 200:
+                return "public_pending"
+        return "public_content_seen" if expected in normalized_visible_text(page) else "public_pending"
     except Exception:
         return "public_unavailable"
 
@@ -493,7 +527,7 @@ def apply(m: dict, manifest_sha: str) -> None:
                     post_id=result_id, writes_attempted=1)
             raise Blocked("Authenticated content differs after one WordPress POST")
         # Use unique sample of actual source text, not a fabricated browser check.
-        sample = re.sub(r"<[^>]*>", "", source.split("</h2>", 1)[0]).strip()[-65:]
+        sample = normalized_visible_text(source.split("</h2>", 1)[0])[-90:]
         public = public_probe(after["link"], sample) if sample else "public_unavailable"
         receipt("wp_verified", operation_id=m["operation_id"], post_id=result_id,
                 canonical_url=after["link"], authenticated_readback=True,
