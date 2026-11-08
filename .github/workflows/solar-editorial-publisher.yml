@@ -7,6 +7,7 @@ on:
       - "scripts/editorial_release.py"
       - "scripts/editorial_credentials_check.py"
       - "tests/test_solar_editorial_release.py"
+      - "tests/test_solar_editorial_credentials.py"
       - "ops/editorial-release.json"
       - "ops/editorial-manifests/**"
   push:
@@ -41,6 +42,8 @@ jobs:
         run: python -m py_compile scripts/editorial_release.py scripts/editorial_credentials_check.py tests/test_solar_editorial_release.py
       - name: Safe publishing one-write regression (offline; no WP credentials)
         run: python -m unittest discover -s tests -p 'test_solar_editorial_release.py' -v
+      - name: Read-only credential guard regression (offline; fake credentials)
+        run: python -m unittest discover -s tests -p 'test_solar_editorial_credentials.py' -v
 
   one-post-wordpress-publisher:
     needs: offline-contract
