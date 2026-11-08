@@ -23,7 +23,7 @@
     <div class="se-field"><label for="se-battery-inverter-w"><span x-text="supplyMode==='dc' ? 'Max. návrhový příkon DC spotřebičů (W)' : 'Výkon měniče (W)'"></span></label><input id="se-battery-inverter-w" class="se-input" type="number" min="1" step="1" x-model.number="inverterW" @input.debounce.200ms="run()"></div>
   </div>
   <div class="se-note" style="margin-top:14px">
-    <span x-show="supplyMode==='ac'">Pro 230V spotřebiče počítáme s 80 % využitelné kapacity baterie a 90 % účinností měniče. Denní spotřebu měniče naprázdno připočtěte k zadaným kWh.</span>
+    <span x-show="supplyMode==='ac'">Pro 230V spotřebiče počítáme s 80 % využitelné kapacity baterie a 90 % účinností měniče. Denní spotřebu samotného měniče naprázdno připočtěte k zadaným kWh.</span>
     <span x-show="supplyMode==='dc'">Pro přímé DC/PoE napájení počítáme s 80 % využitelné kapacity baterie. Zadávejte denní spotřebu již včetně reálných ztrát DC-DC/PoE měničů: znovu neodečítáme účinnost neexistujícího 230V měniče. Model kamery a routeru používá 461 Wh/den včetně ilustrační 20% rezervy a 20 W návrhového odběru. Výběr baterie automaticky neověřuje kompatibilitu DC napětí, PoE, jištění ani MPPT.</span>
     Výběr hlídá nominální energii baterie včetně rezervy i maximální trvalý vybíjecí proud BMS.
     Pro toto zadání potřebujete alespoň <strong><span x-text="requiredBatteryKwh.toFixed(1)"></span> kWh</strong> nominální kapacity a orientačně nejméně
