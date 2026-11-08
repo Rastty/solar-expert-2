@@ -510,7 +510,6 @@
       "title": "Solární panel pro Wi-Fi kameru a router na chatě: baterie a MPPT",
       "preserve_status": true,
       "create_if_missing": false,
-      "publish_ready": true,
       "indexable": true,
       "category_slug": "solarni-panely",
       "file": "content/rewrites/solarni-panel-pro-wifi-kameru-a-router-na-chate.html"
