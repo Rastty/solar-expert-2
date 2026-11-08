@@ -12,10 +12,57 @@ permissions:
 
 concurrency:
   group: solar-expert-dev-auto-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
+  release-intent:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    outputs:
+      active: ${{ steps.guard.outputs.active }}
+    steps:
+      - name: Checkout exact dev push for release-intent audit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require a newly changed explicit theme release authorization
+        id: guard
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          echo 'active=false' >> "$GITHUB_OUTPUT"
+          if [[ ! "$BEFORE_SHA" =~ ^[0-9a-f]{40}$ || ! "$AFTER_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::warning::No valid push SHAs: theme release remains disabled."
+            exit 0
+          fi
+          git cat-file -e "${BEFORE_SHA}^{commit}" || {
+            echo "::warning::Previous commit unavailable: theme release remains disabled."
+            exit 0
+          }
+          changed="$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" -- ops/theme-deploy-release.json)"
+          if [ "$changed" != 'ops/theme-deploy-release.json' ]; then
+            echo "::notice::Ordinary dev push (no new theme release intent): skip WordPress deployment."
+            exit 0
+          fi
+          if ! jq -e '
+            .schema_version == 1 and
+            .mode == "explicit_theme_release" and
+            .enabled == true and
+            (.release_id | type == "string" and test("^solar-theme-[a-z0-9-]{12,100}$"))
+          ' ops/theme-deploy-release.json >/dev/null; then
+            echo "::notice::Release control changed but no valid explicitly enabled theme release is authorized."
+            exit 0
+          fi
+          echo 'active=true' >> "$GITHUB_OUTPUT"
+          echo "::notice::Explicit dev release intent verified; existing PR review, CI, preview and production verification gates still apply."
+
   deploy:
+    needs: release-intent
+    if: needs.release-intent.outputs.active == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
