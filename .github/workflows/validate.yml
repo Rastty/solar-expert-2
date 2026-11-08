@@ -80,6 +80,10 @@ jobs:
         run: node tests/engine.test.js
       - name: Explicit theme release gate prevents ordinary dev deploys
         run: node --test tests/theme-deploy-release-gate.test.mjs
+      - name: Predeploy live-source parity and encrypted-free rollback artifact
+        run: node --test tests/deploy-rollback-evidence.test.mjs
+      - name: Release-scoped private WordPress DB and uploads restore attestation
+        run: node --test tests/deploy-wordpress-backup-gate.test.mjs
       - name: Repository integrity
         run: node tests/repo-integrity.test.js
       - name: SEO taxonomy deploy Bash syntax and manifest coverage

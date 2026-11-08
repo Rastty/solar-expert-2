@@ -50,6 +50,36 @@ successful verified release. This disarm push will not redeploy. A later
 ordinary merge will also not redeploy even while the control remains true,
 because the control file itself was unchanged.
 
+## Additional mandatory pre-production evidence
+
+Even a reviewed one-time `enabled:true` theme release **cannot deploy**
+without the separate private, release-scoped
+`SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT` in GitHub Actions. The receipt
+requires genuine host DB and uploads backup references no older than
+24 hours, a staging restore drill within 30 days, an actual accountable
+owner, and the exact previous `dev` commit SHA. The receipt is a
+**private attestation, not a database backup or independent proof of
+restoration**; the host restore itself must be demonstrated first.
+See [the release-specific restore requirements](WORDPRESS_RESTORE_ATTESTATION.md)
+and [open recovery blocker #148](https://github.com/Rastty/solar-expert-2/issues/148).
+
+After that, the release workflow compares four currently public theme
+source files byte-for-byte with its first-parent rollback candidate,
+stores a verified previous-theme code archive before mutation,
+and rejects any stale `dev` ref or ambiguous Deployer/sync response.
+`main` editorial publishing remains a separate narrowly authorized
+single-post lane, not a theme-release override. Do not simply switch the
+theme release control to true while the host backup/restore proof is
+unverified.
+
+**Important migration limitation:** `dev` may already contain several
+reviewed improvements that are absent from the current public theme.
+In that case live source SHA256 will intentionally differ from the
+immediately previous `dev` commit and the new preflight will **block
+the release**. A responsible release engineer must create and review a
+real current-live rollback baseline or a separately proven migration
+path. Never skip the public source-drift check to make a green run.
+
 ## Editor posts are separate
 
 The main-branch native editorial publisher uses
