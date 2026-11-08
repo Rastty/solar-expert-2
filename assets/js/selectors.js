@@ -11,7 +11,7 @@ function seTrackSelectorOnce(ctx,selector,detail){
 }
 
 window.solarExpertBatterySelector=function(){return{
-  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,supplyMode:'ac',catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,articleExample:false,
+  voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,supplyMode:'ac',catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,articleExample:false,articleExampleKind:'',activeScenario:'',
   // AC: 80% usable LiFePO4 nominal energy and 90% inverter efficiency
   // for BOTH daily energy and continuous BMS current. DC: input energy
   // already includes DC-DC/PoE losses; do NOT impose a fictitious 230V
@@ -28,30 +28,39 @@ window.solarExpertBatterySelector=function(){return{
   get requiredBatteryKwh(){return Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/(this.usableFraction*this.outputEfficiency))*10)/10;},
   get requiredBatteryDcW(){return Math.ceil(Number(this.inverterW)/this.outputEfficiency);},
   get requiredDischargeA(){return Math.max(1,Math.ceil(this.requiredBatteryDcW/Math.max(1,Number(this.voltage))));},
+  // The URL accepts ONLY two trusted, hardcoded editorial scenario tokens.
+  // Numeric voltage, daily energy, battery limits and merchant values
+  // in query parameters are never read. Page load is NOT engagement.
+  editorialExamples:{
+    panel400:{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800,supplyMode:'ac'},
+    camera24h:{voltage:12,dailyKwh:0.461,autonomy:2,inverterW:20,supplyMode:'dc'}
+  },
   applyArticleExampleFromUrl(){
-    // Only one immutable, editorially reviewed deep-link scenario is allowed.
-    // Never read untrusted electrical input fields from the URL or record
-    // a selector engagement simply because this page was opened.
     const search=window.location&&typeof window.location.search==='string'
       ?window.location.search:'';
-    if(new URLSearchParams(search).get('scenario')!=='panel400')return;
-    Object.assign(this,{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800,supplyMode:'ac'});
+    const scenario=new URLSearchParams(search).get('scenario');
+    if(scenario!=='panel400'&&scenario!=='camera24h')return;
+    Object.assign(this,this.editorialExamples[scenario]);
     this.articleExample=true;
+    this.articleExampleKind=scenario;
+    this.activeScenario=scenario;
   },
   applyExample(kind){
     const examples={
-      panel400:{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800,supplyMode:'ac'},
+      panel400:this.editorialExamples.panel400,
       cottage:{voltage:24,dailyKwh:1,autonomy:1,inverterW:1000,supplyMode:'ac'},
       backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000,supplyMode:'ac'},
-      // Camera 6W + router 10W run 24h = 384Wh/day. The editorial
-      // 20% DC/PoE supply-loss allowance yields 461Wh/day and a
-      // conservative 20W continuous DC draw. These are illustrative.
-      camera24h:{voltage:12,dailyKwh:0.461,autonomy:2,inverterW:20,supplyMode:'dc'}
+      // Router 10W + IP camera 6W run 24h = 384Wh/day. The editorial
+      // 20% DC/PoE supply-loss allowance yields 461Wh/day. 20W DC draw
+      // is a conservative continuous illustrative, not a device certificate.
+      camera24h:this.editorialExamples.camera24h
     };
     const selection=examples[kind];
     if(!selection)return;
     Object.assign(this,selection);
     this.articleExample=false;
+    this.articleExampleKind='';
+    this.activeScenario=kind;
     if(this.catalogLoading||!this.catalog.length){this.pendingExample=true;return;}
     this.run(true);
   },
@@ -82,7 +91,7 @@ window.solarExpertBatterySelector=function(){return{
           unitPrice:window.SolarExpertProductMatcher.effectivePrice(r.product),
           totalPrice:window.SolarExpertProductMatcher.effectivePrice(r.product)
         })).slice(0,5);
-    if(track) seTrackSelectorOnce(this,'battery',{voltage:s.voltage,batteryKwh,inverterW:Number(this.inverterW)});
+    if(track) seTrackSelectorOnce(this,'battery',{voltage:s.voltage,batteryKwh,inverterW:Number(this.inverterW),...(this.activeScenario?{scenario:this.activeScenario}:{})});
   }
 };};
 
