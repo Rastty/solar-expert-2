@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_create",
+  "operation_id": "solar-wifi-router-camera-offgrid-20261108-v1",
+  "slug": "solarni-panel-pro-wifi-kameru-a-router-na-chate",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární panel pro Wi-Fi kameru a router na chatě: baterie a MPPT",
+  "excerpt": "Modelový výpočet nepřetržitého odběru Wi-Fi routeru a IP kamery, potřebné LiFePO4 baterie, výkonu panelů, MPPT a bezpečného DC/PoE napájení bez neověřených cen.",
+  "source_commit": "773cad77f6ec35705c850c4d9413a305715d747f",
+  "source_file": "content/rewrites/solarni-panel-pro-wifi-kameru-a-router-na-chate.html",
+  "source_sha256": "657da7a22799f46f4f154b59c257b8bbc19c22df4ff18d0e8e90cef3ee0d1bf3",
+  "expect_absent": true
+}
