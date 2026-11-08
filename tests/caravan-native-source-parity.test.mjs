@@ -48,7 +48,7 @@ test('article source is exact reviewed Git source from original caravan PR #153'
   }
   assert(source.includes('Současná veřejná verze kalkulačky kontroluje výkon FV pole'),
     'Avoid falsely claiming that a dev-only Isc selector feature is already live');
-  assert(!/https?:\\/\\/ehub\\.cz|a_aid=|desturl=|<script/i.test(source),
+  assert(!['https://ehub.cz', 'a_aid=', 'desturl=', '<script'].some(token => source.toLowerCase().includes(token)),
     'No leaked affiliate IDs or executable content');
 });
 
