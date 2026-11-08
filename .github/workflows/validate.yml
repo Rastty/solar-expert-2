@@ -54,6 +54,8 @@ jobs:
         run: php tests/managed-categories.test.php
       - name: Curated topic archives (scope, relevance and preservation)
         run: php tests/curated-archives.test.php
+      - name: Offline 24h camera buyer source parity with noncreating managed record
+        run: node --test tests/wifi-camera-source-parity.test.mjs
       - name: Strict old import sitemap and noindex hygiene
         run: php tests/import-seo-hygiene.test.php
       - name: Yoast decision tool structured data
