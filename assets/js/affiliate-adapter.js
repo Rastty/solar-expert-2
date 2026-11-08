@@ -77,6 +77,12 @@ window.SolarExpertAffiliate = {
     return offers
       .filter(o => o && o.merchant)
       .sort((a,b) => {
+        // Display independently current retailer quotes first. A cheaper
+        // unverified/expired snapshot must never become the default merchant.
+        const matcher=window.SolarExpertProductMatcher;
+        const aFresh=matcher && matcher.verificationState(a.verified_at)==='fresh' ? 1 : 0;
+        const bFresh=matcher && matcher.verificationState(b.verified_at)==='fresh' ? 1 : 0;
+        if(aFresh!==bFresh)return bFresh-aFresh;
         const aStock = a.availability === 'in_stock' ? 1 : 0;
         const bStock = b.availability === 'in_stock' ? 1 : 0;
         if (aStock !== bStock) return bStock - aStock;
@@ -98,7 +104,7 @@ window.SolarExpertAffiliate = {
     const target = offer.source_url || product.source_url || null;
     const generated = this.merchantDeepLink(offer.merchant, target);
     const href = mapped || offer.affiliate_url || generated || target || '#';
-    const verifiedAt = offer.verified_at || product.verified_at || null;
+    const verifiedAt = offer.verified_at || null; // Exact merchant evidence only; never borrow another shop's date.
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
@@ -109,8 +115,8 @@ window.SolarExpertAffiliate = {
       monetized: Boolean(mapped || offer.affiliate_url || generated),
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant,
-      price_czk: freshness === 'stale' ? null : rawPrice,
-      availability: offer.availability || product.availability || null,
+      price_czk: freshness === 'fresh' ? rawPrice : null,
+      availability: freshness === 'fresh' ? (offer.availability || product.availability || null) : 'unverified',
       verified_at: verifiedAt,
       price_freshness: freshness,
       raw: offer
@@ -156,6 +162,12 @@ window.SolarExpertAffiliate = {
     return offers
       .filter(o => o && o.merchant)
       .sort((a,b) => {
+        // Display independently current retailer quotes first. A cheaper
+        // unverified/expired snapshot must never become the default merchant.
+        const matcher=window.SolarExpertProductMatcher;
+        const aFresh=matcher && matcher.verificationState(a.verified_at)==='fresh' ? 1 : 0;
+        const bFresh=matcher && matcher.verificationState(b.verified_at)==='fresh' ? 1 : 0;
+        if(aFresh!==bFresh)return bFresh-aFresh;
         const aStock = a.availability === 'in_stock' ? 1 : 0;
         const bStock = b.availability === 'in_stock' ? 1 : 0;
         if (aStock !== bStock) return bStock - aStock;
@@ -169,7 +181,7 @@ window.SolarExpertAffiliate = {
     if (!deal || !offer) return {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null, raw:null};
     const target = offer.source_url || deal.source_url || null;
     const generated = this.merchantDeepLink(offer.merchant, target);
-    const verifiedAt = offer.verified_at || deal.verified_at || null;
+    const verifiedAt = offer.verified_at || null; // Exact merchant evidence only; never borrow another shop's date.
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
@@ -178,12 +190,12 @@ window.SolarExpertAffiliate = {
       monetized: Boolean(generated),
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant || null,
-      price_czk: freshness === 'stale' ? null : (Number(offer.price_czk || 0) || null),
-      availability: offer.availability || deal.availability || null,
+      price_czk: freshness === 'fresh' ? (Number(offer.price_czk || 0) || null) : null,
+      availability: freshness === 'fresh' ? (offer.availability || deal.availability || null) : 'unverified',
       verified_at: verifiedAt,
       price_freshness: freshness,
-      savings_czk: Number(deal.savings_czk || 0) || null,
-      bank_savings_czk: Number(deal.bankSavingsCzk || deal.savings_czk || 0) || null,
+      savings_czk: freshness === 'fresh' ? (Number(deal.savings_czk || 0) || null) : null,
+      bank_savings_czk: freshness === 'fresh' ? (Number(deal.bankSavingsCzk || deal.savings_czk || 0) || null) : null,
       extra_battery_units: Number(deal.extraBatteryUnits || 0),
       raw: offer
     };

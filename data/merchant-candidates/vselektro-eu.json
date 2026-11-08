@@ -20,7 +20,7 @@
     "deeplink_validation_status": "local_generated_desturl_contract_tested_live_redirect_unverified",
     "approved_base_url_configured": true
   },
-  "evidence_semantics": "Three first-party seller product pages crawled on 2026-10-13 with EAN, matching technical limits, posted CZK prices and listed stock. Not a test purchase or proof of an affiliate conversion. Actual affiliate link base stored in private WordPress option, not public Git.",
+  "evidence_semantics": "Original first-party product EAN/model diligence and merchant approval on 2026-10-13. Exact seller-owned MPPT 100/20, 100/30 and 100/50 pages rechecked 2026-11-07: public incl-VAT CZK prices 2404/3444/4946 and explicit Skladem stock all unchanged. No eHUB redirect, purchase, or affiliate conversion test; affiliate base remains only in private WordPress.",
   "product_candidates": [
     {
       "catalog_product_id": "mppt-victron-100-20",
@@ -31,7 +31,7 @@
       "listing_stock_text": "Skladem",
       "current_price_verified": true,
       "current_stock_verified": true,
-      "seller_page_observed_on": "2026-10-13",
+      "seller_page_observed_on": "2026-11-07",
       "affiliate_tracking_status": "generated_desturl_parameter_verified_not_conversion_tested"
     },
     {
@@ -43,7 +43,7 @@
       "listing_stock_text": "Skladem",
       "current_price_verified": true,
       "current_stock_verified": true,
-      "seller_page_observed_on": "2026-10-13",
+      "seller_page_observed_on": "2026-11-07",
       "affiliate_tracking_status": "generated_desturl_parameter_verified_not_conversion_tested"
     },
     {
@@ -55,8 +55,9 @@
       "listing_stock_text": "Skladem",
       "current_price_verified": true,
       "current_stock_verified": true,
-      "seller_page_observed_on": "2026-10-13",
+      "seller_page_observed_on": "2026-11-07",
       "affiliate_tracking_status": "generated_desturl_parameter_verified_not_conversion_tested"
     }
-  ]
+  ],
+  "last_price_stock_recheck_on": "2026-11-07"
 }
