@@ -42,7 +42,8 @@ jobs:
 
   one-post-wordpress-publisher:
     needs: offline-contract
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    # A scheduled check, manual dispatch or rerun must never replay a possibly-ambiguous POST.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
@@ -50,7 +51,27 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
+      - name: Require an explicit changed editorial release control (not any maintenance push)
+        id: activation
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          if [[ ! "$BEFORE_SHA" =~ ^[0-9a-f]{40}$ || ! "$AFTER_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'Invalid push identity: no WordPress publication' >&2
+            exit 1
+          fi
+          git cat-file -e "${BEFORE_SHA}^{commit}"
+          changed="$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" -- ops/editorial-release.json)"
+          if [[ "$changed" == 'ops/editorial-release.json' ]]; then
+            echo 'armed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'armed=false' >> "$GITHUB_OUTPUT"
+          fi
       - name: Exact Git source, WordPress preflight and private source rollback
+        if: steps.activation.outputs.armed == 'true'
         id: prepare
         env:
           SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
