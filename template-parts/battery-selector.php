@@ -11,14 +11,17 @@
       <button type="button" class="se-btn" data-se-battery-dc-case="camera24h" @click="applyExample('camera24h')">Wi-Fi kamera + router 24/7: 12 V DC, 461 Wh/den</button>
     </div>
   </div>
-  <div class="se-note" x-cloak x-show="articleExample" data-se-article-example="panel400" role="status">
+  <div class="se-note" x-cloak x-show="articleExample && articleExampleKind==='panel400'" data-se-article-example="panel400" role="status">
     <strong>Model z článku o panelu 400 W:</strong> systém 24 V, denní spotřeba 0,7 kWh, jednodenní rezerva a modelový trvalý příkon 800 W.
     Jde pouze o ilustraci, nikoli vaše skutečné parametry. Před nákupem upravte spotřebu, výkon, napětí a připočtěte klidový odběr měniče.
+  </div>
+  <div class="se-note" x-cloak x-show="articleExample && articleExampleKind==='camera24h'" data-se-article-example="camera24h" role="status">
+    <strong>Model z článku o Wi-Fi kameře a routeru na chatě:</strong> nepřetržitý odběr 16 W × 24 h = 384 Wh/den a ilustrační 20% rezerva na napájení = 461 Wh/den. Systém 12 V DC, dva dny autonomie a 20 W návrhového kontinuálního příkonu. Nejde o měření konkrétních zařízení ani ověření zapojení PoE, DC-DC měniče, MPPT či jištění. Před nákupem upravte hodnoty a ověřte datasheety.
   </div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-battery-voltage">Systémové napětí</label><select id="se-battery-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
     <div class="se-field"><label for="se-battery-supply-mode">Způsob napájení spotřebičů</label><select id="se-battery-supply-mode" class="se-select" x-model="supplyMode" @change="run()"><option value="ac">230 V přes měnič (model 90 % účinnosti)</option><option value="dc">Přímo DC / PoE (ztráty již zahrnuté v kWh)</option></select></div>
-    <div class="se-field"><label for="se-battery-daily-kwh">Denní spotřeba spotřebičů (kWh/den)</label><input id="se-battery-daily-kwh" class="se-input" type="number" min=".2" step=".1" x-model.number="dailyKwh" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-battery-daily-kwh">Denní spotřeba spotřebičů (kWh/den)</label><input id="se-battery-daily-kwh" class="se-input" type="number" min=".001" step=".001" x-model.number="dailyKwh" @input.debounce.200ms="run()"></div>
     <div class="se-field"><label for="se-battery-autonomy">Rezerva</label><select id="se-battery-autonomy" class="se-select" x-model.number="autonomy" @change="run()"><option value=".5">½ dne</option><option value="1">1 den</option><option value="2">2 dny</option></select></div>
     <div class="se-field"><label for="se-battery-inverter-w"><span x-text="supplyMode==='dc' ? 'Max. návrhový příkon DC spotřebičů (W)' : 'Výkon měniče (W)'"></span></label><input id="se-battery-inverter-w" class="se-input" type="number" min="1" step="1" x-model.number="inverterW" @input.debounce.200ms="run()"></div>
   </div>
