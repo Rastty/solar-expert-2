@@ -112,3 +112,20 @@ test('live 850Wh fridge article hands users into the actual 3-step Builder, with
  assert(page.includes('Ve 3. kroku vyberte <strong>sezónu a rezervu baterie</strong>'),
    'Guide must explain what to select before seeing a product recommendation');
 });
+
+test('series-parallel solar panel wiring guide routes a safe 12V buyer toward relevant tools',()=>{
+ const page=read('content/rewrites/jak-zapojit-solarni-panely.html');
+ assert.equal(page.split('data-se-wiring-mppt-buyer-handoff="20261108"').length-1,1,
+   'Exactly one contextual buyer handoff in existing wiring guide');
+ assert(page.includes('průvodce 200W panelem na karavan, baterií a MPPT')&&
+   page.includes('href="/solarni-panel-na-karavan-200w/"'),
+   'Existing electrical wiring page must discover published 12V caravan buying guide');
+ assert(page.includes('Předběžně ověřit Voc/Vmp a výkon v MPPT kalkulačce'),
+   'CTA should explain the scope of CURRENT calculator, not imply certified wiring');
+ assert(page.includes('Současná veřejná verze kalkulačky ještě automaticky nekontroluje celkový Isc paralelních stringů'),
+   'Do not promise yet-unreleased Isc check from PR #150');
+ assert(page.includes('Součet Isc jednotlivých paralelních větví'),
+   'Safety caveat must explain why multiple parallel branches require independent Isc proof');
+ assert(!page.includes('Ověřit 12V string v MPPT kalkulačce →'),
+   'Do not retain ambiguous stronger original CTA in edited section');
+});
