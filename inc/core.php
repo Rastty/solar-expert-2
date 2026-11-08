@@ -313,6 +313,20 @@ function solar_expert_sync_managed_content($force = false) {
       continue;
     }
 
+    // Content issued via the independent, source-locked WordPress REST publisher
+    // is NOT owned by theme sync. A future theme update must not accidentally
+    // replace a published editor's body, title or status with stale Git HTML.
+    // This directive is valid only for an existing post with creation disabled.
+    $native_editorial = ! empty($item['native_editorial_owned']);
+    if ( $native_editorial &&
+         ( $type !== 'post' ||
+           ! array_key_exists('create_if_missing', $item) ||
+           $item['create_if_missing'] !== false ||
+           ! isset($item['preserve_status']) || $item['preserve_status'] !== true ) ) {
+      $result['errors'][] = $slug . ':invalid-native-editorial-contract';
+      continue;
+    }
+
     $file = solar_expert_safe_content_file($item['file']);
     if ( ! $file ) {
       $result['errors'][] = 'Missing content file: ' . $item['file'];
@@ -336,7 +350,11 @@ function solar_expert_sync_managed_content($force = false) {
     );
 
     $post_changed = false;
-    if ( $existing ) {
+    if ( $native_editorial && $existing ) {
+      // Only taxonomy/SEO metadata reconciliation is permitted below.
+      // No wp_update_post(), wp_insert_post(), title/content/status write.
+      $id = (int) $existing->ID;
+    } elseif ( $existing ) {
       $desired_status = ! empty($item['preserve_status']) ? $existing->post_status : ($item['status'] ?? $existing->post_status);
       $post_changed =
         (string) $existing->post_title !== (string) $desired_title ||
