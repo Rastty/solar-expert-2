@@ -1,6 +1,10 @@
-// Historical 2026-10 verified offer snapshot is deterministic at that date.
-// This only affects this offline regression; live offers still expire normally.
-const {mock}=require('node:test');
+// Legacy compatibility/score baselines below were authored from the documented
+// 2026-10-14 verified catalog. Pin ONLY this historical fixture clock so old
+// physical-product snapshots do not masquerade as freshly checked in 2026-11.
+// This test runs against the immutable historic catalog fixture; current-day
+// retailer availability, price and age-out are tested separately by
+// catalog-refresh-20261107.test.mjs (unfrozen clock).
+const {mock} = require('node:test');
 mock.timers.enable({apis:['Date'],now:new Date('2026-10-14T12:00:00Z')});
 global.window = {SolarExpertConfig:{affiliateMap:{products:{},leads:{}},affiliateBases:{}}};
 require('../assets/js/affiliate-adapter.js');
@@ -14,7 +18,33 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
-const catalog = require('../assets/data/product-seed.json');
+const catalog = require('./fixtures/catalog-20261014.json');
+// Preserve immutable October retailer prices/dates for legacy ranking
+// regressions while overlaying independently sourced, noncommercial
+// November 2026 PV Isc electrical specifications. Do not edit old snapshot
+// evidence or treat its 2026-10-14 timestamps as 2026-11-07 merchant checks.
+const currentElectricalSource = require('../data/product-seed.json').products;
+for (const product of catalog.products) {
+  const technical=currentElectricalSource.find(x=>x.id===product.id);
+  if(!technical)continue;
+  if(product.type==='mppt') {
+    if(!(Number(technical.max_pv_isc_a)>0))throw Error('Missing independently verified MPPT Isc for '+product.id);
+    product.max_pv_isc_a=technical.max_pv_isc_a;
+  }
+  if(product.type==='panel' && Number(technical.isc_a)>0){
+    product.isc_a=technical.isc_a;
+  }
+  if(product.integrated_mppt && technical.integrated_mppt){
+    // Historical economics scenarios exercise real 2-tracker topology
+    // without pretending October merchant evidence is newly verified.
+    for(const name of ['pv_input_operating_a_per_tracker','pv_tracker_count',
+      'pv_strings_per_tracker','pv_w_max_per_tracker',
+      'pv_operating_current_source_url','pv_isc_absolute_status']){
+      if(technical.integrated_mppt[name]!==undefined)
+        product.integrated_mppt[name]=technical.integrated_mppt[name];
+    }
+  }
+}
 const M = global.window.SolarExpertProductMatcher;
 const B = global.window.SolarExpertBundleComposer;
 const A = global.window.SolarExpertAffiliate;
@@ -411,6 +441,19 @@ assert(high48Premium.bundleDeal===null,'Bundle deal must not apply when battery 
 // Conversion safety: the buyer's actual parts list must reconcile exactly
 // with the compatibility-checked bundle, including discounted sets.
 const shoppingTester=window.solarExpertBuilder();
+// This is a HISTORICAL financial arithmetic fixture, not a hardware approval.
+// Test-only boolean intentionally models a separate independent current
+// review so quantity-aware price math is still covered. Actual Growatt
+// models below remain purchase-blocked and do NOT receive this marker.
+const costMathOnly=(bundle)=>bundle?.integratedMppt
+  ? {...bundle,pvIscVerified:true}
+  : bundle;
+for(const unsafe of [best48,withDeal,high48Best,high48Premium]){
+  assert(unsafe?.status==='pv_isc_limit_unverified'&&unsafe.pvIscVerified===false,
+    'Actual Growatt configuration must declare source-dependent PV Isc gap');
+  assert(shoppingTester.purchaseBreakdownFor(unsafe)===null,
+    'Actual Growatt configuration must not provide a buyer shopping list');
+}
 const shoppingStandalone12=B.compose(catalog.products,{
   voltage:12,batteryKwh:1,inverterW:800,peak:1800,panelWp:180,mpptA:20
 },[]).find(bundle=>bundle.tier==='budget');
@@ -422,7 +465,7 @@ for(const [label,bundle] of [
   ['parallel-battery discounted set',high48Best],
   ['parallel-battery separate products',high48Premium]
 ]){
-  const list=shoppingTester.purchaseBreakdownFor(bundle);
+  const list=shoppingTester.purchaseBreakdownFor(costMathOnly(bundle));
   assert(list&&list.rows.length>=2,'Buyer parts list must exist for '+label);
   assert(list.total===bundle.totalPrice,'Parts list must reconcile exact main-parts total for '+label);
   assert(list.rows.reduce((total,row)=>total+row.subtotal,0)===bundle.totalPrice,
@@ -436,19 +479,19 @@ for(const [label,bundle] of [
   assert(Boolean(mppt)===!bundle.integratedMppt,
     'Integrated MPPT must never add a duplicate standalone purchase for '+label);
 }
-const oneSetItems=shoppingTester.purchaseBreakdownFor(withDeal).rows;
+const oneSetItems=shoppingTester.purchaseBreakdownFor(costMathOnly(withDeal)).rows;
 assert(oneSetItems.filter(row=>row.label==='Set baterie + měnič').length===1,
   'Discounted set must appear as one purchasable row');
 assert(!oneSetItems.some(row=>row.label==='Měnič'||row.label==='Baterie'),
   'Discounted set must not double-count included inverter or battery');
-const parallelSetItems=shoppingTester.purchaseBreakdownFor(high48Best).rows;
+const parallelSetItems=shoppingTester.purchaseBreakdownFor(costMathOnly(high48Best)).rows;
 assert(parallelSetItems.find(row=>row.label==='Baterie navíc')?.quantity===1,
   'Two-battery set must explicitly list the extra battery outside the kit');
 assert(parallelSetItems.find(row=>row.label==='Set baterie + měnič')?.quantity===1,
   'Multi-battery purchase must not recommend buying two inverter sets');
-assert(shoppingTester.purchaseBreakdownFor({...high48Best,totalPrice:high48Best.totalPrice+10})===null,
+assert(shoppingTester.purchaseBreakdownFor({...costMathOnly(high48Best),totalPrice:high48Best.totalPrice+10})===null,
   'Price discrepancy must fail safely instead of inventing a reconciled shopping list');
-assert(shoppingTester.purchaseBreakdownFor({...high48Best,priceComplete:false})===null,
+assert(shoppingTester.purchaseBreakdownFor({...costMathOnly(high48Best),priceComplete:false})===null,
   'Incomplete price evidence must never produce a precise buyer subtotal');
 
 const pusungParallel=catalog.products.find(p=>p.id==='battery-seplos-pusung-48');
@@ -521,7 +564,7 @@ assert(budget12Verified.mppt.id==='mppt-victron-100-20', 'Small 12V Budget bundl
 
 const battery12LargerSizing={voltage:12,batteryKwh:2,inverterW:800};
 const larger12Batteries=M.rank(catalog.products.filter(p=>p.type==='battery'),battery12LargerSizing);
-assert(larger12Batteries.some(x=>x.product.id==='battery-goowei-12-200'),'12V 2kWh scenario should find verified GOOWEI 200Ah battery');
+assert(larger12Batteries.some(x=>x.product.id==='battery-goowei-12-200'),'Historical 2026-10-14 fixture should still find GOOWEI 200Ah as it was in stock then');
 assert(!larger12Batteries.some(x=>x.product.id==='battery-goowei-12-100'),'12V 100Ah battery must not pass a 2kWh nominal target');
 
 const rep1500Freshness=catalog.products.find(p=>p.id==='inverter-rogerele-rep1500-24');
@@ -535,7 +578,7 @@ assert(M.effectivePrice(rep2000Freshness)===4990,'REP2000-24 must use the cheape
 
 const kosun48Sizing={voltage:48,inverterW:2500,peak:5000};
 const kosun48Matches=M.rank(catalog.products.filter(p=>p.type==='inverter'||p.type==='inverter_hybrid'),kosun48Sizing);
-assert(kosun48Matches.some(x=>x.product.id==='inverter-kosun-48-3000'),'48V selector should include verified KOSUN 3000W budget inverter');
+assert(!kosun48Matches.some(x=>x.product.id==='inverter-kosun-48-3000'),'LiFePO4 selector must reject KOSUN 3000W with lead-acid-only integrated charger');
 const kosun48=catalog.products.find(p=>p.id==='inverter-kosun-48-3000');
 const pusung48=catalog.products.find(p=>p.id==='battery-seplos-pusung-48');
 assert(kosun48&&kosun48.lifepo4_charge_supported===false,'KOSUN 48V charger must declare LiFePO4 incompatibility');

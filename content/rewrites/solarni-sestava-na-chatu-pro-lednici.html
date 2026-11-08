@@ -2,7 +2,8 @@
 
 <div class="se-note"><strong>Nejrychlejší cesta k nákupu:</strong> u lednice opište údaj <strong>kWh/rok z energetického štítku</strong>, vydělte ho 365 a přičtěte ztráty měniče, jeho vlastní spotřebu i další spotřebiče. Do <a href="/solarni-sestava-na-chatu/">Builderu solární sestavy</a> zadejte tyto spotřeby a požadovanou sezónu. Nástroj spočítá předběžné parametry a ukáže produktové varianty.</div>
 
-<p><a class="se-btn se-btn-primary" href="/solarni-sestava-na-chatu/">Spočítat solární sestavu pro chatu →</a></p>
+<p><a class="se-btn se-btn-primary" href="/solarni-sestava-na-chatu/?scenario=fridge230#builder">Otevřít model lednice 850 Wh v kalkulačce →</a></p>
+<p class="se-muted"><small>Odkaz předvyplní <strong>jen veřejně popsaný ukázkový příklad</strong> a otevře úpravu spotřebičů. Výpočet ani affiliate kliknutí neproběhne automaticky. Příkon, dobu provozu a počet upravte podle své skutečné lednice a další elektroniky.</small></p>
 
 <h2>Kolik energie skutečně spotřebuje lednice</h2>
 <p>Chladnička neběží nepřetržitě na plný štítkový výkon: kompresor cykluje podle nastavené teploty, okolního prostředí, otevírání dveří a množství potravin. Proto pro návrh baterie není správné násobit jmenovité watty automaticky 24 hodinami.</p>
@@ -14,9 +15,10 @@
 <tbody>
 <tr><td>Lednice 230 V</td><td>237 kWh/rok na štítku</td><td>650 Wh</td></tr>
 <tr><td>LED osvětlení</td><td>20 W × 5 hodin</td><td>100 Wh</td></tr>
-<tr><td>Nabíjení telefonů, drobná elektronika</td><td>Odhad pro příklad</td><td>100 Wh</td></tr>
+<tr><td>Nabíjení notebooku či drobné elektroniky</td><td>Model 50 W × 2 hodiny</td><td>100 Wh</td></tr>
 <tr><td><strong>Celkem spotřebiče</strong></td><td>Bez DC/AC a klidových ztrát</td><td><strong>850 Wh/den</strong></td></tr>
 </tbody></table>
+<p>Pro přenos do Builderu používáme <strong>modelovou lednici 65 W × 10 hodin = 650 Wh</strong>, LED světla <strong>20 W × 5 hodin = 100 Wh</strong> a notebook či drobnou elektroniku <strong>50 W × 2 hodiny = 100 Wh</strong>. Neznamená to, že každý kompresor odebírá 65 W přesně 10 hodin; nahraďte tento předpoklad údajem ze štítku a měřením.</p>
 <p>Výpočet 850 Wh denně je <em>ilustrační</em>; není to typická spotřeba všech chat ani konkrétní cenová nabídka. U konkrétní lednice a měniče se může výrazně lišit. Návrh děláme s rezervou.</p>
 
 <h2>Jak velkou LiFePO₄ baterii potřebujete</h2>
@@ -58,4 +60,4 @@
 <li><a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/using-pvgis-5/pvgis-5-tools/grid-connected-pv_en" rel="nofollow noopener">Evropská komise / JRC – PVGIS, výroba a měsíční sezónnost</a></li>
 <li><a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/technical-specifications.html" rel="nofollow noopener">Victron – technické limity SmartSolar 100/30 a 100/50</a></li>
 </ul>
-<p class="se-muted"><small>Aktualizováno 13. 10. 2026. Veškeré Wh, ztráty a energetické příklady jsou výslovně modelové, nikoli laboratorně naměřené údaje konkrétního systému. Instalaci 230 V, ochranných prvků a akumulátorů musí ověřit odborník.</small></p>
+<p class="se-muted"><small>Výpočtový podklad ověřen 13. 10. 2026, předvyplněný příklad v Builderu přidán 7. 11. 2026. Veškeré Wh, ztráty a energetické příklady jsou výslovně modelové, nikoli laboratorně naměřené údaje konkrétního systému. Instalaci 230 V, ochranných prvků a akumulátorů musí ověřit odborník.</small></p>

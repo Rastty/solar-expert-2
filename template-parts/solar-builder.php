@@ -19,13 +19,19 @@
   </div>
 
   <div x-show="step===2" x-cloak>
-    <div class="se-row"><p class="se-muted">Vyberte spotřebiče a upravte dobu provozu.</p><strong><span x-text="(dailyWh/1000).toFixed(2)"></span> kWh/den</strong></div>
+    <div class="se-note" x-show="articleExample" x-cloak data-se-article-example="fridge230" role="status" style="margin-bottom:14px">
+      <strong>Otevřený modelový příklad z článku o lednici: původně 850 Wh/den.</strong>
+      Lednice 65 W × 10 h, LED 20 W × 5 h, notebook či drobná elektronika 50 W × 2 h.
+      Nejde o naměřené hodnoty vašich spotřebičů. Před návrhem je upravte podle štítku nebo měření a zkontrolujte rozběh kompresoru.
+    </div>
+    <div class="se-row"><p class="se-muted">Upravte příkon, dobu provozu a počet spotřebičů podle skutečnosti.</p><strong><span x-text="Number.isFinite(dailyWh)?(dailyWh/1000).toFixed(2):'—'"></span> kWh/den</strong></div>
     <template x-for="a in appliances" :key="a.id">
       <div class="se-choice" :class="a.selected?'active':''">
         <div class="se-row"><label><input type="checkbox" x-model="a.selected" @change="inputError=''"> <strong style="display:inline" x-text="a.name"></strong></label><span><span x-text="a.watts"></span> W</span></div>
         <div class="se-formgrid" x-show="a.selected" style="margin-top:12px">
-          <div class="se-field"><label>hodin / den</label><input class="se-input" type="number" min=".1" max="24" step=".1" x-model.number="a.hours" @input="inputError=''"></div>
-          <div class="se-field"><label>počet</label><input class="se-input" type="number" min="1" max="10" step="1" x-model.number="a.qty" @input="inputError=''"></div>
+          <div class="se-field"><label :for="'builder-watts-'+a.id">Příkon při provozu (W)</label><input class="se-input" type="number" min="1" max="10000" step="1" :id="'builder-watts-'+a.id" x-model.number="a.watts" @input="inputError=''"></div>
+          <div class="se-field"><label :for="'builder-hours-'+a.id">hodin / den</label><input class="se-input" type="number" min=".1" max="24" step=".1" :id="'builder-hours-'+a.id" x-model.number="a.hours" @input="inputError=''"></div>
+          <div class="se-field"><label :for="'builder-qty-'+a.id">počet</label><input class="se-input" type="number" min="1" max="10" step="1" :id="'builder-qty-'+a.id" x-model.number="a.qty" @input="inputError=''"></div>
         </div>
       </div>
     </template>
@@ -196,6 +202,14 @@
       </template>
     </div>
 
+    <div class="se-note se-note-error" data-se-integrated-pv-isc-blocked="true"
+         x-show="bundles.some(b => b && b.status==='pv_isc_limit_unverified')" x-cloak
+         role="status" aria-live="polite" style="margin-top:14px">
+      <strong>Nákup hybridní sestavy zatím nedoporučujeme.</strong>
+      U některých měničů Growatt známe provozní proud FV vstupu, ale nemáme ověřený absolutní Isc limit konkrétní hardwarové verze.
+      Dva nezávislé MPPT vstupy nelze sčítat jako jeden. Dokud chybí výrobní potvrzení, nezobrazujeme nákupní odkazy ani cenu celé takové sestavy.
+      Pro ověření kontaktujte odborníka nebo výrobce s přesným modelem a revizí.
+    </div>
     <div class="se-note" x-show="!completeBundles.length" style="margin-top:14px">
       Pro zadané parametry zatím nemáme v ověřeném katalogu kompletní sestavu. Raději nezobrazíme neověřenou kombinaci, než doporučit technicky slabou variantu.
     </div>
