@@ -68,7 +68,7 @@
       </div>
     </div>
     <div class="se-home-discovery-group" data-se-home-offgrid-buying="guides">
-      <h3>Chata bez elektřiny: jak vybrat a koupit správné komponenty</h3>
+      <h3>Chata a karavan bez elektřiny: jak vybrat správné komponenty</h3>
       <div class="se-home-discovery-grid">
         <a class="se-home-guide" href="<?php echo esc_url(home_url('/solarni-sestava-na-chatu-pro-lednici/')); ?>">
           <strong>Solár na chatu pro lednici 230 V <span aria-hidden="true">→</span></strong>
@@ -77,6 +77,10 @@
         <a class="se-home-guide" href="<?php echo esc_url(home_url('/jakou-baterii-k-solarnimu-panelu-400w/')); ?>">
           <strong>Jakou baterii k panelu 400 W? <span aria-hidden="true">→</span></strong>
           <span>LiFePO₄ 12V 100Ah vs. 24V 50Ah, výpočet kWh, limity BMS a výběr konkrétní baterie.</span>
+        </a>
+        <a class="se-home-guide" href="<?php echo esc_url(home_url('/solarni-panel-na-karavan-200w/')); ?>">
+          <strong>Solární panel na karavan kolem 200 W <span aria-hidden="true">→</span></strong>
+          <span>12V LiFePO₄, výpočet denní spotřeby, MPPT podle skutečného Voc/Vmp/Isc a bezpečná montáž za jízdy.</span>
         </a>
         <a class="se-home-guide" href="<?php echo esc_url(home_url('/jak-vybrat-mppt-regulator-pro-400w-panel/')); ?>">
           <strong>Jaký MPPT k 400W solárnímu panelu <span aria-hidden="true">→</span></strong>
