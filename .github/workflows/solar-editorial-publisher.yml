@@ -10,6 +10,7 @@ on:
       - "tests/test_solar_editorial_credentials.py"
       - "ops/editorial-release.json"
       - "ops/editorial-manifests/**"
+      - "tests/test_solar_wifi_camera_buyer_guide.py"
   push:
     branches: [main]
     paths:
@@ -18,6 +19,7 @@ on:
       - "scripts/editorial_credentials_check.py"
       - "ops/editorial-release.json"
       - "ops/editorial-manifests/**"
+      - "tests/test_solar_wifi_camera_buyer_guide.py"
   schedule:
     - cron: "11 * * * *"
   workflow_dispatch:
@@ -44,6 +46,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_solar_editorial_release.py' -v
       - name: Read-only credential guard regression (offline; fake credentials)
         run: python -m unittest discover -s tests -p 'test_solar_editorial_credentials.py' -v
+      - name: Editorial 24h Wi-Fi monitoring buyer guide contract
+        run: python -m unittest discover -s tests -p 'test_solar_wifi_camera_buyer_guide.py' -v
 
   one-post-wordpress-publisher:
     needs: offline-contract
