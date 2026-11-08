@@ -15,7 +15,9 @@ for(let i=0;i<lines.length;i++){
   if(lines[i] !== '        run: |') continue;
   workflowBlocks++;
   for(let j=i+1;j<lines.length;j++){
-    if(/^      - name: /.test(lines[j])) break;
+    // A YAML job boundary also ends the prior run scalar. The separate
+    // release-intent job must not be mistaken for the previous Bash body.
+    if(/^      - name: /.test(lines[j]) || /^  [a-z][a-z0-9-]*:\s*$/.test(lines[j])) break;
     if(!lines[j].trim()) continue;
     assert(lines[j].startsWith('          '),
       'Unindented/garbled text outside run YAML literal at line '+(j+1)+': '+lines[j]);
