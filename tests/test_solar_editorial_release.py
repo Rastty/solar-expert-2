@@ -1,6 +1,8 @@
 """Offline publisher guarantees. NEVER uses live WordPress or GitHub in tests."""
 import json
 import os
+import shutil
+import subprocess
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import tempfile
@@ -364,12 +366,44 @@ class PublisherTests(unittest.TestCase):
         self.assertIn("fetch-depth: 0", source)
         self.assertIn("steps.prepare.outputs.status == 'prepared'", source)
         self.assertIn("retention-days: 30", source)
-        upload = source.index("name: Archive PREWRITE WordPress snapshot")
+        encrypt = source.index("name: Encrypt PREWRITE snapshot")
+        upload = source.index("name: Archive ENCRYPTED PREWRITE WordPress snapshot")
         write = source.index("name: ONE guarded WordPress REST write")
+        self.assertLess(encrypt, upload)
         self.assertLess(upload, write)
+        self.assertIn("openssl enc -aes-256-cbc -salt -pbkdf2 -iter 200000 -md sha256", source)
+        self.assertIn("-pass env:SOLAR_WP_APP_PASSWORD", source)
+        self.assertIn("path: artifacts/editorial-prewrite-private.enc", source[upload:write])
+        self.assertNotIn("path: artifacts/editorial-prewrite-private.json", source[upload:write])
+        self.assertIn("if-no-files-found: error", source[upload:write])
         self.assertNotIn("wpvibe", source.lower())
         # Avoid secrets on checkout, offline tests or job-wide environment.
         self.assertGreater(source.index("SOLAR_WP_APP_PASSWORD"), source.index("name: Exact Git source"))
+
+
+    def test_public_repository_artifact_encryption_roundtrip(self):
+        if not shutil.which("openssl"):
+            self.skipTest("OpenSSL CLI is required on the Github Actions Ubuntu runner")
+        original = b'{"original_content":"PRIVATE_OLD_WP_BODY_DO_NOT_EXPOSE","source_body":"PUBLIC_ARTICLE"}'
+        original_file = Path(self.tmp.name) / "prewrite-private.json"
+        encrypted_file = Path(self.tmp.name) / "prewrite-private.enc"
+        recovered_file = Path(self.tmp.name) / "recovered.json"
+        original_file.write_bytes(original)
+        key_environment = {**os.environ, "SOLAR_WP_APP_PASSWORD": "fake-test-password-only"}
+        options = ["-aes-256-cbc", "-salt", "-pbkdf2", "-iter", "200000",
+                   "-md", "sha256"]
+        subprocess.run(["openssl", "enc", *options, "-in", str(original_file),
+                        "-out", str(encrypted_file), "-pass", "env:SOLAR_WP_APP_PASSWORD"],
+                       check=True, env=key_environment, capture_output=True)
+        ciphertext = encrypted_file.read_bytes()
+        self.assertTrue(ciphertext.startswith(b"Salted__"))
+        self.assertNotIn(b"PRIVATE_OLD_WP_BODY_DO_NOT_EXPOSE", ciphertext)
+        self.assertNotIn(b"PUBLIC_ARTICLE", ciphertext)
+        subprocess.run(["openssl", "enc", "-d", *options,
+                        "-in", str(encrypted_file), "-out", str(recovered_file),
+                        "-pass", "env:SOLAR_WP_APP_PASSWORD"],
+                       check=True, env=key_environment, capture_output=True)
+        self.assertEqual(recovered_file.read_bytes(), original)
 
 
 if __name__ == "__main__":
