@@ -1,3 +1,7 @@
+// Historical 2026-10 verified offer snapshot is deterministic at that date.
+// This only affects this offline regression; live offers still expire normally.
+const {mock}=require('node:test');
+mock.timers.enable({apis:['Date'],now:new Date('2026-10-14T12:00:00Z')});
 global.window = {SolarExpertConfig:{affiliateMap:{products:{},leads:{}},affiliateBases:{}}};
 require('../assets/js/affiliate-adapter.js');
 require('../assets/js/product-matcher.js');

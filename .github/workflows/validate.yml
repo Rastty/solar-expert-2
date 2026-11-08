@@ -60,6 +60,8 @@ jobs:
         run: php tests/tool-schema.test.php
       - name: Engine tests
         run: node tests/engine.test.js
+      - name: Explicit theme release gate prevents ordinary dev deploys
+        run: node --test tests/theme-deploy-release-gate.test.mjs
       - name: Repository integrity
         run: node tests/repo-integrity.test.js
       - name: SEO taxonomy deploy Bash syntax and manifest coverage
