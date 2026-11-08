@@ -66,6 +66,8 @@ jobs:
         run: php tests/buyer-discovery.test.php
       - name: Managed category discovery
         run: php tests/managed-categories.test.php
+      - name: Native editorial ownership prevents theme content overwrite
+        run: php tests/native-editorial-content-preservation.test.php
       - name: Curated topic archives (scope, relevance and preservation)
         run: php tests/curated-archives.test.php
       - name: Strict old import sitemap and noindex hygiene
