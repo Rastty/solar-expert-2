@@ -91,3 +91,24 @@ test('buyer traffic routes to real existing tools without unsourced deals or fak
    'Never leak private merchant affiliate IDs or hardcode a tracking click in editorial source');
  assert(!/garantujeme výnos|zaručená soběstačnost|nejlevnější sestava/i.test(article));
 });
+
+test('live 850Wh fridge article hands users into the actual 3-step Builder, without fake 1-click prefill',()=>{
+ const page=read('content/rewrites/solarni-sestava-na-chatu-pro-lednici.html');
+ const form=read('template-parts/solar-builder.php');
+ assert.equal(page.split('data-se-fridge-manual-builder-guide="850wh"').length-1,1,
+   'One exact manual setup handoff at the illustrated fridge calculation');
+ assert(page.includes('Hodnotu 850 Wh nyní nelze vložit přímo jako jeden vstup'),
+   'Do not imply an unavailable direct 850Wh/day input or as-yet unreleased article prefill');
+ assert(page.includes('Příkony spotřebičů má současný nástroj přednastavené'),
+   'Users must understand the published appliance wattage is not currently editable');
+ assert(page.includes('hodiny provozu za den a počet kusů'),
+   'Only actual editable live Builder controls are advertised');
+ assert(page.includes('href="/solarni-sestava-na-chatu/"'),
+   'Users have a crawlable, useful action to open the Builder');
+ assert(form.includes('x-model.number="a.hours"')&&form.includes('x-model.number="a.qty"'),
+   'Builder really does permit changing runtime and appliance counts');
+ assert(!form.includes('x-model.number="a.watts"'),
+   'Test must be revisited if a future theme release makes wattage editable');
+ assert(page.includes('Ve 3. kroku vyberte <strong>sezónu a rezervu baterie</strong>'),
+   'Guide must explain what to select before seeing a product recommendation');
+});
