@@ -360,6 +360,62 @@ class PublisherTests(unittest.TestCase):
         self.assertEqual(receipt["writes_attempted"], 1)
         self.assertEqual(receipt["reason"], "missing_post_id")
 
+    def test_public_readback_accepts_wordpress_html_wrapper_and_entities(self):
+        sample = "Wi-Fi router a IP kamera na chatě potřebují napájení i během zimních dnů."
+        class Response:
+            status = 200
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return False
+            def read(self, limit):
+                return ('<html><head><title>Solar Expert</title><script>var x=1;</script>'
+                        '</head><body><main><p>Wi-Fi <strong>router</strong> a IP kamera na chatě '
+                        'potřebují napájení i během zimních&nbsp;dnů.</p></main></body></html>'
+                        ).encode('utf-8')
+        class Opener:
+            def open(self, req, timeout):
+                self.assertion = (req.full_url, timeout)
+                return Response()
+        with patch.object(e, "OPENER", Opener()):
+            self.assertEqual(e.public_probe(e.SITE + "/sample/", sample),
+                             "public_content_seen")
+
+    def test_public_readback_does_not_accept_script_only_or_unrelated_article(self):
+        sample = "Wi-Fi router a IP kamera na chatě potřebují napájení i během zimních dnů."
+        class Response:
+            status = 200
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return False
+            def read(self, limit):
+                return ('<html><script>const hidden = "' + sample +
+                        '";</script><main><h1>Zcela jiný článek bez odpovědi</h1>'
+                        '</main></html>').encode('utf-8')
+        class Opener:
+            def open(self, req, timeout):
+                return Response()
+        with patch.object(e, "OPENER", Opener()):
+            self.assertEqual(e.public_probe(e.SITE + "/sample/", sample), "public_pending")
+        self.assertEqual(e.public_probe(e.SITE + "/sample/", "příliš krátké"), "public_pending")
+
+    def test_postwrite_public_probe_is_get_only_and_remains_best_effort(self):
+        wp = FakeWordPress()
+        d = e.sha(e.canonical(self.m))
+        with patch.object(e, "github_source", return_value=self.html), patch.object(e, "wp", new=wp):
+            e.prepare(self.m, d)
+            with patch.dict(os.environ, {"SOLAR_EDITORIAL_LIVE": "YES"}), patch.object(
+                e, "public_probe", return_value="public_unavailable"
+            ) as probe:
+                e.apply(self.m, d)
+            self.assertEqual(probe.call_count, 1)
+            self.assertEqual(wp.posts, 1)
+            receipt = json.loads(self.report.read_text())
+            self.assertEqual(receipt["status"], "wp_verified")
+            self.assertEqual(receipt["public_readback"], "public_unavailable")
+            self.assertTrue(receipt["authenticated_readback"])
+
     def test_workflow_secret_scope_and_artifact_order(self):
         source = (e.ROOT / ".github/workflows/solar-editorial-publisher.yml").read_text()
         self.assertIn("branches: [main]", source)
