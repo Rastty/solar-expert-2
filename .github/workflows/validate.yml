@@ -70,6 +70,8 @@ jobs:
         run: php tests/native-editorial-content-preservation.test.php
       - name: Already live caravan buyer guide source, SEO and tool paths
         run: node --test tests/caravan-native-source-parity.test.mjs
+      - name: Deferred Wi-Fi camera native publisher source SHA and ownership
+        run: node --test tests/wifi-camera-source-parity.test.mjs
       - name: Curated topic archives (scope, relevance and preservation)
         run: php tests/curated-archives.test.php
       - name: Strict old import sitemap and noindex hygiene
