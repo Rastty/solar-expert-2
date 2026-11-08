@@ -1,83 +1,108 @@
-# Solar Expert auto-deploy
+# Solar Expert production theme release — guarded runbook
 
-Solar Expert uses **Deployer for Git → Push-to-Deploy** as the production deployment trigger.
+## What does NOT deploy
 
-## One-time setup
+Normal pushes and PR merges to `dev` run code validation, WordPress
+Playground, and the Catalog Freshness Watch. They **do not** publish a new
+theme or update WordPress. `ops/theme-deploy-release.json` starts with
+`enabled:false`. The `release-intent` job succeeds but `deploy` is
+skipped when that explicit control did not change on the current push.
+The workflow uses non-cancelling release concurrency so an in-flight
+production verification cannot be cut short by a newer merge.
 
-1. In WordPress admin open **Deployer for Git** and the connected Solar Expert theme package.
-2. Confirm the package tracks branch **`dev`**.
-3. Click **Show Push-to-Deploy URL** and copy the full generated URL.
-4. In GitHub open **Rastty/solar-expert-2 → Settings → Secrets and variables → Actions**.
-5. Create a repository secret named exactly **`SOLAR_EXPERT_DEPLOY_URL`** and paste the Push-to-Deploy URL as its value.
-6. Never commit or paste the URL into repository files, issues, PRs or logs.
+The separate main-branch `ops/editorial-release.json` is a single-post
+editorial authorization, **not** permission to deploy the whole theme.
+It has independent 24h and one-write safety controls.
 
-## What happens after setup
+## Preconditions for a real release
 
-Every push to `dev` starts **Auto Deploy Solar Expert Dev**.
+1. Complete and independently verify the **host-level WordPress database
+   and `wp-content/uploads` snapshot**, including managed pages/posts,
+   SEO/categories/options and private affiliate mapping. Rehearse an
+   actual restore on staging. This is **open blocker
+   [#148](https://github.com/Rastty/solar-expert-2/issues/148)**, not
+   something CI can generate or attest on its own.
+2. Produce the private, release-scoped JSON
+   `SOLAR_EXPERT_WORDPRESS_BACKUP_RECEIPT` per
+   [restore attestation contract](WORDPRESS_RESTORE_ATTESTATION.md).
+   Its refs must identify **real external** host backups and staging drill;
+   the previous `dev` SHA must match the actual first parent of the
+   upcoming release. No credentials or backup files in GitHub issues,
+   public commits or log output.
+3. Review the complete release scope and acquire current-head green
+   `Validate Solar Expert` and `WordPress Playground Preview` results.
+   Verify existing production version and the exact prior-live source
+   fingerprint. Do not assume previous `dev` equals live when several
+   feature merges were integrated without deployment.
+4. In a **separate reviewed PR** to `dev`, deliberately change
+   `ops/theme-deploy-release.json` to `enabled:true` and a unique
+   `solar-theme-*` release ID. Only that changed control on the merged
+   push passes the release-intent guard. A later push that merely leaves
+   `enabled:true` unchanged cannot authorize a new release.
 
-The workflow:
+## Order of production checks
 
-1. verifies the `dev` commit came from a merged pull request; direct pushes to `dev` are not auto-deployed;
-2. waits for **Validate Solar Expert** (`validate`) on the merge commit;
-3. resolves the merged PR head and requires its **WordPress Playground Preview** (`preview`) to be successful;
-4. calls the secret Deployer for Git Push-to-Deploy URL;
-5. polls `/wp-json/solar-expert/v1/health`;
-6. succeeds only when the live theme version matches `style.css`, managed content is current and sync errors are zero.
+Before the first potential production mutation, `deploy`:
 
-If `SOLAR_EXPERT_DEPLOY_URL` is not configured, the workflow exits safely without deploying.
+- Confirms a merged PR for the exact commit and green validation/preview.
+- Verifies a recent, first-parent-SHA-bound **private DB + uploads backup
+  receipt** (snapshot within 24 hours; staging restore within 30 days).
+  The receipt is **not** independently validated backup contents.
+- Compares four public live theme source files byte-for-byte to the
+  previous Git rollback candidate: `style.css`,
+  `assets/js/selectors.js`, `assets/js/affiliate-adapter.js` and
+  `assets/data/product-seed.json`. Unknown code drift **blocks**.
+- Archives and round-trip verifies that previous source snapshot; an
+  artifact uploaded with 90-day retention must succeed first.
+  This is a **theme CODE archive**, never a WordPress database/media
+  backup.
+- Confirms `dev` still points at the exact approved commit, then issues
+  exactly **one** Deployer for Git request. It does **not** automatically
+  retry the mutation after a timeout or follow a redirect; an HTTP 200
+  is not sufficient without a single JSON receipt with
+  `success:true`, `package_type:"theme"`,
+  `package_slug:"solar-expert-2"`.
+- Reconfirms `dev` before the managed-content sync POST. Known
+  non-mutating readiness responses may be retried, but ambiguous
+  transport or 503 results **never** trigger an automatic second POST.
+- Reads public version/content health, exact shipped public source
+  bytes, SEO, theme and buyer tools, routes, attribution and CTA checks.
+  No commission/revenue claim is made from a passing technical check.
 
-## Rollback
+WordPress managed posts tagged `native_editorial_owned:true` and
+strictly `create_if_missing:false,preserve_status:true` cannot have
+their body/title/status replaced by theme sync. Other managed content
+can change on deployment: this is why a real WordPress DB backup is
+mandatory.
 
-Production remains repo-driven. If a release is bad, revert the offending commit(s) on `dev`. The same gated auto-deploy path will ship the reverted state after CI passes.
+## Recovery and release drift
 
-For an urgent manual fallback, use Deployer for Git's normal Pull/Update action.
+If a source mismatch appears, **stop**. The current public theme can be
+older than the last `dev` commit because integration merges are not
+releases; a new release cannot be approved simply by skipping the hash.
+The release owner must reconcile the actual public code baseline and
+test an authorized migration/rollback plan, then rerun current checks.
 
-## Safety rule
+If a deployment response is ambiguous, investigate through read-only
+health/WordPress inspection **without repeating the live mutation**.
+Use the genuine external database/media backups and restore rehearsal,
+plus the verified archived old theme code when executing an approved
+rollback. A simple `git revert` on `dev` is not a full data rollback and
+does not itself authorize a second deployment.
 
-Production auto-deploy is intentionally PR-only. A direct push to `dev` can still run validation, but the deployment workflow refuses to call production because there is no reviewed/previewed PR to prove the WordPress preview gate passed.
+Disable the explicit release control in a separate reviewed PR after
+the release. The disarm push will not deploy.
 
-## Deployment switchover
+## Endpoints / secret discipline
 
-Deployer for Git may make the public site or health endpoint unreachable for a few seconds while theme files are switched. The verifier therefore waits briefly and retries transport/invalid-JSON failures. A valid health payload that reports managed-content errors still fails the deployment immediately.
+The configured `SOLAR_EXPERT_DEPLOY_URL` is a private GitHub Actions
+secret. The workflow reconstructs the expected theme-specific
+`/wp-json/dfg/v1/package_update` request from it without printing the
+secret. Do not paste the URL into public logs/issues. Current host
+requires GET on this endpoint. Public readback uses cache-busted GETs;
+managed-content sync uses its narrowly scoped version+intent contract.
+No `wp-cron.php` manual spoofing or generic website writes are allowed.
 
-## Reliable release verification
-
-The health endpoint reads the deployed version directly from the active theme's `style.css`, avoiding stale WordPress theme-header cache after file replacement. If the new release is live but managed content is still pending, CI calls `wp-cron.php` to process due sync events and keeps polling until health is current or the guarded timeout is reached.
-
-## Deployer response contract
-
-The webhook endpoint returns JSON. CI now requires `success=true` and logs only the non-secret response fields (`message`, `package_type`, `package_slug`). A HTTP 200 carrying `success=false` is treated as a failed deployment.
-
-## Fresh branch ZIP delay
-
-Deployer for Git documents that GitHub may briefly serve a stale branch ZIP immediately after a push. The workflow therefore waits 15 seconds after CI/preview gates before calling Push-to-Deploy. HTTP 200 is the plugin's documented primary success signal; if a JSON body is returned, an explicit `success=false` still blocks deployment.
-
-## Cache-safe trigger
-
-Although Deployer for Git accepts both GET and POST, Solar Expert uses POST with a unique `ci_nonce` query value. This prevents an intermediary cache from serving a previous response to the static Push-to-Deploy URL without executing WordPress.
-
-## Production host method
-
-The production host returned HTTP 422 for POST even though the plugin endpoint supports it in general. Solar Expert therefore uses GET, which is accepted by this host, plus the per-release `ci_nonce` to prevent cached webhook responses.
-
-## Canonical endpoint normalization
-
-The GitHub secret may contain the full URL copied from Deployer for Git. CI extracts only its `secret` query value in-memory and rebuilds the documented Solar Expert endpoint `/wp-json/dfg/v1/package_update?secret=…&type=theme&package=solar-expert-2`. The secret and reconstructed URL are never printed. No-cache request headers are used instead of adding unsupported query parameters.
-
-The canonical endpoint is constructed in-memory inside the shell step without YAML heredocs; the reconstructed secret URL is masked before use.
-
-## Managed-content cron lock
-
-CI must not pass its own `doing_wp_cron` value. That parameter is WordPress's internal cron-lock token and is normally created by WordPress itself. Solar Expert therefore calls `wp-cron.php` with only a harmless cache-busting release parameter; WordPress creates and validates its own cron lock, allowing the due managed-content sync event to execute.
-
-## Deterministic managed-content convergence
-
-After Deployer reports a successful theme update, CI POSTs the expected theme version and fixed intent `managed-content-sync-v1` to `/wp-json/solar-expert/v1/deploy-sync`. The endpoint accepts no content payload, URLs, post IDs or arbitrary fields; it can only apply the static managed manifest already present in the active deployed theme. A mismatched release version is rejected, concurrent syncs are locked, and an already-current site is a no-op. WP-Cron remains available only as a fallback for non-CI/manual deployments.
-
-## Boolean health parsing
-
-The verifier must preserve explicit JSON `false` values. In jq, `false // true` evaluates to `true`, so Solar Expert uses an explicit `has("content_sync_required")` check before converting the boolean to text.
-
-## Publicly rendered solar CTA gate
-
-The deploy workflow also validates the real HTML of `/fve-panely-na-strechu/` after the version, managed-content and crawler checks. A cache-busted fetch must contain the residential FVE comparison checklist CTA and existing E.ON `solar_legacy_article` attribution, while excluding the superseded generic Quote Checker instruction. A stale CDN/WordPress page cache or unrefreshed `the_content` renderer now fails the release instead of letting a correct theme version masquerade as a verified live conversion path.
+The exact software safety checks run on each `dev` PR as part of the
+repository's offline validation. They do not replace independent
+human/host verification that DB and media can actually be restored.
