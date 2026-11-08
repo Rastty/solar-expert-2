@@ -22,14 +22,17 @@ const events=()=>window.dataLayer.filter(x=>['selector_engaged','affiliate_click
 async function test(){
  const s=window.solarExpertBatterySelector();
  await s.init();
- assert.equal(s.supplyMode,'ac','Untrusted query cannot enable DC mode');
- assert.equal(s.voltage,24,'Untrusted query cannot change electrical voltage');
- assert.equal(s.dailyKwh,1.5,'Only exact allowlisted editorial URL presets are accepted');
- assert.equal(events().length,0,'Page load is not engagement');
- 
- // The only model is selected by a deliberate CTA click, never automatic
- // query-string rewriting (exact native article HTML is separately pinned).
+ assert.equal(s.articleExample,true,'Only the fixed camera24h editorial scenario is accepted');
+ assert.equal(s.articleExampleKind,'camera24h','Show the camera article source disclosure, not the 400W article');
+ assert.equal(s.supplyMode,'dc','The trusted camera preset selects DC/PoE power');
+ assert.equal(s.voltage,12,'Untrusted voltage=48 query parameter must not change the pinned camera example');
+ assert.equal(s.dailyKwh,0.461,'Untrusted dailyKwh input may not override the approved 461Wh model');
+ assert.equal(s.inverterW,20,'Untrusted inverterW=1 must not weaken the current gate');
+ assert.equal(events().length,0,'A URL preset view is NOT selector engagement or affiliate click');
+
+ // A real human can deliberately reselect and edit the same preset.
  s.applyExample('camera24h');
+ assert.equal(s.articleExample,false,'Manual preset click clears inbound article banner');
  assert.equal(s.supplyMode,'dc');
  assert.equal(s.voltage,12);
  assert.equal(s.dailyKwh,0.461);
@@ -81,8 +84,23 @@ async function test(){
  s.run(false);
  assert(s.matches.length>0,'Manual corrected inputs recover safe buyer matches');
  assert.equal(events().length,1,'Background re-evaluation does not fake engagement');
+ assert.equal(events()[0].scenario,'camera24h','Only an actual human selection records the approved scenario');
+
+ // Unsupported identifiers cannot rewrite electrical inputs or imply that
+ // a model was selected just because arbitrary URL parameters exist.
+ window.location.search='?scenario=unknown&voltage=48&dailyKwh=0.01&inverterW=1';
+ const unknown=window.solarExpertBatterySelector();
+ await unknown.init();
+ assert.equal(unknown.voltage,24);
+ assert.equal(unknown.dailyKwh,1.5);
+ assert.equal(unknown.supplyMode,'ac');
+ assert.equal(unknown.articleExample,false);
+ assert.equal(events().length,1,'Invalid deep-link also cannot create engagement');
 
  const ui=read('template-parts/battery-selector.php');
+ assert(ui.includes('data-se-article-example="camera24h"'));
+ assert(ui.includes('articleExampleKind'), 'Distinct camera source disclosure');
+ assert(ui.includes('min=".001" step=".001"'), 'The 0.461kWh sample must pass native HTML number input step validation');
  assert(ui.includes('data-se-battery-dc-case="camera24h"'));
  assert(ui.includes("applyExample('camera24h')"));
  assert(ui.includes('se-battery-supply-mode'));
