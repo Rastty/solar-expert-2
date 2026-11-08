@@ -86,7 +86,7 @@ async function test(){
  assert(ui.includes('data-se-battery-dc-case="camera24h"'));
  assert(ui.includes("applyExample('camera24h')"));
  assert(ui.includes('se-battery-supply-mode'));
- assert(ui.includes('ztráty DC-DC/PoE'));
+ assert(ui.includes('ztrát DC-DC/PoE'), 'Buyer copy must include real DC converter/PoE losses');
  assert(ui.includes('kompatibilitu DC napětí, PoE, jištění ani MPPT'));
  assert(ui.includes("x-show=\"!inputValid\""),'Unsafe inputs must be explained');
  const src=read('assets/js/selectors.js');
