@@ -8,6 +8,7 @@
       <button type="button" class="se-btn" @click="applyExample('panel400')">Panel 400 W: 24 V, 0,7 kWh/den</button>
       <button type="button" class="se-btn" @click="applyExample('cottage')">Chata: 24 V, 1 kWh/den</button>
       <button type="button" class="se-btn" @click="applyExample('backup')">Záloha: 48 V, 3 kWh/den</button>
+      <button type="button" class="se-btn" data-se-battery-dc-case="camera24h" @click="applyExample('camera24h')">Wi-Fi kamera + router 24/7: 12 V DC, 461 Wh/den</button>
     </div>
   </div>
   <div class="se-note" x-cloak x-show="articleExample" data-se-article-example="panel400" role="status">
@@ -16,16 +17,19 @@
   </div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-battery-voltage">Systémové napětí</label><select id="se-battery-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
+    <div class="se-field"><label for="se-battery-supply-mode">Způsob napájení spotřebičů</label><select id="se-battery-supply-mode" class="se-select" x-model="supplyMode" @change="run()"><option value="ac">230 V přes měnič (model 90 % účinnosti)</option><option value="dc">Přímo DC / PoE (ztráty již zahrnuté v kWh)</option></select></div>
     <div class="se-field"><label for="se-battery-daily-kwh">Denní spotřeba spotřebičů (kWh/den)</label><input id="se-battery-daily-kwh" class="se-input" type="number" min=".2" step=".1" x-model.number="dailyKwh" @input.debounce.200ms="run()"></div>
     <div class="se-field"><label for="se-battery-autonomy">Rezerva</label><select id="se-battery-autonomy" class="se-select" x-model.number="autonomy" @change="run()"><option value=".5">½ dne</option><option value="1">1 den</option><option value="2">2 dny</option></select></div>
-    <div class="se-field"><label for="se-battery-inverter-w">Výkon měniče (W)</label><input id="se-battery-inverter-w" class="se-input" type="number" min="100" step="100" x-model.number="inverterW" @input.debounce.200ms="run()"></div>
+    <div class="se-field"><label for="se-battery-inverter-w"><span x-text="supplyMode==='dc' ? 'Max. návrhový příkon DC spotřebičů (W)' : 'Výkon měniče (W)'"></span></label><input id="se-battery-inverter-w" class="se-input" type="number" min="1" step="1" x-model.number="inverterW" @input.debounce.200ms="run()"></div>
   </div>
   <div class="se-note" style="margin-top:14px">
-    Pro modelové spotřebiče na 230 V počítáme s 80 % využitelné kapacity baterie a 90 % účinností měniče. Denní spotřebu samotného měniče naprázdno připočtěte k zadaným kWh.
-    Výběr hlídá nominální energii baterie včetně rezervy i maximální trvalý vybíjecí proud BMS včetně předpokládaných ztrát měniče.
+    <span x-show="supplyMode==='ac'">Pro 230V spotřebiče počítáme s 80 % využitelné kapacity baterie a 90 % účinností měniče. Denní spotřebu samotného měniče naprázdno připočtěte k zadaným kWh.</span>
+    <span x-show="supplyMode==='dc'">Pro přímé DC/PoE napájení počítáme s 80 % využitelné kapacity baterie. Zadávejte denní spotřebu již včetně reálných ztrát DC-DC/PoE měničů: znovu neodečítáme účinnost neexistujícího 230V měniče. Model kamery a routeru používá 461 Wh/den včetně ilustrační 20% rezervy a 20 W návrhového odběru. Výběr baterie automaticky neověřuje kompatibilitu DC napětí, PoE, jištění ani MPPT.</span>
+    Výběr hlídá nominální energii baterie včetně rezervy i maximální trvalý vybíjecí proud BMS.
     Pro toto zadání potřebujete alespoň <strong><span x-text="requiredBatteryKwh.toFixed(1)"></span> kWh</strong> nominální kapacity a orientačně nejméně
     <strong><span x-text="requiredDischargeA"></span> A</strong> trvalého vybíjecího proudu banku při zvoleném systémovém napětí.
   </div>
+  <div class="se-note se-note-error" x-show="!inputValid" style="margin-top:14px" role="alert">Zadejte platné kladné hodnoty napětí, spotřeby, rezervy a výkonu. Dokud nejsou vstupy platné, nezobrazujeme žádné nákupní doporučení.</div>
   <div class="se-note" x-show="catalogLoading" style="margin-top:14px" role="status" aria-live="polite">Načítám ověřený katalog baterií…</div>
   <div class="se-note se-note-error" x-show="catalogError" style="margin-top:14px" role="alert">
     Katalog baterií se teď nepodařilo načíst. Obnovte stránku; nebudeme zobrazovat neověřené doporučení.
