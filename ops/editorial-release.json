@@ -3,5 +3,5 @@
   "mode": "one_editorial_post",
   "enabled": true,
   "manifest": "ops/editorial-manifests/solar-wifi-router-camera-offgrid-20261108-v1.json",
-  "notice": "ONE-TIME owner-authorized source-locked editorial creation: solar-powered Wi-Fi camera/router guide. Merge ONLY after 2026-11-08T13:00:39Z; WordPress live rolling-24h check and slug uniqueness must still pass. On any ambiguous POST outcome STOP, never retry."
+  "notice": "ONE-TIME owner-authorized article create ONLY after 2026-11-08T13:00:39Z, fresh 24h UTC and slug collision gates, encrypted-before-upload WordPress prewrite snapshot, and one safe POST. Stop on ambiguity; never retry or bypass a failed gate."
 }
