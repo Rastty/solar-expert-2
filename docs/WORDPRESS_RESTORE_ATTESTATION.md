@@ -1,6 +1,6 @@
 # Solar Expert – release-scoped WordPress data restore gate (P0)
 
-**Effective in PR #142 only after that PR is reviewed and merged.** This is a safe-release requirement and not a replacement for taking an actual WordPress backup. Prior branch `dev` remains on the old production version until all release gates pass.
+**Applies to the guarded production theme release only after the current-`dev` safety integration PR is merged.** The default release-intent switch remains disabled, so routine development merges do not touch WordPress. This private receipt is a release safety requirement, **not a backup** and not independent proof that an actual staging restore worked. Issue #148 stays open until real host evidence exists.
 
 ## Problem this prevents
 
