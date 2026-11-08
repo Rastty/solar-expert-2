@@ -88,15 +88,17 @@ check(!isset($GLOBALS['categories'][103]),'Missing taxonomy must not write arbit
 check(strpos($source,'wp_set_post_categories')>=0,'Production helper must use WP taxonomy API');
 
 $before = solar_expert_managed_category_state($manifest);
-check($before['targets'] === 9 && $before['ready'] === 2 && $before['errors'] === 7,
-  'Read-only taxonomy audit must discover seven missing assignments');
+$targetCount = count($expected);
+$missingCount = $targetCount - 2;
+check($before['targets'] === $targetCount && $before['ready'] === 2 && $before['errors'] === $missingCount,
+  'Read-only taxonomy audit must discover all missing assignments');
 $previousWrites=$GLOBALS['writes'];
 $repaired = solar_expert_reconcile_managed_categories($manifest);
-check($repaired['updated'] === 7 && !$repaired['errors'], 'Taxonomy-only repair must add seven missing categories');
-check($GLOBALS['writes'] === $previousWrites + 7, 'Taxonomy-only reconciliation should not re-write existing terms');
+check($repaired['updated'] === $missingCount && !$repaired['errors'], 'Taxonomy-only repair must add missing categories');
+check($GLOBALS['writes'] === $previousWrites + $missingCount, 'Taxonomy-only reconciliation should not re-write existing terms');
 check($GLOBALS['categories'][102] === array(1,9), 'Existing editorial term preserved after reconciliation');
 $after = solar_expert_managed_category_state($manifest);
-check($after['ready'] === 9 && $after['errors'] === 0, 'Every declared managed post category must be ready');
+check($after['ready'] === $targetCount && $after['errors'] === 0, 'Every declared managed post category must be ready');
 check(solar_expert_reconcile_managed_categories($manifest)['updated'] === 0,
   'Reconciliation must be fully idempotent even when the manifest fingerprint is current');
-echo "PASS: nine manifest categories, append-only taxonomy, idempotence and fail-closed lookup\n";
+echo "PASS: all manifest categories, append-only taxonomy, idempotence and fail-closed lookup\n";
