@@ -5,7 +5,9 @@ on:
     paths:
       - ".github/workflows/solar-editorial-publisher.yml"
       - "scripts/editorial_release.py"
+      - "scripts/editorial_credentials_check.py"
       - "tests/test_solar_editorial_release.py"
+      - "tests/test_solar_editorial_credentials.py"
       - "ops/editorial-release.json"
       - "ops/editorial-manifests/**"
   push:
@@ -13,6 +15,7 @@ on:
     paths:
       - ".github/workflows/solar-editorial-publisher.yml"
       - "scripts/editorial_release.py"
+      - "scripts/editorial_credentials_check.py"
       - "ops/editorial-release.json"
       - "ops/editorial-manifests/**"
   schedule:
@@ -36,9 +39,11 @@ jobs:
         with:
           persist-credentials: false
       - name: Verify Python syntax
-        run: python -m py_compile scripts/editorial_release.py tests/test_solar_editorial_release.py
+        run: python -m py_compile scripts/editorial_release.py scripts/editorial_credentials_check.py tests/test_solar_editorial_release.py
       - name: Safe publishing one-write regression (offline; no WP credentials)
         run: python -m unittest discover -s tests -p 'test_solar_editorial_release.py' -v
+      - name: Read-only credential guard regression (offline; fake credentials)
+        run: python -m unittest discover -s tests -p 'test_solar_editorial_credentials.py' -v
 
   one-post-wordpress-publisher:
     needs: offline-contract
@@ -101,3 +106,19 @@ jobs:
           path: artifacts/editorial-release-receipt.json
           if-no-files-found: warn
           retention-days: 30
+
+  credentials-readonly:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - name: Checkout read-only credential checker
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prove WordPress application password and editor capabilities using GET only
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python scripts/editorial_credentials_check.py
