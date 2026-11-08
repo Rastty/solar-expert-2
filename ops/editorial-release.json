@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "mode": "one_editorial_post",
-  "enabled": false,
-  "manifest": "",
-  "notice": "Publisher is intentionally disarmed until an independently reviewed exact-post manifest and private WordPress application credentials are present. No theme deployment is triggered."
+  "enabled": true,
+  "manifest": "ops/editorial-manifests/solar-wifi-router-camera-offgrid-20261108-v1.json",
+  "notice": "ONE-TIME owner-authorized source-locked editorial creation: solar-powered Wi-Fi camera/router guide. Merge ONLY after 2026-11-08T13:00:39Z; WordPress live rolling-24h check and slug uniqueness must still pass. On any ambiguous POST outcome STOP, never retry."
 }
