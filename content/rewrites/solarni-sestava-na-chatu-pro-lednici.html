@@ -18,6 +18,10 @@
 <tr><td><strong>Celkem spotřebiče</strong></td><td>Bez DC/AC a klidových ztrát</td><td><strong>850 Wh/den</strong></td></tr>
 </tbody></table>
 <p>Výpočet 850 Wh denně je <em>ilustrační</em>; není to typická spotřeba všech chat ani konkrétní cenová nabídka. U konkrétní lednice a měniče se může výrazně lišit. Návrh děláme s rezervou.</p>
+<div class="se-note" data-se-fridge-manual-builder-guide="850wh">
+<strong>Jak tento příklad zadat do současného Builderu:</strong> zvolte <strong>Chata / zahradní domek</strong>, ve 2. kroku ponechte jen skutečně používané spotřebiče a nastavte jejich <strong>hodiny provozu za den a počet kusů</strong>. Sledujte přepočítávaný součet v kWh/den a porovnejte ho s naměřenou spotřebou (v našem čistě modelovém příkladu 0,85 kWh/den). Příkony spotřebičů má současný nástroj přednastavené, takže pokud se liší od vašich zařízení, berte výstup jen jako orientaci. Ve 3. kroku vyberte <strong>sezónu a rezervu baterie</strong> a pokračujte k návrhu. Hodnotu 850 Wh nyní nelze vložit přímo jako jeden vstup ani ji odkaz automaticky nepředvyplní.
+</div>
+<p><a class="se-btn se-btn-primary" href="/solarni-sestava-na-chatu/">Otevřít Builder a projít vlastní spotřebiče →</a></p>
 
 <h2>Jak velkou LiFePO₄ baterii potřebujete</h2>
 <p>Pro výpočet zjednodušeně uvažujme využitelných 80 % nominální kapacity baterie a 90% účinnost DC/AC převodu. Při <strong>24 V × 100 Ah = 2,4 kWh</strong> nominální energie vychází <strong>2,4 × 0,80 × 0,90 = 1,73 kWh</strong> dodané energie. Při 850 Wh/den je to teoreticky přibližně <strong>2 dny</strong> bez dobíjení, ale <strong>bez</strong> započtení stálé vlastní spotřeby měniče, výkonových špiček, nízkých teplot a degradace. Použitelná kapacita, dovolené proudy a teploty závisí na konkrétní baterii a BMS.</p>
