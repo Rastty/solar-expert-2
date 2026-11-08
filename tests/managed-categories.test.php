@@ -36,6 +36,8 @@ $GLOBALS['post_by_slug'] = array(
   'jak-vybrat-mppt-regulator-pro-400w-panel' => new WP_Post(108),
   'fotovoltaika-a-elektrokotel' => new WP_Post(109),
   'jakou-baterii-k-solarnimu-panelu-400w' => new WP_Post(110),
+  // Future verified native publisher article, existing before this source-parity PR is merged.
+  'solarni-panel-pro-wifi-kameru-a-router-na-chate' => new WP_Post(111),
 );
 function get_page_by_path($slug,$output,$type) {
   return $type === 'post' ? ($GLOBALS['post_by_slug'][$slug] ?? null) : null;
