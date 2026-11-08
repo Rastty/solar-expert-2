@@ -19,6 +19,7 @@ test('existing native-publisher article is a noncreating, status-preserving mana
   assert.equal(entry.category_slug, 'solarni-panely');
   assert.equal(entry.create_if_missing, false, 'only native writer may create this post');
   assert.equal(entry.preserve_status, true, 'never auto-set existing WordPress post status');
+  assert.equal(entry.native_editorial_owned, true, 'theme sync must never overwrite native WP body, title or status');
   assert(!Object.hasOwn(entry, 'publish_ready'), 'theme must not claim native publisher approval');
   assert(!Object.hasOwn(entry, 'status'), 'do not mutate existing WP publication state');
   assert.equal(entry.indexable, true);
