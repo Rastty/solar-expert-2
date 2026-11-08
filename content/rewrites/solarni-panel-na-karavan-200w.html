@@ -1,0 +1,75 @@
+<p class="se-lead"><strong>Stačí solární panel 200 W na karavan a jakou k němu vybrat baterii a MPPT?</strong> Pro běžné 12V spotřebiče může být přibližně 200Wp panel dobrý začátek, ale neexistuje jedna sestava vhodná pro každého. Nejdříve sečtěte spotřebu ve Wh/den, zjistěte rozměry střechy a ověřte Voc, Vmp a Isc konkrétního panelu. Pak vyberte 12V baterii, regulátor a bezpečné jištění. Následuje konkrétní model, tabulky a cesta k porovnání kompatibilních komponent.</p>
+
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Vybrat 12V LiFePO₄ baterii podle spotřeby →</a> <a class="se-btn" href="/mppt-kalkulacka/">Ověřit regulátor MPPT →</a></p>
+
+<div class="se-note"><strong>Rychlé rozhodnutí:</strong> Jeden panel kolem 200 Wp není zárukou provozu lednice celý den. Pokud napájíte hlavně LED, telefon, malé 12V ventilátory a občas notebook, začněte přesnou spotřebou. Jestli poběží 230V kompresorová lednice nebo měnič nepřetržitě, započítejte i vlastní spotřebu měniče, rozběhový proud a rezervu pro zastínění či deštivé dny. U střechy karavanu navíc rozhoduje schválená montáž a zabezpečení při jízdě.</div>
+
+<h2>Kolik elektřiny vyrobí 200W solární panel na karavanu?</h2>
+<p><strong>200 Wp</strong> je jmenovitý výkon za laboratorních podmínek STC. Není to 200 W nepřetržitě ani 200 Wh za den. Modelově při 3,5 ekvivalentních slunečních hodinách a souhrnném koeficientu 0,75 vychází <strong>0,20 kWp × 3,5 h × 0,75 = 0,525 kWh, tedy 525 Wh za den</strong>. Ve stínu stromu, na podzim, při horkém panelu nebo nepříznivém sklonu může být výroba podstatně nižší. Čísla jsou pouze ilustrační, nikoli předpověď.</p>
+<p>Pro různé oblasti a měsíce použijte <a href="https://joint-research-centre.ec.europa.eu/pvgis-online-tool_en" rel="nofollow noopener">PVGIS Evropské komise</a>. U pohybujícího se karavanu přidejte ztráty ze zastínění, vodorovné montáže i změny místa. Ani dobrý letní výnos neznamená soběstačnost v listopadu.</p>
+
+<h2>Příklad skutečného panelu: Victron BlueSolar 190 Wp</h2>
+<p>Abychom se neopírali o marketingové označení „12V panel 200 W“, vezměme jeden konkrétní model blízký 200 Wp: <strong>Victron BlueSolar Mono 190Wp, výrobní označení SPM041903903</strong>. Pro tento model jsou doloženy následující hodnoty při STC:</p>
+<table>
+<thead><tr><th>Parametr panelu</th><th>Hodnota</th><th>Proč jej potřebujete</th></tr></thead>
+<tbody>
+<tr><td>Jmenovitý výkon</td><td><strong>190 Wp</strong></td><td>Orientační velikost FV pole a výkonový limit MPPT</td></tr>
+<tr><td>Vmp</td><td><strong>21,8 V</strong></td><td>Zda regulátor zvládne zahájit a udržet nabíjení</td></tr>
+<tr><td>Voc</td><td><strong>25,5 V</strong></td><td>Výpočet nejvyššího napětí za mrazu</td></tr>
+<tr><td>Isc</td><td><strong>9,17 A</strong></td><td>Maximální vstupní zkratový proud, paralelní větve a ochrany</td></tr>
+<tr><td>Rozměry</td><td>1485 × 668 × 30 mm</td><td>Reálná volná plocha střechy a bezpečné kotvení</td></tr>
+</tbody></table>
+<p><small>Zdroje konkrétního modelu: <a href="https://www.autobattery.cz/solarni-panel-victron-energy-190wp-12v-mono/" rel="nofollow noopener">produktová specifikace SPM041903903</a> a <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_75-10_up_to_100-20/en/technical-specifications.html" rel="nofollow noopener">Victron – manuál regulátorů MPPT</a>. Jiný panel 200 Wp může mít zcela jiné Voc, Vmp a Isc. Tyto hodnoty nepřenášejte na libovolný výrobek.</small></p>
+
+<h2>Jak velkou 12V baterii ke karavanovému panelu?</h2>
+<p>Kapacitu neurčuje výkon panelu, ale <strong>denní odběr a požadovaná autonomie</strong>. Pro čistě ilustrativní den na karavanu:</p>
+<table>
+<thead><tr><th>Spotřebič</th><th>Modelový provoz</th><th>Wh/den</th></tr></thead>
+<tbody>
+<tr><td>LED osvětlení</td><td>12 W × 4 hodiny</td><td>48</td></tr>
+<tr><td>Telefon a drobná elektronika</td><td>Odhad nabití a ztrát</td><td>40</td></tr>
+<tr><td>12V ventilátor</td><td>20 W × 5 hodin</td><td>100</td></tr>
+<tr><td>Notebook přes vhodný DC adaptér</td><td>50 W × 3 hodiny</td><td>150</td></tr>
+<tr><td><strong>Celkem</strong></td><td>Bez lednice a 230V měniče</td><td><strong>338 Wh</strong></td></tr>
+</tbody></table>
+<p>U LiFePO₄ baterie s nominálním napětím 12,8 V vychází <strong>50 Ah = 640 Wh</strong> a <strong>100 Ah = 1 280 Wh</strong>. Pokud modelově využijeme 80 % kapacity a předpokládáme 90% účinnost napájecí cesty, dostaneme přibližně <strong>461 Wh</strong>, respektive <strong>922 Wh</strong> dodané energie. Takový model by pro ukázkových 338 Wh/den orientačně postačil na jeden den i s 50Ah variantou, ale <strong>bez</strong> lednice, topení, měniče v pohotovosti, nevhodné teploty a rezervy na špatné počasí.</p>
+<p><strong>Co se změní s lednicí?</strong> Kompresor může cyklovat a při startu krátce odebírat výrazně více než při ustáleném chodu. Z údajů <strong>kWh/rok</strong> na energetickém štítku odvoďte základní průměrnou denní energii a porovnejte jej s měřením. Pro 230V lednici a měnič použijte podrobnější <a href="/solarni-sestava-na-chatu-pro-lednici/">model výpočtu solární sestavy pro lednici</a>.</p>
+
+<h2>Jaký MPPT regulátor pro panel 190 až 200 W?</h2>
+<p>U regulátorů Victron má například <strong>SmartSolar MPPT 100/20</strong> výrobcem uvedených <strong>20 A maximálního nabíjecího proudu baterie</strong>, nominální FV výkon <strong>290 Wp při 12 V</strong>, maximální PV Voc 100 V a <strong>20 A maximálního PV zkratového proudu Isc</strong>. To jsou různé limity: 20 A nabíjení baterie není automaticky 20 A provozního proudu panelu.</p>
+<p>U výše popsaného <strong>jednoho</strong> 190Wp modulu vychází ilustrační cold-Voc při koeficientu 1,12 na <strong>25,5 × 1,12 = 28,56 V</strong>, tedy pod 100V hranicí. Isc 9,17 A je nižší než udávaný limit regulátoru 20 A. Tím ještě není celá sestava schválena: je nutné znát skutečný teplotní koeficient Voc, nejnižší teplotu, startovací napětí, chemii baterie, aktuální revizi výrobku a bezpečný návrh instalace.</p>
+<p>Pokud na střechu přidáte další panel, <strong>při sériovém spojení se sčítá napětí Voc</strong> a při paralelním zapojení zase Isc jednotlivých stringů. Dva panely 190 Wp znamenají 380 Wp celkem, tedy již více než jmenovitých 290 Wp pro uvedený 100/20 při 12 V; výkon může být regulátorem omezen a je třeba znovu ověřit absolutní limity. Pro detailní srovnání otevřete <a href="/jak-vybrat-mppt-regulator-pro-400w-panel/">průvodce MPPT 100/20 vs. 100/30 vs. 100/50</a>.</p>
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Ověřit Voc, Vmp a výkon v MPPT kalkulačce →</a></p>
+<p class="se-muted"><small>Současná veřejná verze kalkulačky kontroluje výkon FV pole, Voc a Vmp. Před nákupem je navíc nutné samostatně ověřit Isc a počet paralelních stringů v datasheetu regulátoru; rozšíření této kontroly připravujeme.</small></p>
+
+<h2>12V přímé napájení, nebo měnič na 230 V?</h2>
+<p>Pokud jsou spotřebiče přímo určeny pro DC síť karavanu a máte vhodné napájecí adaptéry, může být systém jednodušší než nepřetržitý provoz 230V měniče. Měnič má vlastní klidový odběr: například <strong>10 W × 24 hodin = 240 Wh/den</strong> navíc. To je ilustrace, ne parametr některého doporučovaného modelu. U větších spotřebičů kontrolujte také <strong>trvalý a špičkový výkon měniče</strong>, správné vstupní napětí a trvalý proud BMS.</p>
+<p>Naše <a href="/vyber-menice/">kalkulačka výběru měniče</a> kontroluje trvalé a špičkové požadavky odděleně. Pro baterii otevřete <a href="/vyber-baterii/">výběr LiFePO₄ podle kWh a BMS</a>. Výsledky slouží jako předběžný filtr; nepředstavují projekt karavanu ani certifikaci pro provoz na silnici.</p>
+
+<h2>Co ověřit před objednávkou a montáží na střechu karavanu?</h2>
+<ol>
+<li><strong>Volná střecha a kotvení:</strong> fyzické rozměry, střešní otvory, skutečná hmotnost, odolnost konstrukce proti jízdnímu větru a případné požadavky výrobce vozidla.</li>
+<li><strong>Elektrické údaje panelu:</strong> přesný model, Voc, Vmp, Isc, teplotní koeficient, počet panelů a topologie stringů.</li>
+<li><strong>MPPT a LiFePO₄:</strong> napětí 12/24 V, výrobcem udané limity, nabíjecí profil a možnost bezpečně blokovat nabíjení při nízkých teplotách článků.</li>
+<li><strong>BMS, kabeláž a ochrany:</strong> trvalý a špičkový proud, odpojování, jištění, průřezy a pevné uchycení kabelů při vibracích.</li>
+<li><strong>Skutečné provozní potřeby:</strong> lednice, vlastní spotřeba měniče, parkování ve stínu, déšť a rezerva pro více dní bez dobíjení.</li>
+</ol>
+<div class="se-note"><strong>Počítáme s technikou, ne s reklamním slibem.</strong> Neuvádíme neověřené ceny, falešnou „nejlevnější“ sadu ani neexistující dostupnost. Aktuální nabídku a sklad ověřte až u konkrétního prodejce. Je-li v doporučovací kalkulačce partnerský odkaz, platí naše <a href="/affiliate-transparentnost/">pravidla affiliate transparentnosti</a> a <a href="/jak-doporucujeme/">metodika technického výběru</a>.</div>
+
+<h2>Časté otázky</h2>
+<h3>Utáhne 200W panel lednici v karavanu?</h3>
+<p>Někdy může pokrýt část její energie, ale bez údajů o denní kWh, účinnosti měniče, zásobě baterie, místě parkování a sezóně nelze slíbit celodenní provoz. Zvlášť v zimě výroba výrazně kolísá.</p>
+<h3>Stačí baterie 12 V 50 Ah?</h3>
+<p>Pro modelově nízké odběry kolem 338 Wh/den může stačit. S lednicí, 230V měničem nebo více dny autonomie potřebujete nový výpočet. Kapacita v Ah sama neověřuje proud BMS ani správné nabíjení.</p>
+<h3>Co když mám místo 190W panelu 200W nebo 220W panel?</h3>
+<p>Neměňte jen číslo Wp ve výpočtu. Z jeho skutečného datasheetu přepište Voc, Vmp a Isc a ověřte všechny napěťové, proudové a výkonové limity. Různé panely stejného výkonu nejsou elektricky zaměnitelné.</p>
+<h3>Musí mít karavan 24V systém?</h3>
+<p>Ne. Pro malé spotřebiče se často používá 12 V, ale s vyššími výkony rostou proudy a požadavky na vodiče. Rozhoduje soulad celé bateriové, nabíjecí a spotřebičové soustavy.</p>
+
+<h2>Ověřené technické zdroje</h2>
+<ul>
+<li><a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_75-10_up_to_100-20/en/technical-specifications.html" rel="nofollow noopener">Victron – SmartSolar MPPT 100/20: nabíjecí proud, výkon a maximální PV Isc</a></li>
+<li><a href="https://www.autobattery.cz/solarni-panel-victron-energy-190wp-12v-mono/" rel="nofollow noopener">Victron SPM041903903 – produktové elektrické parametry 190Wp panelu</a></li>
+<li><a href="https://joint-research-centre.ec.europa.eu/pvgis-online-tool_en" rel="nofollow noopener">Evropská komise/JRC – PVGIS pro sezónní odhad fotovoltaické výroby</a></li>
+</ul>
+<p class="se-muted"><small>Redakční technická kontrola: 7. 11. 2026. Výroba, spotřeba a účinnost v příkladech jsou výslovně modelové. Elektrickou instalaci, jištění a mechanické kotvení na vozidle musí ověřit kvalifikovaný odborník. Článek neobsahuje individuální projekt ani garanci kompatibility.</small></p>
