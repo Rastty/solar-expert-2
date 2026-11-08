@@ -1,0 +1,75 @@
+<p class="se-lead"><strong>Jak napájet Wi-Fi router a bezpečnostní kameru na chatě bez elektřiny?</strong> Nejprve spočítejte skutečný nepřetržitý odběr obou zařízení. Až potom volte solární panel, baterii a MPPT regulátor. U kamery nestačí zjistit výkon panelu „200 W“: rozhoduje energie za 24 hodin, rezerva na déšť a zimu, napětí napájecích adaptérů i to, zda je dostupné internetové připojení.</p>
+
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Porovnat baterie podle denní spotřeby →</a> <a class="se-btn" href="/mppt-kalkulacka/">Ověřit parametry MPPT →</a></p>
+
+<div class="se-note"><strong>Nejdůležitější závěr:</strong> Nepřetržitý router s kamerou může za den spotřebovat více elektřiny než občas používaná lednice. Nestačí koupit panel podle jeho výkonu ve Wp. Pro 24/7 službu musíte určit minimální autonomii, zahrnout vlastní spotřebu napájecích měničů a ověřit zimní výrobu v konkrétní lokalitě. Výpočty níže jsou modelové, ne naměřená data konkrétního zařízení ani garance provozu.</div>
+
+<h2>Kolik Wh denně spotřebuje router a IP kamera?</h2>
+<p>Na štítku nebo v technickém listu každého zařízení najděte skutečný příkon ve wattech (W). U kamery může záviset na infračerveném přísvitu, záznamu a přenosu dat. U LTE routeru také na síle signálu. Pokud výrobce uvádí jen maximální příkon, pro dimenzování raději měřte spotřebu v reálném režimu; důležité je zejména napájení během noci.</p>
+<table>
+<thead><tr><th>Spotřebič</th><th>Ilustrační příkon</th><th>Provoz</th><th>Energie za den</th></tr></thead>
+<tbody>
+<tr><td>Wi-Fi nebo LTE router</td><td>10 W</td><td>24 hodin</td><td>240 Wh</td></tr>
+<tr><td>IP kamera včetně nočního režimu</td><td>6 W</td><td>24 hodin</td><td>144 Wh</td></tr>
+<tr><td><strong>Zařízení celkem</strong></td><td><strong>16 W</strong></td><td>24 hodin</td><td><strong>384 Wh</strong></td></tr>
+<tr><td>Ztráty napájení a další rezerva v modelu</td><td>+20 %</td><td>—</td><td>+77 Wh</td></tr>
+<tr><td><strong>Celkový návrhový odběr</strong></td><td>—</td><td>—</td><td><strong>asi 461 Wh/den</strong></td></tr>
+</tbody></table>
+<p>Vzorec je jednoduchý: <strong>příkon ve W × hodiny provozu = Wh</strong>. Pro dva nepřetržitě běžící spotřebiče tedy (10 + 6) × 24 = 384 Wh/den. S ilustrační 20% přirážkou 384 × 1,20 = 460,8 Wh/den. Přirážka není univerzální účinnost: skutečné ztráty závisí na zvolených DC měničích, PoE napájení a případném 230V invertoru.</p>
+<p>Pokud router a kamera nepracují neustále, použijte přesný provozní cyklus. Naopak druhá kamera, záznamové NVR, LTE modem nebo noční IR přisvícení mohou odběr výrazně zvýšit. Před nákupem si zapište každou samostatnou větev napájení a její maximální příkon.</p>
+
+<h2>Stačí LiFePO4 baterie 12 V 50 Ah, nebo je potřeba 100 Ah?</h2>
+<p>Baterie kryje provoz za noci a při výpadku výroby. Pro model s odběrem <strong>461 Wh/den</strong> znamená dvoudenní autonomie přibližně <strong>922 Wh dodané energie</strong>. U LiFePO₄ baterie s nominálním napětím 12,8 V získáme násobením napětí a kapacity:</p>
+<table>
+<thead><tr><th>Kapacita</th><th>Nominální energie</th><th>Modelově využitelných 80 %</th><th>Autonomie bez dobíjení*</th></tr></thead>
+<tbody>
+<tr><td>12,8 V / 50 Ah</td><td>640 Wh</td><td>512 Wh</td><td>asi 1,1 dne</td></tr>
+<tr><td>12,8 V / 100 Ah</td><td>1 280 Wh</td><td>1 024 Wh</td><td>asi 2,2 dne</td></tr>
+</tbody></table>
+<p><small>*Pouze výpočet 512 nebo 1 024 Wh děleno modelovými 461 Wh/den, za předpokladu dodržení uvedené využitelné kapacity. Není zahrnuto stárnutí baterie, její nízkoteplotní omezení ani zvýšené výkony spotřebičů. Přirážka 20 % na napájecí ztráty je již započtena v denní spotřebě, proto ji zde nepřičítáme podruhé.</small></p>
+<p>Pro nepřetržitý dohled je 50Ah varianta v tomto příkladu bez větší rezervy. Ani 100Ah baterie však nezaručuje provoz po několik zimních zatažených dní. Rozhodující je, kolik dnů bez výroby požadujete a jak se zařízení chová při nízkém napětí. Zkontrolujte také trvalý proud BMS, ochranu proti podpětí a výrobcem povolenou teplotu nabíjení článků.</p>
+<p><a href="/vyber-baterii/">Ve výběru baterií</a> porovnávejte energii ve Wh nebo kWh, systémové napětí 12/24/48 V, doložené parametry BMS a dostupnost konkrétního produktu. Nepřenášejte parametry z jedné značky LiFePO₄ na jinou.</p>
+
+<h2>Jak velký solární panel pro nepřetržitou kameru?</h2>
+<p>Jmenovitý výkon panelu Wp není jeho nepřetržitý výkon. Pro jednoduchý <strong>ilustrační</strong> výpočet vezměme dvě ekvivalentní hodiny plného slunce za den a souhrnný výkonový koeficient 0,75. Nejde o typický český rok ani jistotu zimního výnosu; jde jen o srovnání dvou variant při stejném předpokladu.</p>
+<table>
+<thead><tr><th>Fotovoltaické pole</th><th>Výpočet</th><th>Modelová výroba</th><th>Proti 461 Wh/den</th></tr></thead>
+<tbody>
+<tr><td>200 Wp</td><td>200 × 2 × 0,75</td><td>300 Wh/den</td><td>Nestačí pokrýt uvedený denní odběr</td></tr>
+<tr><td>400 Wp</td><td>400 × 2 × 0,75</td><td>600 Wh/den</td><td>Modelově vychází, bez jistoty v zimě</td></tr>
+</tbody></table>
+<p>Výběr proto neodvozujte z této jediné tabulky. Veřejný <a href="https://joint-research-centre.ec.europa.eu/pvgis-online-tool_en" rel="nofollow noopener">PVGIS Evropské komise</a> umožňuje zkontrolovat místní sezónní výrobu podle lokality, sklonu a orientace. Na zastíněné chatě v lese může být výsledek výrazně horší, než slibuje výrobní štítek panelu. Zvažte, zda je neustálý dohled v zimě zásadní a jaký výpadek jste ochotni připustit.</p>
+<p>Pro srovnání téměř 200Wp konkrétního výrobku a jeho elektrických údajů je k dispozici náš <a href="/solarni-panel-na-karavan-200w/">průvodce panelem kolem 200 Wp</a>. Tato stránka řeší nepřetržitou zátěž routeru a kamery; nejde o duplicitní doporučení karavanové sestavy.</p>
+
+<h2>MPPT a 12V/24V napájení: na co si dát pozor?</h2>
+<p>Pro bezpečný výběr MPPT se musí současně vejít <strong>napětí naprázdno Voc za nejnižší uvažované teploty</strong>, pracovní napětí Vmp ve skutečných podmínkách, jmenovitý FV výkon při napětí baterie a <strong>zkratový proud PV pole Isc</strong>. Při sériovém zapojení panelů roste napětí, při paralelním se sčítají proudy jednotlivých stringů. Proud, kterým MPPT nabíjí baterii, není totéž jako maximální povolený zkratový proud FV vstupu.</p>
+<p>Například výrobce <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_75-10_up_to_100-20/en/technical-specifications.html" rel="nofollow noopener">Victron u SmartSolar MPPT 100/20</a> uvádí limit PV Voc 100 V, maximální PV Isc 20 A, nabíjecí proud baterie 20 A a nominální PV výkon 290 Wp při 12V systému. Tento konkrétní 12V limit znamená, že u modelového pole 400 Wp nemůžeme regulátor 100/20 automaticky doporučit jako výkonově vhodný. Zvolte regulátor až podle skutečného datasheetu všech panelů a baterie.</p>
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Přejít do MPPT kalkulačky →</a></p>
+<p class="se-muted"><small>Současná veřejná kalkulačka pomáhá s výkonem, Voc a Vmp; <strong>PV Isc ani počet paralelních větví zatím automaticky neověřuje</strong>. Tyto hodnoty kontrolujte před nákupem odděleně podle dokumentace výrobce. Nové bezpečnostní kontroly se připravují, ale zde nejsou vydávány za již dostupné funkce.</small></p>
+
+<h2>Potřebuji měnič 230 V, nebo napájení přímo DC/PoE?</h2>
+<p>Router může vyžadovat 5, 9, 12 nebo jiné napětí; kamera může používat 12V DC, PoE nebo vlastní napájecí adaptér. To, že obě zařízení mají konektor, neznamená, že je možné je přímo připojit k 12V baterii. Je třeba zkontrolovat přesné napětí, polaritu, konektor, proudové omezení a případnou PoE specifikaci. Bateriové napětí navíc během nabíjení kolísá, takže některá zařízení potřebují regulovaný DC-DC měnič.</p>
+<p>Pokud se použije invertor 230 V, přidejte jeho <strong>vlastní spotřebu při nepřetržitém zapnutí</strong>. Ilustrační trvalý odběr samotného měniče 8 W znamená 8 × 24 = <strong>192 Wh denně navíc</strong> a změní potřebnou kapacitu panelů i baterie. Není to garantovaný údaj žádného konkrétního výrobku.</p>
+<p>Pro případné napájení dalších 230V spotřebičů použijte <a href="/vyber-menice/">výběr měniče</a>. U routeru a kamer však nejprve prověřte možnost odborně správně navrženého DC/PoE napájení: nižší počet konverzí může být výhodou, není ale povolením improvizovaného přímého zapojení.</p>
+
+<h2>Kontrolní seznam před nákupem</h2>
+<ol>
+<li>Změřte příkon routeru, modemu, každé kamery a případného NVR i v nočním režimu; vypočtěte Wh/den.</li>
+<li>Určete, kolik hodin nebo dnů musí dohled běžet při zatažené obloze a bez výroby.</li>
+<li>Pro svou lokalitu ověřte zimní a celoroční výrobu pomocí PVGIS; nepoužívejte jen letní průměr.</li>
+<li>Ověřte konkrétní Voc, Vmp, Isc, teplotní koeficienty a topologii panelů proti datasheetu MPPT.</li>
+<li>Prověřte LiFePO₄ BMS, ochranu proti hlubokému vybití, nízkoteplotní nabíjení a správné jištění.</li>
+<li>Ověřte napájecí konektor, správné DC napětí, PoE a internetové připojení; solární panel sám přenos dat nezajistí.</li>
+<li>Zkontrolujte stínění, vedení kabelů, venkovní krytí a bezpečné mechanické upevnění.</li>
+</ol>
+<div class="se-note"><strong>Bezpečnost a transparentnost:</strong> Jde o rozhodovací návod, nikoli projekt elektrické instalace. Nenahrazuje návrh jištění, kabelů ani revizi kvalifikovaným odborníkem. Neuvádíme žádné neověřené ceny nebo sliby skladové dostupnosti. Případné partnerské nabídky jsou vysvětlené v <a href="/affiliate-transparentnost/">affiliate transparentnosti</a> a v <a href="/jak-doporucujeme/">metodice doporučování</a>.</div>
+
+<h2>Časté otázky</h2>
+<h3>Stačí na kameru a router jeden panel 200 W?</h3>
+<p>V ukázkovém modelu s denním odběrem 461 Wh by při dvou ekvivalentních hodinách slunce a koeficientu 0,75 vyrobil jen 300 Wh, tedy nestačil. V jiných podmínkách nebo s úspornějším zařízením může být výsledek jiný. Bez měření a sezónní výroby to není univerzální odpověď.</p>
+<h3>Jak dlouho poběží kamera z baterie 100 Ah?</h3>
+<p>Modelová 12,8V/100Ah LiFePO₄ při využití 80 % poskytne asi 1 024 Wh, což při uvedených 461 Wh/den vychází přibližně na 2,2 dne bez dobíjení. Skutečná autonomie závisí na počasí, teplotě, BMS a dalších odběrech.</p>
+<h3>Dokáže solární kamera posílat obraz i bez Wi-Fi?</h3>
+<p>Solární napájení řeší elektřinu, ne datové připojení. Pro vzdálený dohled potřebujete funkční místní Wi-Fi síť s přístupem do internetu, LTE přenos nebo jiné kompatibilní řešení podle modelu kamery; datové služby mají své provozní podmínky a spotřebu.</p>
+
+<p class="se-muted"><small>Technický podklad: <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_75-10_up_to_100-20/en/technical-specifications.html" rel="nofollow noopener">oficiální manuál Victron MPPT 100/20</a> a <a href="https://joint-research-centre.ec.europa.eu/pvgis-online-tool_en" rel="nofollow noopener">PVGIS Evropské komise</a>. Výpočty označené jako modelové nejsou měřením ani aktuální nabídkou obchodu. Poslední redakční technická kontrola 8. 11. 2026.</small></p>
