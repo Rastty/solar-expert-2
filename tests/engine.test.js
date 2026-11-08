@@ -1,3 +1,8 @@
+// Legacy retail-price regression validates a specific historical October 2026
+// product snapshot, NOT current merchant prices. Freeze only the test clock;
+// runtime continues rejecting expired price claims in November 2026.
+const {mock}=require('node:test');
+mock.timers.enable({apis:['Date'],now:new Date('2026-10-14T12:00:00Z')});
 global.window = {SolarExpertConfig:{affiliateMap:{products:{},leads:{}},affiliateBases:{}}};
 require('../assets/js/affiliate-adapter.js');
 require('../assets/js/product-matcher.js');
