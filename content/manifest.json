@@ -506,6 +506,17 @@
     },
     {
       "type": "post",
+      "slug": "solarni-panel-na-karavan-200w",
+      "title": "Solární panel na karavan 200 W: jakou 12V baterii a MPPT vybrat",
+      "create_if_missing": false,
+      "preserve_status": true,
+      "native_editorial_owned": true,
+      "indexable": true,
+      "category_slug": "solarni-panely",
+      "file": "content/rewrites/solarni-panel-na-karavan-200w.html"
+    },
+    {
+      "type": "post",
       "slug": "fotovoltaika-a-elektrokotel",
       "title": "Fotovoltaika a elektrokotel: spotřeba, zimní výroba a návratnost",
       "status_if_new": "publish",
