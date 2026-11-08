@@ -62,7 +62,10 @@ MPPT BAT + / BAT − ───── 12V baterie</pre>
 <h3>2S nebo 2P pro 12V?</h3>
 <p>Správná odpověď závisí na konkrétním regulátoru. Pokud MPPT bezpečně zvládne cold Voc série a pracovní Vmp je v jeho okně, série často snižuje proud na FV straně. Pokud by série překročila napěťový limit, je potřeba jiná topologie.</p>
 
-<p><a class="se-btn" href="/mppt-kalkulacka/">Ověřit 12V string v MPPT kalkulačce →</a></p>
+<div class="se-note" data-se-wiring-mppt-buyer-handoff="20261108">
+<strong>Co si připravit před výběrem MPPT:</strong> z datasheetu panelu opište Voc, Vmp, Isc a teplotní koeficient Voc; poznamenejte počet panelů v sérii, počet paralelních stringů a napětí baterie. V <a href="/mppt-kalkulacka/">MPPT kalkulačce</a> ověřte předběžně napěťové okno a výkon. <strong>Současná veřejná verze kalkulačky ještě automaticky nekontroluje celkový Isc paralelních stringů.</strong> Součet Isc jednotlivých paralelních větví proto samostatně porovnejte s výrobcem uvedeným absolutním limitem FV vstupu konkrétního regulátoru. Pokud řešíte menší 12V systém, navazuje <a href="/solarni-panel-na-karavan-200w/">průvodce 200W panelem na karavan, baterií a MPPT</a>. Připojení a ochrany musí ověřit kvalifikovaný odborník.
+</div>
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Předběžně ověřit Voc/Vmp a výkon v MPPT kalkulačce →</a></p>
 
 <h2>Nejdůležitější kontrola: Voc za chladu</h2>
 <p>Napětí Voc panelu při nízké teplotě roste. Proto nestačí vynásobit počet panelů STC hodnotou Voc a porovnat ji s limitem MPPT bez teplotní rezervy. Překročení maximálního PV Voc může regulátor poškodit.</p>
