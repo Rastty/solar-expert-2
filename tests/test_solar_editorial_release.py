@@ -138,10 +138,17 @@ class PublisherTests(unittest.TestCase):
         self.html = article()
         self.m = manifest(self.html)
 
-    def test_disabled_by_default_no_credentials_and_no_write(self):
-        operation = e.load_operation()
-        self.assertIsNone(operation)
-        with patch.object(e, "wp", side_effect=AssertionError("no request permitted")):
+    def test_disabled_control_no_credentials_and_no_write(self):
+        # Test explicit disabled behavior in an isolated fixture. The PR branch
+        # intentionally stages enabled=True without authorizing a PR-time write.
+        control = Path(self.tmp.name) / "editorial-release.json"
+        control.write_text(json.dumps({
+            "schema_version": 1, "mode": "one_editorial_post",
+            "enabled": False, "manifest": "",
+        }), encoding="utf-8")
+        with patch.object(e, "CONTROL", control), patch.object(
+            e, "wp", side_effect=AssertionError("no WP request permitted")
+        ):
             self.assertIsNone(e.load_operation())
 
     def test_exact_slug_source_commit_and_standing_scope_required(self):
