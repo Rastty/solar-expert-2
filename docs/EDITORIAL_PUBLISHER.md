@@ -52,14 +52,14 @@ Pro úpravu již publikovaného článku navíc použít `kind=post_update`, `po
 
 ## Jedno zveřejnění = jeden bezpečný zápis
 
-Workflow `.github/workflows/solar-editorial-publisher.yml` testuje PR bez jakéhokoli WordPress přístupu. Na výchozí `main` může zpracovat právě jednu v `ops/editorial-release.json` zapnutou operaci.
+Workflow `.github/workflows/solar-editorial-publisher.yml` testuje PR bez jakéhokoli WordPress přístupu. Na výchozí `main` může zpracovat právě jednu v `ops/editorial-release.json` zapnutou operaci **pouze při prvním běhu nového push commitu měnícího tento kontrolní soubor**, nikoli při hodinovém běhu. Tento režim neumožňuje samovolné automatické dávky bez nové zkontrolované manifestové změny.
 
 1. Nejprve `--prepare` bez zápisu stáhne přesně připnutý obsah a ověří SHA, kvalitní minimální text, bezpečné odkazy, napěťové a proudové upozornění, kategorii, existující post/status nebo absenci slugu. Při `post_create` zkontroluje, že v uplynulých 24 hodinách **na celém webu nebyl nový publikovaný post**.
 2. Před změnou se vygeneruje **soukromá prewrite kopie** celé původní raw body postu (pro create záznam o absenci), očekávaná nová verze a hashe. Je nahrána jako GitHub Actions artifact s 30denní retencí. **Úspěšný upload je podmínkou spuštění zápisu.**
 3. `--apply` ještě jednou nezávisle přečte aktuální WP post / seznam slugů, znovu ověří identitu, přesnou stávající verzi a obsah připraveného archivu a provede maximálně **jeden POST**.
 4. Zkontroluje post ID, skutečně publikovaný stav, kanonickou URL, kategorii, přesný SHA256 těla postu a že nikdo nevytvořil duplicitní slug. Veřejné načtení URL je navíc **best effort** a má samostatný stav `public_content_seen|public_pending|public_unavailable`.
 5. Po nejasné odpovědi, timeoutu, 5xx, změně obsahu nebo nedoloženém výsledku **nikdy automaticky neopakuje POST**. Zanechá `outcome_unknown_do_not_retry` nebo `readback_inconclusive_do_not_retry` a je nutné ručně zkontrolovat skutečný stav.
-6. Při opakovaném hodinovém běhu už hotová operace vrátí `already_live_verified` (**0 nových zápisů**). Novou operaci je třeba explicitně přepnout přes Git PR do `main`. Jen změna obsahu na proměnlivé větvi `dev` žádné WordPress publikování nespouští.
+6. **Proti opakování napříč běhy:** produkční writer může nastartovat pouze **první pokus** události `push` na `main` (`github.run_attempt == 1`), a jen když je v rozsahu push skutečně změněn `ops/editorial-release.json`. Hodinový `schedule`, `workflow_dispatch`, údržbový push bez změny řízení ani ruční **Re-run jobs** nesmí spustit WordPress POST. Novou operaci je třeba explicitně přepnout přes zkontrolovaný Git PR do `main`; jen změna článku ve větvi `dev` nepublikuje. Po nejasném POST výsledku je vyžadována nezávislá read-only kontrola webu před jakýmkoli novým publikovacím commitem; nepřepínat starý manifest znovu.
 
 ## UTC a stránkování: nezávisle připomínkovaná oprava 2026-11-07
 
