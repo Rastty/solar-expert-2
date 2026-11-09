@@ -73,8 +73,10 @@ window.SolarExpertProductMatcher={
       );
       if(freshOffers.length)return Math.min(...freshOffers.map(o=>Number(o.price_czk)));
 
-      const hadPricedOffers=offers.some(o=>Number(o.price_czk)>0);
-      if(hadPricedOffers)return Number.MAX_SAFE_INTEGER;
+      // Once seller-level offers exist, never resurrect a product-level
+      // price as if it were an independently verified retailer quote.
+      // All offer prices may be missing, not just expired.
+      return Number.MAX_SAFE_INTEGER;
     }
 
     if(this.verificationState(product.verified_at)!=='fresh')return Number.MAX_SAFE_INTEGER;
