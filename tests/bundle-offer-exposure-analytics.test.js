@@ -51,7 +51,19 @@ const product=link({
   'data-se-merchant':'battery-cz',
   'data-se-placement':'builder-battery-best'
 });
-const roots=[dealA,dealB,disabled,product];
+const invalidProduct=link({
+  href:'javascript:alert(1)',
+  'data-se-product-id':'fake-cheap-battery',
+  'data-se-merchant':'battery-cz',
+  'data-se-placement':'builder-battery-best'
+});
+const sameSiteProduct=link({
+  href:'https://solar-expert.cz/fake-offer/',
+  'data-se-product-id':'fake-local-product',
+  'data-se-merchant':'solar-import-cz',
+  'data-se-placement':'battery-selector'
+});
+const roots=[dealA,dealB,disabled,invalidProduct,sameSiteProduct,product];
 global.window={
   location:{href:'https://solar-expert.cz/solarni-sestava-na-chatu/',origin:'https://solar-expert.cz',pathname:'/solarni-sestava-na-chatu/'},
   dataLayer:[],
@@ -94,8 +106,12 @@ try{
   require('../assets/js/analytics.js');
   assert.equal(typeof observerCb,'function');
   assert.equal(typeof mutationCb,'function');
-  assert.equal(observed.length,3,'Only valid product/deal destinations may be watched');
+  assert.equal(observed.length,3,'Only genuine external product/deal destinations may be watched');
   assert.equal(sent.length,0,'No impressions from merely stamping hidden result DOM');
+  click(disabled);
+  click(invalidProduct);
+  click(sameSiteProduct);
+  assert.equal(sent.length,0,'Clicking #, javascript: or same-site offer placeholders cannot fabricate merchant exposure');
 
   visible(dealA,.4);
   flush();
