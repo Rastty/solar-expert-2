@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-wifi-router-camera-offgrid-20261108-v1.json",
-  "activation_revision": 2,
-  "notice": "ONE-TIME safe reactivation 2026-11-09 after activation push 42487977045 and schedule 42493361800 failed in OFFLINE unit test before any WP job (both one-post-wordpress-publisher jobs SKIPPED; zero POST attempts). Test fixture fixed by main SHA 5317aec49082b651b7a9161dc6a1ce2e55dd7620 (#170), subsequent offline-contract green. Authenticated WordPress read-only checks 2026-11-09 found no target slug among posts/pages and last published post #1618 at 2026-11-07T13:00:39Z. Preserve exact immutable source+manifest, fresh runtime all-post rolling-24h UTC check, slug collision and taxonomy checks, encrypted prewrite artifact, one POST maximum, exact authenticated and best-effort public readback; never retry ambiguous writes."
+  "manifest": "ops/editorial-manifests/solar-camera-400wp-handoff-update-20261109-v1.json",
+  "activation_revision": 3,
+  "notice": "ONE-TIME owner-standing editorial UPDATE of already-published WP #1626 (not CREATE, no new 24h post). Exact existing canonical slug, category, status, original body SHA256 657da7a22799f46f4f154b59c257b8bbc19c22df4ff18d0e8e90cef3ee0d1bf3 and modified_gmt 2026-11-09T17:18:49 from successful 2026-11-09 published/readback receipt. Source is immutable Git 86884f23207364662696744577a7e5955179558f; adds two real published 400Wp battery/MPPT buyer-guide links and avoids treating the guide's different model consumption as the camera model. Only fresh authenticated WP compare/hash readback may authorize one POST. Preserve all original content, no theme deploy, no affiliate mutation, no retry after an ambiguous POST. Trigger only on reviewed main push and never replay schedule/dispatch."
 }
