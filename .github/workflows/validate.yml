@@ -56,6 +56,8 @@ jobs:
         run: node tests/battery-article-handoff.test.js
       - name: Camera/router 24h DC sizing and 12V battery buyer safety
         run: node tests/battery-camera-dc-handoff.test.js
+      - name: Starlink Mini direct-DC buyer handoff regression
+        run: node tests/battery-starlink-dc-handoff.test.js
       - name: Fridge 850Wh buyer article to editable Builder without fabricated starts
         run: node tests/fridge-article-builder-handoff.test.js
       - name: MPPT panel Isc x parallel strings manufacturer safety and article handoff
