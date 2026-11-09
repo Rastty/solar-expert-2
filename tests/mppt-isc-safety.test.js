@@ -71,6 +71,7 @@ async function main(){
   await editorial.init();
   assert.equal(editorial.articleExample,true);
   assert.equal(editorial.voltage,24);
+  assert.equal(editorial.panelUnitWp,400);
   assert.equal(editorial.panelWp,400);
   assert.equal(editorial.panelVoc,49);
   assert.equal(editorial.panelVmp,40);
@@ -93,7 +94,7 @@ async function main(){
   selection.catalog=catalog;
   selection.catalogLoading=false;
   selection.voltage=24;
-  selection.panelWp=200;
+  selection.panelUnitWp=100;
   selection.panelVoc=49;
   selection.panelVmp=40;
   selection.panelIsc=9;
@@ -117,13 +118,13 @@ async function main(){
 
   selection.panelIsc=11;
   selection.parallelCount=1;
-  selection.panelWp=400;
+  selection.panelUnitWp=200;
   selection.seriesCount=2;
   selection.run(false);
   assert(!selection.matches.some(row=>row.product.max_pv_voc_v===100),
     '2S×49Voc cold-adjusted exceeds 100V and must still be excluded by old voltage guard');
 
-  selection.panelWp=200;
+  selection.panelUnitWp=200;
   selection.seriesCount=1;
   for(const invalid of [0,-1,NaN,Infinity,'nonsense']){
     selection.panelIsc=invalid;
@@ -146,6 +147,41 @@ async function main(){
   selection.run(false);
   assert.equal(selection.matches.length,0,'Unknown manufacturer controller Isc must fail CLOSED');
   assert.equal(events().length,0,'Synthetic bad-input probes must not create conversion events');
+
+  // Changes in panel topology MUST change actual PV array Wp, required MPPT
+  // battery charge current and product fit. Formerly the editable total Wp
+  // could silently stay at 760 when a 5th/6th panel was added.
+  const topology=window.solarExpertMpptSelector();
+  topology.catalog=catalog;
+  topology.catalogLoading=false;
+  topology.voltage=24;
+  topology.panelUnitWp=190;
+  topology.seriesCount=2;
+  topology.parallelCount=2;
+  topology.run(false);
+  assert.equal(topology.panelWp,760,'2S2P of 190Wp = 760Wp');
+  assert.equal(topology.requiredChargeA,40,'760Wp / 24V with existing 25% charge headroom');
+  topology.parallelCount=3;
+  topology.run(false);
+  assert.equal(topology.panelWp,1140,'2S3P must immediately become 1140Wp, never retain 760');
+  assert.equal(topology.requiredChargeA,60,'1140Wp/24V must demand 60A with existing guard');
+  assert(topology.matches.every(r=>r.product.rated_charge_a>=60),
+    'No underpowered controller may be returned after adding a parallel branch');
+  assert.equal(topology.arrayIsc,27.51,'Isc is summed per parallel string, independently of charge current');
+  topology.parallelCount=2;
+  topology.seriesCount=3;
+  assert.equal(topology.panelWp,1140,'3S2P also means six panels');
+  topology.panelUnitWp=0;
+  topology.run(false);
+  assert.equal(topology.inputValid,false);
+  assert.equal(topology.matches.length,0,'Zero module Wp must never recommend a controller');
+  topology.panelUnitWp=190;
+  topology.seriesCount=20;
+  topology.parallelCount=20;
+  topology.run(false);
+  assert.equal(topology.inputValid,false,'Gross 76 kWp topology exceeds supported 15 kWp limit');
+  assert.equal(topology.matches.length,0);
+  assert.equal(events().length,0,'Electrical regression probes must not create real engagements');
 
   const validPanelPlan=B.findPanelPlan([panel],{voltage:24,panelWp:760},
     mppt('mppt-victron-100-30'),false,'best');
