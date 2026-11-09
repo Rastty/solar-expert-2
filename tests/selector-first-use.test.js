@@ -26,8 +26,8 @@ const specs=[
       backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000}}},
   {kind:'mppt',ctor:'solarExpertMpptSelector',part:'template-parts/mppt-selector.php',
     examples:{
-      single400:{voltage:24,panelWp:400,panelVoc:49,panelVmp:40,panelIsc:11,seriesCount:1,parallelCount:1},
-      pair190:{voltage:12,panelWp:380,panelVoc:25.5,panelVmp:21.8,panelIsc:9.17,seriesCount:2,parallelCount:1}}},
+      single400:{voltage:24,panelUnitWp:400,panelVoc:49,panelVmp:40,panelIsc:11,seriesCount:1,parallelCount:1},
+      pair190:{voltage:12,panelUnitWp:190,panelVoc:25.5,panelVmp:21.8,panelIsc:9.17,seriesCount:2,parallelCount:1}}},
   {kind:'inverter',ctor:'solarExpertInverterSelector',part:'template-parts/inverter-selector.php',
     examples:{
       cottage:{voltage:24,continuousW:1000,peakW:2000},
@@ -46,6 +46,11 @@ for(const spec of specs){
       assert.equal(instance[key],value,'Example '+spec.kind+'/'+scenario+' must update real electrical input '+key);
     }
     if(spec.kind!=='battery')assert(instance.inputValid,'Example must be internally valid: '+spec.kind+'/'+scenario);
+    if(spec.kind==='mppt') {
+      assert.equal(instance.panelWp,Number(instance.panelUnitWp)*Number(instance.seriesCount)*Number(instance.parallelCount),
+        'MPPT sample must use physically complete nameplate Wp, not stale editable total');
+      assert.equal(instance.panelWp,scenario==='single400'?400:380);
+    }
     assert(instance.matches.length>0,'Verified catalog must contain compatible result for example '+spec.kind+'/'+scenario);
     assert(instance.matches.every(x=>x.product),'Example must use original ranked product records');
   }
