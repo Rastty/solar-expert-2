@@ -44,6 +44,8 @@ jobs:
         run: node --test tests/merchant-candidate-vselektro.test.mjs
       - name: One-click Builder hero attribution
         run: node tests/builder-hero-demo.test.js
+      - name: Quote Checker result keyboard focus and invalid-input retention
+        run: node tests/quote-checker-result-focus.test.js
       - name: Czech buyer journey copy and tools routes
         run: node tests/czech-buyer-journey.test.js
       - name: Selector one-click examples and real activation QA
