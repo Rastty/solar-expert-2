@@ -424,6 +424,8 @@ class PublisherTests(unittest.TestCase):
         self.assertIn("persist-credentials: false", source)
         self.assertIn("github.event_name == 'push'", source)
         self.assertIn("github.run_attempt == 1", source)
+        self.assertEqual(source.count("!cancelled() && needs.offline-contract.result == 'success'"), 2,
+                         'Both credential and single writer jobs require successful upstream tests; never silently vanish')
         self.assertIn("steps.activation.outputs.armed == 'true'", source)
         self.assertIn("git diff --name-only", source)
         self.assertIn("ops/editorial-release.json", source)
