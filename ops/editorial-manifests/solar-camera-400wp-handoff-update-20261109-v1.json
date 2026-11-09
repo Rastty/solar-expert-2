@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_update",
+  "operation_id": "solar-camera-400wp-handoff-update-20261109-v1",
+  "slug": "solarni-panel-pro-wifi-kameru-a-router-na-chate",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární panel pro Wi-Fi kameru a router na chatě: baterie a MPPT",
+  "excerpt": "Modelový výpočet nepřetržitého odběru Wi-Fi routeru a IP kamery, potřebné LiFePO4 baterie, výkonu panelů, MPPT a bezpečného DC/PoE napájení bez neověřených cen.",
+  "source_commit": "86884f23207364662696744577a7e5955179558f",
+  "source_file": "content/rewrites/solarni-panel-pro-wifi-kameru-a-router-na-chate.html",
+  "source_sha256": "5fb048b7be6a49c9d5db706b0b1cd284b257739cd20ecfd70cdde9b07188d45a",
+  "post_id": 1626,
+  "expected_current_sha256": "657da7a22799f46f4f154b59c257b8bbc19c22df4ff18d0e8e90cef3ee0d1bf3",
+  "expected_modified_gmt": "2026-11-09T17:18:49"
+}
