@@ -118,7 +118,7 @@
               <div>
                 <small>Výhodnější set baterie + měnič</small>
                 <strong x-text="b.bundleDeal?.label"></strong>
-                <span class="se-muted">Ověřená cena setu <strong x-text="b.bundleDeal?.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong> · úspora <strong x-text="(b.bundleDeal?.bankSavingsCzk||b.bundleDeal?.savings_czk)?.toLocaleString('cs-CZ')+' Kč'"></strong> proti stejným komponentům zvlášť.</span>
+                <span class="se-muted">Nejnižší ověřená cena setu z uvedených obchodů <strong x-text="b.bundleDeal?.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong> · při této nabídce úspora <strong x-text="(b.bundleDeal?.bankSavingsCzk||b.bundleDeal?.savings_czk)?.toLocaleString('cs-CZ')+' Kč'"></strong> oproti samostatným komponentům.</span>
                 <span class="se-muted" x-show="(b.bundleDeal?.extraBatteryUnits||0)>0">
                   Set obsahuje 1× baterii + měnič. Pro celý bank dokupte ještě <strong x-text="b.bundleDeal?.extraBatteryUnits+'× '+b.battery?.name"></strong> přes nabídku baterie níže.
                 </span>
@@ -130,6 +130,7 @@
                      @click="SolarExpertAffiliate.trackBundleDealOffer(b.bundleDeal,o.raw,'builder-'+b.tier)">
                     <span x-text="o.merchant?.label"></span>
                     <strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'"></strong>
+                    <small x-show="o.bank_savings_czk && o.price_czk" x-text="'Úspora u tohoto prodejce '+o.bank_savings_czk?.toLocaleString('cs-CZ')+' Kč'"></small>
                   </a>
                 </template>
               </div>
