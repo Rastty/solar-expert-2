@@ -83,5 +83,55 @@ class BuyerGuideContract(unittest.TestCase):
         self.assertNotRegex(self.html, r"(?i)skladem|nejlevnější na trhu|garantovaný výnos")
 
 
+
+class StarlinkMiniBuyerGuideCandidate(unittest.TestCase):
+    """Next native-editorial candidate: source approval is not a publishing instruction."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.slug = "starlink-mini-na-chate-solarni-panel-baterie-mppt"
+        cls.html = (ROOT / "content/rewrites" / (cls.slug + ".html")).read_text(encoding="utf-8")
+        cls.manifest = json.loads((ROOT / "ops/editorial-manifests" /
+            "solar-starlink-mini-offgrid-20261109-v1.json").read_text(encoding="utf-8"))
+
+    def test_pinned_editorial_manifest_is_reviewable_but_inactive(self):
+        m = self.manifest
+        publisher.validate_manifest(m)
+        publisher.validate_html(self.html, self.slug)
+        self.assertEqual(m["kind"], "post_create")
+        self.assertTrue(m["expect_absent"])
+        self.assertEqual(m["slug"], self.slug)
+        self.assertEqual(m["source_commit"], "c7120e4546276ed2532ee47cb092fa0a5191147c")
+        self.assertEqual(hashlib.sha256(self.html.encode("utf-8")).hexdigest(), m["source_sha256"])
+        self.assertEqual(m["source_sha256"], "21aa2b2b876413b7c42e4a03e5dc63e424ec6cea91d12f57eaca1ca58870f463")
+        control = json.loads((ROOT / "ops/editorial-release.json").read_text(encoding="utf-8"))
+        self.assertNotEqual(control.get("manifest"),
+            "ops/editorial-manifests/solar-starlink-mini-offgrid-20261109-v1.json",
+            "Source review must not bypass rolling post creation limit by activating a release")
+
+    def test_authored_energy_math_and_real_merchant_handoff(self):
+        for value in ("20–40 W", "480 Wh", "720 Wh", "960 Wh",
+                      "552 Wh/den", "828 Wh/den", "1 104 Wh/den",
+                      "1 380 Wh", "2 070 Wh", "2 760 Wh",
+                      "1 024 Wh", "2 048 Wh", "Voc", "Isc",
+                      "12–48 V DC", "100 W", "20 V / 5 A"):
+            self.assertIn(value, self.html)
+        for route in ("/vyber-baterii/", "/mppt-kalkulacka/",
+                      "/solarni-sestava-na-chatu/",
+                      "/jakou-baterii-k-solarnimu-panelu-400w/",
+                      "/solarni-panel-pro-wifi-kameru-a-router-na-chate/",
+                      "/affiliate-transparentnost/"):
+            self.assertIn('href="' + route + '"', self.html)
+        for official in ("https://starlink.com/support/article/",
+                         "https://www.starlink.com/public-files/specification_sheet_mini_cs-CZ.pdf",
+                         "https://re.jrc.ec.europa.eu/pvg_tools/en/"):
+            self.assertIn(official, self.html)
+        self.assertIn("není záruka provozu", self.html.lower())
+        self.assertIn("nepokryje", self.html)
+        self.assertGreaterEqual(self.html.count("<h2>"), 5)
+        self.assertGreaterEqual(self.html.count("<table>"), 3)
+        self.assertNotRegex(self.html, r"(?i)ehub\\.cz|desturl=|a_aid=|<script|<iframe|skladem|garantovaná návratnost")
+
+
 if __name__ == "__main__":
     unittest.main()
