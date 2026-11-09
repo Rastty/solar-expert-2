@@ -165,6 +165,14 @@
 
     const details=link=>{
       if(!link) return null;
+      // A visible '#'/javascript:/same-site placeholder is not a merchant
+      // impression. Even delegated click fallback must fail closed.
+      const href=link.getAttribute('href')||'';
+      try {
+        const destination=new URL(href,window.location.href);
+        if(!['http:','https:'].includes(destination.protocol) ||
+           destination.origin===window.location.origin)return null;
+      } catch (_) { return null; }
       const productId=link.getAttribute('data-se-product-id')||'';
       const dealId=link.getAttribute('data-se-deal-id')||'';
       const merchant=link.getAttribute('data-se-merchant')||'';
