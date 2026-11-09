@@ -23,6 +23,8 @@ const events=()=>window.dataLayer.filter(x=>x.event==='selector_engaged'||x.even
 
 async function main(){
   const link=read('content/rewrites/jakou-baterii-k-solarnimu-panelu-400w.html');
+  assert(link.includes('href="/solarni-panel-pro-wifi-kameru-a-router-na-chate/"') && link.includes('Model 461 Wh/den'),
+    'Published 400W buyer guide should send 24h camera/router load to a separate physically correct DC/PoE case, without inventing a buyer event');
   assert(link.includes('href="/vyber-baterii/?scenario=panel400"'),
     'Crawlable primary CTA must carry editorially reviewed model token');
 
