@@ -26,7 +26,7 @@ const events=()=>window.dataLayer.filter(x=>x.event==='selector_engaged');
   assert.equal(selection.articleExample,true,'Only fixed, audited editorial tokens may prefill inputs');
   assert.equal(selection.articleExampleKind,'starlinkmini');
   assert.equal(selection.activeScenario,'starlinkmini');
-  assert.equal(selection.voltage,12,'Untrusted voltage query cannot override published illustrative model');
+  assert.equal(selection.voltage,24,'Untrusted voltage query cannot override published illustrative 24V two-day model');
   assert.equal(selection.dailyKwh,.828,'Untrusted energy query cannot override measured/model distinction');
   assert.equal(selection.inverterW,60,'Untrusted DC watts cannot weaken the BMS screen');
   assert.equal(selection.supplyMode,'dc');
@@ -42,24 +42,46 @@ const events=()=>window.dataLayer.filter(x=>x.event==='selector_engaged');
   assert.equal(Math.round(30*24*1.15),828);
   assert.equal(selection.requiredBatteryKwh,2.1,'828Wh/day × 2 days / 80% => 2.1kWh nominal');
   assert.equal(selection.requiredBatteryDcW,60,'60W is BMS design input, not continuous measured draw');
-  assert.equal(selection.requiredDischargeA,5,'60W / 12V design class => 5A nominal BMS minimum');
+  assert.equal(selection.requiredDischargeA,3,'60W / 24V design class => 3A nominal BMS minimum');
   assert(selection.matches.length>0,'Verified catalog must present at least one matched buyer product');
-  assert(selection.matches.some(x=>x.product.id==='battery-goowei-12-200'),
-    'The 2.56kWh 12V 200Ah module must pass energy and BMS sizing');
-  assert(!selection.matches.some(x=>x.product.id==='battery-goowei-12-100'),
-    '12V 100Ah nominal 1.28kWh must NEVER be sold as sufficient for 2.1kWh');
+  assert(selection.matches.some(x=>x.product.id==='battery-goowei-24-100'),
+    'The verified in-stock 2.56kWh 24V 100Ah model passes energy and BMS sizing');
+  assert(!selection.matches.some(x=>x.product.id==='battery-goowei-24-50'),
+    '24V 50Ah nominal 1.28kWh must NEVER be sold as sufficient for 2.1kWh');
   assert(selection.matches.every(x=>x.totalEnergyWh>=2100));
   assert(selection.matches.every(x=>x.dischargePowerW>=60));
-  assert(selection.matches.every(x=>x.product.system_voltage_class===12));
+  assert(selection.matches.every(x=>x.product.system_voltage_class===24));
   assert.equal(events().length,1,'One genuine click counts exactly once');
   assert.equal(events()[0].scenario,'starlinkmini');
   assert.equal(events()[0].batteryKwh,2.1);
   assert(events()[0].matchCount>0);
 
+  // The alternative 12V ONE-DAY scenario reaches real 12V 100Ah stock.
+  // The catalog explicitly marks the 12V 200Ah option on_request and
+  // cannot be treated as a verified buy-now 2-day solution.
+  selection.applyExample('starlinkmini12');
+  assert.equal(selection.voltage,12);
+  assert.equal(selection.dailyKwh,.828);
+  assert.equal(selection.autonomy,1);
+  assert.equal(selection.supplyMode,'dc');
+  assert.equal(selection.requiredBatteryKwh,1.1);
+  assert.equal(selection.requiredDischargeA,5);
+  assert(selection.matches.some(x=>x.product.id==='battery-goowei-12-100'),
+    'An explicitly in-stock 12V 100Ah unit covers 1.1kWh one-day requirement');
+  assert(selection.matches.every(x=>x.totalEnergyWh>=1100));
+  assert(selection.matches.every(x=>x.product.system_voltage_class===12));
+  assert(!selection.matches.some(x=>x.product.id==='battery-goowei-12-200'),
+    'An on-request merchant listing is not an immediately available battery');
+  assert.equal(events().length,1,'Second user click must not inflate distinct engagement');
+  selection.applyExample('starlinkmini');
+  assert.equal(selection.voltage,24);
+  assert.equal(selection.requiredBatteryKwh,2.1);
+
   // Changes of assumptions still recompute rather than retaining old offers.
   selection.dailyKwh=1.104;selection.run(false);
   assert.equal(selection.requiredBatteryKwh,2.8,'40W / 24h +15% for 2d needs 2.8kWh');
-  assert(selection.matches.every(x=>x.totalEnergyWh>=2800),'No smaller bank offered as suitable');
+  assert.equal(selection.matches.length,0,
+    'No in-stock 24V 2.8kWh product; fail closed instead of showing 24V 100Ah');
   selection.dailyKwh=0;selection.run(false);
   assert.equal(selection.matches.length,0,'Zero daily energy cannot match');
   selection.dailyKwh=.828;selection.inverterW=-1;selection.run(false);
@@ -86,6 +108,8 @@ const events=()=>window.dataLayer.filter(x=>x.event==='selector_engaged');
 
   const ui=read('template-parts/battery-selector.php');
   assert(ui.includes('data-se-battery-dc-case="starlinkmini"'));
+  assert(ui.includes('data-se-battery-dc-case="starlinkmini12"'));
+  assert(ui.includes("applyExample('starlinkmini12')"));
   assert(ui.includes("applyExample('starlinkmini')"));
   assert(ui.includes('data-se-article-example="starlinkmini"'));
   assert(ui.includes('828 Wh/den'));
@@ -96,5 +120,5 @@ const events=()=>window.dataLayer.filter(x=>x.event==='selector_engaged');
     'A strict approved scenario allowlist is required');
   assert(!js.includes('params.get("voltage")')&&!js.includes("get('dailyKwh')"),
     'No user-controlled URL numeric values may alter safety decisions');
-  console.log('PASS: Starlink Mini 24h battery: 828Wh/day, DC 2d 2.1kWh, 12V 200Ah eligible, 100Ah excluded; one real engagement only');
+  console.log('PASS: Starlink Mini 24h battery: DC 24V 2d 2.1kWh with in-stock 24V 100Ah; 12V 1d with 12V 100Ah; honest availability and one real engagement');
 })().catch(error=>{console.error(error);process.exitCode=1;});
