@@ -708,7 +708,7 @@ const selectorCoreRightSized={
   continuous_w:2400,
   peak_w:4800,
   availability:'in_stock',
-  offers:[{merchant:'test-a',price_czk:10000,availability:'in_stock',verified_at:'2026-10-07'}]
+  offers:[{merchant:'test-a',price_czk:10000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-a.example.com/product/'}]
 };
 const selectorCoreOversized={
   id:'selector-core-oversized',
@@ -717,7 +717,7 @@ const selectorCoreOversized={
   continuous_w:6000,
   peak_w:12000,
   availability:'in_stock',
-  offers:[{merchant:'test-b',price_czk:9000,availability:'in_stock',verified_at:'2026-10-07'}]
+  offers:[{merchant:'test-b',price_czk:9000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-b.example.com/product/'}]
 };
 const selectorCoreRanked=M.rank([selectorCoreOversized,selectorCoreRightSized],selectorCoreSizing);
 assert(selectorCoreRanked[0].product.id==='selector-core-right-size','Core v1 must prefer materially better right-sizing over a slightly cheaper but heavily oversized inverter');
@@ -729,7 +729,7 @@ assert(selectorCoreRanked[0].decision.reasons.some(x=>x.code.startsWith('evidenc
 const selectorCoreCheap={
   ...selectorCoreRightSized,
   id:'selector-core-cheap',
-  offers:[{merchant:'test-c',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07'}]
+  offers:[{merchant:'test-c',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-c.example.com/product/'}]
 };
 const selectorCoreValue=M.rank([selectorCoreRightSized,selectorCoreCheap],selectorCoreSizing);
 assert(selectorCoreValue[0].product.id==='selector-core-cheap','When technical fit and evidence are equal, verified price value must break the tie');
@@ -759,8 +759,8 @@ const selectorCoreTwoMerchants={
   ...selectorCoreCheap,
   id:'selector-core-two-merchants',
   offers:[
-    {merchant:'test-c',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07'},
-    {merchant:'test-d',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07'}
+    {merchant:'test-c',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-c.example.com/product/'},
+    {merchant:'test-d',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-d.example.com/product/'}
   ]
 };
 const selectorCoreMerchantTie=M.rank([selectorCoreOneMerchant,selectorCoreTwoMerchants],selectorCoreSizing);
