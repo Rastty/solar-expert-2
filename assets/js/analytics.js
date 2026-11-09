@@ -182,14 +182,16 @@
     const expose=link=>{
       const detail=details(link);
       if(!detail) return;
-      const {event,...fields}=detail;
-      const key=event+'|'+(fields.productId||fields.dealId)+'|'+fields.merchant+'|'+fields.placement;
+      const key=detail.event+'|'+(detail.productId||detail.dealId)+'|'+detail.merchant+'|'+detail.placement;
       if(exposedKeys.has(key)) return;
       exposedKeys.add(key);
       const timer=timers.get(link);
       if(timer){clearTimeout(timer);timers.delete(link);}
       if(observer) observer.unobserve(link);
-      window.SolarExpertAnalytics.track(event,fields);
+      if(detail.event==='bundle_deal_exposure')
+        window.SolarExpertAnalytics.track('bundle_deal_exposure',detail);
+      else
+        window.SolarExpertAnalytics.track('offer_exposure',detail);
     };
 
     if('IntersectionObserver' in window){
