@@ -28,18 +28,23 @@ window.solarExpertBatterySelector=function(){return{
   get requiredBatteryKwh(){return Math.ceil(((Number(this.dailyKwh)*Number(this.autonomy))/(this.usableFraction*this.outputEfficiency))*10)/10;},
   get requiredBatteryDcW(){return Math.ceil(Number(this.inverterW)/this.outputEfficiency);},
   get requiredDischargeA(){return Math.max(1,Math.ceil(this.requiredBatteryDcW/Math.max(1,Number(this.voltage))));},
-  // The URL accepts ONLY two trusted, hardcoded editorial scenario tokens.
+  // Only a bounded allow-list of three trusted editorial scenario tokens.
   // Numeric voltage, daily energy, battery limits and merchant values
   // in query parameters are never read. Page load is NOT engagement.
   editorialExamples:{
     panel400:{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800,supplyMode:'ac'},
-    camera24h:{voltage:12,dailyKwh:0.461,autonomy:2,inverterW:20,supplyMode:'dc'}
+    camera24h:{voltage:12,dailyKwh:0.461,autonomy:2,inverterW:20,supplyMode:'dc'},
+    // Starlink Mini: illustrative 30W average × 24h = 720Wh;
+    // +15% demand uncertainty allowance -> 828Wh/day INCLUDING modeled
+    // DC power-path losses. 60W is a BMS peak-design screen, NOT an
+    // independently verified constant consumption or device certificate.
+    starlinkmini:{voltage:12,dailyKwh:0.828,autonomy:2,inverterW:60,supplyMode:'dc'}
   },
   applyArticleExampleFromUrl(){
     const search=window.location&&typeof window.location.search==='string'
       ?window.location.search:'';
     const scenario=new URLSearchParams(search).get('scenario');
-    if(scenario!=='panel400'&&scenario!=='camera24h')return;
+    if(!Object.prototype.hasOwnProperty.call(this.editorialExamples,scenario))return;
     Object.assign(this,this.editorialExamples[scenario]);
     this.articleExample=true;
     this.articleExampleKind=scenario;
@@ -53,7 +58,8 @@ window.solarExpertBatterySelector=function(){return{
       // Router 10W + IP camera 6W run 24h = 384Wh/day. The editorial
       // 20% DC/PoE supply-loss allowance yields 461Wh/day. 20W DC draw
       // is a conservative continuous illustrative, not a device certificate.
-      camera24h:this.editorialExamples.camera24h
+      camera24h:this.editorialExamples.camera24h,
+      starlinkmini:this.editorialExamples.starlinkmini
     };
     const selection=examples[kind];
     if(!selection)return;
