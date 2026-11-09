@@ -16,6 +16,19 @@ window.SolarExpertProductMatcher={
     return ageDays>this.priceFreshnessDays?'stale':'fresh';
   },
 
+  // A stale, missing or invalid vendor product URL is not a traceable quote.
+  // Price and "in stock" evidence must belong to the SAME real seller row.
+  // This guard only applies when explicit offers exist. Standalone legacy
+  // products keep their separate, dated product-snapshot compatibility path.
+  hasSellerSource(offer){
+    if(!offer||typeof offer.source_url!=='string')return false;
+    try {
+      const url=new URL(offer.source_url);
+      return (url.protocol==='https:'||url.protocol==='http:') && Boolean(url.hostname)
+        && url.hostname!=='solar-expert.cz';
+    } catch (_) { return false; }
+  },
+
   explain(product,sizing){
     const reasons=[];let pass=true;
     if(product.type==='battery'){
@@ -45,7 +58,7 @@ window.SolarExpertProductMatcher={
   availabilityRank(product){
     const offers=Array.isArray(product.offers)?product.offers:[];
     if(offers.length){
-      const usable=offers.filter(o=>this.verificationState(o.verified_at)==='fresh');
+      const usable=offers.filter(o=>this.hasSellerSource(o)&&this.verificationState(o.verified_at)==='fresh');
       if(usable.some(o=>o.availability==='in_stock'))return 2;
       if(usable.some(o=>o.availability==='usually_in_stock'))return 1;
       if(offers.some(o=>o.availability==='in_stock'||o.availability==='usually_in_stock'))return 1;
@@ -67,6 +80,7 @@ window.SolarExpertProductMatcher={
     const offers=Array.isArray(product.offers)?product.offers:[];
     if(offers.length){
       const freshOffers=offers.filter(o=>
+        this.hasSellerSource(o)&&
         o.availability==='in_stock'&&
         Number(o.price_czk)>0&&
         this.verificationState(o.verified_at)==='fresh'
@@ -85,7 +99,7 @@ window.SolarExpertProductMatcher={
 
   evidenceQuality(product){
     const offers=Array.isArray(product.offers)?product.offers:[];
-    const fresh=offers.filter(o=>this.verificationState(o.verified_at)==='fresh');
+    const fresh=offers.filter(o=>this.hasSellerSource(o)&&this.verificationState(o.verified_at)==='fresh');
     const freshInStock=fresh.filter(o=>o.availability==='in_stock');
     const freshUsually=fresh.filter(o=>o.availability==='usually_in_stock');
     if(freshInStock.length)return{score:90,level:'verified_current',freshOffers:freshInStock.length};
@@ -101,7 +115,7 @@ window.SolarExpertProductMatcher={
     const offers=Array.isArray(product.offers)?product.offers:[];
     return new Set(
       offers
-        .filter(o=>o.availability==='in_stock'&&this.verificationState(o.verified_at)==='fresh')
+        .filter(o=>this.hasSellerSource(o)&&o.availability==='in_stock'&&this.verificationState(o.verified_at)==='fresh')
         .map(o=>String(o.merchant||''))
         .filter(Boolean)
     ).size;
