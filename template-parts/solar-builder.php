@@ -126,6 +126,7 @@
               <div class="se-offer-links">
                 <template x-for="o in SolarExpertAffiliate.bundleDealOffers(b.bundleDeal).slice(0,2)" :key="b.bundleDeal?.id+'-'+o.merchantId">
                   <a class="se-btn se-btn-primary" target="_blank" :href="o.href"
+                     :data-se-deal-id="b.bundleDeal?.id" :data-se-merchant="o.merchantId" :data-se-placement="'builder-'+b.tier"
                      :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
                      @click="SolarExpertAffiliate.trackBundleDealOffer(b.bundleDeal,o.raw,'builder-'+b.tier)">
                     <span x-text="o.merchant?.label"></span>
