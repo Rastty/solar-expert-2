@@ -149,3 +149,44 @@ test('independently fresh bundle retailer outranks an older apparently cheaper m
  assert.equal(quotes[1].price_czk,null);
  assert.equal(quotes[1].availability,'unverified');
 });
+
+
+test('bundle savings use the selected individual seller price, not cheapest-retailer saving copied to all',()=>{
+  const today=todayUtc();
+  const deal={
+    id:'independent-merchants',price_czk:10000,savings_czk:5000,bankSavingsCzk:5000,
+    effective_offer:{merchant:'battery-cz',price_czk:10000,availability:'in_stock',verified_at:today},
+    offers:[
+      {merchant:'battery-cz',price_czk:10000,availability:'in_stock',verified_at:today,source_url:'https://www.battery.cz/deal/'},
+      {merchant:'solar-import-cz',price_czk:14000,availability:'in_stock',verified_at:today,source_url:'https://www.solar-import.cz/deal/'}
+    ]
+  };
+  const quotes=A.bundleDealOffers(deal);
+  assert.deepEqual(quotes.map(x=>x.savings_czk),[5000,1000]);
+  assert.deepEqual(quotes.map(x=>x.bank_savings_czk),[5000,1000]);
+  const dear={...deal.offers[1],price_czk:16000};
+  assert.equal(A.resolveBundleDealOffer(deal,dear).savings_czk,null,
+    'A price above the comparable 15000 CZK separate-parts baseline is not a saving');
+  assert.equal(A.resolveBundleDealOffer(deal,dear).bank_savings_czk,null);
+  for(const date of [null,'2000-01-01','2999-01-01']){
+    const stale={...deal.offers[1],verified_at:date};
+    const r=A.resolveBundleDealOffer(deal,stale);
+    assert.equal(r.savings_czk,null);
+    assert.equal(r.bank_savings_czk,null);
+    assert.equal(r.price_czk,null);
+  }
+  const incomplete={...deal,effective_offer:null};
+  assert.equal(A.resolveBundleDealOffer(incomplete,deal.offers[0]).savings_czk,null,
+    'Without a verified composer-selected baseline no deal saving is demonstrated');
+  window.dataLayer=[];
+  A.trackBundleDealOffer(deal,deal.offers[1],'builder-best');
+  assert.equal(window.dataLayer.at(-1).bankSavingsCzk,1000,
+    'Conversion analytics must attribute the clicked retailer actual 1000 CZK saving');
+  assert.equal(window.dataLayer.at(-1).savingsCzk,1000);
+  const {readFileSync}=require('node:fs');
+  const ui=readFileSync(new URL('../template-parts/solar-builder.php',import.meta.url),'utf8');
+  assert(ui.includes('o.bank_savings_czk && o.price_czk'),
+    'Seller-specific badge is shown only when dated evidence supports it');
+  assert(ui.includes('Nejnižší ověřená cena setu z uvedených obchodů'),
+    'Banner must describe the least expensive listed verified offer only');
+});
