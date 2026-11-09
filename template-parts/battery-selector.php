@@ -9,6 +9,7 @@
       <button type="button" class="se-btn" @click="applyExample('cottage')">Chata: 24 V, 1 kWh/den</button>
       <button type="button" class="se-btn" @click="applyExample('backup')">Záloha: 48 V, 3 kWh/den</button>
       <button type="button" class="se-btn" data-se-battery-dc-case="camera24h" @click="applyExample('camera24h')">Wi-Fi kamera + router 24/7: 12 V DC, 461 Wh/den</button>
+      <button type="button" class="se-btn" data-se-battery-dc-case="starlinkmini" @click="applyExample('starlinkmini')">Starlink Mini 24/7: 12 V DC, 828 Wh/den</button>
     </div>
   </div>
   <div class="se-note" x-cloak x-show="articleExample && articleExampleKind==='panel400'" data-se-article-example="panel400" role="status">
@@ -17,6 +18,9 @@
   </div>
   <div class="se-note" x-cloak x-show="articleExample && articleExampleKind==='camera24h'" data-se-article-example="camera24h" role="status">
     <strong>Model z článku o Wi-Fi kameře a routeru na chatě:</strong> nepřetržitý odběr 16 W × 24 h = 384 Wh/den a ilustrační 20% rezerva na napájení = 461 Wh/den. Systém 12 V DC, dva dny autonomie a 20 W návrhového kontinuálního příkonu. Nejde o měření konkrétních zařízení ani ověření zapojení PoE, DC-DC měniče, MPPT či jištění. Před nákupem upravte hodnoty a ověřte datasheety.
+  </div>
+  <div class="se-note" x-cloak x-show="articleExample && articleExampleKind==='starlinkmini'" data-se-article-example="starlinkmini" role="status">
+    <strong>Model z článku o Starlink Mini na chatě:</strong> 30 W průměrně × 24 h = 720 Wh/den, s ilustrační 15% rezervou = 828 Wh/den. Systém 12 V DC, dva dny autonomie a 60 W modelový požadavek na maximální příkon z baterie. Hodnoty nejsou měřením vašeho Starlinku ani potvrzením kompatibility DC/USB-C napájení; před nákupem ověřte napětí a konektory, stabilizaci DC, skutečné ztráty, BMS a jištění.
   </div>
   <div class="se-formgrid">
     <div class="se-field"><label for="se-battery-voltage">Systémové napětí</label><select id="se-battery-voltage" class="se-select" x-model.number="voltage" @change="run()"><option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option></select></div>
@@ -27,7 +31,7 @@
   </div>
   <div class="se-note" style="margin-top:14px">
     <span x-show="supplyMode==='ac'">Pro 230V spotřebiče počítáme s 80 % využitelné kapacity baterie a 90 % účinností měniče. Denní spotřebu samotného měniče naprázdno připočtěte k zadaným kWh.</span>
-    <span x-show="supplyMode==='dc'">Pro přímé DC/PoE napájení počítáme s 80 % využitelné kapacity baterie. Zadávejte denní spotřebu již včetně reálných ztrát DC-DC/PoE měničů: znovu neodečítáme účinnost neexistujícího 230V měniče. Model kamery a routeru používá 461 Wh/den včetně ilustrační 20% rezervy a 20 W návrhového odběru. Výběr baterie automaticky neověřuje kompatibilitu DC napětí, PoE, jištění ani MPPT.</span>
+    <span x-show="supplyMode==='dc'">Pro přímé DC/PoE napájení počítáme s 80 % využitelné kapacity baterie. Zadávejte denní spotřebu již včetně reálných ztrát DC-DC/PoE měničů: znovu neodečítáme účinnost neexistujícího 230V měniče. Model kamery a routeru používá 461 Wh/den včetně ilustrační 20% rezervy a 20 W návrhového odběru. Model Starlink Mini používá 828 Wh/den při ilustračním průměru 30 W, rezervě 15 % a 60 W modelovém limitu BMS; skutečné hodnoty včetně ztrát zdroje je nutné změřit. Výběr baterie automaticky neověřuje kompatibilitu DC napětí, PoE, jištění ani MPPT.</span>
     Výběr hlídá nominální energii baterie včetně rezervy i maximální trvalý vybíjecí proud BMS.
     Pro toto zadání potřebujete alespoň <strong><span x-text="requiredBatteryKwh.toFixed(1)"></span> kWh</strong> nominální kapacity a orientačně nejméně
     <strong><span x-text="requiredDischargeA"></span> A</strong> trvalého vybíjecího proudu banku při zvoleném systémovém napětí.
