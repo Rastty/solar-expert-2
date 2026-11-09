@@ -77,4 +77,48 @@ assert(builder.includes('Modelový výsledek, ne návrh na míru.'),
 assert(builder.includes('@click="editPreview()"'),'Example must remain editable');
 assert(requests.filter(x=>x.body.event==='tool_activation').length===1,
   'First-party endpoint must get only one activation');
+
+// Real Alpine expression smoke: a preview must move keyboard/screen-reader focus
+// to the visible result heading only after Alpine has rendered the new step.
+// Invalid manual calculations must not steal focus from their error context.
+const previewExpr=builder.split('@solar-expert-open-demo.window="')[1]?.split('"')[0];
+assert(previewExpr,'Cross-root preview expression must remain present');
+assert(builder.includes('x-ref="builderHeading" tabindex="-1" aria-live="polite"'),
+  'Result heading must be programmatically focusable and announce step changes');
+let focusCount=0,scrollCount=0,previewCount=0,activatedCount=0;
+let pending=[];
+const heading={focus(options){assert.equal(options.preventScroll,true);focusCount++;}};
+const previewContext={
+  $el:{dispatchEvent(event){assert.equal(event.type,'solar-expert-builder-activated');activatedCount++;},
+       scrollIntoView(options){assert.equal(options.block,'start');scrollCount++;}},
+  $refs:{builderHeading:heading},
+  quickPreview(){previewCount++;},
+  $nextTick(callback){pending.push(callback);},
+  CustomEvent:class{constructor(type){this.type=type;}},
+};
+vm.runInNewContext(previewExpr,previewContext);
+assert.equal(previewCount,1,'One hero interaction must generate one example');
+assert.equal(activatedCount,1,'Activation analytics must remain connected');
+assert.equal(focusCount,0,'Do not focus a result before Alpine renders it');
+pending.shift()();
+assert.equal(focusCount,1,'After render, focus the visible result heading');
+assert.equal(scrollCount,1,'Keep the existing smooth-scroll behavior');
+
+const calculateExpr='calc(); '+(builder.split('@click="calc(); ')[1]?.split('"')[0]||'');
+assert(calculateExpr,'Manual calculation must include result-focus handling');
+for(const successful of [true,false]){
+  pending=[];
+  const before=focusCount;
+  const context={
+    step:3,
+    calc(){if(successful)context.step=4;},
+    $refs:{builderHeading:heading},
+    $nextTick(callback){pending.push(callback);},
+  };
+  vm.runInNewContext(calculateExpr,context);
+  pending.shift()();
+  assert.equal(focusCount,before+(successful?1:0),
+    successful?'Successful calculation must focus result':'Invalid input must retain error context');
+}
+
 console.log('PASS: one-click hero sample, graceful fallback, once-only first-party activation, explicit example disclosure');

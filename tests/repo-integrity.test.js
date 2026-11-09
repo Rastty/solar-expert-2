@@ -167,7 +167,8 @@ assert(intentHub.includes('Domovní fotovoltaika')&&intentHub.includes('Ostrovn�
 assert(homepageFirstUseTemplate.includes('Nejde o kontrolu celé síťové FVE.'),
   'Quote Checker card must not imply grid-tied household inspection');
 
-assert(builderFirstUseTemplate.includes('@click="quickPreview()"'),'Builder must offer an explicit one-click sample on the first screen');
+assert(builderFirstUseTemplate.includes('@click="quickPreview(); $nextTick(() => $refs.builderHeading.focus({preventScroll:true}))"'),
+  'Builder must offer an explicit one-click sample and focus its visible result after rendering');
 assert(builderFirstUseTemplate.includes('Modelový výsledek, ne návrh na míru.'),'One-click result must disclose that it is an example');
 assert(builderFirstUseTemplate.includes('@click="editPreview()"'),'Visitors must be able to edit the sample immediately');
 assert(builderFirstUseTemplate.includes('x-show="previewMode"'),'Preview disclaimer must not appear on personalized results');

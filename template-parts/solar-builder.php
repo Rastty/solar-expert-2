@@ -1,7 +1,7 @@
 <div id="builder" class="se-panel" x-data="solarExpertBuilder()" x-init="init()"
-     @solar-expert-open-demo.window="$el.dispatchEvent(new CustomEvent('solar-expert-builder-activated')); quickPreview(); $nextTick(() => $el.scrollIntoView({behavior:'smooth',block:'start'}))">
+     @solar-expert-open-demo.window="$el.dispatchEvent(new CustomEvent('solar-expert-builder-activated')); quickPreview(); $nextTick(() => { $el.scrollIntoView({behavior:'smooth',block:'start'}); $refs.builderHeading.focus({preventScroll:true}); })">
   <div class="se-row">
-    <div><div class="se-kicker">Návrh solární sestavy</div><h2 x-text="step===1?'Co chcete napájet?':step===2?'Vyberte spotřebiče':step===3?'Kdy a jak bude systém fungovat?':'Návrh sestavy'"></h2></div>
+    <div><div class="se-kicker">Návrh solární sestavy</div><h2 x-ref="builderHeading" tabindex="-1" aria-live="polite" aria-atomic="true" x-text="step===1?'Co chcete napájet?':step===2?'Vyberte spotřebiče':step===3?'Kdy a jak bude systém fungovat?':'Návrh sestavy'"></h2></div>
     <span class="se-step" x-text="'0'+step"></span>
   </div>
   <div class="se-progress"><span :class="step>=1?'on':''"></span><span :class="step>=2?'on':''"></span><span :class="step>=3?'on':''"></span><span :class="step>=4?'on':''"></span></div>
@@ -9,7 +9,7 @@
   <div x-show="step===1">
     <div class="se-quick-preview">
       <div><strong>Chcete nejdřív vidět výsledek?</strong><small>Modelová chata: lednice, světla, notebook, Wi-Fi · jaro–podzim · baterie na 1 den. Výpočet lze potom upravit.</small></div>
-      <button type="button" class="se-btn se-btn-primary" @click="quickPreview()">Ukázat vzorovou sestavu →</button>
+      <button type="button" class="se-btn se-btn-primary" @click="quickPreview(); $nextTick(() => $refs.builderHeading.focus({preventScroll:true}))">Ukázat vzorovou sestavu →</button>
     </div>
     <div class="se-note" style="margin-bottom:12px"><strong>Vyberte příklad, který je vám nejblíž.</strong> Spotřebiče předvyplníme jen pro začátek; ve druhém kroku je můžete přidat, odebrat a upravit dobu provozu. Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky.</div>
     <button type="button" class="se-choice" @click="preset('chata')"><strong>Chata / zahradní domek →</strong><small>Lednice, světla, notebook a Wi-Fi. Vše upravíte.</small></button>
@@ -45,7 +45,7 @@
     <div class="se-note" style="margin-top:16px">Odhad rozběhové špičky: <strong><span x-text="estimatedPeak"></span> W</strong>. Pokud znáte reálné maximum, můžete jej zvýšit.</div>
     <div class="se-field" style="margin-top:14px"><label>Známé maximum (volitelné)</label><input class="se-input" type="number" min="0" step="100" x-model.number="manualPeak" :placeholder="estimatedPeak" @input="inputError=''"></div>
     <div class="se-note se-note-error" x-show="inputError" x-cloak style="margin-top:12px" role="alert" aria-live="polite" x-text="inputError"></div>
-    <div class="se-actions"><button class="se-btn" @click="step=2;inputError=''">← Zpět</button><button class="se-btn se-btn-primary" @click="calc()">Spočítat sestavu →</button></div>
+    <div class="se-actions"><button class="se-btn" @click="step=2;inputError=''">← Zpět</button><button class="se-btn se-btn-primary" @click="calc(); $nextTick(() => { if(step===4) $refs.builderHeading.focus({preventScroll:true}); })">Spočítat sestavu →</button></div>
   </div>
 
   <div x-show="step===4" x-cloak>
