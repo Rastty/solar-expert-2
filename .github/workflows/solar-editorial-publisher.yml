@@ -52,7 +52,7 @@ jobs:
   one-post-wordpress-publisher:
     needs: offline-contract
     # A scheduled check, manual dispatch or rerun must never replay a possibly-ambiguous POST.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    if: ${{ !cancelled() && needs.offline-contract.result == 'success' && github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1 }}
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
@@ -129,7 +129,7 @@ jobs:
 
   credentials-readonly:
     needs: offline-contract
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: ${{ !cancelled() && needs.offline-contract.result == 'success' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 4
     steps:
