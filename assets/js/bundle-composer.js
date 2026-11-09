@@ -220,6 +220,7 @@ window.SolarExpertBundleComposer = {
             }];
         const validOffers = offers
           .filter(o => o && o.availability === 'in_stock')
+          .filter(o => matcher && matcher.hasSellerSource(o))
           .filter(o => matcher && matcher.verificationState(o.verified_at) === 'fresh')
           .filter(o => Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
           .sort((a,b)=>Number(a.price_czk)-Number(b.price_czk));
