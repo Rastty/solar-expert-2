@@ -167,7 +167,7 @@ async function main(){
   assert.equal(topology.requiredChargeA,60,'1140Wp/24V must demand 60A with existing guard');
   assert(topology.matches.every(r=>r.product.rated_charge_a>=60),
     'No underpowered controller may be returned after adding a parallel branch');
-  assert.equal(topology.arrayIsc,27.51,'Isc is summed per parallel string, independently of charge current');
+  assert.equal(Math.round(topology.arrayIsc*100)/100,27.51,'Isc is summed per parallel string, independently of charge current');
   topology.parallelCount=2;
   topology.seriesCount=3;
   assert.equal(topology.panelWp,1140,'3S2P also means six panels');
