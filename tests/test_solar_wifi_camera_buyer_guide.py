@@ -26,9 +26,21 @@ class BuyerGuideContract(unittest.TestCase):
         self.assertEqual(m["kind"], "post_create")
         self.assertEqual(m["slug"], SLUG)
         self.assertEqual(m["source_file"], "content/rewrites/" + SLUG + ".html")
-        self.assertEqual(hashlib.sha256(self.html.encode("utf-8")).hexdigest(), m["source_sha256"])
-        self.assertRegex(m["source_commit"], "^[0-9a-f]{40}$")
+        # Preserve the immutable CREATE receipt: its pinned source remains in
+        # historical commit 773cad77; a later EDIT does not rewrite that audit.
+        self.assertEqual(m["source_sha256"], "657da7a22799f46f4f154b59c257b8bbc19c22df4ff18d0e8e90cef3ee0d1bf3")
+        self.assertEqual(m["source_commit"], "773cad77f6ec35705c850c4d9413a305715d747f")
         self.assertTrue(m["expect_absent"])
+        # The current HTML is a newly pinned, one-post EDIT; never silently
+        # reinterpret the old CREATE manifest as the latest source body.
+        revised = json.loads((ROOT / "ops/editorial-manifests/solar-camera-400wp-handoff-update-20261109-v1.json").read_text(encoding="utf-8"))
+        publisher.validate_manifest(revised)
+        self.assertEqual(revised["kind"], "post_update")
+        self.assertEqual(revised["post_id"], 1626)
+        self.assertEqual(revised["expected_current_sha256"], m["source_sha256"])
+        self.assertEqual(revised["expected_modified_gmt"], "2026-11-09T17:18:49")
+        self.assertEqual(revised["source_commit"], "86884f23207364662696744577a7e5955179558f")
+        self.assertEqual(hashlib.sha256(self.html.encode("utf-8")).hexdigest(), revised["source_sha256"])
 
     def test_specific_problem_and_distinct_buyer_decision(self):
         for expected in (
@@ -60,6 +72,8 @@ class BuyerGuideContract(unittest.TestCase):
         for path in (
             "/vyber-baterii/", "/mppt-kalkulacka/",
             "/vyber-menice/", "/solarni-panel-na-karavan-200w/",
+            "/jakou-baterii-k-solarnimu-panelu-400w/",
+            "/jak-vybrat-mppt-regulator-pro-400w-panel/",
             "/affiliate-transparentnost/", "/jak-doporucujeme/",
         ):
             self.assertIn('href="' + path + '"', self.html)
