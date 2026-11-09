@@ -185,6 +185,24 @@ window.SolarExpertAffiliate = {
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
+    // A bundle's overall saving is computed for its cheapest verified
+    // merchant. Each other merchant needs its OWN price-specific saving.
+    // Never inherit a saving from a missing/stale/ineligible selected offer.
+    const selected = deal.effective_offer;
+    const bestPrice=Number(deal.price_czk);
+    const matcher=window.SolarExpertProductMatcher;
+    const eligibleBest=selected && selected.availability==='in_stock' &&
+      matcher && matcher.verificationState(selected.verified_at)==='fresh' &&
+      Number(selected.price_czk)===bestPrice && Number.isFinite(bestPrice) && bestPrice>0;
+    const currentPrice=freshness==='fresh' && offer.availability==='in_stock' &&
+      Number.isFinite(Number(offer.price_czk)) && Number(offer.price_czk)>0
+      ? Number(offer.price_czk):null;
+    const savingForSeller=baselineSaving=>{
+      const original=Number(baselineSaving);
+      if (!eligibleBest || currentPrice===null || !Number.isFinite(original) || original<=0) return null;
+      const actualSaving=Math.round(bestPrice+original-currentPrice);
+      return actualSaving>0?actualSaving:null;
+    };
     return {
       href: generated || target || '#',
       monetized: Boolean(generated),
@@ -194,8 +212,8 @@ window.SolarExpertAffiliate = {
       availability: freshness === 'fresh' ? (offer.availability || deal.availability || null) : 'unverified',
       verified_at: verifiedAt,
       price_freshness: freshness,
-      savings_czk: freshness === 'fresh' ? (Number(deal.savings_czk || 0) || null) : null,
-      bank_savings_czk: freshness === 'fresh' ? (Number(deal.bankSavingsCzk || deal.savings_czk || 0) || null) : null,
+      savings_czk: savingForSeller(deal.savings_czk),
+      bank_savings_czk: savingForSeller(deal.bankSavingsCzk ?? deal.savings_czk),
       extra_battery_units: Number(deal.extraBatteryUnits || 0),
       raw: offer
     };
