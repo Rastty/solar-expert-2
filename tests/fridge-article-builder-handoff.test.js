@@ -25,6 +25,8 @@ const activity=()=>window.dataLayer.filter(e=>['builder_step','solar_builder_com
 
 async function main(){
  const article=read('content/rewrites/solarni-sestava-na-chatu-pro-lednici.html');
+ assert(article.includes('href="/solarni-panel-pro-wifi-kameru-a-router-na-chate/"') && article.includes('není</strong> zahrnutá v modelových 850 Wh/den'),
+   'Fridge buyer guide must route always-on camera/router load to the dedicated live 24h guide, not silently fold it into 850 Wh');
  const markup=read('template-parts/solar-builder.php');
  const js=read('assets/js/builder.js');
  assert(article.includes('href="/solarni-sestava-na-chatu/?scenario=fridge230#builder"'),
