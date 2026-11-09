@@ -1,0 +1,63 @@
+<p class="se-lead"><strong>Jak napájet Starlink Mini na chatě bez elektřiny?</strong> Spočítejte energii pro skutečné hodiny provozu, vyberte baterii s rezervou a až potom solární panel a MPPT regulátor. Starlink Mini není běžný Wi-Fi router: výrobce uvádí průměrnou spotřebu přibližně 20–40 W a pro napájení z jiného zdroje stanoví zvláštní požadavky na napětí, výkon a kompatibilní příslušenství. Následující výpočty jsou <strong>modelové, nikoliv příslib nepřetržitého provozu ani ověření konkrétní sestavy</strong>.</p>
+
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Spočítat potřebnou LiFePO4 baterii →</a> <a class="se-btn" href="/mppt-kalkulacka/">Zkontrolovat MPPT regulátor →</a></p>
+
+<h2>Kolik elektřiny Starlink Mini skutečně potřebuje?</h2>
+<p>Podle <a href="https://starlink.com/support/article/18836c7e-2d97-6153-fe67-c18427bd0558">oficiálního přehledu spotřeby Starlinku</a> je typický průměr pro model Mini 20–40 W a klidový odběr okolo 15 W. Uvedené průměry vycházejí z napájení střídavým proudem a zahrnují zařízení, napájení i související prvky sestavy. Skutečná spotřeba závisí na podmínkách a využití. Nelze proto vzít „15 W v nečinnosti“ a bez měření jimi násobit všech 24 hodin provozu.</p>
+<table>
+<thead><tr><th>Modelový průměr</th><th>8 hodin denně</th><th>24 hodin denně</th><th>24 hodin + 15 % návrhová rezerva</th></tr></thead>
+<tbody>
+<tr><td>20 W</td><td>160 Wh</td><td>480 Wh</td><td>552 Wh/den</td></tr>
+<tr><td>30 W</td><td>240 Wh</td><td>720 Wh</td><td>828 Wh/den</td></tr>
+<tr><td>40 W</td><td>320 Wh</td><td>960 Wh</td><td>1 104 Wh/den</td></tr>
+</tbody></table>
+<p>Rezerva 15 % je náš ilustrační návrhový polštář pro nejistoty provozu; <strong>nejde o další výrobcem naměřenou spotřebu</strong> ani o povinnost dvakrát započítat ztráty zdroje. Pokud měříte reálný příkon své kompletní DC sestavy, použijte naměřené Wh/den a další ztráty nepřičítejte automaticky. U Starlinku Standard jsou podle výrobce průměry výrazně vyšší než u Mini — následující návrh pro Standard bez nového výpočtu nepoužívejte.</p>
+
+<h2>Jakou baterii vybrat pro Starlink Mini na 1 nebo 2 dny?</h2>
+<p>Pro ilustrační LiFePO4 systém pracujeme s 80 % využitelné nominální energie baterie. Potřebná nominální kapacita v Wh = denní spotřeba včetně zvolené rezervy × požadovaný počet dní autonomie / 0,8. Skutečnou použitelnou kapacitu, vybíjecí proud, kompatibilitu modulů a zimní nabíjení vždy ověřte podle konkrétního BMS a datasheetu.</p>
+<table>
+<thead><tr><th>Příkon při provozu 24/7</th><th>Spotřeba s modelovou rezervou</th><th>Baterie pro 1 den</th><th>Baterie pro 2 dny</th></tr></thead>
+<tbody>
+<tr><td>20 W</td><td>552 Wh/den</td><td>690 Wh nominálně</td><td>1 380 Wh nominálně</td></tr>
+<tr><td>30 W</td><td>828 Wh/den</td><td>1 035 Wh nominálně</td><td>2 070 Wh nominálně</td></tr>
+<tr><td>40 W</td><td>1 104 Wh/den</td><td>1 380 Wh nominálně</td><td>2 760 Wh nominálně</td></tr>
+</tbody></table>
+<p><strong>Praktické srovnání:</strong> 12,8V LiFePO4 100Ah má nominálně 1 280 Wh, z toho při ilustrativních 80 % využití asi 1 024 Wh. Model 30 W pro jeden den (828 Wh) pokryje, pro dva dny nikoliv. Baterie 25,6 V / 100 Ah má nominálně 2 560 Wh, při stejném předpokladu zhruba 2 048 Wh. To pokryje model 30 W na dva dny (1 656 Wh), ale <strong>nepokryje</strong> vyšší model 40 W na dva dny (2 208 Wh). U delší autonomie je potřebná větší baterie nebo výrobcem povolené paralelní řešení.</p>
+<p>Otevřete <a href="/vyber-baterii/">výběr baterie</a> a nastavte vlastní denní spotřebu (například 0,828 kWh/den), dva dny rezervy a napětí svého systému. Pro přímé DC napájení přepněte nástroj do režimu DC, pokud už jsou v denní energii zahrnuté skutečné ztráty napájení. Výběr slouží jako <strong>energetický a proudový filtr</strong>, nikoli jako certifikace vhodného konektoru pro Starlink.</p>
+
+<h2>Stačí solární panel 200 W, 300 W nebo 400 W?</h2>
+<p>Rozhoduje energie vyrobená za den, nikoliv velký údaj Wp na štítku panelu. Jednoduchý model je výkon panelů Wp × ekvivalentní sluneční hodiny × celkový systémový faktor. Pro ilustraci používáme faktor 0,75, který reprezentuje přibližné ztráty výroby, regulace a provozu — konkrétní systém může mít jiné výsledky.</p>
+<table>
+<thead><tr><th>FV pole</th><th>Příklad: 3 hodiny × faktor 0,75</th><th>Příklad: 1 hodina × faktor 0,75</th></tr></thead>
+<tbody>
+<tr><td>200 Wp</td><td>450 Wh/den</td><td>150 Wh/den</td></tr>
+<tr><td>300 Wp</td><td>675 Wh/den</td><td>225 Wh/den</td></tr>
+<tr><td>400 Wp</td><td>900 Wh/den</td><td>300 Wh/den</td></tr>
+</tbody></table>
+<p>Při modelové potřebě 828 Wh/den může 400Wp pole v příkladu se třemi ekvivalentními hodinami vyrobit 900 Wh. To je pouze malá energetická rezerva. Ve scénáři s jedinou ekvivalentní hodinou dodá stejné pole asi 300 Wh a baterie se bude vybíjet. <strong>400Wp panel tedy není záruka provozu Starlinku Mini 24/7 v zimě.</strong> Zohledněte sklon, orientaci, zastínění, sníh a konkrétní měsíc pomocí nástroje <a href="https://re.jrc.ec.europa.eu/pvg_tools/en/">PVGIS Evropské komise</a>. Při celoročním požadavku navrhujte systém na nejhorší důležité období a promyslete záložní zdroj či řízené vypínání.</p>
+<p>Pro srovnání panelových variant pokračujte na <a href="/solarni-panel-na-karavan-200w/">rozhodovací návod pro menší panely</a> a <a href="/jakou-baterii-k-solarnimu-panelu-400w/">výběr baterie k panelu 400 Wp</a>. Vždy přepočítejte spotřebu podle svého Starlinku, nikoliv podle spotřebičů z ukázkového článku.</p>
+
+<h2>MPPT, napětí, DC kabel a USB-C: čemu věnovat pozornost?</h2>
+<p><a href="https://starlink.com/support/article/a7fe6525-5356-a837-48e6-33df176cdbc5">Starlink v návodu k napájení Mini</a> uvádí vstup 12–48 V DC a výkonový údaj 60 W. Pro použití kabelového příslušenství USB-C na napájecí konektor uvádí zdroj USB Power Delivery 100 W, 20 V / 5 A; zdroj s nižším údajem nemusí být vhodný. Oficiální <a href="https://www.starlink.com/public-files/specification_sheet_mini_cs-CZ.pdf">český technický list Mini</a> uvádí stejné vstupní požadavky. Starlink garantuje provoz se svým dodaným napájením a kabelem, ne s libovolným připojením baterie přes náhodnou redukci.</p>
+<p>Ve fotovoltaické části musí MPPT regulátor odpovídat systémovému napětí baterie, výkonu celého pole a bezpečnému elektrickému zapojení panelů. Pro každou variantu kontrolujte <strong>Voc</strong> panelu při nejnižší předpokládané teplotě, pracovní Vmp stringu, zkratový proud <strong>Isc</strong> a počet paralelních větví. Vyšší počet panelů v sérii zvyšuje napětí; paralelní větve zvyšují vstupní zkratový proud. Pouhých „400 W“ neříká, zda konkrétní MPPT snese zapojení 2S2P nebo 1S4P.</p>
+<p>U <a href="/mppt-kalkulacka/">výběru MPPT regulátoru</a> proto vyplňte údaje z datasheetu svého panelu a teplotu lokality zohledněte při posouzení cold-Voc. Kalkulačka nenahrazuje projektovou kontrolu jištění, průřezů kabelů, proudových rezerv ani omezení nabíjení LiFePO4 pod 0 °C. Samotný Starlink musí mít kompatibilní, stabilizované napájení a správné příslušenství; pokud nemáte bezpečné ověřené DC zapojení, volte výrobcem podporovaný napájecí zdroj a do energetické bilance započítejte jeho naměřenou spotřebu.</p>
+
+<h2>Co konkrétně koupit a co nejprve ověřit?</h2>
+<ol>
+<li><strong>Změřte provozní dobu a příkon.</strong> Pro 24/7 model použijte jako výchozí rozsah 20–40 W, ale při skutečném návrhu preferujte vlastní měření kompletní sestavy.</li>
+<li><strong>Určete autonomii.</strong> Jeden den se slušným slunečním dobíjením je jiný úkol než dva či tři tmavé dny bez slunce; modelovou baterii dimenzujte podle potřebných Wh.</li>
+<li><strong>Vyberte LiFePO4 baterii.</strong> V <a href="/vyber-baterii/">našem selektoru baterií</a> lze porovnat technicky vhodné moduly a dostupné obchodní nabídky. Před nákupem ověřte BMS, teploty, způsob zapojení a skutečnou cenu u prodejce.</li>
+<li><strong>Ověřte panel a MPPT.</strong> Použijte <a href="/mppt-kalkulacka/">výběr regulátoru</a> s Voc, Vmp, Isc a S/P zapojením a nezávislý sezónní výpočet výroby pro místo instalace.</li>
+<li><strong>Vyřešte napájení Starlinku.</strong> Zkontrolujte konkrétní model Mini, oficiálně kompatibilní zdroj nebo DC/USB-C příslušenství, jištění a pokles napětí na kabelu; neexperimentujte s neověřenými konektory.</li>
+</ol>
+<p><strong>Chcete komplet pro chatu?</strong> <a href="/solarni-sestava-na-chatu/">Průvodce ostrovní sestavou</a> vám pomůže rozlišit, zda vedle internetu napájíte také lednici, osvětlení či další spotřebiče. Pokud přidáváte kameru, přečtěte si samostatný <a href="/solarni-panel-pro-wifi-kameru-a-router-na-chate/">výpočet pro Wi-Fi kameru a router</a> — jeho spotřebu nepřičítejte znovu, jestliže již máte kameru zahrnutou ve vlastním měření sestavy.</p>
+
+<h2>Časté otázky</h2>
+<h3>Stačí na Starlink Mini baterie 12 V / 100 Ah?</h3>
+<p>Podle modelu 30 W nepřetržitě a s 15% rezervou pokryje při 80% využitelné energii zhruba jeden den, nikoli dva. Zkontrolujte vlastní odběr a BMS. Samotná kapacita ještě neřeší správný způsob napájení Starlinku.</p>
+<h3>Potřebuji 230V měnič?</h3>
+<p>Ne nutně. Mini podporuje definované varianty DC napájení, ovšem jen při splnění výrobcem uvedených požadavků. Pokud volíte 230V napájecí adaptér, započítejte do měření i měnič, jeho účinnost a klidový odběr. <a href="/vyber-menice/">Porovnání měničů</a> je relevantní jen tam, kde 230 V opravdu potřebujete.</p>
+<h3>Může Starlink Mini fungovat celoročně z jednoho panelu 400 Wp?</h3>
+<p>Žádný univerzální příslib neexistuje. Zimní dopad zastínění, oblačnosti a sněhu může způsobit dlouhodobou energetickou ztrátu; potřebná je sezónní simulace, větší rezerva a často záložní zdroj.</p>
+
+<p><small>Metodika: spotřeba a napájecí parametry Starlinku jsou převzaté z oficiální dokumentace výrobce; 15% návrhová rezerva, využitelných 80 % kapacity a modelové sluneční hodiny jsou naše výslovně uvedené předpoklady. Odkazované výběrové nástroje necertifikují konkrétní zapojení. Web může získat provizi po nákupu přes některé doporučené obchody; <a href="/affiliate-transparentnost/">jak fungují partnerské odkazy</a> a <a href="/jak-doporucujeme/">jak ověřujeme doporučení</a>.</small></p>

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_create",
+  "operation_id": "solar-starlink-mini-offgrid-20261109-v1",
+  "slug": "starlink-mini-na-chate-solarni-panel-baterie-mppt",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Starlink Mini na chatě bez elektřiny: panel, baterie a MPPT",
+  "excerpt": "Výpočet spotřeby Starlinku Mini 20–40 W, potřebné LiFePO4 baterie pro 1–2 dny, solárního panelu a MPPT. Modelové příklady, bezpečné DC napájení a odkazy na výběrové nástroje bez neověřených cen.",
+  "source_commit": "c7120e4546276ed2532ee47cb092fa0a5191147c",
+  "source_file": "content/rewrites/starlink-mini-na-chate-solarni-panel-baterie-mppt.html",
+  "source_sha256": "21aa2b2b876413b7c42e4a03e5dc63e424ec6cea91d12f57eaca1ca58870f463",
+  "expect_absent": true
+}
