@@ -5,7 +5,7 @@
   const endpoint=config.endpoint||'';
   const allowedEvents=new Set([
     'tool_view','tool_start','tool_exposure','tool_activation','builder_step','solar_builder_complete','selector_engaged',
-    'quote_checker_complete','offer_exposure','affiliate_click','bundle_deal_click','lead_click',
+    'quote_checker_complete','offer_exposure','bundle_deal_exposure','affiliate_click','bundle_deal_click','lead_click',
     'tool_referral_click'
   ]);
   const allowedFields=new Set([
@@ -166,22 +166,32 @@
     const details=link=>{
       if(!link) return null;
       const productId=link.getAttribute('data-se-product-id')||'';
+      const dealId=link.getAttribute('data-se-deal-id')||'';
       const merchant=link.getAttribute('data-se-merchant')||'';
       const placement=link.getAttribute('data-se-placement')||'';
-      if(!productId||!merchant||!placement) return null;
-      return {productId,merchant,placement};
+      if(!merchant||!placement) return null;
+      if(productId) return {event:'offer_exposure',productId,merchant,placement};
+      // Deal CTA is separate from its components: keep denominator and
+      // merchant identity independent from ordinary product-offer CTR.
+      // A '#'-only fallback is not a usable buyer-facing merchant link.
+      if(dealId && link.getAttribute('href') && link.getAttribute('href')!=='#')
+        return {event:'bundle_deal_exposure',dealId,merchant,placement};
+      return null;
     };
 
     const expose=link=>{
       const detail=details(link);
       if(!detail) return;
-      const key=detail.productId+'|'+detail.merchant+'|'+detail.placement;
+      const key=detail.event+'|'+(detail.productId||detail.dealId)+'|'+detail.merchant+'|'+detail.placement;
       if(exposedKeys.has(key)) return;
       exposedKeys.add(key);
       const timer=timers.get(link);
       if(timer){clearTimeout(timer);timers.delete(link);}
       if(observer) observer.unobserve(link);
-      window.SolarExpertAnalytics.track('offer_exposure',detail);
+      if(detail.event==='bundle_deal_exposure')
+        window.SolarExpertAnalytics.track('bundle_deal_exposure',detail);
+      else
+        window.SolarExpertAnalytics.track('offer_exposure',detail);
     };
 
     if('IntersectionObserver' in window){
@@ -206,8 +216,9 @@
 
     const scan=root=>{
       if(!root||!root.querySelectorAll) return;
-      if(root.matches&&root.matches('.se-offer[data-se-product-id][data-se-merchant][data-se-placement]')) observeLink(root);
-      root.querySelectorAll('.se-offer[data-se-product-id][data-se-merchant][data-se-placement]').forEach(observeLink);
+      const offerSelector='.se-offer[data-se-product-id][data-se-merchant][data-se-placement], a[data-se-deal-id][data-se-merchant][data-se-placement]';
+      if(root.matches&&root.matches(offerSelector)) observeLink(root);
+      root.querySelectorAll(offerSelector).forEach(observeLink);
     };
 
     scan(document);
@@ -222,12 +233,12 @@
         childList:true,
         subtree:true,
         attributes:true,
-        attributeFilter:['data-se-product-id','data-se-merchant','data-se-placement']
+        attributeFilter:['data-se-product-id','data-se-deal-id','data-se-merchant','data-se-placement','href']
       });
     }
 
     document.addEventListener('click',(event)=>{
-      const link=event.target&&event.target.closest?event.target.closest('.se-offer[data-se-product-id][data-se-merchant][data-se-placement]'):null;
+      const link=event.target&&event.target.closest?event.target.closest('.se-offer[data-se-product-id][data-se-merchant][data-se-placement], a[data-se-deal-id][data-se-merchant][data-se-placement]'):null;
       if(link) expose(link);
     },{capture:true,passive:true});
   }

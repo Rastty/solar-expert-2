@@ -38,6 +38,10 @@ jobs:
         run: php tests/funnel-attribution.test.php
       - name: Product offer exposure and click placement reporting
         run: php tests/funnel-offer-placements.test.php
+      - name: Bundle-deal offer exposure and verified per-seller conversion reporting
+        run: php tests/funnel-bundle-offers.test.php
+      - name: Buyer-visible bundle impressions and once-only event tracking
+        run: node tests/bundle-offer-exposure-analytics.test.js
       - name: Independent retail operator attribution
         run: php tests/merchant-operators.test.php
       - name: Pending independent retailer activation guard
