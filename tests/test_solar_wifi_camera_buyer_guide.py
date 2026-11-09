@@ -126,7 +126,7 @@ class StarlinkMiniBuyerGuideCandidate(unittest.TestCase):
         self.assertIn("nepokryje", self.html)
         self.assertGreaterEqual(self.html.count("<h2>"), 5)
         self.assertGreaterEqual(self.html.count("<table>"), 3)
-        self.assertNotRegex(self.html, r"(?i)ehub\\.cz|desturl=|a_aid=|<script|<iframe|skladem|garantovaná návratnost")
+        self.assertNotRegex(self.html, r"(?i)ehub\.cz|desturl=|a_aid=|<script|<iframe|skladem|garantovaná návratnost")
 
 
 if __name__ == "__main__":
