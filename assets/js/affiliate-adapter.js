@@ -48,9 +48,30 @@ window.SolarExpertAffiliate = {
     return typeof bases === 'object' && bases ? bases : {};
   },
 
+  // A tracked merchant CTA MUST navigate to a real external web page.
+  // Never treat "#" or javascript:, data:, mailto: or same-site routes as
+  // an outbound buyer click. Preserve legitimate direct and partner URLs.
+  isActionableMerchantHref(href) {
+    if(typeof href!=='string'||!href.trim())return false;
+    try {
+      const u=new URL(href);
+      if((u.protocol!=='https:'&&u.protocol!=='http:')||!u.hostname)return false;
+      const ownOrigin=window.location?.origin || 'https://solar-expert.cz';
+      return u.origin!==ownOrigin;
+    } catch (_) { return false; }
+  },
+
+  selectMerchantLink(candidates) {
+    for(const candidate of candidates){
+      if(this.isActionableMerchantHref(candidate?.href))
+        return {href:candidate.href,monetized:Boolean(candidate.monetized)};
+    }
+    return {href:'#',monetized:false};
+  },
+
   merchantDeepLink(merchantId, targetUrl) {
     const base = this.baseMap()[merchantId];
-    if (!base || !targetUrl) return null;
+    if (!this.isActionableMerchantHref(base)||!this.isActionableMerchantHref(targetUrl))return null;
     try {
       const u = new URL(base, window.location?.origin || 'https://solar-expert.cz');
       u.searchParams.delete('desturl');
@@ -105,7 +126,12 @@ window.SolarExpertAffiliate = {
     // product URL: this would send an affiliate customer to the wrong store.
     const target = offer.source_url || (offer.merchant === product.merchant ? product.source_url : null);
     const generated = this.merchantDeepLink(offer.merchant, target);
-    const href = mapped || offer.affiliate_url || generated || target || '#';
+    const link = this.selectMerchantLink([
+      {href:mapped,monetized:true},
+      {href:offer.affiliate_url,monetized:true},
+      {href:generated,monetized:true},
+      {href:target,monetized:false}
+    ]);
     const verifiedAt = offer.verified_at || null; // Exact merchant evidence only; never borrow another shop's date.
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
@@ -113,8 +139,8 @@ window.SolarExpertAffiliate = {
     const rawPrice = Number(offer.price_czk || 0) || null;
 
     return {
-      href,
-      monetized: Boolean(mapped || offer.affiliate_url || generated),
+      href: link.href,
+      monetized: link.monetized,
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant,
       price_czk: freshness === 'fresh' ? rawPrice : null,
@@ -127,7 +153,10 @@ window.SolarExpertAffiliate = {
   },
 
   offers(product) {
-    const resolved = this.rawOffers(product).map(offer => this.resolveOffer(product, offer));
+    // Invalid targets are not shopping options and must not become tracked
+    // impressions/clicks or occupy the visible 2-offer shortlist.
+    const resolved = this.rawOffers(product).map(offer => this.resolveOffer(product, offer))
+      .filter(o=>this.isActionableMerchantHref(o.href));
     const freshInStockPrices = resolved
       .filter(o => o.availability === 'in_stock' && Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
       .map(o => Number(o.price_czk));
@@ -184,6 +213,10 @@ window.SolarExpertAffiliate = {
     if (!deal || !offer) return {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null, raw:null};
     const target = offer.source_url || (offer.merchant === deal.merchant ? deal.source_url : null);
     const generated = this.merchantDeepLink(offer.merchant, target);
+    const link = this.selectMerchantLink([
+      {href:generated,monetized:true},
+      {href:target,monetized:false}
+    ]);
     const verifiedAt = offer.verified_at || null; // Exact merchant evidence only; never borrow another shop's date.
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
@@ -207,8 +240,8 @@ window.SolarExpertAffiliate = {
       return actualSaving>0?actualSaving:null;
     };
     return {
-      href: generated || target || '#',
-      monetized: Boolean(generated),
+      href: link.href,
+      monetized: link.monetized,
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant || null,
       price_czk: freshness === 'fresh' ? (Number(offer.price_czk || 0) || null) : null,
@@ -224,7 +257,8 @@ window.SolarExpertAffiliate = {
   },
 
   bundleDealOffers(deal) {
-    const resolved = this.rawBundleDealOffers(deal).map(offer => this.resolveBundleDealOffer(deal, offer));
+    const resolved = this.rawBundleDealOffers(deal).map(offer => this.resolveBundleDealOffer(deal, offer))
+      .filter(o=>this.isActionableMerchantHref(o.href));
     const freshInStockPrices = resolved
       .filter(o => o.availability === 'in_stock' && Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
       .map(o => Number(o.price_czk));
@@ -248,6 +282,7 @@ window.SolarExpertAffiliate = {
 
   trackBundleDealOffer(deal, offer, placement) {
     const resolved = this.resolveBundleDealOffer(deal, offer);
+    if(!this.isActionableMerchantHref(resolved.href))return resolved;
     const detail = {
       dealId: deal?.id || null,
       merchant: resolved.merchantId,
@@ -269,7 +304,7 @@ window.SolarExpertAffiliate = {
   },
 
   trackBundleDeal(deal, placement) {
-    const offer = this.rawBundleDealOffers(deal)[0];
+    const offer = this.bundleDealOffers(deal)[0]?.raw;
     return offer ? this.trackBundleDealOffer(deal, offer, placement) : this.resolveBundleDeal(deal);
   },
 
@@ -307,6 +342,7 @@ window.SolarExpertAffiliate = {
 
   trackOffer(product, offer, placement) {
     const resolved = this.resolveOffer(product, offer);
+    if(!this.isActionableMerchantHref(resolved.href))return resolved;
     const detail = {
       productId: product?.id || null,
       merchant: resolved.merchantId || offer?.merchant || null,
@@ -327,7 +363,7 @@ window.SolarExpertAffiliate = {
   },
 
   track(product, placement) {
-    const offer = this.rawOffers(product)[0];
+    const offer = this.offers(product)[0]?.raw;
     return offer ? this.trackOffer(product, offer, placement) : this.resolve(product);
   }
 };
