@@ -1467,8 +1467,9 @@ assert(firstPartyAnalytics.includes("track('tool_activation',{tool})"),'Tool act
 assert(firstPartyAnalytics.includes("track('offer_exposure',detail)"),'Offer observer must emit a dedicated exposure event');
 assert(firstPartyAnalytics.includes('entry.intersectionRatio>=0.5'),'Offer exposure must require at least half of the offer link to be visible');
 assert(firstPartyAnalytics.includes('timers.set(link,setTimeout(()=>expose(link),600))'),'Offer exposure must ignore brief scroll fly-bys');
-assert(firstPartyAnalytics.includes("attributeFilter:['data-se-product-id','data-se-merchant','data-se-placement']"),'Offer observer must handle Alpine-rendered data attributes');
-assert(firstPartyAnalytics.includes("closest('.se-offer[data-se-product-id][data-se-merchant][data-se-placement]')"),'Offer click must backfill exposure before outbound navigation');
+assert(firstPartyAnalytics.includes("attributeFilter:['data-se-product-id','data-se-deal-id','data-se-merchant','data-se-placement','href']"),'Offer observer must handle Alpine-rendered product AND bundle attributes');
+assert(firstPartyAnalytics.includes("closest('.se-offer[data-se-product-id][data-se-merchant][data-se-placement], a[data-se-deal-id][data-se-merchant][data-se-placement]')"),'Product and real bundle clicks must backfill exposure before outbound navigation');
+assert(firstPartyAnalytics.includes("track('bundle_deal_exposure',detail)"),'Bundle CTA exposure must be measured separately from product impressions');
 assert(!firstPartyAnalytics.includes('localStorage'),'First-party funnel collector must not use localStorage');
 assert(!firstPartyAnalytics.includes('document.cookie'),'First-party funnel collector must not set or read cookies');
 
