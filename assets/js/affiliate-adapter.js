@@ -101,7 +101,9 @@ window.SolarExpertAffiliate = {
     const exactMapped = products[exactKey];
     const legacyMapped = offer.merchant === product.merchant ? products[product.id] : null;
     const mapped = exactMapped || legacyMapped;
-    const target = offer.source_url || product.source_url || null;
+    // An explicit alternate merchant may not inherit the primary shop's
+    // product URL: this would send an affiliate customer to the wrong store.
+    const target = offer.source_url || (offer.merchant === product.merchant ? product.source_url : null);
     const generated = this.merchantDeepLink(offer.merchant, target);
     const href = mapped || offer.affiliate_url || generated || target || '#';
     const verifiedAt = offer.verified_at || null; // Exact merchant evidence only; never borrow another shop's date.
@@ -116,7 +118,8 @@ window.SolarExpertAffiliate = {
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant,
       price_czk: freshness === 'fresh' ? rawPrice : null,
-      availability: freshness === 'fresh' ? (offer.availability || product.availability || null) : 'unverified',
+      // The parent product is NOT evidence of this seller's stock.
+      availability: freshness === 'fresh' ? (offer.availability || 'unverified') : 'unverified',
       verified_at: verifiedAt,
       price_freshness: freshness,
       raw: offer
@@ -179,7 +182,7 @@ window.SolarExpertAffiliate = {
 
   resolveBundleDealOffer(deal, offer) {
     if (!deal || !offer) return {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null, raw:null};
-    const target = offer.source_url || deal.source_url || null;
+    const target = offer.source_url || (offer.merchant === deal.merchant ? deal.source_url : null);
     const generated = this.merchantDeepLink(offer.merchant, target);
     const verifiedAt = offer.verified_at || null; // Exact merchant evidence only; never borrow another shop's date.
     const freshness = window.SolarExpertProductMatcher
@@ -209,7 +212,8 @@ window.SolarExpertAffiliate = {
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant || null,
       price_czk: freshness === 'fresh' ? (Number(offer.price_czk || 0) || null) : null,
-      availability: freshness === 'fresh' ? (offer.availability || deal.availability || null) : 'unverified',
+      // A different retailer cannot inherit another seller's stock state.
+      availability: freshness === 'fresh' ? (offer.availability || 'unverified') : 'unverified',
       verified_at: verifiedAt,
       price_freshness: freshness,
       savings_czk: savingForSeller(deal.savings_czk),

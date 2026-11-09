@@ -190,3 +190,43 @@ test('bundle savings use the selected individual seller price, not cheapest-reta
   assert(ui.includes('Nejnižší ověřená cena setu z uvedených obchodů'),
     'Banner must describe the least expensive listed verified offer only');
 });
+
+
+test('explicit merchant offers cannot borrow a parent quote, store URL or stock evidence',()=>{
+ const today=todayUtc();
+ const parent=product(today,8650);
+ const primary=parent.offers[0];
+ assert.equal(M.effectivePrice(parent),8650,'Existing valid merchant quote is preserved');
+ parent.offers=[{...primary,price_czk:null,verified_at:today}];
+ assert.equal(M.effectivePrice(parent),Number.MAX_SAFE_INTEGER,
+   'A parent price+timestamp must not resurrect a missing explicit offer price');
+ parent.offers=[{...primary,price_czk:0,verified_at:today}];
+ assert.equal(M.effectivePrice(parent),Number.MAX_SAFE_INTEGER,
+   'Explicit zero merchant quotes cannot inherit product price');
+ const missingStock={...primary,availability:null};
+ assert.equal(A.resolveOffer(parent,missingStock).availability,'unverified',
+   'Merchant stock is not inferred from product availability');
+ const other={merchant:'solar-import-cz',verified_at:today,price_czk:8990,
+   availability:null,source_url:null};
+ const resolved=A.resolveOffer(parent,other);
+ assert.equal(resolved.availability,'unverified',
+   'Another retailer must not inherit parent merchant in-stock claim');
+ assert.equal(resolved.href,'#',
+   'A secondary retailer must never borrow a primary shop destination');
+ assert.equal(resolved.monetized,false);
+ const selected={...other,source_url:'https://www.solar-import.cz/exact-model/',availability:'in_stock'};
+ assert.equal(A.resolveOffer(parent,selected).href,selected.source_url,
+   'The same alternate seller remains fully reachable with its own real URL');
+ assert.equal(A.resolveOffer(parent,selected).availability,'in_stock');
+ const deal={id:'deal',merchant:'battery-cz',source_url:'https://www.battery.cz/set/',
+    availability:'in_stock',verified_at:today,price_czk:10000,
+    savings_czk:1000,bankSavingsCzk:1000,
+    effective_offer:{merchant:'battery-cz',availability:'in_stock',price_czk:10000,verified_at:today}};
+ const otherDeal={merchant:'solar-import-cz',verified_at:today,price_czk:10500,
+    source_url:null,availability:null};
+ const result=A.resolveBundleDealOffer(deal,otherDeal);
+ assert.equal(result.href,'#','Alternate set shop must not inherit another merchant URL');
+ assert.equal(result.monetized,false);
+ assert.equal(result.availability,'unverified','No seller stock inference for multi-store set');
+ assert.equal(result.savings_czk,null,'Missing seller availability cannot assert a bundle saving');
+});
