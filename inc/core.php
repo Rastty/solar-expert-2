@@ -2252,6 +2252,10 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'Solární panel na karavan 200 W: baterie a MPPT | Solar Expert',
       'description' => 'Jak sestavit 12V solární systém na karavan kolem 200 Wp: spotřeba Wh/den, LiFePO4 baterie 50/100 Ah, MPPT, skutečné Voc, Vmp a Isc panelu.'
     ),
+    'solarni-panel-pro-wifi-kameru-a-router-na-chate' => array(
+      'title' => 'Solární panel pro kameru a Wi-Fi: baterie a MPPT | Solar Expert',
+      'description' => 'Jak napájet Wi-Fi router a IP kameru na chatě? Spočítejte 24h spotřebu, kapacitu LiFePO4, solární panely a MPPT. Praktické příklady a bezpečné limity.'
+    ),
     'jak-vybrat-mppt-regulator-pro-400w-panel' => array(
       'title' => 'MPPT pro 400W panel: 100/20, 100/30, 100/50 | Solar Expert',
       'description' => 'Jaký MPPT regulátor pro jeden 400W solární panel na 12 V či 24 V? Srovnání Victron 100/20, 100/30 a 100/50, limity Voc/Isc a výběr produktu.'
