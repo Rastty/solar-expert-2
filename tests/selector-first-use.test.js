@@ -23,7 +23,8 @@ const specs=[
     examples:{
       panel400:{voltage:24,dailyKwh:0.7,autonomy:1,inverterW:800},
       cottage:{voltage:24,dailyKwh:1,autonomy:1,inverterW:1000},
-      backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000}}},
+      backup:{voltage:48,dailyKwh:3,autonomy:1,inverterW:2000},
+      starlinkmini:{voltage:12,dailyKwh:0.828,autonomy:2,inverterW:60,supplyMode:'dc'}}},
   {kind:'mppt',ctor:'solarExpertMpptSelector',part:'template-parts/mppt-selector.php',
     examples:{
       single400:{voltage:24,panelUnitWp:400,panelVoc:49,panelVmp:40,panelIsc:11,seriesCount:1,parallelCount:1},
@@ -80,5 +81,5 @@ for(const spec of specs){
     assert.equal(window.dataLayer.filter(e=>e.event==='selector_engaged'&&e.selector===spec.kind).length,1,
       'Early click must count exactly once after loading: '+spec.kind);
   }
-  console.log('PASS: seven genuine one-click selector scenarios, real matching and once-only engagement incl. early clicks');
+  console.log('PASS: eight genuine one-click selector scenarios, real matching and once-only engagement incl. early clicks');
 })().catch(error=>{console.error(error);process.exitCode=1;});
