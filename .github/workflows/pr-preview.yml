@@ -3,6 +3,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
+concurrency:
+  group: solar-expert-preview-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   preview:
     runs-on: ubuntu-latest

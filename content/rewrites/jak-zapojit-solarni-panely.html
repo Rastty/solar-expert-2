@@ -1,0 +1,98 @@
+<p class="se-lead">Elektrické <strong>zapojení solárních panelů</strong> určuje napětí a proud celého FV pole. Panely lze spojovat do série, paralelně nebo kombinací obou způsobů. Správná varianta musí sedět do pracovního okna MPPT a nepřekročit jeho napěťové ani proudové limity.</p>
+
+<h2>Zapojení panelů do série</h2>
+<p>Při sériovém zapojení se přibližně <strong>sčítají napětí</strong> jednotlivých panelů, zatímco proud zůstává na úrovni jednoho stringu.</p>
+<p>Příklad: tři stejné panely s Vmp 40 V vytvoří pracovní napětí stringu přibližně 120 V. Stejně se sčítá také Voc, proto je potřeba hlídat maximální vstupní Voc regulátoru.</p>
+
+<h3>Kdy dává série smysl</h3>
+<ul>
+<li>když MPPT potřebuje vyšší startovací nebo pracovní napětí,</li>
+<li>když chcete snížit proud na FV straně,</li>
+<li>když limit Voc regulátoru stále bezpečně vyhoví i za nízké teploty.</li>
+</ul>
+
+<h2>Paralelní zapojení panelů</h2>
+<p>V paralelním zapojení zůstává napětí větve přibližně stejné a <strong>sčítá se proud</strong>. Proto je nutné kontrolovat vstupní proud MPPT, proudové limity konektorů, kabeláže a ochranných prvků.</p>
+
+<h3>Kdy dává paralelní zapojení smysl</h3>
+<ul>
+<li>když potřebujete více výkonu bez dalšího růstu napětí stringu,</li>
+<li>když regulátor dovoluje vyšší vstupní proud,</li>
+<li>když návrh používá více shodných stringů.</li>
+</ul>
+
+<h2>Kombinace série a paralelních větví</h2>
+<p>Větší pole často používá několik panelů v sérii a více stejných stringů paralelně. Zápis <strong>3S2P</strong> například znamená tři panely v sérii a dvě paralelní větve, tedy celkem šest panelů.</p>
+
+<p>Pokud právě řešíte, <strong>kolik panelů může být v jednom stringu</strong>, navazuje samostatný výpočet v článku <a href="/kolik-panelu-je-potreba-na-jeden-string/">Kolik panelů je potřeba na jeden string</a>.</p>
+
+<h2>Schéma zapojení solárních panelů pro 12V systém</h2>
+<p>„12V systém“ obvykle znamená <strong>12V baterii</strong>, ne panel s přesně 12 V na výstupu. Takzvaný 12V nominální panel může mít pracovní napětí Vmp například kolem 18–22 V a Voc ještě vyšší. Přesné hodnoty vždy vezměte z datasheetu.</p>
+
+<h3>Příklad 2 panelů přes MPPT</h3>
+<pre class="se-code">Varianta 2S — panely v sérii
+
+Panel 1 (+) ───── Panel 2 (−)
+Panel 1 (−)                  Panel 2 (+)
+     │                            │
+     └──────── MPPT PV −   PV + ──┘
+                 │
+           MPPT BAT − / BAT +
+                 │
+              12V baterie</pre>
+
+<p>U série se sčítá napětí. Pokud má každý panel například Vmp 20 V a Voc 25 V, dva stejné panely vytvoří přibližně Vmp 40 V a Voc 50 V. To může být pro 12V baterii přes MPPT zcela v pořádku, <strong>pokud</strong> regulátor dovolí takové vstupní napětí i cold Voc.</p>
+
+<pre class="se-code">Varianta 2P — panely paralelně
+
+Panel 1 (+) ─┐
+             ├──── MPPT PV +
+Panel 2 (+) ─┘
+
+Panel 1 (−) ─┐
+             ├──── MPPT PV −
+Panel 2 (−) ─┘
+
+MPPT BAT + / BAT − ───── 12V baterie</pre>
+
+<p>U paralelního zapojení zůstává napětí přibližně stejné, ale proud se sčítá. To může být vhodné u regulátoru s nižším PV napětím, ale musíte kontrolovat maximální vstupní proud, kabeláž a jištění větví.</p>
+
+<div class="se-note"><strong>Co z toho neplyne:</strong> panely se běžně nepřipojují „jen tak“ přímo na 12V baterii. Mezi FV polem a baterií je regulátor odpovídající typu systému. U MPPT se kontroluje PV Voc/Vmp okno; u PWM platí jiné návrhové podmínky.</div>
+
+<h3>2S nebo 2P pro 12V?</h3>
+<p>Správná odpověď závisí na konkrétním regulátoru. Pokud MPPT bezpečně zvládne cold Voc série a pracovní Vmp je v jeho okně, série často snižuje proud na FV straně. Pokud by série překročila napěťový limit, je potřeba jiná topologie.</p>
+
+<p><a class="se-btn" href="/mppt-kalkulacka/">Ověřit 12V string v MPPT kalkulačce →</a></p>
+
+<h2>Nejdůležitější kontrola: Voc za chladu</h2>
+<p>Napětí Voc panelu při nízké teplotě roste. Proto nestačí vynásobit počet panelů STC hodnotou Voc a porovnat ji s limitem MPPT bez teplotní rezervy. Překročení maximálního PV Voc může regulátor poškodit.</p>
+
+<h2>Druhá kontrola: dostatečné Vmp pro start MPPT</h2>
+<p>Opačný problém nastane, když je stringové napětí příliš nízké. Regulátor může mít Voc pod maximem, ale přesto se kvůli nízkému pracovnímu Vmp vůbec nedostane do správného MPPT rozsahu. To je typické například u příliš krátkého stringu na vyšším bateriovém napětí.</p>
+
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Ověřit string v MPPT kalkulačce →</a></p>
+
+<h2>Zapojení není totéž co montáž panelů</h2>
+<p>Dotaz „jak zapojit solární panely“ se často používá i pro fyzické připevnění panelů. To je ale jiná část návrhu. Mechanická montáž řeší konstrukci, kotvení, zatížení větrem, střechu a servisní přístup; elektrické zapojení řeší Voc, Vmp, proud a MPPT.</p>
+<p>Pro fyzické rozmístění pokračujte na <a href="/velikost-rozmery-a-hmotnost-solarnich-panelu/">Rozměry a hmotnost solárních panelů</a> nebo na <a href="/kotveni-fotovoltaickych-panelu-na-ploche-strese/">kotvení na ploché střeše</a>.</p>
+
+<h2>Typické chyby při návrhu stringu</h2>
+<ul>
+<li>překročení maximálního Voc MPPT,</li>
+<li>ignorování růstu Voc za chladu,</li>
+<li>příliš nízké Vmp pro start regulátoru,</li>
+<li>překročení maximálního vstupního proudu při paralelních větvích,</li>
+<li>kombinování rozdílných panelů bez ověření elektrických parametrů.</li>
+</ul>
+
+<h2>FAQ</h2>
+<h3>Co se sčítá při sériovém zapojení panelů?</h3>
+<p>Napětí panelů. Proud stringu zůstává přibližně na úrovni jednoho panelu.</p>
+
+<h3>Co se sčítá při paralelním zapojení?</h3>
+<p>Proud jednotlivých větví. Napětí zůstává přibližně stejné.</p>
+
+<h3>Je lepší série nebo paralelně?</h3>
+<p>Neexistuje univerzální odpověď. Správné zapojení je to, které vytvoří potřebný výkon a současně zůstane v bezpečném napěťovém a proudovém okně konkrétního MPPT.</p>
+
+<div class="se-note"><strong>Bezpečnost:</strong> toto je návrhové vysvětlení, ne návod k provedení elektroinstalace. Jištění, odpojování, průřezy kabelů a pevné zapojení musí odpovídat konkrétním datasheetům a příslušným elektro požadavkům.</div>

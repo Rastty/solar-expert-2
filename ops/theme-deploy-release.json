@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "mode": "explicit_theme_release",
+  "release_id": "",
+  "confirmation": "Theme deployment is disabled by default. A separately reviewed change to THIS file on dev is required to activate exactly one native deployment.",
+  "note": "Normal merges to dev run validation but never deploy WordPress or synchronize managed content."
+}

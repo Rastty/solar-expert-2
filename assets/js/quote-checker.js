@@ -1,0 +1,85 @@
+window.solarExpertQuoteChecker=function(){return{
+  dailyKwh:2.5,season:'three',autonomy:1,loadW:1200,surgeNeedW:2200,panelWp:1200,batteryKwh:3,batteryBmsA:null,inverterW:1500,inverterPeakW:3000,systemVoltage:24,quotePrice:null,
+  result:null,checks:[],inputError:'',
+  get inputValid(){
+    const vals=[this.dailyKwh,this.loadW,this.surgeNeedW,this.panelWp,this.batteryKwh,this.inverterW,this.inverterPeakW,this.systemVoltage];
+    return vals.every(v=>Number(v)>=0)&&Number(this.dailyKwh)>0&&Number(this.systemVoltage)>0&&Number(this.inverterPeakW)>=Number(this.inverterW);
+  },
+  get resultNextTitle(){
+    if(!this.result) return '';
+    if(this.result.status==='fail') return 'Nejdřív rozpor vysvětlete — a srovnejte druhý návrh';
+    if(this.result.status==='warn') return 'Nejasnosti si nechte potvrdit před podpisem';
+    return 'Sizing vychází — teď porovnejte cenu, záruku a servis';
+  },
+  get resultNextCopy(){
+    if(!this.result) return '';
+    if(this.result.status==='fail') return 'Nechte původního dodavatele vysvětlit červené body. Druhá nabídka vám dá další srovnání sizingu, záruky a rozsahu dodávky.';
+    if(this.result.status==='warn') return 'Žluté body mohou být v pořádku, ale chtějí datasheet nebo vysvětlení. Druhá nabídka pomůže ověřit, zda je návrh přiměřený.';
+    return 'Technický základ vypadá dobře. Před podpisem má smysl porovnat ještě rozsah dodávky, záruky, servis a cenu s druhou nabídkou.';
+  },
+  get resultLeadLabel(){
+    return this.result?.status==='pass'?'Získat srovnávací nabídku FVE →':'Porovnat s druhou nabídkou FVE →';
+  },
+  evaluate(){
+    this.inputError='';
+    if(!this.inputValid){
+      this.result=null;this.checks=[];
+      this.inputError='Zkontrolujte vstupy: denní spotřeba musí být kladná a špičkový výkon měniče nesmí být nižší než jeho trvalý výkon.';
+      return;
+    }
+    const daily=Math.max(0,Number(this.dailyKwh)||0);
+    const autonomy=Math.max(.25,Number(this.autonomy)||1);
+    const psh=this.season==='summer'?4.2:(this.season==='year'?1.6:2.8);
+    const recommendedPanelWp=Math.ceil(((daily*1000)/(psh*.76))/50)*50;
+    const recommendedBatteryKwh=Math.ceil(((daily*autonomy)/.85)*10)/10;
+    const recommendedInverterW=Math.max(300,Math.ceil(((Number(this.loadW)||0)*1.2)/100)*100);
+    const recommendedVoltage=recommendedInverterW<=1000?12:(recommendedInverterW<=2500?24:48);
+    const checks=[];
+    const push=(key,label,status,message)=>checks.push({key,label,status,message});
+
+    const pv=Number(this.panelWp)||0;
+    if(pv<recommendedPanelWp*.9) push('pv','Panely','fail','Nabídka je pod orientačním PV výkonem '+recommendedPanelWp+' Wp pro zadanou spotřebu a sezónu.');
+    else if(pv<recommendedPanelWp) push('pv','Panely','warn','PV výkon je těsně pod orientačním cílem '+recommendedPanelWp+' Wp. Ověřte lokalitu a sklon.');
+    else push('pv','Panely','pass','PV výkon dosahuje orientačního cíle '+recommendedPanelWp+' Wp.');
+
+    const battery=Number(this.batteryKwh)||0;
+    const usable=battery*.85;
+    const targetUsable=daily*autonomy;
+    if(usable<targetUsable*.9) push('battery','Baterie','fail','Při 85% využitelnosti vychází asi '+usable.toFixed(1)+' kWh, cíl je přibližně '+targetUsable.toFixed(1)+' kWh.');
+    else if(usable<targetUsable) push('battery','Baterie','warn','Kapacita je na hraně cílové autonomie. Ověřte reálnou DoD a zimní rezervu.');
+    else push('battery','Baterie','pass','Orientační využitelná kapacita pokrývá zadanou autonomii.');
+
+    const load=Math.max(0,Number(this.loadW)||0);
+    const inverter=Math.max(0,Number(this.inverterW)||0);
+    if(inverter<load) push('inverter','Měnič – trvalý výkon','fail','Trvalý výkon měniče je nižší než zadaný souběžný odběr.');
+    else if(inverter<recommendedInverterW) push('inverter','Měnič – trvalý výkon','warn','Měnič pokryje odběr, ale má menší rezervu než orientačních 20 %.');
+    else push('inverter','Měnič – trvalý výkon','pass','Trvalý výkon má alespoň orientační 20% rezervu.');
+
+    const surgeNeed=Math.max(0,Number(this.surgeNeedW)||0);
+    const inverterPeak=Math.max(0,Number(this.inverterPeakW)||0);
+    if(surgeNeed>0 && inverterPeak===0) push('surge','Měnič – rozběh','warn','Chybí údaj o špičkovém výkonu měniče. Ověřte jej v datasheetu.');
+    else if(surgeNeed>0 && inverterPeak<surgeNeed) push('surge','Měnič – rozběh','fail','Deklarovaná špička měniče nepokrývá zadanou rozběhovou špičku spotřebičů.');
+    else if(surgeNeed>0) push('surge','Měnič – rozběh','pass','Deklarovaná špička měniče pokrývá zadaný rozběh.');
+    else push('surge','Měnič – rozběh','warn','Rozběhová špička nebyla zadána; u čerpadel a motorů ji ověřte.');
+
+    const voltage=Number(this.systemVoltage)||0;
+    if(voltage<recommendedVoltage) push('voltage','Systémové napětí','warn','Pro tento výkon bychom prověřili spíš '+recommendedVoltage+' V kvůli proudům a ztrátám.');
+    else push('voltage','Systémové napětí','pass','Systémové napětí odpovídá orientační výkonové třídě.');
+
+    const bmsA=Math.max(0,Number(this.batteryBmsA)||0);
+    const bareMinA=voltage>0?inverter/voltage:0;
+    const recommendedBmsA=voltage>0?Math.ceil((inverter/voltage)/.9):0;
+    if(bmsA>0 && bmsA<bareMinA) push('bms','Baterie / BMS proud','fail','Zadaný BMS proud '+bmsA+' A je nižší než samotný orientační DC proud měniče '+Math.ceil(bareMinA)+' A. Ověřte baterii, BMS a kabeláž.');
+    else if(bmsA>0 && bmsA<recommendedBmsA) push('bms','Baterie / BMS proud','warn','BMS proud je blízko minimálnímu požadavku. Pro ztráty a rezervu bychom prověřili alespoň přibližně '+recommendedBmsA+' A trvale.');
+    else if(bmsA>0) push('bms','Baterie / BMS proud','pass','Deklarovaný trvalý BMS proud pokrývá orientační DC požadavek měniče.');
+    else push('bms','Baterie / BMS proud','info','BMS proud nebyl zadán. Ověřte, že bateriový bank zvládne alespoň přibližně '+recommendedBmsA+' A trvale při '+voltage+' V.');
+
+    if(Number(this.quotePrice)>0) push('price','Cena','info','Cena '+Number(this.quotePrice).toLocaleString('cs-CZ')+' Kč je zaznamenána, ale bez aktuálního benchmark koše ji zatím nehodnotíme.');
+
+    const status=checks.some(c=>c.status==='fail')?'fail':(checks.some(c=>c.status==='warn')?'warn':'pass');
+    this.checks=checks;
+    this.result={status,recommendedPanelWp,recommendedBatteryKwh,recommendedInverterW,recommendedVoltage,recommendedBmsA};
+    if(Array.isArray(window.dataLayer)) window.dataLayer.push({event:'quote_checker_complete',status,recommendedPanelWp,recommendedBatteryKwh,recommendedInverterW,recommendedVoltage});
+  },
+  reset(){this.result=null;this.checks=[];this.inputError='';}
+};};
