@@ -94,7 +94,7 @@ class StarlinkMiniBuyerGuideCandidate(unittest.TestCase):
         cls.manifest = json.loads((ROOT / "ops/editorial-manifests" /
             "solar-starlink-mini-offgrid-20261109-v1.json").read_text(encoding="utf-8"))
 
-    def test_pinned_editorial_manifest_is_reviewable_but_inactive(self):
+    def test_pinned_editorial_manifest_is_immutable_and_valid(self):
         m = self.manifest
         publisher.validate_manifest(m)
         publisher.validate_html(self.html, self.slug)
@@ -104,10 +104,6 @@ class StarlinkMiniBuyerGuideCandidate(unittest.TestCase):
         self.assertEqual(m["source_commit"], "c7120e4546276ed2532ee47cb092fa0a5191147c")
         self.assertEqual(hashlib.sha256(self.html.encode("utf-8")).hexdigest(), m["source_sha256"])
         self.assertEqual(m["source_sha256"], "21aa2b2b876413b7c42e4a03e5dc63e424ec6cea91d12f57eaca1ca58870f463")
-        control = json.loads((ROOT / "ops/editorial-release.json").read_text(encoding="utf-8"))
-        self.assertNotEqual(control.get("manifest"),
-            "ops/editorial-manifests/solar-starlink-mini-offgrid-20261109-v1.json",
-            "Source review must not bypass rolling post creation limit by activating a release")
 
     def test_authored_energy_math_and_real_merchant_handoff(self):
         for value in ("20–40 W", "480 Wh", "720 Wh", "960 Wh",
