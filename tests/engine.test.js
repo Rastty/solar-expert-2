@@ -290,7 +290,8 @@ assert(batterySelectorBank.matches.every(x=>x.totalEnergyWh>=11200),'Battery Sel
 const mpptSelectorStart=global.window.solarExpertMpptSelector();
 mpptSelectorStart.catalog=catalog.products;
 mpptSelectorStart.voltage=24;
-mpptSelectorStart.panelWp=500;
+mpptSelectorStart.panelUnitWp=190;
+mpptSelectorStart.parallelCount=1;
 mpptSelectorStart.panelVoc=25.5;
 mpptSelectorStart.panelVmp=21.8;
 mpptSelectorStart.seriesCount=1;
