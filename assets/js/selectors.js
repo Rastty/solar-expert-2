@@ -38,7 +38,11 @@ window.solarExpertBatterySelector=function(){return{
     // +15% demand uncertainty allowance -> 828Wh/day INCLUDING modeled
     // DC power-path losses. 60W is a BMS peak-design screen, NOT an
     // independently verified constant consumption or device certificate.
-    starlinkmini:{voltage:12,dailyKwh:0.828,autonomy:2,inverterW:60,supplyMode:'dc'}
+    starlinkmini:{voltage:24,dailyKwh:0.828,autonomy:2,inverterW:60,supplyMode:'dc'},
+    // One-day, small 12V system with currently listed 12V 100Ah stock.
+    // The larger 12V 200Ah offer is explicitly on_request; do not
+    // manufacture purchasable inventory for 2-day 12V use.
+    starlinkmini12:{voltage:12,dailyKwh:0.828,autonomy:1,inverterW:60,supplyMode:'dc'}
   },
   applyArticleExampleFromUrl(){
     const search=window.location&&typeof window.location.search==='string'
@@ -59,7 +63,8 @@ window.solarExpertBatterySelector=function(){return{
       // 20% DC/PoE supply-loss allowance yields 461Wh/day. 20W DC draw
       // is a conservative continuous illustrative, not a device certificate.
       camera24h:this.editorialExamples.camera24h,
-      starlinkmini:this.editorialExamples.starlinkmini
+      starlinkmini:this.editorialExamples.starlinkmini,
+      starlinkmini12:this.editorialExamples.starlinkmini12
     };
     const selection=examples[kind];
     if(!selection)return;
