@@ -1,0 +1,114 @@
+name: Solar Expert Catalog Price Freshness Watch
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - "tools/catalog-freshness.mjs"
+      - "tests/catalog-freshness.test.mjs"
+      - ".github/workflows/catalog-freshness.yml"
+      - "data/product-seed.json"
+      - "assets/data/product-seed.json"
+  push:
+    branches: [dev, main]
+    paths:
+      - "tools/catalog-freshness.mjs"
+      - "tests/catalog-freshness.test.mjs"
+      - ".github/workflows/catalog-freshness.yml"
+      - "data/product-seed.json"
+      - "assets/data/product-seed.json"
+  workflow_dispatch:
+  # GitHub cron only loads workflow YAML from the repo DEFAULT branch (main).
+  # After independently reviewed adoption on main, checkout dev below so the
+  # canonical production catalog (not old main release candidate) is inspected.
+  schedule:
+    - cron: '19 5 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-expert-catalog-freshness-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout effective catalog source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') && 'dev' || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prove monitor behavior (no network and no merchant writes)
+        run: |
+          node --check tools/catalog-freshness.mjs
+          node --test tests/catalog-freshness.test.mjs
+      - name: Review every exact seller price-evidence date, including bundles
+        run: node tools/catalog-freshness.mjs
+      - name: Read public production health and compare real price-evidence freshness to dev source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          test -s artifacts/catalog-freshness.json
+          curl --fail --silent --show-error --retry 1 --retry-delay 2 --max-time 25 \
+            -H 'Accept: application/json' \
+            -H 'User-Agent: SolarExpert-GitHub-ReadOnly-CatalogWatch/1' \
+            'https://solar-expert.cz/wp-json/solar-expert/v1/health' \
+            -o artifacts/solar-production-health-readonly.json
+          jq -e '
+            .status == "ok" and
+            (.catalog_price_snapshots | type == "number") and
+            (.catalog_price_fresh | type == "number") and
+            (.catalog_price_stale | type == "number") and
+            (.catalog_price_verification_unknown | type == "number") and
+            (.catalog_price_snapshots == (.catalog_price_fresh + .catalog_price_stale + .catalog_price_verification_unknown))
+          ' artifacts/solar-production-health-readonly.json >/dev/null
+          jq -e '.total_offers > 0 and (.counts.fresh | type == "number") and (.counts.stale | type == "number") and (.counts.expiring_soon | type == "number") and (.counts.unknown | type == "number") and (.counts.future_dated | type == "number")' artifacts/catalog-freshness.json >/dev/null
+          jq -n --slurpfile source artifacts/catalog-freshness.json --slurpfile live artifacts/solar-production-health-readonly.json '
+            ($source[0]) as $s | ($live[0]) as $p |
+            {
+              checked_at_utc: $s.checked_at_utc,
+              measurement: "read_only_catalog_evidence_date_comparison_not_verified_merchant_price",
+              source_branch: "dev",
+              dev: {total: $s.total_offers, fresh_or_expiring: ($s.counts.fresh + $s.counts.expiring_soon), stale: $s.counts.stale, unknown_or_future: ($s.counts.unknown + $s.counts.future_dated)},
+              production: {build_marker: $p.build_marker, total: $p.catalog_price_snapshots, fresh: $p.catalog_price_fresh, stale: $p.catalog_price_stale, unknown: $p.catalog_price_verification_unknown},
+              catalog_age_parity: (($s.total_offers == $p.catalog_price_snapshots) and (($s.counts.fresh + $s.counts.expiring_soon) == $p.catalog_price_fresh) and ($s.counts.stale == $p.catalog_price_stale) and (($s.counts.unknown + $s.counts.future_dated) == $p.catalog_price_verification_unknown)),
+              buyer_events_7d: {
+                semantics: "aggregate_events_not_unique_users_or_commissions",
+                exposures: ($p.outcome_scoreboard.days_7.tool_exposures // null),
+                activations: ($p.outcome_scoreboard.days_7.tool_activations // null),
+                offer_exposures: ($p.outcome_scoreboard.days_7.offer_exposures // null),
+                affiliate_clicks: ($p.outcome_scoreboard.days_7.affiliate_clicks // null),
+                tool_referrals: ($p.outcome_scoreboard.days_7.tool_referral_clicks // null)
+              }
+            }
+          ' > artifacts/solar-live-vs-dev-catalog.json
+          test -s artifacts/solar-live-vs-dev-catalog.json
+          rm -f artifacts/solar-production-health-readonly.json
+          if [[ "$(jq -r '.catalog_age_parity' artifacts/solar-live-vs-dev-catalog.json)" != 'true' ]]; then
+            echo '::warning::Live Solar Expert price-snapshot age differs from verified dev catalog. Theme/data deployment is NOT authorized here; investigate exact source and release gate.'
+          fi
+          {
+            echo '## Solar Expert: real production vs source freshness'
+            echo ''
+            echo '| Environment | Total offer snapshots | Fresh or expiring | Stale | Unknown |'
+            echo '|---|---:|---:|---:|---:|'
+            jq -r '"| dev source | \(.dev.total) | \(.dev.fresh_or_expiring) | \(.dev.stale) | \(.dev.unknown_or_future) |", "| LIVE production | \(.production.total) | \(.production.fresh) | \(.production.stale) | \(.production.unknown) |"' artifacts/solar-live-vs-dev-catalog.json
+            echo ''
+            echo 'These are evidence-age categories, not newly checked merchant prices, confirmed stock, visitor counts, or paid conversions. No WordPress writes or theme deploy.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload dated re-verification queue
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-catalog-freshness-${{ github.run_id }}
+          path: |
+            artifacts/catalog-freshness.json
+            artifacts/solar-live-vs-dev-catalog.json
+          if-no-files-found: warn
+          retention-days: 30
