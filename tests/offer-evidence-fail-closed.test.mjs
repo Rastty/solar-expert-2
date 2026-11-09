@@ -116,7 +116,8 @@ test('bundle discount is not permitted by a parent timestamp when merchant offer
  const root={
    id:'undated-discount',components,merchant:'battery-cz',
    price_czk:10000,availability:'in_stock',verified_at:todayUtc(),
-   offers:[{merchant:'battery-cz',price_czk:10000,availability:'in_stock',verified_at:null}],
+   offers:[{merchant:'battery-cz',price_czk:10000,availability:'in_stock',verified_at:null,
+     source_url:'https://www.battery.cz/verified-example-deal/'}],
  };
  assert.equal(B.findBundleDeal([root],components,20000),null,'Fresh deal parent is not an offer-level verification');
  for(const badDate of ['2000-01-01','2999-01-01','2026-02-31']){
