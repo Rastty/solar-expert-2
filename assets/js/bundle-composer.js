@@ -336,6 +336,9 @@ window.SolarExpertBundleComposer = {
             // is *not* purchase ready; continue to safer alternatives.
             if(candidate.priceComplete && candidate.pvIscVerified===true)return candidate;
             if(!fallback)fallback=candidate;
+            // Never repurpose an integrated hybrid as an external-MPPT
+            // system merely because its own absolute PV Isc is unverified.
+            continue;
           }
 
           const mpptCandidates = this.tierProducts(mppts, tier);
