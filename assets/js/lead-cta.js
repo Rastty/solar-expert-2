@@ -7,6 +7,15 @@
       const resolved=window.SolarExpertAffiliate.resolveLead(id,fallback);
       const href=typeof resolved==='string'?resolved:(resolved.href||fallback);
       const monetized=typeof resolved==='object'&&Boolean(resolved.monetized);
+      // Keep broken or same-site placeholders out of the buyer journey.
+      // They must be neither keyboard-activatable affiliate CTAs nor leads.
+      if(!window.SolarExpertAffiliate.isActionableMerchantHref(href)){
+        link.removeAttribute('href');
+        link.setAttribute('aria-disabled','true');
+        link.setAttribute('data-se-lead-unavailable','true');
+        link.setAttribute('rel','nofollow noopener');
+        return;
+      }
       link.setAttribute('href',href);
       if(monetized){
         link.setAttribute('rel','sponsored nofollow noopener');

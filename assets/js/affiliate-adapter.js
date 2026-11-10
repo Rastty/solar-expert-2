@@ -365,16 +365,20 @@ window.SolarExpertAffiliate = {
     const mapped = leads[id] || null;
     const merchantId = id && id.startsWith('eon-') ? 'eon-cz' : null;
     const generated = merchantId ? this.merchantDeepLink(merchantId, fallback) : null;
-    return {
-      href: mapped || generated || fallback || '#',
-      monetized: Boolean(mapped || generated),
-      leadId: id || null,
-      merchantId
-    };
+    // A lead is an outbound buyer action, not an on-site navigation or
+    // placeholder. A malformed affiliate override may never win over a
+    // legitimate direct E.ON landing page or inflate monetized clicks.
+    const link=this.selectMerchantLink([
+      {href:mapped,monetized:true},
+      {href:generated,monetized:true},
+      {href:fallback,monetized:false}
+    ]);
+    return {...link,leadId:id || null,merchantId};
   },
 
   trackLead(id, placement, fallback) {
     const resolved = this.resolveLead(id, fallback);
+    if(!this.isActionableMerchantHref(resolved.href))return resolved;
     const detail = {
       leadId: id || null,
       merchant: id && id.startsWith('eon-') ? 'eon-cz' : null,

@@ -72,6 +72,8 @@ jobs:
         run: node --test tests/offer-cta-clarity.test.mjs
       - name: Fail-closed actionable merchant links and honest outbound conversion
         run: node tests/actionable-merchant-outbound.test.js
+      - name: Fail-closed E.ON lead links and genuine outbound lead-click signals
+        run: node tests/actionable-lead-outbound.test.js
       - name: Source-backed price evidence matches seller buy links
         run: node tests/source-backed-price-trust.test.js
       - name: Builder chooses safe price-complete bundles ahead of unquoted first fit
