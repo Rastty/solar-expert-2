@@ -61,6 +61,32 @@ window.SolarExpertAffiliate = {
     } catch (_) { return false; }
   },
 
+  // Affiliate redirects can remain valid outbound routes even if the seller's
+  // dated product listing is missing. Such routes are NOT proof of a price or
+  // stock claim. Legacy products with no explicit offers retain their own
+  // independent snapshot compatibility contract.
+  hasQuoteEvidence(offer, explicitOffers) {
+    if (!explicitOffers) return true;
+    const matcher=window.SolarExpertProductMatcher;
+    return Boolean(matcher && typeof matcher.hasSellerSource==='function' && matcher.hasSellerSource(offer));
+  },
+
+  // A verified seller must lead the visible offer shortlist, including when
+  // a cheaper, affiliate-mapped, unverified destination is still clickable.
+  prioritizeActionableOffers(offers) {
+    const rank=o=>o.availability==='in_stock'?2:o.availability==='usually_in_stock'?1:0;
+    return offers.sort((a,b)=>{
+      const availability=rank(b)-rank(a);
+      if(availability)return availability;
+      const ap=Number(a.price_czk),bp=Number(b.price_czk);
+      const aPriced=a.price_czk!==null&&Number.isFinite(ap)&&ap>0;
+      const bPriced=b.price_czk!==null&&Number.isFinite(bp)&&bp>0;
+      if(aPriced!==bPriced)return bPriced?1:-1;
+      if(aPriced&&ap!==bp)return ap-bp;
+      return 0;
+    });
+  },
+
   selectMerchantLink(candidates) {
     for(const candidate of candidates){
       if(this.isActionableMerchantHref(candidate?.href))
@@ -136,18 +162,21 @@ window.SolarExpertAffiliate = {
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
-    const rawPrice = Number(offer.price_czk || 0) || null;
+    const sourceBacked=this.hasQuoteEvidence(offer,Array.isArray(product.offers)&&product.offers.length>0);
+    const quoteFreshness=sourceBacked?freshness:'unknown';
+    const price=Number(offer.price_czk);
+    const rawPrice=Number.isFinite(price)&&price>0?price:null;
 
     return {
       href: link.href,
       monetized: link.monetized,
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant,
-      price_czk: freshness === 'fresh' ? rawPrice : null,
-      // The parent product is NOT evidence of this seller's stock.
-      availability: freshness === 'fresh' ? (offer.availability || 'unverified') : 'unverified',
+      price_czk: quoteFreshness === 'fresh' ? rawPrice : null,
+      // A dated row without its own source listing cannot prove seller stock.
+      availability: quoteFreshness === 'fresh' ? (offer.availability || 'unverified') : 'unverified',
       verified_at: verifiedAt,
-      price_freshness: freshness,
+      price_freshness: quoteFreshness,
       raw: offer
     };
   },
@@ -155,8 +184,10 @@ window.SolarExpertAffiliate = {
   offers(product) {
     // Invalid targets are not shopping options and must not become tracked
     // impressions/clicks or occupy the visible 2-offer shortlist.
-    const resolved = this.rawOffers(product).map(offer => this.resolveOffer(product, offer))
-      .filter(o=>this.isActionableMerchantHref(o.href));
+    const resolved = this.prioritizeActionableOffers(
+      this.rawOffers(product).map(offer => this.resolveOffer(product, offer))
+        .filter(o=>this.isActionableMerchantHref(o.href))
+    );
     const freshInStockPrices = resolved
       .filter(o => o.availability === 'in_stock' && Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
       .map(o => Number(o.price_czk));
@@ -221,6 +252,8 @@ window.SolarExpertAffiliate = {
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
+    const sourceBacked=this.hasQuoteEvidence(offer,Array.isArray(deal.offers)&&deal.offers.length>0);
+    const quoteFreshness=sourceBacked?freshness:'unknown';
     // A bundle's overall saving is computed for its cheapest verified
     // merchant. Each other merchant needs its OWN price-specific saving.
     // Never inherit a saving from a missing/stale/ineligible selected offer.
@@ -230,7 +263,7 @@ window.SolarExpertAffiliate = {
     const eligibleBest=selected && selected.availability==='in_stock' &&
       matcher && matcher.verificationState(selected.verified_at)==='fresh' &&
       Number(selected.price_czk)===bestPrice && Number.isFinite(bestPrice) && bestPrice>0;
-    const currentPrice=freshness==='fresh' && offer.availability==='in_stock' &&
+    const currentPrice=quoteFreshness==='fresh' && offer.availability==='in_stock' &&
       Number.isFinite(Number(offer.price_czk)) && Number(offer.price_czk)>0
       ? Number(offer.price_czk):null;
     const savingForSeller=baselineSaving=>{
@@ -244,11 +277,11 @@ window.SolarExpertAffiliate = {
       monetized: link.monetized,
       merchant: this.merchants[offer.merchant] || {label:offer.merchant, approved:false},
       merchantId: offer.merchant || null,
-      price_czk: freshness === 'fresh' ? (Number(offer.price_czk || 0) || null) : null,
-      // A different retailer cannot inherit another seller's stock state.
-      availability: freshness === 'fresh' ? (offer.availability || 'unverified') : 'unverified',
+      price_czk: quoteFreshness === 'fresh' ? (Number(offer.price_czk || 0) || null) : null,
+      // A parent deal listing cannot prove this row's price or stock.
+      availability: quoteFreshness === 'fresh' ? (offer.availability || 'unverified') : 'unverified',
       verified_at: verifiedAt,
-      price_freshness: freshness,
+      price_freshness: quoteFreshness,
       savings_czk: savingForSeller(deal.savings_czk),
       bank_savings_czk: savingForSeller(deal.bankSavingsCzk ?? deal.savings_czk),
       extra_battery_units: Number(deal.extraBatteryUnits || 0),
@@ -257,8 +290,10 @@ window.SolarExpertAffiliate = {
   },
 
   bundleDealOffers(deal) {
-    const resolved = this.rawBundleDealOffers(deal).map(offer => this.resolveBundleDealOffer(deal, offer))
-      .filter(o=>this.isActionableMerchantHref(o.href));
+    const resolved = this.prioritizeActionableOffers(
+      this.rawBundleDealOffers(deal).map(offer => this.resolveBundleDealOffer(deal, offer))
+        .filter(o=>this.isActionableMerchantHref(o.href))
+    );
     const freshInStockPrices = resolved
       .filter(o => o.availability === 'in_stock' && Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
       .map(o => Number(o.price_czk));
