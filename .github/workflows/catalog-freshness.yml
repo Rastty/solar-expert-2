@@ -49,6 +49,62 @@ jobs:
           node --test tests/catalog-freshness.test.mjs
       - name: Review every exact seller price-evidence date, including bundles
         run: node tools/catalog-freshness.mjs
+      - name: Audit public live theme byte hashes against dev HEAD (GET only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          dev_sha="$(git rev-parse HEAD)"
+          live_base="https://solar-expert.cz/wp-content/themes/solar-expert-2"
+          tmpdir="$(mktemp -d)"
+          trap 'rm -rf "$tmpdir"' EXIT
+          : > "$tmpdir/rows.jsonl"
+          for relative in style.css assets/js/selectors.js assets/js/affiliate-adapter.js assets/data/product-seed.json; do
+            test -s "$relative"
+            dev_hash="$(sha256sum "$relative" | awk '{print $1}')"
+            live_hash=""
+            state="unavailable"
+            # These four files are public theme assets. No WP credentials,
+            # POST, theme sync, Deployer call, or backup evidence is used.
+            if curl --fail --silent --show-error --max-redirs 0 --connect-timeout 10 \
+              --max-time 25 -H 'Cache-Control: no-cache, no-store, max-age=0' \
+              -H 'Accept-Encoding: identity' \
+              -H 'User-Agent: SolarExpert-GitHub-ReadOnly-ThemeAudit/1' \
+              "$live_base/$relative?read_only_theme_audit=$dev_sha" \
+              -o "$tmpdir/live" && test -s "$tmpdir/live"; then
+              live_hash="$(sha256sum "$tmpdir/live" | awk '{print $1}')"
+              if [[ "$dev_hash" == "$live_hash" ]]; then state="match"; else state="drift"; fi
+            fi
+            jq -cn --arg path "$relative" --arg dev_sha256 "$dev_hash" \
+              --arg live_sha256 "$live_hash" --arg status "$state" \
+              '{path:$path,dev_sha256:$dev_sha256,live_sha256:($live_sha256|select(length>0)),status:$status}' \
+              >> "$tmpdir/rows.jsonl"
+            rm -f "$tmpdir/live"
+          done
+          jq -s --arg dev_sha "$dev_sha" --arg observed_at_utc "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" '
+            . as $files | {
+              observed_at_utc:$observed_at_utc,
+              dev_source_sha:$dev_sha,
+              measurement:"read_only_public_theme_source_hashes_not_a_release_or_backup",
+              release_authorized:false,
+              files:$files,
+              four_file_byte_parity:(($files|length)==4 and ($files|all(.[]; .status=="match")))
+            }
+          ' "$tmpdir/rows.jsonl" > artifacts/solar-live-vs-dev-theme-sources.json
+          jq -e '(.files|length)==4 and (.files|all(.[]; (.status=="match" or .status=="drift" or .status=="unavailable")))' \
+            artifacts/solar-live-vs-dev-theme-sources.json >/dev/null
+          {
+            echo '## Solar Expert: public live theme bytes vs current dev HEAD'
+            echo ''
+            echo '| Public theme file | Live vs dev |'
+            echo '|---|---|'
+            jq -r '.files[] | "| "+.path+" | "+.status+" |"' artifacts/solar-live-vs-dev-theme-sources.json
+            echo ''
+            echo 'This check cannot authorize a release or prove a DB/uploads restore. Source differences must be assessed against a separately evidenced live rollback baseline.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$(jq -r '.four_file_byte_parity' artifacts/solar-live-vs-dev-theme-sources.json)" != "true" ]]; then
+            echo '::warning::Live Solar Expert theme differs from dev source or could not be read. Do NOT force deploy; a verified live baseline and host restore are still required.'
+          fi
       - name: Read public production health and compare real price-evidence freshness to dev source
         shell: bash
         run: |
@@ -110,5 +166,6 @@ jobs:
           path: |
             artifacts/catalog-freshness.json
             artifacts/solar-live-vs-dev-catalog.json
+            artifacts/solar-live-vs-dev-theme-sources.json
           if-no-files-found: warn
           retention-days: 30
