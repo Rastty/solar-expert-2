@@ -158,6 +158,95 @@ jobs:
             echo ''
             echo 'These are evidence-age categories, not newly checked merchant prices, confirmed stock, visitor counts, or paid conversions. No WordPress writes or theme deploy.'
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify actual Starlink Mini article to battery and MPPT journey (GET only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          audit_dir="$(mktemp -d)"
+          trap 'rm -rf "$audit_dir"' EXIT
+          live="https://solar-expert.cz"
+          asset="$live/wp-content/themes/solar-expert-2/assets/js/selectors.js"
+          request_readonly() {
+            local url="$1" target="$2"
+            curl --fail --silent --show-error --max-redirs 0 \
+              --connect-timeout 10 --max-time 20 \
+              -H 'Accept-Encoding: identity' \
+              -H 'User-Agent: SolarExpert-ReadOnly-BuyerFunnel-Audit/1' \
+              "$url" -o "$target"
+          }
+          article_ok=false
+          battery_ok=false
+          mppt_ok=false
+          selector_js_ok=false
+          if request_readonly "$live/starlink-mini-na-chate-solarni-panel-baterie-mppt/" "$audit_dir/article.html" &&
+             test -s "$audit_dir/article.html"; then article_ok=true; fi
+          if request_readonly "$live/vyber-baterii/" "$audit_dir/battery.html" &&
+             test -s "$audit_dir/battery.html"; then battery_ok=true; fi
+          if request_readonly "$live/mppt-kalkulacka/" "$audit_dir/mppt.html" &&
+             test -s "$audit_dir/mppt.html"; then mppt_ok=true; fi
+          if request_readonly "$asset" "$audit_dir/selectors.js" &&
+             test -s "$audit_dir/selectors.js"; then selector_js_ok=true; fi
+          present() {
+            local file="$1" literal="$2"
+            if test -s "$file" && grep -Fq "$literal" "$file"; then
+              echo true
+            else
+              echo false
+            fi
+          }
+          article_battery_link="$(present "$audit_dir/article.html" '/vyber-baterii/')"
+          article_mppt_link="$(present "$audit_dir/article.html" '/mppt-kalkulacka/')"
+          live_dc_input="$(present "$audit_dir/battery.html" 'id="se-battery-supply-mode"')"
+          live_starlink_button="$(present "$audit_dir/battery.html" 'data-se-battery-dc-case="starlinkmini"')"
+          live_starlink_js="$(present "$audit_dir/selectors.js" 'starlinkmini:')"
+          jq -n \
+            --arg observed_at_utc "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+            --argjson article_ok "$article_ok" \
+            --argjson battery_ok "$battery_ok" \
+            --argjson mppt_ok "$mppt_ok" \
+            --argjson selector_js_ok "$selector_js_ok" \
+            --argjson article_battery_link "$article_battery_link" \
+            --argjson article_mppt_link "$article_mppt_link" \
+            --argjson live_dc_input "$live_dc_input" \
+            --argjson live_starlink_button "$live_starlink_button" \
+            --argjson live_starlink_js "$live_starlink_js" \
+            '{
+              observed_at_utc:$observed_at_utc,
+              measurement:"public_read_only_buyer_route_and_live_feature_existence_not_user_clicks",
+              canonical_article:"https://solar-expert.cz/starlink-mini-na-chate-solarni-panel-baterie-mppt/",
+              article_http_ok:$article_ok,
+              article_battery_link_present:$article_battery_link,
+              article_mppt_link_present:$article_mppt_link,
+              battery_selector_http_ok:$battery_ok,
+              mppt_tool_http_ok:$mppt_ok,
+              live_selectors_js_http_ok:$selector_js_ok,
+              live_dc_supply_mode_present:$live_dc_input,
+              live_starlink_preset_button_present:$live_starlink_button,
+              live_starlink_preset_js_present:$live_starlink_js,
+              basic_article_to_tools_available:($article_ok and $battery_ok and $mppt_ok and $article_battery_link and $article_mppt_link),
+              starlink_dc_buyer_preset_available:($article_ok and $battery_ok and $selector_js_ok and $article_battery_link and $live_dc_input and $live_starlink_button and $live_starlink_js),
+              merchant_clicks_generated:0,
+              writes:0,
+              publish_authorized:false,
+              theme_deploy_authorized:false
+            }' > artifacts/solar-live-starlink-buyer-journey.json
+          jq -e '.writes==0 and .merchant_clicks_generated==0 and
+            .theme_deploy_authorized==false and .publish_authorized==false' \
+            artifacts/solar-live-starlink-buyer-journey.json >/dev/null
+          {
+            echo '## Starlink Mini: live article → battery / MPPT journey'
+            echo ''
+            echo '| Public check | Observed |'
+            echo '|---|---|'
+            jq -r '"| Starlink published page HTTP | \(.article_http_ok) |", "| Article links to both tools | \(.article_battery_link_present and .article_mppt_link_present) |", "| Both tool pages HTTP | \(.battery_selector_http_ok and .mppt_tool_http_ok) |", "| Live 24V DC preset fully available | \(.starlink_dc_buyer_preset_available) |"' \
+              artifacts/solar-live-starlink-buyer-journey.json
+            echo ''
+            echo 'READ ONLY: HTTP GET only; this audit cannot certify purchase compatibility, product-stock truth, affiliate click, paid commission, WordPress backup, or theme deployment readiness.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$(jq -r '.basic_article_to_tools_available and .starlink_dc_buyer_preset_available' artifacts/solar-live-starlink-buyer-journey.json)" != 'true' ]]; then
+            echo '::warning::The new public Starlink article or its intended live DC selector journey is incomplete/unavailable. Do not infer a user conversion, run fake click tests or bypass theme restore gates.'
+          fi
       - name: Upload dated re-verification queue
         if: always()
         uses: actions/upload-artifact@v4
@@ -167,5 +256,6 @@ jobs:
             artifacts/catalog-freshness.json
             artifacts/solar-live-vs-dev-catalog.json
             artifacts/solar-live-vs-dev-theme-sources.json
+            artifacts/solar-live-starlink-buyer-journey.json
           if-no-files-found: warn
           retention-days: 30
