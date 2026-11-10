@@ -16,16 +16,30 @@ window.SolarExpertProductMatcher={
     return ageDays>this.priceFreshnessDays?'stale':'fresh';
   },
 
-  // A stale, missing or invalid vendor product URL is not a traceable quote.
-  // Price and "in stock" evidence must belong to the SAME real seller row.
-  // This guard only applies when explicit offers exist. Standalone legacy
-  // products keep their separate, dated product-snapshot compatibility path.
+  // This catalog's approved merchant identities are not interchangeable.
+  // An arbitrary *external* URL must not prove another seller's low price,
+  // stock or bundle saving. Only these known shop domains can support a
+  // seller-specific quote; edit with independent merchant/source validation.
+  sellerSourceHosts:{
+    'battery-cz':['battery.cz','www.battery.cz'],
+    'solar-import-cz':['solar-import.cz','www.solar-import.cz'],
+    'vselektro-eu':['vselektro.eu','www.vselektro.eu'],
+    'ampul-eu':['ampul.eu','www.ampul.eu'],
+    'eon-cz':['eon.cz','www.eon.cz']
+  },
+
+  // For explicit offers, price and "in stock" evidence must belong to the
+  // SAME approved merchant row, not merely any externally formatted URL.
+  // Standalone legacy products retain their dated snapshot compatibility path.
   hasSellerSource(offer){
     if(!offer||typeof offer.source_url!=='string')return false;
     try {
       const url=new URL(offer.source_url);
-      return (url.protocol==='https:'||url.protocol==='http:') && Boolean(url.hostname)
-        && url.hostname!=='solar-expert.cz';
+      const expected=this.sellerSourceHosts[String(offer.merchant||'')];
+      return (url.protocol==='https:'||url.protocol==='http:') &&
+        !url.username && !url.password && !url.port &&
+        Array.isArray(expected) && expected.includes(url.hostname) &&
+        url.pathname.length>1;
     } catch (_) { return false; }
   },
 
