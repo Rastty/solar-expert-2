@@ -254,6 +254,11 @@ window.SolarExpertBundleComposer = {
     const labels = { budget: 'Budget', best: 'Best Value', premium: 'Premium' };
 
     return ['budget', 'best', 'premium'].map(tier => {
+      // Preserve a technically valid fallback, but keep searching for a
+      // fully quoted, purchase-actionable combination within this tier.
+      // A first compatible product with an expired/missing seller quote must
+      // not hide a later source-backed purchase path.
+      let fallback=null;
       const batteryCandidates = this.batteryBankCandidates(batteryProducts, sizing, tier);
       const inverterCandidates = this.tierProducts(inverters, tier);
 
@@ -302,7 +307,7 @@ window.SolarExpertBundleComposer = {
               ? effectiveCorePrice + panelPrice * panelPlan.count
               : null;
 
-            return {
+            const candidate = {
               tier,
               label: labels[tier],
               complete: true,
@@ -327,6 +332,13 @@ window.SolarExpertBundleComposer = {
                 ...(!panelPlan.pvIscVerified ? ['Absolutní PV Isc limit konkrétní revize integrovaného MPPT není doložen: nákup této sestavy je pozastaven.'] : [])
               ]
             };
+            // A quoted integrated bundle with no verified absolute PV Isc
+            // is *not* purchase ready; continue to safer alternatives.
+            if(candidate.priceComplete && candidate.pvIscVerified===true)return candidate;
+            if(!fallback)fallback=candidate;
+            // Never repurpose an integrated hybrid as an external-MPPT
+            // system merely because its own absolute PV Isc is unverified.
+            continue;
           }
 
           const mpptCandidates = this.tierProducts(mppts, tier);
@@ -358,7 +370,7 @@ window.SolarExpertBundleComposer = {
               ? effectiveCorePrice + mpptPrice + panelPrice * panelPlan.count
               : null;
 
-            return {
+            const candidate = {
               tier,
               label: labels[tier],
               complete: true,
@@ -381,10 +393,15 @@ window.SolarExpertBundleComposer = {
                 'aktuální dostupnost a affiliate URL'
               ]
             };
+            if(candidate.priceComplete)return candidate;
+            // Unlike an Isc-unverified hybrid, this standalone MPPT path
+            // passed the source-backed independent PV input safety screen.
+            if(!fallback || (fallback.integratedMppt && fallback.pvIscVerified!==true))fallback=candidate;
           }
         }
       }
 
+      if(fallback)return fallback;
       return {
         tier,
         label: labels[tier],
