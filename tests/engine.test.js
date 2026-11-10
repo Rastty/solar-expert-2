@@ -679,7 +679,7 @@ const staleOfferProduct={
     merchant:'battery-cz',
     price_czk:999,
     availability:'in_stock',
-    source_url:'https://www.battery.cz/',
+    source_url:'https://www.battery.cz/synthetic-expired-product/',
     verified_at:'2000-01-01'
   }]
 };
