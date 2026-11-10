@@ -121,6 +121,8 @@ window.SolarExpertBundleComposer = {
     for (const panel of panels) {
       if (!panel.rated_wp || !panel.voc_v || !panel.vmp_v) continue;
       if (matcher && matcher.availabilityRank(panel) <= 0) continue;
+      const panelPrice = matcher ? matcher.effectivePrice(panel) : Number.MAX_SAFE_INTEGER;
+      const quoteReady = Number.isFinite(panelPrice) && panelPrice > 0 && panelPrice < Number.MAX_SAFE_INTEGER;
 
       const coldFactor = Number(panel.cold_voc_factor || 1.12);
       const coldVocPerPanel = Number(panel.voc_v) * coldFactor;
@@ -192,12 +194,18 @@ window.SolarExpertBundleComposer = {
           trackerStringCounts,
           maxControllerWp: limits.maxWp,
           oversizeWp,
-          score
+          score,
+          quoteReady
         });
       }
     }
 
-    return candidates.sort((a, b) => a.score - b.score)[0] || null;
+    // Technical guards (cold Voc, Vmp, Isc, topology, power) run before
+    // ranking. Prefer a properly quoted safe panel plan over an unpriced
+    // exact fit; preserve the physical-first fallback when none is quoted.
+    return candidates.sort((a, b) =>
+      Number(b.quoteReady)-Number(a.quoteReady) || a.score-b.score
+    )[0] || null;
   },
 
   findBundleDeal(bundleDeals, componentIds, separatePrice) {
