@@ -1,0 +1,86 @@
+name: Solar Expert authenticated WordPress editorial readiness (GET only)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/solar-editorial-readiness-readonly.yml"
+      - "scripts/editorial_readiness_readonly.py"
+      - "tests/test_solar_editorial_readiness_readonly.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/solar-editorial-readiness-readonly.yml"
+      - "scripts/editorial_readiness_readonly.py"
+      - "tests/test_solar_editorial_readiness_readonly.py"
+  schedule:
+    - cron: "37 15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Shares the existing publisher's exact concurrency group. The snapshot
+# cannot overlap another GitHub editorial publisher workflow; external WP
+# editors cannot be certified absent and the report explicitly says so.
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout trusted authoring source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Confirm syntax and GET-only fail-closed readiness semantics
+        run: |
+          python -m py_compile scripts/editorial_release.py scripts/editorial_readiness_readonly.py
+          python -m unittest discover -s tests -p 'test_solar_editorial_readiness_readonly.py' -v
+
+  read-only-wordpress-snapshot:
+    needs: offline-contract
+    # PRs only exercise synthetic tests and have no access to credentials.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - name: Checkout protected main source (no writer credentials)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Authenticate editor and inspect UTC 24h posts + target slug via GET only
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.editorial_readiness_readonly
+      - name: Display non-authorizing snapshot status
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s artifacts/solar-editorial-readiness-readonly.json
+          jq -e '.writes == 0 and .publish_authorized == false and
+            .other_wordpress_writers_absence_proven == false and
+            (.status | type == "string")' artifacts/solar-editorial-readiness-readonly.json >/dev/null
+          {
+            echo '## Starlink Mini — authenticated read-only WordPress snapshot'
+            echo ''
+            jq -r '"Snapshot: \\(.checked_at_utc) UTC", "State: **\\(.status)**", "24-hour window clear at snapshot: **\\(.rolling_24h_posts_clear_at_snapshot)**", "Slug absent at snapshot: **\\(.target_slug_absent_at_snapshot)**"' \
+              artifacts/solar-editorial-readiness-readonly.json
+            echo ''
+            echo '**No publication authorized**: this evidence is point-in-time only. Other WordPress writers are not proven absent. The publisher must independently repeat every protected, authenticated pre-write check and observe the existing one-POST/rollback restrictions.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$(jq -r '.status' artifacts/solar-editorial-readiness-readonly.json)" != "clear_read_only_snapshot" ]]; then
+            echo '::warning::WordPress editorial launch is not independently verified by this read-only check. Do not merge or POST based on a blocked/unknown snapshot.'
+          fi
+      - name: Archive public-safe, no-secret read-only snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-editorial-readonly-status-${{ github.run_id }}
+          path: artifacts/solar-editorial-readiness-readonly.json
+          if-no-files-found: warn
+          retention-days: 14
