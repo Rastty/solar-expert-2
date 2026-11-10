@@ -68,7 +68,7 @@ jobs:
           {
             echo '## Starlink Mini — authenticated read-only WordPress snapshot'
             echo ''
-            jq -r '"Snapshot: \\(.checked_at_utc) UTC", "State: **\\(.status)**", "24-hour window clear at snapshot: **\\(.rolling_24h_posts_clear_at_snapshot)**", "Slug absent at snapshot: **\\(.target_slug_absent_at_snapshot)**"' \
+            jq -r '"Snapshot: \(.checked_at_utc) UTC", "State: **\(.status)**", "24-hour window clear at snapshot: **\(.rolling_24h_posts_clear_at_snapshot)**", "Slug absent at snapshot: **\(.target_slug_absent_at_snapshot)**"' \
               artifacts/solar-editorial-readiness-readonly.json
             echo ''
             echo '**No publication authorized**: this evidence is point-in-time only. Other WordPress writers are not proven absent. The publisher must independently repeat every protected, authenticated pre-write check and observe the existing one-POST/rollback restrictions.'
