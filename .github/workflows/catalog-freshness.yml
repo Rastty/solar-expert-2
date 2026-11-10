@@ -77,7 +77,7 @@ jobs:
             fi
             jq -cn --arg path "$relative" --arg dev_sha256 "$dev_hash" \
               --arg live_sha256 "$live_hash" --arg status "$state" \
-              '{path:$path,dev_sha256:$dev_sha256,live_sha256:($live_sha256|select(length>0)),status:$status}' \
+              '{path:$path,dev_sha256:$dev_sha256,live_sha256:(if ($live_sha256|length)>0 then $live_sha256 else null end),status:$status}' \
               >> "$tmpdir/rows.jsonl"
             rm -f "$tmpdir/live"
           done
