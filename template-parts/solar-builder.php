@@ -122,6 +122,7 @@
                 <span class="se-muted" x-show="(b.bundleDeal?.extraBatteryUnits||0)>0">
                   Set obsahuje 1× baterii + měnič. Pro celý bank dokupte ještě <strong x-text="b.bundleDeal?.extraBatteryUnits+'× '+b.battery?.name"></strong> přes nabídku baterie níže.
                 </span>
+                <p class="se-muted" data-se-bundle-avoid-duplicates="true">Set již obsahuje jeden měnič a jednu baterii. Nekupujte tyto díly podruhé; níže uvádíme pouze chybějící komponenty a případné baterie navíc.</p>
               </div>
               <div class="se-offer-links">
                 <template x-for="o in SolarExpertAffiliate.bundleDealOffers(b.bundleDeal).slice(0,2)" :key="b.bundleDeal?.id+'-'+o.merchantId">
@@ -138,22 +139,22 @@
             </div>
 
             <div class="se-offer-groups">
-              <div class="se-offer-group">
-                <small x-text="(b.batteryQuantity||1)>1 ? 'Baterie · '+b.batteryQuantity+' ks' : 'Baterie · kde koupit'"></small>
+              <div class="se-offer-group" x-show="purchaseQuantitiesFor(b).battery>0">
+                <small x-text="b.bundleDeal ? 'Baterie navíc · '+purchaseQuantitiesFor(b).battery+' ks' : (purchaseQuantitiesFor(b).battery>1 ? 'Baterie · '+purchaseQuantitiesFor(b).battery+' ks' : 'Baterie · kde koupit')"></small>
                 <div class="se-offer-links">
                   <template x-for="o in SolarExpertAffiliate.offers(b.battery).slice(0,2)" :key="b.battery?.id+'-'+o.merchantId">
                     <a class="se-offer" target="_blank" :href="o.href"
-                       :data-se-product-id="b.battery?.id" :data-se-merchant="o.merchantId" :data-se-placement="'builder-battery-'+b.tier"
+                       :data-se-product-id="b.battery?.id" :data-se-merchant="o.merchantId" :data-se-placement="'builder-battery-'+b.tier+(b.bundleDeal?'-extra':'')"
                        :rel="o.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
-                       @click="SolarExpertAffiliate.trackOffer(b.battery,o.raw,'builder-battery-'+b.tier)">
-                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'+((b.batteryQuantity||1)>1?' / ks':'')"></strong>
+                       @click="SolarExpertAffiliate.trackOffer(b.battery,o.raw,'builder-battery-'+b.tier+(b.bundleDeal?'-extra':''))">
+                      <span x-text="o.merchant?.label"></span><small class="se-offer-best" x-show="o.is_best_price && o.savings_vs_next_czk">levnější z uvedených · o <span x-text="o.savings_vs_next_czk?.toLocaleString('cs-CZ')"></span> Kč</small><strong x-show="o.price_czk" x-text="o.price_czk?.toLocaleString('cs-CZ')+' Kč'+(purchaseQuantitiesFor(b).battery>1?' / ks':'')"></strong>
                       <span class="se-offer-cta" x-text="o.price_czk ? 'Zobrazit nabídku ↗' : 'Ověřit cenu u prodejce ↗'"></span>
                     </a>
                   </template>
                 </div>
               </div>
 
-              <div class="se-offer-group">
+              <div class="se-offer-group" x-show="purchaseQuantitiesFor(b).inverter>0">
                 <small>Měnič · kde koupit</small>
                 <div class="se-offer-links">
                   <template x-for="o in SolarExpertAffiliate.offers(b.inverter).slice(0,2)" :key="b.inverter?.id+'-'+o.merchantId">
