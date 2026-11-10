@@ -74,6 +74,8 @@ jobs:
         run: node tests/actionable-merchant-outbound.test.js
       - name: Source-backed price evidence matches seller buy links
         run: node tests/source-backed-price-trust.test.js
+      - name: Buyer-visible affiliate prices and stock require exact seller evidence
+        run: node tests/affiliate-quote-evidence-parity.test.js
       - name: Buyer SEO guides claim, intent and indexability validation
         run: node --test tests/buyer-seo-posts.test.mjs
       - name: Existing indexed guides to new buying paths

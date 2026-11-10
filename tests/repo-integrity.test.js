@@ -1021,9 +1021,10 @@ assert(seoCore.includes("'catalog_price_stale'"),'Health payload must expose sta
 assert(seoCore.includes("'catalog_price_verification_unknown'"),'Health payload must expose unknown-verification price count');
 assert(settingsCore.includes('<h2>Price freshness</h2>'),'Solar Expert admin must show catalog price freshness');
 assert(settingsCore.includes('Známě starší snapshot než 30 dní'),'Admin diagnostics must explain stale-price behavior');
-assert(affiliateAdapter.includes("price_freshness: freshness"),'Affiliate offers must expose price freshness state');
-assert(affiliateAdapter.includes("freshness === 'fresh' ? rawPrice : null"),'Affiliate offer UI may display only independently fresh merchant prices');
-assert(affiliateAdapter.includes("availability: freshness === 'fresh' ?"),'Affiliate stock labels require verified merchant evidence');
+assert(affiliateAdapter.includes("hasQuoteEvidence(offer, explicitOffers)"),'Explicit offers must require own seller source evidence');
+assert(affiliateAdapter.includes("price_freshness: quoteFreshness"),'Affiliate offers must report evidence-backed quote freshness');
+assert(affiliateAdapter.includes("price_czk: quoteFreshness === 'fresh' ? rawPrice : null"),'Affiliate price requires freshness AND exact merchant source');
+assert(affiliateAdapter.includes("availability: quoteFreshness === 'fresh' ?"),'Affiliate stock labels require date AND exact merchant source');
 assert(composerJs.includes("matcher.verificationState(o.verified_at) === 'fresh'"),'Bundle composer must accept only independently fresh bundle seller quotes');
 
 const heatPumpConsumptionSlug='prumerna-spotreba-tepelneho-cerpadla';
