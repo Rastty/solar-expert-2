@@ -23,7 +23,15 @@ window.solarExpertBuilder=function(){return{
     (!b.integratedMppt||b.pvIscVerified===true));},
   get incompleteBundles(){return this.bundles.filter(b=>b&&(!b.complete||
     (b.integratedMppt&&b.pvIscVerified!==true)));},
-  get primaryBundle(){return this.completeBundles.find(b=>b.tier==='best')||this.completeBundles[0]||null;},
+  get primaryBundle(){
+    const complete=this.completeBundles;
+    const best=complete.find(b=>b.tier==='best')||null;
+    // A quoted, reconciled bill should never be hidden behind an unpriced
+    // Best Value technical fallback. This changes only the primary buyer
+    // summary/checklist, not the engineering compatibility or tier ranking.
+    if(best && this.purchaseBreakdownFor(best))return best;
+    return complete.find(b=>this.purchaseBreakdownFor(b))||best||complete[0]||null;
+  },
   pctReserve(actual,target){if(!Number(target))return 0;return Math.round(((Number(actual)-Number(target))/Number(target))*100);},
   comparisonFor(bundle){
     if(!bundle||!bundle.complete||!this.result)return null;

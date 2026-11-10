@@ -76,6 +76,12 @@
         <small class="se-muted">Varianta <strong x-text="primaryBundle?.label"></strong></small>
       </div>
       <p class="se-muted">Počty kusů a orientační ceny vycházejí z doporučení výše. U obchodníka nastavte uvedený počet kusů.</p>
+      <p class="se-muted" data-se-primary-priced-fallback="true"
+         x-show="primaryBundle?.tier!=='best' && completeBundles.some(b => b.tier==='best')" x-cloak>
+        Pro nákupní rozpis používáme variantu <strong x-text="primaryBundle?.label"></strong>:
+        u Best Value zatím není doložená kompletní cena a spolehlivý součet komponent.
+        Technické pořadí variant se tím nemění.
+      </p>
       <div class="se-shopping-rows">
         <template x-for="item in primaryShoppingList?.rows || []" :key="item.label">
           <div class="se-shopping-line">
@@ -88,8 +94,8 @@
       <p class="se-muted se-shopping-disclaimer">Nejde o jeden společný košík: ceny vycházejí z ověřených nabídek různých obchodů a mohou se změnit. Nezahrnují kabely, jištění, konstrukci, montáž ani revizi. U zvýhodněného setu se baterie a měnič nepočítají podruhé.</p>
       <a href="#builder-offers" class="se-btn se-btn-primary">Přejít k nabídkám obchodů ↓</a>
     </section>
-    <div class="se-note se-note-error" x-show="primaryBundle?.priceComplete && !primaryShoppingList" x-cloak style="margin-top:14px" role="alert">
-      Cenový rozpis nelze spolehlivě sladit s doporučenou celkovou cenou. Zkontrolujte ceny jednotlivých komponent přímo u obchodníků.
+    <div class="se-note se-note-error" x-show="completeBundles.some(b => b.priceComplete && !purchaseBreakdownFor(b))" x-cloak style="margin-top:14px" role="alert">
+      U některé varianty nelze spolehlivě sladit cenový rozpis s doporučenou celkovou cenou. Zkontrolujte ceny jednotlivých komponent přímo u obchodníků.
     </div>
 
     <p class="se-merchant-disclosure" x-show="completeBundles.some(b => [b.battery,b.inverter,b.mppt,b.panel?.product].some(p => p && SolarExpertAffiliate.sharedOperatorNotice(p)))" x-cloak>
