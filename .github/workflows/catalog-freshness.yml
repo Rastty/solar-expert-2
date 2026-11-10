@@ -136,6 +136,77 @@ jobs:
           if [[ "$(jq -r '.candidate_full_four_file_match' artifacts/solar-live-theme-history-candidate.json)" != "true" ]]; then
             echo '::warning::No single verified historical Git revision matched all four live public assets. Theme release must remain disabled and actual live-source rollback baseline unresolved.'
           fi
+      - name: Prepare independently hash-verified historical theme SOURCE archive (not a WordPress restore)
+        id: candidate_archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'created=false' >> "$GITHUB_OUTPUT"
+          result=artifacts/solar-live-theme-history-candidate.json
+          live=artifacts/solar-live-vs-dev-theme-sources.json
+          test -s "$result" && test -s "$live"
+          if [[ "$(jq -r '.candidate_full_four_file_match' "$result")" != 'true' ]]; then
+            echo '::notice::No four-file historical candidate; no rollback archive created.'
+            exit 0
+          fi
+          candidate="$(jq -er '.candidate_commit | select(test("^[0-9a-f]{40}$"))' "$result")"
+          git merge-base --is-ancestor "$candidate" HEAD || {
+            echo '::error::Candidate is not in checked-out dev history. Refuse source archive.'
+            exit 1
+          }
+          mkdir -p artifacts/live-source-candidate
+          archive=artifacts/live-source-candidate/solar-expert-2-historical-source.tar.gz
+          git archive --format=tar.gz --prefix=solar-expert-2/ \
+            --output="$archive" "$candidate"
+          test -s "$archive"
+          for relative in style.css assets/js/selectors.js assets/js/affiliate-adapter.js assets/data/product-seed.json; do
+            expected="$(jq -er --arg path "$relative" '.files[] | select(.path == $path) | .live_sha256' "$live")"
+            [[ "$expected" =~ ^[0-9a-f]{64}$ ]] || {
+              echo '::error::Actual public live SHA256 missing or malformed.'
+              exit 1
+            }
+            restored="$(tar -xOzf "$archive" "solar-expert-2/$relative" | sha256sum | awk '{print $1}')"
+            if [[ "$restored" != "$expected" ]]; then
+              echo '::error::Historical source archive cannot reproduce an observed live public asset.'
+              exit 1
+            fi
+          done
+          (
+            cd artifacts/live-source-candidate
+            sha256sum solar-expert-2-historical-source.tar.gz > source-sha256.txt
+            sha256sum -c source-sha256.txt
+          )
+          jq -n --arg candidate "$candidate" --arg observed_at_utc "$(jq -r '.observed_at_utc' "$live")" \
+            --arg dev_sha "$(git rev-parse HEAD)" '{
+              observed_at_utc:$observed_at_utc,
+              observed_public_assets_sha_match:4,
+              candidate_historical_commit:$candidate,
+              current_dev_sha:$dev_sha,
+              source_archive_roundtrip_four_public_files:true,
+              release_authorized:false,
+              wordpress_database_restorable_proven:false,
+              wordpress_uploads_restorable_proven:false,
+              full_live_theme_identity_proven:false,
+              note:"This TAR is a SOURCE candidate from public Git, not the actual host theme, WP database, uploads or staging restore; issue #148 remains open."
+            }' > artifacts/live-source-candidate/README-evidence.json
+          echo 'created=true' >> "$GITHUB_OUTPUT"
+          {
+            echo '## Historical source archive: narrow four-file public proof'
+            echo ''
+            echo "Candidate Git commit: \`$candidate\`."
+            echo ''
+            echo 'A tar.gz of historical PUBLIC Git source was independently round-trip tested against four live HTTP GET SHA256 observations. It is **not** a full host backup, full deployed PHP identity proof, staging restore or deployment authorization.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preserve historical public source archive for separately approved rollback work
+        if: steps.candidate_archive.outputs.created == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-verified-four-asset-source-${{ github.run_id }}
+          path: artifacts/live-source-candidate/
+          if-no-files-found: error
+          retention-days: 90
+
       - name: Read public production health and compare real price-evidence freshness to dev source
         shell: bash
         run: |
