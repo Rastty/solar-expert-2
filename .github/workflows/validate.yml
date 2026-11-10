@@ -80,6 +80,8 @@ jobs:
         run: node tests/builder-panel-price-ready.test.js
       - name: No double purchase of battery and inverter inside discounted set
         run: node tests/builder-set-checkout-dedup.test.js
+      - name: Reconciled price-ready buyer summary even when Best Value has no quote
+        run: node tests/builder-buyable-primary-checkout.test.js
       - name: Buyer-visible affiliate prices and stock require exact seller evidence
         run: node tests/affiliate-quote-evidence-parity.test.js
       - name: Evidence source URL belongs to declared approved seller domain
