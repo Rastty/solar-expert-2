@@ -40,6 +40,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') && 'dev' || github.sha }}
+          # Needed to identify the actual publicly deployed historical source.
+          # Repository history is read-only; this is NOT a release or restore.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -104,6 +107,34 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           if [[ "$(jq -r '.four_file_byte_parity' artifacts/solar-live-vs-dev-theme-sources.json)" != "true" ]]; then
             echo '::warning::Live Solar Expert theme differs from dev source or could not be read. Do NOT force deploy; a verified live baseline and host restore are still required.'
+          fi
+      - name: Identify exact historical Git source matching the four public live assets (GET only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check tools/live-theme-history-audit.mjs
+          node --test tests/live-theme-history-audit.test.mjs
+          test -s artifacts/solar-live-vs-dev-theme-sources.json
+          node tools/live-theme-history-audit.mjs \
+            artifacts/solar-live-vs-dev-theme-sources.json \
+            artifacts/solar-live-theme-history-candidate.json
+          jq -e '
+            .schema_version == 1 and
+            .release_authorized == false and
+            .wordpress_backup_proven == false and
+            .live_theme_restore_proven == false and
+            (.candidate_full_four_file_match == ((.candidate_commit != null) and .best_partial_match_count == 4))
+          ' artifacts/solar-live-theme-history-candidate.json >/dev/null
+          {
+            echo '## Live Solar Expert source provenance (not a backup)'
+            echo ''
+            jq -r '"Historical Git match status: **\(.status)**", "Exact four-file candidate: \(.candidate_commit // "none")", "Best partial public-asset match: \(.best_partial_match_count)/4", "Historical first-parent commits inspected: \(.inspected_commits)"' \
+              artifacts/solar-live-theme-history-candidate.json
+            echo ''
+            echo 'A matching Git commit is only a PUBLIC-FOUR-FILE provenance candidate. It does NOT prove entire PHP theme, WordPress DB/options, uploads, full rollback or staging restore; separate host restore proof and independently reviewed theme release are mandatory.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$(jq -r '.candidate_full_four_file_match' artifacts/solar-live-theme-history-candidate.json)" != "true" ]]; then
+            echo '::warning::No single verified historical Git revision matched all four live public assets. Theme release must remain disabled and actual live-source rollback baseline unresolved.'
           fi
       - name: Read public production health and compare real price-evidence freshness to dev source
         shell: bash
@@ -256,6 +287,7 @@ jobs:
             artifacts/catalog-freshness.json
             artifacts/solar-live-vs-dev-catalog.json
             artifacts/solar-live-vs-dev-theme-sources.json
+            artifacts/solar-live-theme-history-candidate.json
             artifacts/solar-live-starlink-buyer-journey.json
           if-no-files-found: warn
           retention-days: 30
