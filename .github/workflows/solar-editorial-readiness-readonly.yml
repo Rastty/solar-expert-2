@@ -7,12 +7,16 @@ on:
       - ".github/workflows/solar-editorial-readiness-readonly.yml"
       - "scripts/editorial_readiness_readonly.py"
       - "tests/test_solar_editorial_readiness_readonly.py"
+      - "scripts/editorial_starlink_cas_readonly.py"
+      - "tests/test_solar_starlink_cas_readonly.py"
   push:
     branches: [main]
     paths:
       - ".github/workflows/solar-editorial-readiness-readonly.yml"
       - "scripts/editorial_readiness_readonly.py"
       - "tests/test_solar_editorial_readiness_readonly.py"
+      - "scripts/editorial_starlink_cas_readonly.py"
+      - "tests/test_solar_starlink_cas_readonly.py"
   schedule:
     - cron: "37 15 * * *"
   workflow_dispatch:
@@ -38,8 +42,9 @@ jobs:
           persist-credentials: false
       - name: Confirm syntax and GET-only fail-closed readiness semantics
         run: |
-          python -m py_compile scripts/editorial_release.py scripts/editorial_readiness_readonly.py
+          python -m py_compile scripts/editorial_release.py scripts/editorial_readiness_readonly.py scripts/editorial_starlink_cas_readonly.py
           python -m unittest discover -s tests -p 'test_solar_editorial_readiness_readonly.py' -v
+          python -m unittest discover -s tests -p 'test_solar_starlink_cas_readonly.py' -v
 
   read-only-wordpress-snapshot:
     needs: offline-contract
@@ -57,6 +62,11 @@ jobs:
           SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
           SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
         run: python -m scripts.editorial_readiness_readonly
+      - name: Read Starlink post 1630 exact current source revision via GET only
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.editorial_starlink_cas_readonly
       - name: Display non-authorizing snapshot status
         shell: bash
         run: |
@@ -73,14 +83,36 @@ jobs:
             echo ''
             echo '**No publication authorized**: this evidence is point-in-time only. Other WordPress writers are not proven absent. The publisher must independently repeat every protected, authenticated pre-write check and observe the existing one-POST/rollback restrictions.'
           } >> "$GITHUB_STEP_SUMMARY"
-          if [[ "$(jq -r '.status' artifacts/solar-editorial-readiness-readonly.json)" != "clear_read_only_snapshot" ]]; then
-            echo '::warning::WordPress editorial launch is not independently verified by this read-only check. Do not merge or POST based on a blocked/unknown snapshot.'
+          test -s artifacts/solar-starlink-current-source-readonly.json
+          jq -e '.writes == 0 and .publish_authorized == false and
+            .theme_deploy_authorized == false and (.status | type == "string")' \
+            artifacts/solar-starlink-current-source-readonly.json >/dev/null
+          {
+            echo ''
+            echo '## Published Starlink Mini — exact current post body CAS evidence'
+            echo ''
+            jq -r '"Current source state: **\(.status)**", "WordPress post ID: \(.post_id)", "Original published source match: **\(.original_source_sha256_verified)**", "Modification timestamp: \(.expected_modified_gmt // "unverified")"' \
+              artifacts/solar-starlink-current-source-readonly.json
+            echo ''
+            echo 'Hash and modified_gmt describe the source **only at the read time**. Any reviewed update requires a new immutable source+manifest, independently fresh authenticated compare-and-swap checks, encrypted prewrite archival and at most one guarded POST. No update is authorized by this report.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$(jq -r '.status' artifacts/solar-starlink-current-source-readonly.json)" != "original_published_body_exact_at_snapshot" ]]; then
+            echo '::warning::Cannot prove Starlink Mini current original body. No editorial update may be armed using this snapshot.'
+          fi
+          # The previous CREATE-readiness probe correctly detects an occupied
+          # slug after publication; this is expected ONLY if the new exact
+          # source read independently verifies WP #1630.
+          if [[ "$(jq -r '.status' artifacts/solar-editorial-readiness-readonly.json)" != "clear_read_only_snapshot" &&
+                "$(jq -r '.status' artifacts/solar-starlink-current-source-readonly.json)" != "original_published_body_exact_at_snapshot" ]]; then
+            echo '::warning::WordPress editorial state is not independently verified. Do not merge or POST based on this snapshot.'
           fi
       - name: Archive public-safe, no-secret read-only snapshot
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: solar-editorial-readonly-status-${{ github.run_id }}
-          path: artifacts/solar-editorial-readiness-readonly.json
+          path: |
+            artifacts/solar-editorial-readiness-readonly.json
+            artifacts/solar-starlink-current-source-readonly.json
           if-no-files-found: warn
           retention-days: 14
