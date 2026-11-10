@@ -393,8 +393,8 @@ const syntheticMultiDeal=B.findBundleDeal([{
   components:['battery-seplos-pusung-48','inverter-growatt-48-6000'],
   price_czk:34000,
   offers:[
-    {merchant:'battery-cz',price_czk:34000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://example.com/battery'},
-    {merchant:'solar-import-cz',price_czk:33000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://example.com/solar'}
+    {merchant:'battery-cz',price_czk:34000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://www.battery.cz/synthetic-battery-set/'},
+    {merchant:'solar-import-cz',price_czk:33000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://www.solar-import.cz/synthetic-solar-set/'}
   ]
 }],['battery-seplos-pusung-48','inverter-growatt-48-6000'],34480);
 assert(syntheticMultiDeal&&syntheticMultiDeal.price_czk===33000,'Bundle composer should use the cheapest fresh in-stock merchant offer');
@@ -679,7 +679,7 @@ const staleOfferProduct={
     merchant:'battery-cz',
     price_czk:999,
     availability:'in_stock',
-    source_url:'https://www.battery.cz/',
+    source_url:'https://www.battery.cz/synthetic-expired-product/',
     verified_at:'2000-01-01'
   }]
 };
@@ -708,7 +708,7 @@ const selectorCoreRightSized={
   continuous_w:2400,
   peak_w:4800,
   availability:'in_stock',
-  offers:[{merchant:'test-a',price_czk:10000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-a.example.com/product/'}]
+  offers:[{merchant:'battery-cz',price_czk:10000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://www.battery.cz/synthetic-fit/'}]
 };
 const selectorCoreOversized={
   id:'selector-core-oversized',
@@ -717,7 +717,7 @@ const selectorCoreOversized={
   continuous_w:6000,
   peak_w:12000,
   availability:'in_stock',
-  offers:[{merchant:'test-b',price_czk:9000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-b.example.com/product/'}]
+  offers:[{merchant:'solar-import-cz',price_czk:9000,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://www.solar-import.cz/synthetic-oversize/'}]
 };
 const selectorCoreRanked=M.rank([selectorCoreOversized,selectorCoreRightSized],selectorCoreSizing);
 assert(selectorCoreRanked[0].product.id==='selector-core-right-size','Core v1 must prefer materially better right-sizing over a slightly cheaper but heavily oversized inverter');
@@ -729,7 +729,7 @@ assert(selectorCoreRanked[0].decision.reasons.some(x=>x.code.startsWith('evidenc
 const selectorCoreCheap={
   ...selectorCoreRightSized,
   id:'selector-core-cheap',
-  offers:[{merchant:'test-c',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-c.example.com/product/'}]
+  offers:[{merchant:'battery-cz',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://www.battery.cz/synthetic-cheap/'}]
 };
 const selectorCoreValue=M.rank([selectorCoreRightSized,selectorCoreCheap],selectorCoreSizing);
 assert(selectorCoreValue[0].product.id==='selector-core-cheap','When technical fit and evidence are equal, verified price value must break the tie');
@@ -759,8 +759,8 @@ const selectorCoreTwoMerchants={
   ...selectorCoreCheap,
   id:'selector-core-two-merchants',
   offers:[
-    {merchant:'test-c',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-c.example.com/product/'},
-    {merchant:'test-d',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://test-d.example.com/product/'}
+    {merchant:'battery-cz',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://www.battery.cz/synthetic-cheap/'},
+    {merchant:'vselektro-eu',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://www.vselektro.eu/synthetic-cheap/'}
   ]
 };
 const selectorCoreMerchantTie=M.rank([selectorCoreOneMerchant,selectorCoreTwoMerchants],selectorCoreSizing);

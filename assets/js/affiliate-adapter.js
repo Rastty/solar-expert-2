@@ -150,7 +150,18 @@ window.SolarExpertAffiliate = {
     const mapped = exactMapped || legacyMapped;
     // An explicit alternate merchant may not inherit the primary shop's
     // product URL: this would send an affiliate customer to the wrong store.
-    const target = offer.source_url || (offer.merchant === product.merchant ? product.source_url : null);
+    const explicitOffers=Array.isArray(product.offers)&&product.offers.length>0;
+    const sourceBacked=this.hasQuoteEvidence(offer,explicitOffers);
+    // Never send a shopper to retailer B while displaying retailer A.
+    // Exact pre-approved affiliate mappings remain eligible independently.
+    const parentSource=offer.merchant===product.merchant?product.source_url:null;
+    const parentSameMerchant=parentSource &&
+      this.hasQuoteEvidence({...offer,source_url:parentSource},true);
+    // Same-shop parent listing is a navigable fallback, never proof of this
+    // individual offer's price, stock or freshness.
+    const target=explicitOffers
+      ? (sourceBacked?offer.source_url:(parentSameMerchant?parentSource:null))
+      : (offer.source_url||parentSource);
     const generated = this.merchantDeepLink(offer.merchant, target);
     const link = this.selectMerchantLink([
       {href:mapped,monetized:true},
@@ -162,7 +173,6 @@ window.SolarExpertAffiliate = {
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
-    const sourceBacked=this.hasQuoteEvidence(offer,Array.isArray(product.offers)&&product.offers.length>0);
     const quoteFreshness=sourceBacked?freshness:'unknown';
     const price=Number(offer.price_czk);
     const rawPrice=Number.isFinite(price)&&price>0?price:null;
@@ -242,7 +252,14 @@ window.SolarExpertAffiliate = {
 
   resolveBundleDealOffer(deal, offer) {
     if (!deal || !offer) return {href:'#', monetized:false, merchant:null, merchantId:null, price_czk:null, raw:null};
-    const target = offer.source_url || (offer.merchant === deal.merchant ? deal.source_url : null);
+    const explicitOffers=Array.isArray(deal.offers)&&deal.offers.length>0;
+    const sourceBacked=this.hasQuoteEvidence(offer,explicitOffers);
+    const parentSource=offer.merchant===deal.merchant?deal.source_url:null;
+    const parentSameMerchant=parentSource &&
+      this.hasQuoteEvidence({...offer,source_url:parentSource},true);
+    const target=explicitOffers
+      ? (sourceBacked?offer.source_url:(parentSameMerchant?parentSource:null))
+      : (offer.source_url||parentSource);
     const generated = this.merchantDeepLink(offer.merchant, target);
     const link = this.selectMerchantLink([
       {href:generated,monetized:true},
@@ -252,7 +269,6 @@ window.SolarExpertAffiliate = {
     const freshness = window.SolarExpertProductMatcher
       ? window.SolarExpertProductMatcher.verificationState(verifiedAt)
       : 'unknown';
-    const sourceBacked=this.hasQuoteEvidence(offer,Array.isArray(deal.offers)&&deal.offers.length>0);
     const quoteFreshness=sourceBacked?freshness:'unknown';
     // A bundle's overall saving is computed for its cheapest verified
     // merchant. Each other merchant needs its OWN price-specific saving.
