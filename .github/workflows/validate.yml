@@ -74,6 +74,8 @@ jobs:
         run: node tests/actionable-merchant-outbound.test.js
       - name: Source-backed price evidence matches seller buy links
         run: node tests/source-backed-price-trust.test.js
+      - name: Builder chooses safe price-complete bundles ahead of unquoted first fit
+        run: node tests/bundle-price-ready-selection.test.js
       - name: Buyer-visible affiliate prices and stock require exact seller evidence
         run: node tests/affiliate-quote-evidence-parity.test.js
       - name: Evidence source URL belongs to declared approved seller domain
