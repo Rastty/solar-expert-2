@@ -41,6 +41,17 @@ window.solarExpertBuilder=function(){return{
     ];
     return {batteryKwh,batteryQuantity,inverterW,surgeW,panelWp,reasons};
   },
+  // A retailer set already contains ONE battery and ONE inverter.
+  // Use the same component counts for the shopping list and visible CTA
+  // groups, so readers never get told to buy those components twice.
+  purchaseQuantitiesFor(bundle){
+    const count=Number(bundle?.batteryQuantity||1);
+    if(!bundle||!bundle.complete||!Number.isSafeInteger(count)||count<1){
+      return {set:0,battery:0,inverter:0};
+    }
+    const usesSet=Boolean(bundle.bundleDeal);
+    return {set:usesSet?1:0,battery:count-(usesSet?1:0),inverter:usesSet?0:1};
+  },
   purchaseBreakdownFor(bundle){
     if(bundle?.integratedMppt&&bundle.pvIscVerified!==true)return null;
     if(!bundle||!bundle.complete||!bundle.priceComplete||
@@ -57,15 +68,14 @@ window.solarExpertBuilder=function(){return{
       return true;
     };
 
-    const batteryCount=Number(bundle.batteryQuantity||1);
+    const quantities=this.purchaseQuantitiesFor(bundle);
     if(bundle.bundleDeal){
       const deal=bundle.bundleDeal;
-      if(!add('Set baterie + měnič',deal.label||'Baterie + měnič',1,deal.price_czk))return null;
-      const extraCount=batteryCount-1;
-      if(extraCount>0&&!add('Baterie navíc',bundle.battery?.name,extraCount,matcher.effectivePrice(bundle.battery)))return null;
+      if(!add('Set baterie + měnič',deal.label||'Baterie + měnič',quantities.set,deal.price_czk))return null;
+      if(quantities.battery>0&&!add('Baterie navíc',bundle.battery?.name,quantities.battery,matcher.effectivePrice(bundle.battery)))return null;
     }else{
-      if(!add('Baterie',bundle.battery?.name,batteryCount,matcher.effectivePrice(bundle.battery)))return null;
-      if(!add('Měnič',bundle.inverter?.name,1,matcher.effectivePrice(bundle.inverter)))return null;
+      if(!add('Baterie',bundle.battery?.name,quantities.battery,matcher.effectivePrice(bundle.battery)))return null;
+      if(!add('Měnič',bundle.inverter?.name,quantities.inverter,matcher.effectivePrice(bundle.inverter)))return null;
     }
     if(!add('Solární panely',bundle.panel?.product?.name,bundle.panel?.count,matcher.effectivePrice(bundle.panel?.product)))return null;
     if(!bundle.integratedMppt&&
