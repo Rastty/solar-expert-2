@@ -102,8 +102,34 @@ class StarlinkMiniBuyerGuideCandidate(unittest.TestCase):
         self.assertTrue(m["expect_absent"])
         self.assertEqual(m["slug"], self.slug)
         self.assertEqual(m["source_commit"], "c7120e4546276ed2532ee47cb092fa0a5191147c")
-        self.assertEqual(hashlib.sha256(self.html.encode("utf-8")).hexdigest(), m["source_sha256"])
-        self.assertEqual(m["source_sha256"], "21aa2b2b876413b7c42e4a03e5dc63e424ec6cea91d12f57eaca1ca58870f463")
+        # Preserve the ORIGINAL CREATE's immutable SHA and exact pinned
+        # commit even when the active main working-tree article receives an
+        # independently authorized, source-locked native post_update.
+        original_sha = "21aa2b2b876413b7c42e4a03e5dc63e424ec6cea91d12f57eaca1ca58870f463"
+        self.assertEqual(m["source_sha256"], original_sha)
+        current_sha = hashlib.sha256(self.html.encode("utf-8")).hexdigest()
+        control = json.loads((ROOT / "ops/editorial-release.json").read_text(encoding="utf-8"))
+        if control["manifest"] == "ops/editorial-manifests/solar-starlink-mini-offgrid-20261109-v1.json":
+            self.assertEqual(current_sha, original_sha)
+        else:
+            # One current-main editorial correction, NEVER a second create:
+            # the previous body SHA and WP modification timestamp form an
+            # exact compare-and-swap lock independently rechecked by publisher.
+            update_path = ROOT / control["manifest"]
+            self.assertEqual(update_path.name,
+                             "solar-starlink-mini-live-dc-copyfix-20261110-v1.json")
+            update = json.loads(update_path.read_text(encoding="utf-8"))
+            publisher.validate_manifest(update)
+            self.assertEqual(update["kind"], "post_update")
+            self.assertEqual(update["post_id"], 1630)
+            self.assertEqual(update["slug"], self.slug)
+            self.assertEqual(update["source_file"], m["source_file"])
+            self.assertEqual(update["source_commit"], "cdb37180c4ec6ddc9205f92a5e4d28a2e448a17d")
+            self.assertEqual(update["expected_current_sha256"], original_sha)
+            self.assertEqual(update["expected_modified_gmt"], "2026-11-10T19:05:34")
+            self.assertEqual(update["source_sha256"], current_sha)
+            self.assertIn("pokud na stránce nenajdete přepínač", self.html)
+            self.assertNotIn("Pro přímé DC napájení přepněte nástroj do režimu DC, pokud", self.html)
 
     def test_authored_energy_math_and_real_merchant_handoff(self):
         for value in ("20–40 W", "480 Wh", "720 Wh", "960 Wh",
