@@ -191,11 +191,11 @@ window.SolarExpertAffiliate = {
     const freshInStockPrices = resolved
       .filter(o => o.availability === 'in_stock' && Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
       .map(o => Number(o.price_czk));
-    if (freshInStockPrices.length < 2) return resolved;
+    if (freshInStockPrices.length < 2) return resolved.map(o=>({...o,is_best_price:false,savings_vs_next_czk:null}));
 
     const minPrice = Math.min(...freshInStockPrices);
     const higherPrices = freshInStockPrices.filter(price => price > minPrice);
-    if (!higherPrices.length) return resolved;
+    if (!higherPrices.length) return resolved.map(o=>({...o,is_best_price:false,savings_vs_next_czk:null}));
     const nextPrice = Math.min(...higherPrices);
 
     return resolved.map(o => ({
@@ -297,10 +297,10 @@ window.SolarExpertAffiliate = {
     const freshInStockPrices = resolved
       .filter(o => o.availability === 'in_stock' && Number.isFinite(Number(o.price_czk)) && Number(o.price_czk) > 0)
       .map(o => Number(o.price_czk));
-    if (freshInStockPrices.length < 2) return resolved;
+    if (freshInStockPrices.length < 2) return resolved.map(o=>({...o,is_best_price:false,savings_vs_next_czk:null}));
     const minPrice = Math.min(...freshInStockPrices);
     const higherPrices = freshInStockPrices.filter(price => price > minPrice);
-    if (!higherPrices.length) return resolved;
+    if (!higherPrices.length) return resolved.map(o=>({...o,is_best_price:false,savings_vs_next_czk:null}));
     const nextPrice = Math.min(...higherPrices);
     return resolved.map(o => ({
       ...o,
