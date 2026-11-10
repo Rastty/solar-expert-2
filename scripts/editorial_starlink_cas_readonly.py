@@ -56,7 +56,7 @@ def inspect() -> dict:
             return result
         modified = current.get("modified_gmt")
         publisher.require(isinstance(modified, str) and re.fullmatch(
-            r"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}", modified
+            r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", modified
         ) is not None, "Current modified_gmt invalid")
         publisher.parse_wp_gmt_utc(modified)
         result["expected_current_sha256"] = current_sha
