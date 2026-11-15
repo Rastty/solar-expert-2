@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_create",
+  "operation_id": "solar-battery-mppt-800wp-20261115-v1",
+  "slug": "jakou-baterii-a-mppt-k-solarnim-panelum-800w",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Jakou LiFePO4 baterii a MPPT k solárním panelům 800 W?",
+  "excerpt": "Dva 400Wp panely na chatě: rozhodnutí 12 V vs. 24 V, výpočet LiFePO4 baterie podle kWh a autonomie, bezpečné limity Voc a Isc při výběru MPPT a cesta k porovnání nabídek.",
+  "source_commit": "b3616fe4c8c818a62b32d19efea8e7110e9fe5d3",
+  "source_file": "content/rewrites/jakou-baterii-a-mppt-k-solarnim-panelum-800w.html",
+  "source_sha256": "a38cc43416259b883ec6863f66394b46f2d5526f13a5e0ce0cea730d4486f67d",
+  "expect_absent": true
+}
