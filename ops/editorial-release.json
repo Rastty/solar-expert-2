@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-starlink-mini-live-dc-copyfix-20261110-v1.json",
-  "activation_revision": 6,
-  "notice": "Single source-locked UPDATE of existing published WordPress post #1630 to correct a public buyer-journey mismatch: the live selector lacks a direct-DC mode and Starlink Mini example while the article previously told readers to switch to it. No product prices/specs/affiliate links change. Independent GET-only live audit #42883444051 observed article and battery/MPPT tools HTTP 200 but DC preset absent. Authenticated WP GET-only exact CAS snapshot #42884403623 at 2026-11-10 19:21:30 UTC verified original raw SHA256 21aa2b2b876413b7c42e4a03e5dc63e424ec6cea91d12f57eaca1ca58870f463 and modified_gmt 2026-11-10T19:05:34. The current GET snapshot does NOT authorize UPDATE: protected first-attempt main publisher must independently re-check exact post ID/slug/category/body SHA/modified_gmt during prepare and apply, persist encrypted prewrite before its single POST, read back authenticated and public semantic source, NEVER rerun after an ambiguous write. This is NOT a second CREATE, theme deployment, price verification or license to bypass WEDOS DB/uploads restore blocker #148."
+  "manifest": "ops/editorial-manifests/solar-battery-mppt-800wp-20261115-v1.json",
+  "activation_revision": 7,
+  "notice": "One new source-locked, 800Wp LiFePO4 battery and MPPT buyer guide from exact Git commit; only one native WordPress post CREATE after independent authenticated 24h and slug preflight, encrypted prewrite archival before the single POST, verified readback and no replay after an uncertain write. No theme deployment, product-price change, hardcoded affiliate ID or bypass of WEDOS restore blocker #148."
 }
