@@ -130,7 +130,7 @@ class HtmlGuard(HTMLParser):
                 continue
             href = val or ""
             parsed = parse.urlsplit(href)
-            if href.startswith("/") and not href.startswith("//") and not parsed.query:
+            # The single editorially reviewed 400Wp selector preset is safe.\n            # Keep all other query-bearing URLs blocked, including tracking.\n            reviewed_example = (tag == "a" and key == "href" and\n                                href == "/vyber-baterii/?scenario=panel400")\n            if href.startswith("/") and not href.startswith("//") and (not parsed.query or reviewed_example):
                 self.internal += 1 if key == "href" else 0
             elif parsed.scheme == "https" and parsed.netloc and not parsed.username:
                 if parsed.hostname == "solar-expert.cz":
