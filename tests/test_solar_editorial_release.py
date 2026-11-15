@@ -32,6 +32,12 @@ def article():
 
 
 SLUG = "solarni-panel-na-karavan-200w"
+APPEND_TARGET = "/jakou-baterii-a-mppt-k-solarnim-panelum-800w/"
+APPEND = (
+    '<p class="se-note"><strong>Rozšiřujete ostrovní sestavu?</strong> '
+    'Přečtěte si <a href="' + APPEND_TARGET + '">výběr baterie a MPPT pro 800 Wp</a>. '
+    'Kapacitu baterie spočítejte podle spotřeby a při návrhu ověřte také Voc a Isc.</p>'
+)
 
 
 def manifest(source, *, kind="post_create"):
@@ -338,6 +344,62 @@ class PublisherTests(unittest.TestCase):
                 e.apply(m, d)
         self.assertEqual(wp.posts, 1)
         self.assertEqual(e.sha(wp.record["content"]["raw"]), m["source_sha256"])
+
+    def append_manifest(self, original):
+        m = manifest(APPEND, kind="post_append")
+        m["source_file"] = "content/editorial-append/" + SLUG + ".html"
+        m["link_target"] = APPEND_TARGET
+        m["expected_current_sha256"] = e.sha(original)
+        return m
+
+    def test_bounded_append_preserves_all_existing_body_and_writes_once(self):
+        original = article() + "\n  "
+        m = self.append_manifest(original)
+        d = e.sha(e.canonical(m))
+        wp = FakeWordPress(existing_post=existing(original))
+        with patch.object(e, "github_source", return_value=APPEND), patch.object(e, "wp", new=wp):
+            e.validate_manifest(m)
+            e.validate_append_snippet(APPEND, m)
+            e.prepare(m, d)
+            self.assertEqual(wp.posts, 0)
+            with patch.dict(os.environ, {"SOLAR_EDITORIAL_LIVE": "YES"}), \
+                 patch.object(e, "public_probe", return_value="public_content_seen"):
+                e.apply(m, d)
+                e.apply(m, d)
+        self.assertEqual(wp.posts, 1)
+        self.assertTrue(wp.record["content"]["raw"].startswith(original))
+        self.assertEqual(wp.record["content"]["raw"].count(APPEND_TARGET), 1)
+        self.assertEqual(json.loads(self.report.read_text())["status"], "already_live_verified")
+
+    def test_append_rejects_drift_and_unreviewed_links(self):
+        original = article()
+        m = self.append_manifest(original)
+        d = e.sha(e.canonical(m))
+        for bad in [
+            APPEND.replace(APPEND_TARGET, "/mppt-kalkulacka/"),
+            APPEND.replace("</p>", '<script>evil()</script></p>'),
+            APPEND.replace('class="se-note"', 'class="se-note" onclick="evil()"'),
+            APPEND.replace("</p>", '<a href="https://ehub.cz/?a_aid=x">buy</a></p>'),
+        ]:
+            with self.subTest(bad=bad[:35]), self.assertRaises(e.Blocked):
+                e.validate_append_snippet(bad, m)
+        wp = FakeWordPress(existing_post=existing(original))
+        with patch.object(e, "github_source", return_value=APPEND), patch.object(e, "wp", new=wp):
+            e.prepare(m, d)
+            wp.record["content"]["raw"] = original + "<p>Editor made a change.</p>"
+            with patch.dict(os.environ, {"SOLAR_EDITORIAL_LIVE": "YES"}), self.assertRaises(e.Blocked):
+                e.apply(m, d)
+        self.assertEqual(wp.posts, 0)
+
+    def test_append_wont_duplicate_existing_destination_or_wrong_fingerprint(self):
+        original = article()
+        m = self.append_manifest(original)
+        already_linked = original + '<p><a href="' + APPEND_TARGET + '">Already linked</a></p>'
+        wp = FakeWordPress(existing_post=existing(already_linked))
+        with patch.object(e, "github_source", return_value=APPEND), patch.object(e, "wp", new=wp), \
+             self.assertRaises(e.Blocked):
+            e.prepare(m, e.sha(e.canonical(m)))
+        self.assertEqual(wp.posts, 0)
 
     def test_ambiguous_post_response_must_never_be_retried(self):
         wp = FakeWordPress(fail_write=True)
