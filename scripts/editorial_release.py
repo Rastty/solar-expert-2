@@ -27,7 +27,7 @@ BACKUP = ROOT / "artifacts/editorial-prewrite-private.json"
 RECEIPT = ROOT / "artifacts/editorial-release-receipt.json"
 SITE = "https://solar-expert.cz"
 REPO = "Rastty/solar-expert-2"
-KINDS = {"post_create", "post_update"}
+KINDS = {"post_create", "post_update", "post_append"}
 MAX_BODY = 90000
 
 
@@ -77,7 +77,7 @@ def load_operation() -> tuple[dict, str] | None:
 def validate_manifest(m: dict) -> None:
     require(type(m) is dict and m.get("schema_version") == 1, "Invalid manifest schema")
     require(m.get("authorization") == "owner_standing_editorial", "Not authorized for routine editorial")
-    require(m.get("kind") in KINDS, "Only one post create/update is allowed")
+    require(m.get("kind") in KINDS, "Only one post create/update/append is allowed")
     require(re.fullmatch(r"solar-[a-z0-9-]{12,110}", str(m.get("operation_id", ""))) is not None,
             "Operation identity must be unique and immutable")
     slug = m.get("slug")
@@ -89,8 +89,9 @@ def validate_manifest(m: dict) -> None:
     require(isinstance(m.get("excerpt"), str) and 60 <= len(m["excerpt"]) <= 440, "Invalid excerpt")
     require(re.fullmatch(r"[0-9a-f]{40}", str(m.get("source_commit", ""))) is not None,
             "Source must refer to an immutable Git commit, not branch HEAD")
-    require(m.get("source_file") == "content/rewrites/" + slug + ".html",
-            "Only a slug-matching Git managed article is permitted")
+    folder = "content/editorial-append/" if m["kind"] == "post_append" else "content/rewrites/"
+    require(m.get("source_file") == folder + slug + ".html",
+            "Only a slug-matching Git managed editorial source is permitted")
     require(re.fullmatch(r"[0-9a-f]{64}", str(m.get("source_sha256", ""))) is not None,
             "Pinned source SHA256 required")
     require("posts" not in m and "batch" not in m and "queries" not in m,
@@ -105,6 +106,10 @@ def validate_manifest(m: dict) -> None:
         require(re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d",
                              str(m.get("expected_modified_gmt", ""))) is not None,
                 "Current post modification time is mandatory")
+    if m["kind"] == "post_append":
+        target = m.get("link_target")
+        require(isinstance(target, str) and re.fullmatch(r"/[a-z0-9-]{10,150}/", target) is not None,
+                "Append target must be a single canonical on-site article")
 
 
 class HtmlGuard(HTMLParser):
@@ -161,6 +166,39 @@ def validate_html(body: str, slug: str) -> None:
             "Electrical buyer claim requires actual voltage and current caveats")
     require("<script" not in body.lower() and "<?php" not in body.lower(),
             "Executable code is forbidden in editorial WordPress content")
+
+
+def validate_append_snippet(snippet: str, m: dict) -> None:
+    """Only one short, immutable first-party contextual link, no existing body rewrite."""
+    require(isinstance(snippet, str) and 110 <= len(snippet) <= 700,
+            "Append is not a bounded contextual paragraph")
+    trimmed = snippet.strip()
+    require(trimmed.startswith('<p class="se-note">') and trimmed.endswith('</p>')
+            and '<!' not in trimmed and '<?' not in trimmed,
+            "Append must be a simple highlighted paragraph")
+    require(set(re.findall(r"</?([a-z][a-z0-9-]*)(?:\s|>)", trimmed)) <= {"p", "strong", "a", "em"},
+            "Only p/strong/a/em elements allowed")
+    require(len(re.findall(r"<a\s+href=", trimmed)) == 1 and
+            trimmed.count('href="' + m["link_target"] + '"') == 1,
+            "Exactly one approved canonical destination required")
+    guard = HtmlGuard()
+    guard.feed(trimmed)
+    require(not guard.bad and guard.internal == 1 and guard.external == 0,
+            "Unsafe append link or embedded content")
+    require(not re.search(r"\s(?:class|id|style|on[a-z]+|target|src|data-[a-z-]+)=", trimmed.replace('<p class="se-note">', ''), re.I),
+            "Unreviewed append attributes")
+    require("<script" not in trimmed.lower() and "<?php" not in trimmed.lower(),
+            "Executable append is forbidden")
+
+
+def append_candidate(original: str, snippet: str, m: dict) -> str:
+    require(isinstance(original, str) and 300 <= len(original) <= MAX_BODY - len(snippet) - 3,
+            "Existing post body outside safe append bounds")
+    if snippet.strip() in original:
+        return original
+    require(m["link_target"] not in original,
+            "Destination already present with different markup; do not duplicate")
+    return original + ("\n" if original.endswith("\n") else "\n\n") + snippet.strip() + "\n"
 
 
 class NoRedirects(request.HTTPRedirectHandler):
@@ -223,7 +261,10 @@ def github_source(m: dict) -> str:
     except (ValueError, UnicodeDecodeError, KeyError):
         raise Blocked("Invalid GitHub source body") from None
     require(sha(source) == m["source_sha256"], "Source SHA256 changed; no WordPress write")
-    validate_html(source, m["slug"])
+    if m["kind"] == "post_append":
+        validate_append_snippet(source, m)
+    else:
+        validate_html(source, m["slug"])
     return source
 
 
@@ -386,9 +427,15 @@ def check_existing(m: dict, source: str, cat: int, *, for_update: bool) -> tuple
 
 
 def prepare(m: dict, manifest_sha: str) -> None:
-    source = github_source(m)
+    immutable_source = github_source(m)
     cat = category_id()
-    state, current = check_existing(m, source, cat, for_update=(m["kind"] == "post_update"))
+    if m["kind"] == "post_append":
+        observed = post(m["post_id"])
+        canonical_post(observed, m, cat)
+        source = append_candidate(raw(observed), immutable_source, m)
+    else:
+        source = immutable_source
+    state, current = check_existing(m, source, cat, for_update=(m["kind"] != "post_create"))
     if state == "already_live_verified":
         receipt(state, operation_id=m["operation_id"], post_id=current["id"],
                 canonical_url=current["link"], authenticated_readback=True,
@@ -398,6 +445,7 @@ def prepare(m: dict, manifest_sha: str) -> None:
         "schema_version": 1, "operation_id": m["operation_id"],
         "manifest_sha256": manifest_sha, "kind": m["kind"],
         "slug": m["slug"], "category_id": cat, "source_sha256": sha(source),
+        "append_snippet": immutable_source if m["kind"] == "post_append" else None,
         "source_body": source, "prestate": state,
         "post_id": current["id"] if current else None,
         "original_modified_gmt": current.get("modified_gmt") if current else None,
@@ -480,13 +528,21 @@ def apply(m: dict, manifest_sha: str) -> None:
             b.get("kind") == m["kind"] and b.get("slug") == m["slug"],
             "Snapshot operation or manifest drift")
     source = b.get("source_body")
-    require(isinstance(source, str) and sha(source) == m["source_sha256"] and
-            b.get("source_sha256") == m["source_sha256"],
+    require(isinstance(source, str) and sha(source) == b.get("source_sha256"),
             "Source body differs from archived snapshot")
-    validate_html(source, m["slug"])
+    if m["kind"] == "post_append":
+        snippet = b.get("append_snippet")
+        require(isinstance(snippet, str) and sha(snippet) == m["source_sha256"],
+                "Immutable append snippet differs from archived snapshot")
+        validate_append_snippet(snippet, m)
+        require(source == append_candidate(b.get("original_content"), snippet, m),
+                "Append body is not the exact preserved original plus snippet")
+    else:
+        require(sha(source) == m["source_sha256"], "Immutable article source drift")
+        validate_html(source, m["slug"])
     cat = category_id()
     require(cat == b.get("category_id"), "WordPress taxonomy ID changed between phases")
-    state, current = check_existing(m, source, cat, for_update=(m["kind"] == "post_update"))
+    state, current = check_existing(m, source, cat, for_update=(m["kind"] != "post_create"))
     if state == "already_live_verified":
         receipt(state, operation_id=m["operation_id"], writes=0,
                 post_id=current["id"], canonical_url=current["link"],
@@ -494,7 +550,7 @@ def apply(m: dict, manifest_sha: str) -> None:
         return
     require(state == b.get("prestate"),
             "Prewrite state drift since private snapshot")
-    if m["kind"] == "post_update":
+    if m["kind"] != "post_create":
         require(current["id"] == b.get("post_id") and
                 current.get("modified_gmt") == b.get("original_modified_gmt") and
                 sha(raw(current)) == b.get("original_sha256"),
@@ -531,7 +587,10 @@ def apply(m: dict, manifest_sha: str) -> None:
                     post_id=result_id, writes_attempted=1)
             raise Blocked("Authenticated content differs after one WordPress POST")
         # Use unique sample of actual source text, not a fabricated browser check.
-        sample = normalized_visible_text(source.split("</h2>", 1)[0])[-90:]
+        if m["kind"] == "post_append":
+            sample = normalized_visible_text(b["append_snippet"])[-90:]
+        else:
+            sample = normalized_visible_text(source.split("</h2>", 1)[0])[-90:]
         public = public_probe(after["link"], sample) if sample else "public_unavailable"
         receipt("wp_verified", operation_id=m["operation_id"], post_id=result_id,
                 canonical_url=after["link"], authenticated_readback=True,
