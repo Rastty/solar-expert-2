@@ -14,9 +14,10 @@ from pathlib import Path
 from scripts import editorial_release as publisher
 
 POST_ID = 1630
-# The original CREATE source is immutable but is no longer the live body:
-# a source-locked correction was published by the guarded UPDATE workflow.
-MANIFEST = publisher.ROOT / "ops/editorial-manifests/solar-starlink-mini-live-dc-copyfix-20261110-v1.json"
+# Historic CREATE and DC correction remain immutable receipts. The latest
+# one-write UPDATE connected Starlink Mini readers to the 800Wp buyer guide;
+# use its exact pinned source for the current read-only live-body evidence.
+MANIFEST = publisher.ROOT / "ops/editorial-manifests/solar-starlink-800wp-buyer-bridge-20261115-v1.json"
 OUTPUT = publisher.ROOT / "artifacts/solar-starlink-current-source-readonly.json"
 SLUG = "starlink-mini-na-chate-solarni-panel-baterie-mppt"
 
