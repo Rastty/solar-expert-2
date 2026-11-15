@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-fridge-800wp-internal-bridge-20261115-v1",
+  "post_id": 1613,
+  "slug": "solarni-sestava-na-chatu-pro-lednici",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární sestava na chatu pro lednici: spotřeba, baterie a MPPT",
+  "excerpt": "Jak napájet lednici 230 V na chatě? Výpočet spotřeby, velikosti LiFePO4 baterie, výkonu panelů, správného MPPT a ztrát měniče před nákupem.",
+  "source_commit": "9b09c0ff522fa34596d708ac994d7c4dc5bbdbcb",
+  "source_file": "content/editorial-append/solarni-sestava-na-chatu-pro-lednici.html",
+  "source_sha256": "912e9bbbbe6e41babcd7a651d0ec2d739334b8653a11e2f452c0dfc74d34db2d",
+  "link_target": "/jakou-baterii-a-mppt-k-solarnim-panelum-800w/",
+  "expected_current_sha256": "4ea2b7323500a7aa4e433297826c5cfc9798315c5b0263701ab8edf6bc593fa4",
+  "expected_modified_gmt": "2026-11-09T17:32:25"
+}

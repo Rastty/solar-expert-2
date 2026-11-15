@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-battery400-preset-and-800wp-bridge-20261115-v3.json",
-  "activation_revision": 12,
-  "notice": "Guarded one-post UPDATE of existing WP #1615 restores only the reviewed /vyber-baterii/?scenario=panel400 prefilling CTA while retaining the verified 800Wp expansion link. Narrow native editorial HTML allowlist accepts precisely that first-party preset, rejects all other query URLs and affiliate tracking. Live expected prior body SHA256 and modified_gmt are source-evidenced CAS guards; encrypted prewrite archive, single POST, authenticated readback. No theme rollout; WEDOS restore gate #148 unchanged."
+  "manifest": "ops/editorial-manifests/solar-fridge-800wp-internal-bridge-20261115-v1.json",
+  "activation_revision": 13,
+  "notice": "Single CAS-guarded post_append to published chalet fridge buyer guide WP #1613. Append one source-locked contextual link to the 800Wp battery/MPPT guide, preserving entire original WordPress raw body byte-for-byte as a prefix. Existing authenticated raw WordPress SHA256/modified_gmt evidence from 2026-11-15; private encrypted prewrite backup, one POST maximum, exact authenticated readback; no theme deploy, WEDOS gate #148 remains."
 }
