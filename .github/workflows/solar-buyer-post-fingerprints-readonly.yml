@@ -1,0 +1,57 @@
+name: Solar Expert authenticated buyer post fingerprints (GET only)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/solar-buyer-post-fingerprints-readonly.yml"
+      - "scripts/editorial_target_fingerprints_readonly.py"
+      - "tests/test_solar_target_fingerprints_readonly.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  fingerprint-only:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - name: Checkout trusted default-branch sources
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Confirm GET-only contract with synthetic WordPress data
+        run: python -m unittest discover -s tests -p 'test_solar_target_fingerprints_readonly.py' -v
+      - name: Get exact current buyer article body hashes without logging contents
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.editorial_target_fingerprints_readonly
+      - name: Show public-safe read-only status
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e '.writes == 0 and .publish_authorized == false and
+            .theme_deploy_authorized == false and (.posts | length == 2)' \
+            artifacts/solar-editorial-target-fingerprints-readonly.json >/dev/null
+          {
+            echo '## Buyer post body fingerprints – read-only, not release authorization'
+            echo ''
+            jq -r '.posts[] | "- WordPress #\(.post_id): **\(.status)**; modified GMT `\(.modified_gmt // "unverified")`; SHA256 `\(.current_source_sha256 // "unverified")`"' \
+              artifacts/solar-editorial-target-fingerprints-readonly.json
+            echo ''
+            echo 'No WordPress POST; every future edit needs a separate source-locked manifest and fresh CAS check.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep only non-sensitive digest snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-buyer-post-fingerprints-${{ github.run_id }}
+          path: artifacts/solar-editorial-target-fingerprints-readonly.json
+          if-no-files-found: error
+          retention-days: 7
