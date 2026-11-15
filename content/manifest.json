@@ -517,6 +517,17 @@
     },
     {
       "type": "post",
+      "slug": "jakou-baterii-a-mppt-k-solarnim-panelum-800w",
+      "title": "Jakou LiFePO4 baterii a MPPT k solárním panelům 800 W?",
+      "create_if_missing": false,
+      "preserve_status": true,
+      "native_editorial_owned": true,
+      "indexable": true,
+      "category_slug": "solarni-panely",
+      "file": "content/rewrites/jakou-baterii-a-mppt-k-solarnim-panelum-800w.html"
+    },
+    {
+      "type": "post",
       "slug": "solarni-panel-pro-wifi-kameru-a-router-na-chate",
       "title": "Solární panel pro Wi-Fi kameru a router na chatě: baterie a MPPT",
       "create_if_missing": false,
