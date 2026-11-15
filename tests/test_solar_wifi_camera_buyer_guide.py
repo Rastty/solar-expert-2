@@ -40,7 +40,12 @@ class BuyerGuideContract(unittest.TestCase):
         self.assertEqual(revised["expected_current_sha256"], m["source_sha256"])
         self.assertEqual(revised["expected_modified_gmt"], "2026-11-09T17:18:49")
         self.assertEqual(revised["source_commit"], "86884f23207364662696744577a7e5955179558f")
-        self.assertEqual(hashlib.sha256(self.html.encode("utf-8")).hexdigest(), revised["source_sha256"])
+        # Previous WordPress UPDATE remains immutable evidence. The current
+        # source adds a separate buyer bridge and will need its own CAS release.
+        self.assertEqual(revised["source_sha256"],
+                         "5fb048b7be6a49c9d5db706b0b1cd284b257739cd20ecfd70cdde9b07188d45a")
+        self.assertEqual(hashlib.sha256(self.html.encode("utf-8")).hexdigest(),
+                         "87a6af54673c9e13dc1223299e3e0373ad5793e7ee47f3df9da366366dea0280")
 
     def test_specific_problem_and_distinct_buyer_decision(self):
         for expected in (
@@ -75,6 +80,7 @@ class BuyerGuideContract(unittest.TestCase):
             "/jakou-baterii-k-solarnimu-panelu-400w/",
             "/jak-vybrat-mppt-regulator-pro-400w-panel/",
             "/affiliate-transparentnost/", "/jak-doporucujeme/",
+            "/jakou-baterii-a-mppt-k-solarnim-panelum-800w/",
         ):
             self.assertIn('href="' + path + '"', self.html)
         self.assertIn("https://www.victronenergy.com/media/pg/", self.html)
