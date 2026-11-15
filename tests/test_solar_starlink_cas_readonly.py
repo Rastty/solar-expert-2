@@ -50,12 +50,12 @@ class TestCurrentStarlinkSource(unittest.TestCase):
         with patch.object(publisher, "wp", side_effect=self.fake_wp):
             return evidence.inspect()
 
-    def test_exact_source_produces_update_cas_evidence_but_not_authorization(self):
+    def test_current_published_source_produces_cas_evidence_but_not_authorization(self):
         d = self.check()
-        self.assertEqual(d["status"], "original_published_body_exact_at_snapshot")
+        self.assertEqual(d["status"], "current_published_body_exact_at_snapshot")
         self.assertEqual(d["expected_current_sha256"], self.manifest["source_sha256"])
         self.assertEqual(d["expected_modified_gmt"], self.modified)
-        self.assertTrue(d["original_source_sha256_verified"])
+        self.assertTrue(d["current_source_sha256_verified"])
         self.assertFalse(d["publish_authorized"])
         self.assertFalse(d["theme_deploy_authorized"])
         self.assertEqual(d["writes"], 0)
