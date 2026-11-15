@@ -21,7 +21,7 @@ class TestCurrentStarlinkSource(unittest.TestCase):
     def setUp(self):
         self.requests = []
         self.content = self.article
-        self.modified = "2026-11-10T19:05:38"
+        self.modified = "2026-11-15T08:12:14"
         self.id = evidence.POST_ID
         self.slug_rows = 1
 
