@@ -2318,6 +2318,10 @@ function solar_expert_seo_meta($slug_override = '') {
       'title' => 'Jaká baterie k 400W panelu? LiFePO4 12 V nebo 24 V | Solar Expert',
       'description' => 'Jakou LiFePO4 baterii ke 400W panelu? Výpočet Wh a Ah, 12V 100Ah vs. 24V 50Ah, proud BMS, MPPT a doporučené ověřené nabídky.'
     ),
+    'jakou-baterii-a-mppt-k-solarnim-panelum-800w' => array(
+      'title' => 'Jaká baterie a MPPT pro 800 Wp panelů? 12V vs 24V | Solar Expert',
+      'description' => 'Dva 400Wp panely: jak vybrat kapacitu LiFePO4 baterie, bezpečný MPPT a vhodné napětí 12 nebo 24 V podle spotřeby, Voc, Isc a BMS.'
+    ),
     'solarni-panel-na-karavan-200w' => array(
       'title' => 'Solární panel na karavan 200 W: baterie a MPPT | Solar Expert',
       'description' => 'Jak sestavit 12V solární systém na karavan kolem 200 Wp: spotřeba Wh/den, LiFePO4 baterie 50/100 Ah, MPPT, skutečné Voc, Vmp a Isc panelu.'
