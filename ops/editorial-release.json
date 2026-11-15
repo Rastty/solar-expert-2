@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-starlink-800wp-buyer-bridge-20261115-v1.json",
-  "activation_revision": 9,
-  "notice": "One source-locked UPDATE of published Starlink Mini buyer guide WP #1630, adding a contextual handoff to the verified live 800Wp battery+MPPT buyer guide. Independently observed public modified_gmt 2026-11-10T19:28:09 and previously wp_verified raw-body SHA 2a64351c029411bcad3d0cc8c69bc6210084e2fd4eb3ba1b9cc4ca6432a78122 are only CAS expectations, not authorization. Native first-attempt guarded publisher MUST repeat authenticated post ID/slug/category/raw-body/time checks, encrypt PREWRITE before its single REST POST and verify readback. No new post, no theme deploy or catalog write, no replay after ambiguous outcome and no host backup gate override."
+  "manifest": "ops/editorial-manifests/solar-battery400-800wp-buyer-bridge-20261115-v1.json",
+  "activation_revision": 10,
+  "notice": "One source-locked UPDATE of existing 400Wp LiFePO4 battery buyer guide WP #1615, adding a contextual 800Wp expansion handoff. Authenticated GET-only digest e3d4bc85f4ebb31f20fcaa5f6d446c8726abc213b1f6f8e1679748fa457677d9 and modified_gmt 2026-11-09T17:36:15 are point-in-time CAS expectations only. Native first-attempt guarded publisher MUST re-check exact live body/time/slug/category, archive encrypted prewrite before its single REST POST, then verify readback. Zero new posts, no theme/catalog deploy, no retries after ambiguous response and no bypass of WEDOS restore gate."
 }
