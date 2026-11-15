@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-battery400-800wp-buyer-bridge-20261115-v1.json",
-  "activation_revision": 10,
-  "notice": "One source-locked UPDATE of existing 400Wp LiFePO4 battery buyer guide WP #1615, adding a contextual 800Wp expansion handoff. Authenticated GET-only digest e3d4bc85f4ebb31f20fcaa5f6d446c8726abc213b1f6f8e1679748fa457677d9 and modified_gmt 2026-11-09T17:36:15 are point-in-time CAS expectations only. Native first-attempt guarded publisher MUST re-check exact live body/time/slug/category, archive encrypted prewrite before its single REST POST, then verify readback. Zero new posts, no theme/catalog deploy, no retries after ambiguous response and no bypass of WEDOS restore gate."
+  "manifest": "ops/editorial-manifests/solar-battery400-800wp-buyer-bridge-20261115-v2.json",
+  "activation_revision": 11,
+  "notice": "Guarded single UPDATE of WP #1615 links existing 400Wp LiFePO4 buyer guide to live 800Wp follow-up, with query-free CTA source. V1 was blocked in HTML preflight without any WP write. Expected existing digest/modified_gmt point-in-time evidence rechecked immediately before one POST. Archive encrypted prewrite and verify; no repeated POST on ambiguous response; theme deploy still blocked by WEDOS restore gate #148."
 }
