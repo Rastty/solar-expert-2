@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-fridge-800wp-internal-bridge-20261115-v1.json",
-  "activation_revision": 13,
-  "notice": "Single CAS-guarded post_append to published chalet fridge buyer guide WP #1613. Append one source-locked contextual link to the 800Wp battery/MPPT guide, preserving entire original WordPress raw body byte-for-byte as a prefix. Existing authenticated raw WordPress SHA256/modified_gmt evidence from 2026-11-15; private encrypted prewrite backup, one POST maximum, exact authenticated readback; no theme deploy, WEDOS gate #148 remains."
+  "manifest": "ops/editorial-manifests/solar-mppt400-battery400-buyer-bridge-20261115-v1.json",
+  "activation_revision": 14,
+  "notice": "CAS-guarded one-paragraph post_append to published MPPT400 buyer guide WP #1612, linking to matching battery400 decision, preserving original raw WP body unchanged. Source locked to merged main commit and SHA256, current WordPress raw SHA256 and modified GMT pinned; one POST maximum, encrypted prewrite snapshot and authenticated readback. No theme deploy. WEDOS restore gate #148 unaffected."
 }
