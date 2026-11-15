@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-mppt400-battery400-buyer-bridge-20261115-v1",
+  "post_id": 1612,
+  "slug": "jak-vybrat-mppt-regulator-pro-400w-panel",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Jak vybrat MPPT regulátor pro solární panel 400 Wp",
+  "excerpt": "Výběr MPPT pro solární panel 400 Wp podle Voc, Isc, bateriového napětí a proudového limitu, s praktickým postupem ověření komponent ostrovní sestavy.",
+  "source_commit": "f87aa77049d5d9402a3b7c21c589c3e9628bdcee",
+  "source_file": "content/editorial-append/jak-vybrat-mppt-regulator-pro-400w-panel.html",
+  "source_sha256": "6ec72ed706450267a5a88c7c36a494de3c55684956a773d0509c82752725f308",
+  "link_target": "/jakou-baterii-k-solarnimu-panelu-400w/",
+  "expected_current_sha256": "2cda04c0a4d7e0fa11a621832ab7832cdc8d0346043e34178f01329a46328c12",
+  "expected_modified_gmt": "2026-11-07T17:20:46"
+}
