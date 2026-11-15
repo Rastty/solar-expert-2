@@ -169,6 +169,7 @@ class PublisherTests(unittest.TestCase):
 
     def test_editorial_source_is_substantial_with_safe_buyer_navigation(self):
         e.validate_html(self.html, SLUG)
+        e.validate_html(self.html + '<p><a href="/vyber-baterii/?scenario=panel400">400Wp preset</a></p>', SLUG)
         for danger in [
             "<script>alert(1)</script>",
             '<a href="javascript:alert(1)">call</a>',
@@ -176,6 +177,8 @@ class PublisherTests(unittest.TestCase):
             '<iframe src="https://other.site/x"></iframe>',
             '<img src="https://untrusted.site/image.jpg">',
             '<a href="//evil.com/a">protocol relative</a>',
+            '<a href="/vyber-baterii/?scenario=panel400&merchant=x">unreviewed tracking parameters</a>',
+            '<a href="/mppt-kalkulacka/?scenario=panel400">unreviewed target</a>',
             '<span onclick="send()">event handler</span>',
         ]:
             with self.subTest(danger=danger), self.assertRaises(e.Blocked):
