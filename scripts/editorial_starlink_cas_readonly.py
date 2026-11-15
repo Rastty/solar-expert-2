@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Authenticate and read ONLY current Starlink Mini WordPress post CAS evidence.
+"""Authenticate and read ONLY the current Starlink Mini WordPress source.
 
 Never logs or archives WordPress body, usernames, tokens or other content.
 Output is a point-in-time source fingerprint, NOT an update authorization.
@@ -14,7 +14,9 @@ from pathlib import Path
 from scripts import editorial_release as publisher
 
 POST_ID = 1630
-MANIFEST = publisher.ROOT / "ops/editorial-manifests/solar-starlink-mini-offgrid-20261109-v1.json"
+# The original CREATE source is immutable but is no longer the live body:
+# a source-locked correction was published by the guarded UPDATE workflow.
+MANIFEST = publisher.ROOT / "ops/editorial-manifests/solar-starlink-mini-live-dc-copyfix-20261110-v1.json"
 OUTPUT = publisher.ROOT / "artifacts/solar-starlink-current-source-readonly.json"
 SLUG = "starlink-mini-na-chate-solarni-panel-baterie-mppt"
 
@@ -30,7 +32,7 @@ def inspect() -> dict:
         "status": "unknown_or_unavailable",
         "expected_current_sha256": None,
         "expected_modified_gmt": None,
-        "original_source_sha256_verified": False,
+        "current_source_sha256_verified": False,
         "publish_authorized": False,
         "theme_deploy_authorized": False,
         "writes": 0
@@ -38,8 +40,9 @@ def inspect() -> dict:
     try:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         publisher.validate_manifest(manifest)
-        if manifest["slug"] != SLUG or manifest["kind"] != "post_create":
-            result["status"] = "blocked_original_manifest"
+        if (manifest["slug"] != SLUG or manifest["kind"] != "post_update"
+                or manifest["post_id"] != POST_ID):
+            result["status"] = "blocked_current_manifest"
             return result
 
         category = publisher.category_id()  # authorized GET only
@@ -49,9 +52,9 @@ def inspect() -> dict:
         publisher.require(len(rows) == 1 and rows[0].get("id") == POST_ID,
                           "Slug must remain unique and owned by original WP post")
 
-        original_sha = manifest["source_sha256"]
+        expected_live_sha = manifest["source_sha256"]
         current_sha = publisher.sha(publisher.raw(current))
-        if current_sha != original_sha:
+        if current_sha != expected_live_sha:
             result["status"] = "blocked_live_content_changed"
             return result
         modified = current.get("modified_gmt")
@@ -61,8 +64,8 @@ def inspect() -> dict:
         publisher.parse_wp_gmt_utc(modified)
         result["expected_current_sha256"] = current_sha
         result["expected_modified_gmt"] = modified
-        result["original_source_sha256_verified"] = True
-        result["status"] = "original_published_body_exact_at_snapshot"
+        result["current_source_sha256_verified"] = True
+        result["status"] = "current_published_body_exact_at_snapshot"
     except (OSError, ValueError, TypeError, KeyError, publisher.Blocked):
         # No WP post body or private exception text is allowed into artifacts.
         pass
