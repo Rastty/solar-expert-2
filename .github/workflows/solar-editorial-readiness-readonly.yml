@@ -91,19 +91,19 @@ jobs:
             echo ''
             echo '## Published Starlink Mini — exact current post body CAS evidence'
             echo ''
-            jq -r '"Current source state: **\(.status)**", "WordPress post ID: \(.post_id)", "Original published source match: **\(.original_source_sha256_verified)**", "Modification timestamp: \(.expected_modified_gmt // "unverified")"' \
+            jq -r '"Current source state: **\(.status)**", "WordPress post ID: \(.post_id)", "Latest published source match: **\(.current_source_sha256_verified)**", "Modification timestamp: \(.expected_modified_gmt // "unverified")"' \
               artifacts/solar-starlink-current-source-readonly.json
             echo ''
             echo 'Hash and modified_gmt describe the source **only at the read time**. Any reviewed update requires a new immutable source+manifest, independently fresh authenticated compare-and-swap checks, encrypted prewrite archival and at most one guarded POST. No update is authorized by this report.'
           } >> "$GITHUB_STEP_SUMMARY"
-          if [[ "$(jq -r '.status' artifacts/solar-starlink-current-source-readonly.json)" != "original_published_body_exact_at_snapshot" ]]; then
-            echo '::warning::Cannot prove Starlink Mini current original body. No editorial update may be armed using this snapshot.'
+          if [[ "$(jq -r '.status' artifacts/solar-starlink-current-source-readonly.json)" != "current_published_body_exact_at_snapshot" ]]; then
+            echo '::warning::Cannot prove Starlink Mini latest published body. No editorial update may be armed using this snapshot.'
           fi
           # The previous CREATE-readiness probe correctly detects an occupied
           # slug after publication; this is expected ONLY if the new exact
-          # source read independently verifies WP #1630.
+          # source read independently verifies current WP #1630.
           if [[ "$(jq -r '.status' artifacts/solar-editorial-readiness-readonly.json)" != "clear_read_only_snapshot" &&
-                "$(jq -r '.status' artifacts/solar-starlink-current-source-readonly.json)" != "original_published_body_exact_at_snapshot" ]]; then
+                "$(jq -r '.status' artifacts/solar-starlink-current-source-readonly.json)" != "current_published_body_exact_at_snapshot" ]]; then
             echo '::warning::WordPress editorial state is not independently verified. Do not merge or POST based on this snapshot.'
           fi
       - name: Archive public-safe, no-secret read-only snapshot
