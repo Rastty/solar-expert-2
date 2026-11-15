@@ -10,6 +10,7 @@ on:
       - "tests/test_solar_editorial_credentials.py"
       - "ops/editorial-release.json"
       - "ops/editorial-manifests/**"
+      - "content/editorial-append/**"
       - "tests/test_solar_wifi_camera_buyer_guide.py"
   push:
     branches: [main]
@@ -19,6 +20,7 @@ on:
       - "scripts/editorial_credentials_check.py"
       - "ops/editorial-release.json"
       - "ops/editorial-manifests/**"
+      - "content/editorial-append/**"
       - "tests/test_solar_wifi_camera_buyer_guide.py"
   schedule:
     - cron: "11 * * * *"
