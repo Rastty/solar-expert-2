@@ -6,7 +6,7 @@ import crypto from 'node:crypto';
 const root = new URL('../', import.meta.url);
 const file = 'content/rewrites/solarni-panel-pro-wifi-kameru-a-router-na-chate.html';
 const slug = 'solarni-panel-pro-wifi-kameru-a-router-na-chate';
-const expectedSha = '5fb048b7be6a49c9d5db706b0b1cd284b257739cd20ecfd70cdde9b07188d45a';
+const expectedSha = '87a6af54673c9e13dc1223299e3e0373ad5793e7ee47f3df9da366366dea0280';
 const manifest = JSON.parse(fs.readFileSync(new URL('content/manifest.json', root), 'utf8'));
 const article = fs.readFileSync(new URL(file, root), 'utf8');
 
@@ -26,7 +26,7 @@ test('existing native-publisher article is a noncreating, status-preserving mana
   assert(!Object.hasOwn(entry, 'status_if_new'), 'no latent create-on-sync instruction');
 });
 
-test('dev source matches the latest immutable native-publisher EDIT buyer handoff', () => {
+test('dev source matches the latest verified native-publisher 800Wp buyer bridge', () => {
   assert.equal(crypto.createHash('sha256').update(article, 'utf8').digest('hex'), expectedSha);
   assert(article.length > 9000);
   assert(article.includes('461 Wh'));
@@ -34,6 +34,7 @@ test('dev source matches the latest immutable native-publisher EDIT buyer handof
   for (const guide of ['/jakou-baterii-k-solarnimu-panelu-400w/', '/jak-vybrat-mppt-regulator-pro-400w-panel/']) {
     assert(article.includes('href="' + guide + '"'), '400Wp buyer decision should reach the existing dedicated guide');
   }
+  assert(article.includes('href="/jakou-baterii-a-mppt-k-solarnim-panelum-800w/"'));
   assert(article.includes('PV Isc ani počet paralelních větví zatím automaticky neověřuje'));
   assert(article.includes('joint-research-centre.ec.europa.eu'));
   assert(article.includes('victronenergy.com'));
