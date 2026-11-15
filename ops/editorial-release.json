@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-battery400-800wp-buyer-bridge-20261115-v2.json",
-  "activation_revision": 11,
-  "notice": "Guarded single UPDATE of WP #1615 links existing 400Wp LiFePO4 buyer guide to live 800Wp follow-up, with query-free CTA source. V1 was blocked in HTML preflight without any WP write. Expected existing digest/modified_gmt point-in-time evidence rechecked immediately before one POST. Archive encrypted prewrite and verify; no repeated POST on ambiguous response; theme deploy still blocked by WEDOS restore gate #148."
+  "manifest": "ops/editorial-manifests/solar-battery400-preset-and-800wp-bridge-20261115-v3.json",
+  "activation_revision": 12,
+  "notice": "Guarded one-post UPDATE of existing WP #1615 restores only the reviewed /vyber-baterii/?scenario=panel400 prefilling CTA while retaining the verified 800Wp expansion link. Narrow native editorial HTML allowlist accepts precisely that first-party preset, rejects all other query URLs and affiliate tracking. Live expected prior body SHA256 and modified_gmt are source-evidenced CAS guards; encrypted prewrite archive, single POST, authenticated readback. No theme rollout; WEDOS restore gate #148 unchanged."
 }

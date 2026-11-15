@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_update",
+  "operation_id": "solar-battery400-preset-and-800wp-bridge-20261115-v3",
+  "post_id": 1615,
+  "slug": "jakou-baterii-k-solarnimu-panelu-400w",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Jakou LiFePO4 baterii k 400W solárnímu panelu: 12 V, 24 V a výpočet kapacity",
+  "excerpt": "Jakou LiFePO4 baterii vybrat k jednomu solárnímu panelu 400 Wp? Výpočet kapacity pro chatu, 12V a 24V systém, proud BMS, MPPT a možnost rozšíření na 800 Wp.",
+  "source_commit": "dba8d7e87e590885151282e910c2a8a2d21b321c",
+  "source_file": "content/rewrites/jakou-baterii-k-solarnimu-panelu-400w.html",
+  "source_sha256": "189ed225bf3f1158e40c72c083a94d24e6433215e14690a87c7173d8f1ba1e08",
+  "expected_current_sha256": "6c063d8974b9a7be25599f3faa51026402d1a50b42b050c7015b3d9b234ba2d6",
+  "expected_modified_gmt": "2026-11-15T08:43:43"
+}
