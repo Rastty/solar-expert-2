@@ -126,7 +126,10 @@ class StarlinkMiniBuyerGuideCandidate(unittest.TestCase):
         self.assertEqual(update["source_commit"], "cdb37180c4ec6ddc9205f92a5e4d28a2e448a17d")
         self.assertEqual(update["expected_current_sha256"], original_sha)
         self.assertEqual(update["expected_modified_gmt"], "2026-11-10T19:05:34")
-        self.assertEqual(update["source_sha256"], current_sha)
+        self.assertEqual(update["source_sha256"],
+                         "2a64351c029411bcad3d0cc8c69bc6210084e2fd4eb3ba1b9cc4ca6432a78122")
+        self.assertEqual(current_sha,
+                         "298df961e4da904df68a1e212b40395eeee7aeaecc37e42460141770cea4cf5d")
         self.assertIn("pokud na stránce nenajdete přepínač", self.html)
         self.assertNotIn("Pro přímé DC napájení přepněte nástroj do režimu DC, pokud", self.html)
 
@@ -152,6 +155,10 @@ class StarlinkMiniBuyerGuideCandidate(unittest.TestCase):
         self.assertGreaterEqual(self.html.count("<h2>"), 5)
         self.assertGreaterEqual(self.html.count("<table>"), 3)
         self.assertNotRegex(self.html, r"(?i)ehub\.cz|desturl=|a_aid=|<script|<iframe|skladem|garantovaná návratnost")
+
+    def test_buyer_handoff_from_400wp_to_800wp(self):
+        self.assertIn('href="/jakou-baterii-a-mppt-k-solarnim-panelum-800w/"', self.html)
+        self.assertIn("ani 800 Wp", self.html)
 
 
 if __name__ == "__main__":

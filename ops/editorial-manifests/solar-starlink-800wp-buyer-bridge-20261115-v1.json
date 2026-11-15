@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_update",
+  "operation_id": "solar-starlink-800wp-buyer-bridge-20261115-v1",
+  "post_id": 1630,
+  "slug": "starlink-mini-na-chate-solarni-panel-baterie-mppt",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Starlink Mini na chatě bez elektřiny: panel, baterie a MPPT",
+  "excerpt": "Výpočet spotřeby Starlinku Mini 20–40 W, potřebné LiFePO4 baterie pro 1–2 dny, solárního panelu a MPPT. Modelové příklady, bezpečné DC napájení a odkazy na výběrové nástroje bez neověřených cen.",
+  "source_commit": "c4ae5e52257616ab9f22fb728fe401b487edc16f",
+  "source_file": "content/rewrites/starlink-mini-na-chate-solarni-panel-baterie-mppt.html",
+  "source_sha256": "298df961e4da904df68a1e212b40395eeee7aeaecc37e42460141770cea4cf5d",
+  "expected_current_sha256": "2a64351c029411bcad3d0cc8c69bc6210084e2fd4eb3ba1b9cc4ca6432a78122",
+  "expected_modified_gmt": "2026-11-10T19:28:09"
+}
