@@ -38,6 +38,7 @@ $GLOBALS['post_by_slug'] = array(
   'jakou-baterii-k-solarnimu-panelu-400w' => new WP_Post(110),
   'solarni-panel-na-karavan-200w' => new WP_Post(111),
   'solarni-panel-pro-wifi-kameru-a-router-na-chate' => new WP_Post(112),
+  'jakou-baterii-a-mppt-k-solarnim-panelum-800w' => new WP_Post(113),
 );
 function get_page_by_path($slug,$output,$type) {
   return $type === 'post' ? ($GLOBALS['post_by_slug'][$slug] ?? null) : null;
@@ -64,6 +65,7 @@ $expected = array(
   'jakou-baterii-k-solarnimu-panelu-400w' => 'solarni-panely',
   'solarni-panel-na-karavan-200w' => 'solarni-panely',
   'solarni-panel-pro-wifi-kameru-a-router-na-chate' => 'solarni-panely',
+  'jakou-baterii-a-mppt-k-solarnim-panelum-800w' => 'solarni-panely',
 );
 $categorized = array();
 foreach ($manifest['items'] as $item) {
