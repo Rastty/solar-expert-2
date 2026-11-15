@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-battery-mppt-800wp-20261115-v1.json",
-  "activation_revision": 7,
-  "notice": "One new source-locked, 800Wp LiFePO4 battery and MPPT buyer guide from exact Git commit; only one native WordPress post CREATE after independent authenticated 24h and slug preflight, encrypted prewrite archival before the single POST, verified readback and no replay after an uncertain write. No theme deployment, product-price change, hardcoded affiliate ID or bypass of WEDOS restore blocker #148."
+  "manifest": "ops/editorial-manifests/solar-camera-800wp-buyer-bridge-20261115-v1.json",
+  "activation_revision": 8,
+  "notice": "One source-locked UPDATE of existing public 24/7 camera/router article WP #1626 linking the new verified 800Wp battery+MPPT buying decision guide. Independently observed public modified_gmt 2026-11-09T18:41:24 and last wp_verified raw-body SHA 5fb048b7be6a49c9d5db706b0b1cd284b257739cd20ecfd70cdde9b07188d45a are point-in-time CAS expectations, not authorization. Native first-attempt guarded publisher MUST repeat authenticated exact post/slug/category/body/time checks, encrypt PREWRITE before its single REST POST and verify readback. Zero new posts, no theme deploy/catalog write, no retries after ambiguity, no host restore override."
 }
