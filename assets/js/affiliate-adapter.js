@@ -411,13 +411,18 @@ window.SolarExpertAffiliate = {
     return resolved;
   },
 
-  trackOffer(product, offer, placement) {
+  trackOffer(product, offer, placement, quantity=1) {
     const resolved = this.resolveOffer(product, offer);
     if(!this.isActionableMerchantHref(resolved.href))return resolved;
+    const requested=Number(quantity);
+    // This is a count of units in an intended shopping action, not a cart,
+    // order, sale, commission or proof that the seller stocks this quantity.
+    const requestedQuantity=Number.isSafeInteger(requested)&&requested>=1&&requested<=20?requested:1;
     const detail = {
       productId: product?.id || null,
       merchant: resolved.merchantId || offer?.merchant || null,
       placement: placement || 'unknown',
+      quantity: requestedQuantity,
       monetized: resolved.monetized,
       hrefType: resolved.monetized ? 'affiliate' : 'source',
       priceCzk: resolved.price_czk

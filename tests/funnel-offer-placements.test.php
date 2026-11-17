@@ -30,9 +30,9 @@ $expired = gmdate('Y-m-d', time() - 34 * DAY_IN_SECONDS);
 $GLOBALS['se_offer_events'] = array(
   $today => array(
     'offer_exposure|merchant=battery-cz|placement=builder-battery-best|productid=bat-a' => 10,
-    'affiliate_click|merchant=battery-cz|placement=builder-battery-best|productid=bat-a' => 2,
+    'affiliate_click|merchant=battery-cz|placement=builder-battery-best|productid=bat-a|quantity=2' => 2,
     'offer_exposure|merchant=solar-import-cz|placement=builder-battery-best|productid=bat-a' => 7,
-    'affiliate_click|merchant=solar-import-cz|placement=builder-battery-best|productid=bat-a' => 1,
+    'affiliate_click|merchant=solar-import-cz|placement=builder-battery-best|productid=bat-a|quantity=4' => 1,
     'offer_exposure|merchant=battery-cz|placement=mppt-selector|productid=mppt-a' => 5,
     'offer_exposure|merchant=vselektro-eu|placement=mppt-selector|productid=mppt-victron-100-20' => 4,
     'affiliate_click|merchant=vselektro-eu|placement=mppt-selector|productid=mppt-victron-100-20' => 1,
@@ -47,7 +47,8 @@ $GLOBALS['se_offer_events'] = array(
     'offer_exposure|merchant=battery-cz|placement=builder-battery-best|productid=bat-a' => 3,
     'affiliate_click|merchant=battery-cz|placement=builder-battery-best|productid=bat-a' => 1,
     // Can have clicks but zero recorded impressions on legacy data.
-    'affiliate_click|merchant=battery-cz|placement=inverter-selector|productid=inv-a' => 2,
+    // Synthetic malformed history must not count 99 units in one click.
+    'affiliate_click|merchant=battery-cz|placement=inverter-selector|productid=inv-a|quantity=99' => 2,
   ),
   $expired => array(
     'offer_exposure|merchant=battery-cz|placement=mppt-selector|productid=old' => 999,
@@ -56,9 +57,11 @@ $GLOBALS['se_offer_events'] = array(
 $r = solar_expert_funnel_offer_breakdown(7);
 must($r['total_exposures'] === 29, 'Count all 29 comparable offer exposures');
 must($r['total_clicks'] === 8, 'Exclude leads, bundles and unaffiliated clicks');
+must($r['requested_units_clicks'] === 13, '13 clicked product-unit intentions, never asserted as orders or commissions');
 must(count($r['by_placement']) === 3, 'Three actual placement groups');
 must($r['by_placement']['builder-battery-best']['exposures'] === 20, 'Group across product and merchant');
 must($r['by_placement']['builder-battery-best']['clicks'] === 4, 'Compare direct product clicks only');
+must($r['by_placement']['builder-battery-best']['requested_units_clicks'] === 9, 'Multi-unit intent includes both merchants and legacy 1-unit click');
 must($r['by_placement']['builder-battery-best']['clicks_per_100_exposures'] === 20.0, 'Event-rate arithmetic');
 must($r['by_placement']['inverter-selector']['clicks_per_100_exposures'] === null, 'Missing historical exposure must show dash, never fake 0%');
 must(!isset($r['by_placement']['eon-solar-post']), 'Keep unexposed lead lane out of offer metric');
@@ -66,10 +69,12 @@ must(array_key_first($r['by_placement']) === 'builder-battery-best', 'Order most
 must(count($r['by_merchant']) === 3, 'Show all three storefronts with tracked product offers');
 must($r['by_merchant']['battery-cz']['exposures'] === 18 && $r['by_merchant']['battery-cz']['clicks'] === 6, 'Aggregate first merchant over multiple products and placements');
 must($r['by_merchant']['solar-import-cz']['exposures'] === 7 && $r['by_merchant']['solar-import-cz']['clicks'] === 1, 'Separate second storefront');
+must($r['by_merchant']['solar-import-cz']['requested_units_clicks'] === 4, 'Merchant intent uses the buyer-required four units');
 must($r['by_merchant']['vselektro-eu']['exposures'] === 4 && $r['by_merchant']['vselektro-eu']['clicks'] === 1, 'Independent new merchant counted');
 must($r['by_merchant']['vselektro-eu']['clicks_per_100_exposures'] === 25.0, 'Merchant click events per 100 exposures');
 must(count($r['by_operator']) === 2, 'Two legal operators, not three distinct sellers');
 must($r['by_operator']['efteria-cz']['exposures'] === 25 && $r['by_operator']['efteria-cz']['clicks'] === 7, 'Group both Efteria webshops legally');
+must($r['by_operator']['efteria-cz']['requested_units_clicks'] === 12, 'Shared legal operator sums intended units without pretending independent sellers');
 must($r['by_operator']['vs-elektro-plus-cz']['exposures'] === 4 && $r['by_operator']['vs-elektro-plus-cz']['clicks'] === 1, 'Show actual independent operator');
 must(!isset($r['by_merchant']['eon-cz']) && !isset($r['by_operator']['eon-cz']), 'Exclude uncomparable leads from merchant rate');
 
