@@ -217,6 +217,22 @@ window.SolarExpertAffiliate = {
     }));
   },
 
+  // A product link opens ONE retailer product page, not a prefilled cart.
+  // Multi-unit system plans must make the real required quantity visible.
+  // Price and stock are dated merchant snapshots, never proof that the
+  // requested number of units is currently available to purchase.
+  quantityQuoteLabel(offer, quantity) {
+    const count=Number(quantity);
+    if(!Number.isSafeInteger(count)||count<=1)return '';
+    const price=Number(offer?.price_czk);
+    if(offer?.availability!=='in_stock' || offer?.price_czk===null ||
+       !Number.isFinite(price) || price<=0)return count+' ks · cenu a sklad ověřte u prodejce';
+    const total=Math.round(price*count*100)/100;
+    if(!Number.isFinite(total)||total<=0||total>=Number.MAX_SAFE_INTEGER)
+      return count+' ks · cenu a sklad ověřte u prodejce';
+    return count+' ks · orientačně '+total.toLocaleString('cs-CZ')+' Kč celkem (ověřte počet skladem)';
+  },
+
   resolve(product) {
     return this.offers(product)[0] || {href:'#', monetized:false, merchant:null, price_czk:null, raw:null};
   },
