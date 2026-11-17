@@ -27,9 +27,9 @@
     (<span x-text="Number(seriesCount)*Number(parallelCount)"></span> panelů × <span x-text="panelUnitWp"></span> Wp/panel, automaticky přepočítáno při změně S nebo P).
     String Vmp: <strong><span x-text="stringVmp.toFixed(1)"></span> V</strong> · konzervativní cold Voc (×1,12): <strong><span x-text="coldStringVoc.toFixed(1)"></span> V</strong> ·
     celkové Isc pole: <strong><span x-text="Number.isFinite(arrayIsc)?arrayIsc.toFixed(2):'—'"></span> A</strong> ·
-    požadovaný nabíjecí proud regulátoru alespoň <strong><span x-text="requiredChargeA"></span> A</strong>.
-    Výběr hlídá startovací MPPT napětí, rezervu pod maximálním Voc a Isc všech paralelních větví pod výrobcem uvedeným limitem regulátoru s 2% bezpečnostní rezervou.
-    Isc vstupu a nabíjecí proud baterie jsou <strong>dva rozdílné parametry</strong>. Před nákupem ověřte přesný teplotní koeficient Voc, návrhovou teplotu, proudové součinitele a jištění podle konkrétního projektu.
+    orientační nabíjecí proud s 25% výkonovou rezervou: <strong><span x-text="requiredChargeA"></span> A</strong> (není to povinné minimum regulátoru).
+    Výběr hlídá výrobcem uvedený přípustný výkon pole pro zvolené napětí baterie, startovací MPPT napětí, rezervu pod maximálním Voc a Isc všech paralelních větví pod výrobcem uvedeným limitem s 2% bezpečnostní rezervou.
+    Regulátor s menším nabíjecím proudem může být podle výrobce pro daný výkon pole přípustný; svůj výstupní proud omezí. Isc na FV vstupu a nabíjecí proud baterie jsou <strong>dva rozdílné parametry</strong>. Před nákupem ověřte přesný teplotní koeficient Voc, návrhovou teplotu, proudové součinitele a jištění podle konkrétního projektu.
   </div>
   <div class="se-note se-note-error" x-show="!inputValid" style="margin-top:14px" role="alert">
     Zkontrolujte vstupy: výkon jednoho panelu, Voc, Vmp a Isc musí být kladná konečná čísla, Voc vyšší než Vmp, počty panelů v sérii i paralelních větví celé kladné hodnoty a jejich součin nesmí překročit 15 000 Wp.
@@ -63,6 +63,6 @@
         </div>
       </div>
     </template>
-    <div x-show="!catalogLoading && !catalogError && inputValid && !matches.length" class="se-note">Žádný MPPT v ověřeném katalogu současně nesplňuje výkon, nabíjecí proud, napěťové okno a bezpečný Isc vstupu. U 48V nebo větších polí může jít o mezeru našeho současného katalogu, ne o chybu vašeho návrhu.</div>
+    <div x-show="!catalogLoading && !catalogError && inputValid && !matches.length" class="se-note">Žádný MPPT v ověřeném katalogu současně nesplňuje výrobcem povolený výkon FV pole, napěťové okno a bezpečný Isc vstupu. U 48V nebo větších polí může jít o mezeru našeho současného katalogu, ne o chybu vašeho návrhu.</div>
   </div>
 </div>
