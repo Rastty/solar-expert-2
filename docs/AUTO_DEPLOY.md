@@ -52,6 +52,14 @@ Before the first potential production mutation, `deploy`:
   previous Git rollback candidate: `style.css`,
   `assets/js/selectors.js`, `assets/js/affiliate-adapter.js` and
   `assets/data/product-seed.json`. Unknown code drift **blocks**.
+
+  A read-only investigation can capture current public SHA256 evidence via
+  `node tools/capture-live-theme-evidence.mjs /tmp/solar-live-assets.json`, then
+  compare the four hashes with historical first-parent Git revisions using
+  `node tools/live-theme-history-audit.mjs /tmp/solar-live-assets.json /tmp/solar-live-provenance.json`.
+  A historical four-file match explains source drift but **never** authorizes a
+  deployment or proves the state of PHP, WordPress database, uploads or a
+  staging restore. Keep the DB/uploads receipt and release checks enforced.
 - Archives and round-trip verifies that previous source snapshot; an
   artifact uploaded with 90-day retention must succeed first.
   This is a **theme CODE archive**, never a WordPress database/media
