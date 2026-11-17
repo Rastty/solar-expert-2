@@ -257,7 +257,9 @@ window.solarExpertBuilder=function(){return{
     if(peak>inverterW*1.8)riskFlags.push('Výrazná rozběhová špička: ověřte surge dobu konkrétního měniče a spotřebiče.');
     if(this.selectedAppliances.some(a=>a.id==='pump'||a.id==='pondpump'))riskFlags.push('U čerpadla ověřte skutečný rozběhový proud podle konkrétního modelu.');
     if(this.selectedAppliances.some(a=>a.id==='pondpump'))riskFlags.push('Model jezírkové filtrace předpokládá čerpadlo 230 V s měničem. Pro 12/24 V DC čerpadlo je nutný samostatný návrh zapojení a ochranných prvků. Elektrická zařízení u vody musí posoudit kvalifikovaný odborník.');
-    this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,batteryKwh,inverterW,mpptA,psh,riskFlags};
+    // mpptA is a +25% planning suggestion, not a verified manufacturer PV
+    // input limit or an explicit minimum battery charging current.
+    this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,batteryKwh,inverterW,mpptA,mpptAIsAdvisory:true,psh,riskFlags};
     this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result,this.bundleDeals);
     this.step=4;
     this.previewMode=Boolean(previewOnly);
