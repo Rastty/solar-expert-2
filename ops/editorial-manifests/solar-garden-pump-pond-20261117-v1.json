@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_create",
+  "operation_id": "solar-garden-pump-pond-20261117-v1",
+  "slug": "solarni-panel-pro-zahradni-cerpadlo-a-jezirko",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární panel pro zahradní čerpadlo a jezírko: výpočet baterie a MPPT",
+  "excerpt": "Praktický model solárního napájení zahradního čerpadla, jezírkové filtrace a fontány: Wh za den, velikost panelu, LiFePO4 baterie, MPPT, rozběhový proud a bezpečné zapojení.",
+  "source_commit": "1a280d0a71e5bc0afc06205fca46120c3c483d72",
+  "source_file": "content/rewrites/solarni-panel-pro-zahradni-cerpadlo-a-jezirko.html",
+  "source_sha256": "5f44f4928c1d17261869b66c540a91c40cf5d839e0b884ac3b9f1661cc42d67f",
+  "expect_absent": true
+}

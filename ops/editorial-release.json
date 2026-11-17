@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-mppt400-battery400-buyer-bridge-20261115-v1.json",
-  "activation_revision": 14,
-  "notice": "CAS-guarded one-paragraph post_append to published MPPT400 buyer guide WP #1612, linking to matching battery400 decision, preserving original raw WP body unchanged. Source locked to merged main commit and SHA256, current WordPress raw SHA256 and modified GMT pinned; one POST maximum, encrypted prewrite snapshot and authenticated readback. No theme deploy. WEDOS restore gate #148 unaffected."
+  "manifest": "ops/editorial-manifests/solar-garden-pump-pond-20261117-v1.json",
+  "activation_revision": 15,
+  "notice": "One guarded NEW buyer guide on solar garden pumps and pond circulation. Distinct intent from 400/800Wp rewrites, immutable pinned content SHA256, exact slug absent in public WordPress REST at preparation time. Post_create requires authenticated absence across all statuses and zero new published posts within rolling 24h, encrypted prewrite snapshot, one POST maximum and authenticated readback. No theme or product deploy. WEDOS restore gate #148 unaffected."
 }
