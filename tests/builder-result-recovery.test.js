@@ -65,6 +65,7 @@ assert(html.includes('data-se-builder-capacity-gap="true"'));
 assert(html.includes('x-show="batteryCapacityGap"'));
 assert(html.includes('Slabší baterii nedoporučíme'));
 assert(html.includes('data-se-builder-revise-without-reset="true"'));
-assert(html.includes('@click="editPreview(); $nextTick(() => $refs.builderHeading.focus'));
+assert(html.includes('@click="editPreview(); $nextTick(() => { $refs.builderHeading.focus'));
+assert(html.includes("$refs.builderHeading.scrollIntoView({behavior:'smooth',block:'start'})"));
 assert(html.includes('@click="reset()">Začít znovu'));
 console.log('PASS: exact battery shortfall, source-date guard and non-destructive result revision');
