@@ -102,7 +102,7 @@
         <div><div class="se-kicker">Co skutečně nakoupit</div><h3>Rozpis hlavních komponent</h3></div>
         <small class="se-muted">Varianta <strong x-text="primaryBundle?.label"></strong></small>
       </div>
-      <p class="se-muted">Počty kusů a orientační ceny vycházejí z doporučení výše. U obchodníka nastavte uvedený počet kusů.</p>
+      <p class="se-muted">Počty kusů a orientační ceny vycházejí z doporučení výše. Ověřenou nabídku lze otevřít hned u každé položky; u obchodníka nastavte uvedený počet kusů a znovu ověřte sklad.</p>
       <p class="se-muted" data-se-primary-priced-fallback="true"
          x-show="primaryBundle?.tier!=='best' && completeBundles.some(b => b.tier==='best')" x-cloak>
         Pro nákupní rozpis používáme variantu <strong x-text="primaryBundle?.label"></strong>:
@@ -110,9 +110,19 @@
         Technické pořadí variant se tím nemění.
       </p>
       <div class="se-shopping-rows">
-        <template x-for="item in primaryShoppingList?.rows || []" :key="item.label">
+        <template x-for="item in primaryPurchaseRows" :key="item.label">
           <div class="se-shopping-line">
-            <div><strong x-text="item.quantity+'× '+item.label"></strong><small x-text="item.name"></small></div>
+            <div><strong x-text="item.quantity+'× '+item.label"></strong><small x-text="item.name"></small>
+              <template x-if="item.offer">
+                <a class="se-shopping-link" target="_blank" :href="item.offer.href"
+                   :rel="item.offer.monetized ? 'sponsored nofollow noopener' : 'nofollow noopener'"
+                   :data-se-product-id="item.product?.id || null" :data-se-deal-id="item.deal?.id || null"
+                   :data-se-merchant="item.offer.merchantId" :data-se-placement="item.placement"
+                   @click="item.deal ? SolarExpertAffiliate.trackBundleDealOffer(item.deal,item.offer.raw,item.placement) : SolarExpertAffiliate.trackOffer(item.product,item.offer.raw,item.placement,item.quantity)">
+                  <span x-text="'Otevřít u '+(item.offer.merchant?.label||'prodejce')+' ↗'"></span>
+                </a>
+              </template>
+            </div>
             <div class="se-shopping-price"><strong x-text="item.subtotal.toLocaleString('cs-CZ')+' Kč'"></strong><small x-text="item.quantity>1 ? item.unitPrice.toLocaleString('cs-CZ')+' Kč / ks' : '1 kus / set'"></small></div>
           </div>
         </template>
