@@ -99,7 +99,8 @@ window.SolarExpertBundleComposer = {
     const minVmp = Number((controller.min_pv_start_v_by_voltage || {})[String(sizing.voltage)] || 0);
     // Independent MPPT may only be matched with manufacturer-documented
     // short-circuit input current. Unknown limit is not a verified fit.
-    if (!maxWp || !controller.max_pv_voc_v || !(Number(controller.max_pv_isc_a)>0)) return null;
+    if (!maxWp || !controller.max_pv_voc_v || !(Number(controller.max_pv_isc_a)>0) ||
+        !(Number(controller.rated_charge_a)>0)) return null;
 
     return {
       maxWp,
@@ -257,7 +258,16 @@ window.SolarExpertBundleComposer = {
 
     const batteryProducts = catalog.filter(p => p.type === 'battery');
     const inverters = matcher.rank(catalog.filter(p => p.type === 'inverter' || p.type === 'inverter_hybrid'), sizing);
-    const mppts = matcher.rank(catalog.filter(p => p.type === 'mppt'), sizing);
+    // Builder marks its derived +25% charge-current reserve as advisory;
+    // explicit minimum-current sizing supplied by other callers is binding.
+    // Filtering Builder's advisory value as a minimum can reject supported
+    // panels (e.g. Victron 100/30: 440 Wp at 12 V even when a 300 Wp sizing
+    // request rounds to a 35 A suggestion).
+    // The physical checks in findPanelPlan still enforce manufacturer Wp,
+    // PV Isc, cold Voc, startup voltage and actual panel topology. Keep the
+    // original sizing/result visible to the user; relax only MPPT matching.
+    const mppts = matcher.rank(catalog.filter(p => p.type === 'mppt'),
+      sizing.mpptAIsAdvisory===true ? {...sizing, mpptA:0} : sizing);
     const panels = catalog.filter(p => p.type === 'panel');
     const labels = { budget: 'Budget', best: 'Best Value', premium: 'Premium' };
 
@@ -349,7 +359,18 @@ window.SolarExpertBundleComposer = {
             continue;
           }
 
-          const mpptCandidates = this.tierProducts(mppts, tier);
+          // An MPPT can pass its individual PV-Wp check yet fail every real
+          // panel topology in the catalog (whole-panel count, Voc or Isc).
+          // For Best Value, try the same-tier controllers first, but retain
+          // larger-tier verified controllers as a physical fallback. Otherwise
+          // a cheaper 100/50 valid only up to 700Wp can hide a safe 150/70
+          // for a 760Wp whole-panel array when sizing requested 700Wp.
+          const mpptCandidates = tier==='best'
+            ? [
+                ...mppts.filter(r=>r.product.tier==='best'),
+                ...mppts.filter(r=>r.product.tier!=='best')
+              ].map(r=>r.product)
+            : this.tierProducts(mppts, tier);
           for (const mppt of mpptCandidates) {
             const panelPlan = this.findPanelPlan(panels, sizing, mppt, false, tier);
             if (!panelPlan) continue;
