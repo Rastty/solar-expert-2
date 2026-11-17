@@ -119,6 +119,28 @@
       </div>
       <div class="se-shopping-total"><strong>Součet hlavních dílů</strong><strong x-text="primaryShoppingList?.total.toLocaleString('cs-CZ')+' Kč'"></strong></div>
       <p class="se-muted se-shopping-disclaimer">Nejde o jeden společný košík: ceny vycházejí z ověřených nabídek různých obchodů a mohou se změnit. Nezahrnují kabely, jištění, konstrukci, montáž ani revizi. U zvýhodněného setu se baterie a měnič nepočítají podruhé.</p>
+      <div class="se-note se-single-shop" data-se-builder-single-shop="true" x-show="primarySingleShop" x-cloak style="margin-top:14px">
+        <strong>Alternativa: všechny hlavní díly u jednoho prodejce</strong>
+        <p class="se-muted">Nabídky jednoho obchodu <strong x-text="primarySingleShop?.merchantLabel"></strong>
+          tvoří součet <strong x-text="primarySingleShop?.total.toLocaleString('cs-CZ')+' Kč'"></strong>,
+          tedy <strong x-text="'o '+primarySingleShop?.delta.toLocaleString('cs-CZ')+' Kč více'"></strong>
+          než nejlevnější kombinace nabídek. Může to usnadnit objednávku, ale nezohledňuje dopravu ani sklad při nákupu.
+          Každý díl otevřete zvlášť; nejde o společný košík ani novou akční sadu.
+        </p>
+        <div class="se-offer-links">
+          <template x-for="row in (primarySingleShop?.rows||[])" :key="'single-shop-'+row.product.id">
+            <a class="se-offer" target="_blank" :href="row.offer.href"
+               :rel="row.offer.monetized?'sponsored nofollow noopener':'nofollow noopener'"
+               :data-se-product-id="row.product.id" :data-se-merchant="row.offer.merchantId"
+               :data-se-placement="'builder-single-shop-'+row.label.toLowerCase()"
+               @click="SolarExpertAffiliate.trackOffer(row.product,row.offer.raw,'builder-single-shop-'+row.label.toLowerCase())">
+              <span x-text="row.quantity+'× '+row.label"></span>
+              <strong x-text="row.subtotal.toLocaleString('cs-CZ')+' Kč'"></strong>
+              <span class="se-offer-cta">Otevřít nabídku u stejného prodejce ↗</span>
+            </a>
+          </template>
+        </div>
+      </div>
       <a href="#builder-offers" class="se-btn se-btn-primary">Přejít k nabídkám obchodů ↓</a>
     </section>
     <div class="se-note se-note-error" x-show="completeBundles.some(b => b.priceComplete && !purchaseBreakdownFor(b))" x-cloak style="margin-top:14px" role="alert">

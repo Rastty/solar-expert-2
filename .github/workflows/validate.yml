@@ -72,6 +72,8 @@ jobs:
         run: node tests/builder-catalog-voltage-alternative.test.js
       - name: Builder AC battery autonomy and DC BMS discharge safety parity
         run: node tests/builder-ac-battery-safety.test.js
+      - name: Builder all-items-one-shop checkout convenience with real seller quotes
+        run: node tests/builder-single-shop-checkout.test.js
       - name: Dual Growatt MPPT tracker and purchase gate for unverified absolute Isc
         run: node tests/growatt-tracker-purchase-gate.test.js
       - name: Actual merchant offer CTA labels, price freshness and tracking
