@@ -82,3 +82,20 @@ test('homepage exposes three distinct published off-grid use-case guides',()=>{
   }
   assert.equal((group.match(/class="se-home-guide"/g)||[]).length,3,'Show exactly three differentiated use cases');
 });
+test('solar-panel hub links to the same three distinct live use cases without replacing component guides',()=>{
+  const start=solarCategory.indexOf('data-se-category-scenarios="internet-water"');
+  const end=solarCategory.indexOf('<p class="se-category-alternative"',start);
+  assert(start>0&&end>start,'Place real-world scenario guides between component choices and Builder handoff');
+  const group=solarCategory.slice(start,end);
+  for(const slug of [
+    'starlink-mini-na-chate-solarni-panel-baterie-mppt',
+    'solarni-panel-pro-wifi-kameru-a-router-na-chate',
+    'solarni-panel-pro-zahradni-cerpadlo-a-jezirko',
+  ]){
+    const href="home_url('/"+slug+"/')";
+    assert(group.includes(href),'Hub links to the published guide: '+slug);
+    assert.equal(solarCategory.split(href).length-1,1,'One direct archive-hub link per live guide: '+slug);
+  }
+  assert.equal((group.match(/class="se-category-guide"/g)||[]).length,3);
+  assert(solarCategory.includes('data-se-category-buying="offgrid-guides"'),'Keep existing component buyer pathways');
+});
