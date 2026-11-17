@@ -6,6 +6,8 @@ on:
     paths:
       - "tools/catalog-freshness.mjs"
       - "tests/catalog-freshness.test.mjs"
+      - "tools/live-catalog-gap.mjs"
+      - "tests/live-catalog-gap.test.mjs"
       - ".github/workflows/catalog-freshness.yml"
       - "data/product-seed.json"
       - "assets/data/product-seed.json"
@@ -14,6 +16,8 @@ on:
     paths:
       - "tools/catalog-freshness.mjs"
       - "tests/catalog-freshness.test.mjs"
+      - "tools/live-catalog-gap.mjs"
+      - "tests/live-catalog-gap.test.mjs"
       - ".github/workflows/catalog-freshness.yml"
       - "data/product-seed.json"
       - "assets/data/product-seed.json"
@@ -46,14 +50,19 @@ jobs:
       - name: Prove monitor behavior (no network and no merchant writes)
         run: |
           node --check tools/catalog-freshness.mjs
-          node --test tests/catalog-freshness.test.mjs
+          node --check tools/live-catalog-gap.mjs
+          node --test tests/catalog-freshness.test.mjs tests/live-catalog-gap.test.mjs
       - name: Review every exact seller price-evidence date, including bundles
         run: node tools/catalog-freshness.mjs
+      - name: Observe production price-freshness gap (read-only, no affiliate clicks)
+        run: node tools/live-catalog-gap.mjs
       - name: Upload dated re-verification queue
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: solar-catalog-freshness-${{ github.run_id }}
-          path: artifacts/catalog-freshness.json
+          path: |
+            artifacts/catalog-freshness.json
+            artifacts/live-catalog-gap.json
           if-no-files-found: warn
           retention-days: 30
