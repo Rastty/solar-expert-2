@@ -1,0 +1,60 @@
+<p class="se-lead"><strong>Chcete na zahradě provozovat vodní čerpadlo, jezírkovou filtraci nebo malý potůček bez přípojky elektřiny?</strong> Nejdřív zjistěte, kolik hodin má čerpadlo běžet. Malá fontána, pravidelné zavlažování a nepřetržitá filtrace potřebují tři různé solární sestavy. Tento návod ukazuje výpočet spotřeby, panelů a baterie bez slibů, že čerpadlo poběží celoročně jen ze slunce.</p>
+
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Vybrat baterii podle Wh →</a> <a class="se-btn" href="/mppt-kalkulacka/">Ověřit MPPT a panely →</a></p>
+
+<div class="se-note"><strong>Rychlé rozhodnutí:</strong> Dekorativní fontánka, která může při zatažení zpomalit nebo zastavit, může mít výrobcem navrženou sadu panel–čerpadlo bez baterie. Pokud má filtrace nebo okysličování běžet i v noci, potřebujete akumulaci, ochranu proti hlubokému vybití a návrh na nejhorší období. Nikdy nepřipojujte libovolný 12V motor přímo k panelu jen proto, že je také označený 12 V.</div>
+
+<h2>Kolik energie spotřebuje čerpadlo za den?</h2>
+<p>Najděte na štítku nebo v technickém listu <strong>elektrický příkon ve W</strong>, nikoliv pouze průtok v litrech za hodinu. Spotřeba ve Wh je příkon krát počet hodin skutečného provozu. Jestliže výrobce uvádí příkon v rozsahu, počítejte s hodnotou odpovídající vašemu provoznímu režimu; při nejistotě odběr změřte kompatibilním měřidlem.</p>
+<table><thead><tr><th>Ilustrační provoz</th><th>Výpočet</th><th>Spotřeba za den</th></tr></thead><tbody>
+<tr><td>Fontána 30 W, 8 hodin</td><td>30 × 8</td><td>240 Wh</td></tr>
+<tr><td>Filtrace 35 W, nepřetržitě</td><td>35 × 24</td><td>840 Wh</td></tr>
+<tr><td>Zavlažovací čerpadlo 60 W, 6 hodin</td><td>60 × 6</td><td>360 Wh</td></tr>
+</tbody></table>
+<p>Jsou to <strong>modelové příkony, ne údaje ověřených prodávaných čerpadel</strong>. U 230V čerpadla navíc přičtěte spotřebu měniče a ztráty konverze. Motor může mít při rozběhu výrazně vyšší krátkodobý proud, takže měnič, BMS i jištění se musí ověřit také podle rozběhového požadavku, nejen podle denní energie.</p>
+
+<h2>Jak velký solární panel pro jezírkové čerpadlo?</h2>
+<p>Pro přibližný energetický rozpočet použijte <strong>Wp panelu × ekvivalentní hodiny plného slunce × modelový koeficient souhrnných ztrát</strong>. Koeficient 0,75 níže slouží pouze pro vysvětlení principu; není naměřenou účinností vaší sestavy. Skutečnou sezónní výrobu pro polohu, orientaci a sklon si ověřte v <a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="nofollow noopener">PVGIS Evropské komise</a>.</p>
+<table><thead><tr><th>Model panelu a dne</th><th>Výpočet</th><th>Modelová výroba</th></tr></thead><tbody>
+<tr><td>100 Wp, 3 ekvivalentní hodiny</td><td>100 × 3 × 0,75</td><td>225 Wh</td></tr>
+<tr><td>150 Wp, 3 ekvivalentní hodiny</td><td>150 × 3 × 0,75</td><td>338 Wh po zaokrouhlení</td></tr>
+<tr><td>400 Wp, 1 ekvivalentní hodina</td><td>400 × 1 × 0,75</td><td>300 Wh</td></tr>
+</tbody></table>
+<p>Pro modelovou 30W fontánu běžící osm hodin je denní potřeba 240 Wh. Panel 100 Wp v uvedeném modelovém dni nepokryje ani tuto denní energii. Panel 150 Wp by ji v tomto příkladu energeticky překročil, ale to <strong>nezaručuje okamžitý výkon pro rozběh</strong> ani provoz v listopadu, zimě či pod stromy. U nepřetržité filtrace 840 Wh denně nelze doporučení odvozovat jen z příznivého letního dne. Započítejte také zastínění, znečištění panelu, počasí a rezervu.</p>
+
+<h2>Potřebuji baterii? Příklad 12,8V LiFePO₄</h2>
+<p>Pokud musí čerpadlo běžet i bez světla, vyberte akumulaci podle energie a povoleného vybíjecího proudu. Například modelová LiFePO₄ baterie <strong>12,8 V / 50 Ah</strong> má nominálně 12,8 × 50 = <strong>640 Wh</strong>. Při čistě ilustračním využití 80 % jde o <strong>512 Wh</strong> před dalšími ztrátami. Pro 30W čerpadlo na osm hodin denně představuje 512 / 240 ≈ <strong>2,1 modelového dne</strong> bez dobíjení; pro nepřetržitou 35W filtraci jen 512 / 840 ≈ <strong>0,61 dne</strong>. Reálná výdrž bude kratší podle spotřebiče, zapojení, chladu, BMS a stárnutí.</p>
+<p>Nezacházejte s číslem 80 % jako s univerzálně dovoleným vybitím: rozhoduje konkrétní baterie, výrobce, BMS a ochrana proti podvybití. Ověřte také pravidla nabíjení LiFePO₄ při nízké teplotě a možnost bezpečného odpojení čerpadla. Jestliže jezírko s rybami závisí na nepřetržité cirkulaci, samotná malá ostrovní solární sestava není bez nezávisle navržené zálohy garantovanou ochranou.</p>
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Spočítat potřebnou baterii →</a> <a href="/jakou-baterii-k-solarnimu-panelu-400w/">Jak rozumět 400Wp panelu a kapacitě v Ah</a></p>
+
+<h2>Přímé 12V čerpadlo, MPPT a měnič 230 V: na čem záleží?</h2>
+<ol>
+<li><strong>Výrobcem určená přímá solární sada:</strong> může být vhodná pro dekorativní provoz jen za slunce. Přímé napájení povoluje výhradně dokumentace konkrétního čerpadla a regulace; panel není stabilizovaný 12V zdroj.</li>
+<li><strong>Baterie + solární regulátor:</strong> regulátor se volí podle napětí baterie, výkonu a parametrů panelu. Z datasheetů ověřte napětí Voc v mrazu, pracovní Vmp, vstupní proud Isc, připojení sériových/paralelních větví a výrobcem povolené limity regulátoru. Samotné označení „MPPT 100/20“ kompatibilitu nepotvrzuje.</li>
+<li><strong>Napájení motoru:</strong> výstup LOAD na MPPT nemusí zvládnout rozběhový proud čerpadla. Při použití DC-DC převodníku nebo samostatné ochrany musí zvolené komponenty odpovídat motoru. Oficiální <a href="https://www.victronenergy.com/media/pg/Manual_BlueSolar_MPPT_75-10_up_to_100-20/en/troubleshooting.html" rel="nofollow noopener">návod Victron</a> výslovně popisuje vysoké rozběhové proudy zátěží jako možnou příčinu problému na LOAD výstupu.</li>
+<li><strong>230V čerpadlo:</strong> potřebuje odpovídající měnič se správnou sinusovkou a rozběhovou rezervou; další pravidla se týkají bezpečnosti elektrických zařízení u vody. Elektrickou instalaci včetně ochrany před úrazem, vodičů a jištění musí navrhnout kvalifikovaný odborník.</li>
+</ol>
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Prověřit napětí panelů a MPPT →</a> <a href="/solarni-sestava-na-chatu/">Navrhnout celou ostrovní sestavu →</a></p>
+<p class="se-muted"><small>Veřejná MPPT kalkulačka zatím sama nepotvrzuje všechny limity PV Isc a paralelních větví. Nechávejte tato pole a rozběhový proud motoru ověřit odděleně; návštěvník nemá dostat falešné potvrzení bezpečného zapojení.</small></p>
+
+<h2>Co zkontrolovat před objednávkou</h2>
+<ol>
+<li>Skutečný příkon čerpadla, požadovaný průtok při konkrétním výtlaku a plánované hodiny provozu.</li>
+<li>Zda výpadek vody vadí pouze vzhledu fontány, nebo ohrozí filtraci či živočichy.</li>
+<li>Nejslabší období roku a orientaci panelu ve PVGIS; zvlášť stínění zahrady a stromů.</li>
+<li>Bateriovou energii ve Wh, maximální proud BMS, ochranu proti hlubokému vybití a podmínky nabíjení v chladu.</li>
+<li>Panelové Voc/Vmp/Isc a teplotní koeficient Voc ve vztahu k přesnému MPPT, napětí baterie a zapojení.</li>
+<li>Rozběhový proud motoru, provozní napětí, případný DC-DC/měnič, bezpečnou ochranu a krytí v mokrém prostředí.</li>
+<li>Aktuální cenu, dostupnost a dokumentaci konkrétního výrobku před platbou – bez spoléhání na staré katalogové částky.</li>
+</ol>
+<div class="se-note"><strong>Bezpečnost a transparentnost:</strong> Čísla v tomto článku jsou výslovně modelové výpočty, nikoli projekt, záruka výkonu, schéma zapojení ani ověřená nabídka. U vody je ochrana před úrazem elektrickým proudem zásadní; instalaci nechte na kvalifikované osobě. Žádný uvedený modelový výkon nepředstavuje doporučení konkrétního čerpadla. Případné partnerské nabídky popisujeme v <a href="/affiliate-transparentnost/">affiliate transparentnosti</a> a <a href="/jak-doporucujeme/">metodice doporučování</a>.</div>
+
+<h2>Časté otázky</h2>
+<h3>Udrží 100W solární panel jezírkovou filtraci přes noc?</h3>
+<p>Samotný panel ne: po setmění bez zásobníku žádnou energii nedodá. Baterii a velikost panelu dimenzujte podle reálného příkonu filtrace, jejího nepřetržitého režimu a sezóny. Příznivý letní výpočet není zárukou zimního provozu.</p>
+<h3>Mohu dát 12V čerpadlo přímo na 12V baterii?</h3>
+<p>Ne automaticky. Napětí nabíjené baterie kolísá, a motor může mít úzký povolený rozsah a vysoký rozběhový proud. Potřebná je výrobcem povolená regulace, jištění a ochrana před vybitím; přímé spojení může zařízení poškodit.</p>
+<h3>Stačí pro čerpadlo MPPT s výstupem LOAD?</h3>
+<p>Bez ověření limitu a rozběhového proudu konkrétního modelu nelze říct ano. Výstup LOAD může motor při startu odpojit. Samostatně prověřte nabíjecí část, jištění a způsob připojení zátěže.</p>
+
+<p class="se-muted"><small>Technické zdroje: <a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="nofollow noopener">PVGIS – Evropská komise</a>; <a href="https://www.victronenergy.com/media/pg/Manual_BlueSolar_MPPT_75-10_up_to_100-20/en/troubleshooting.html" rel="nofollow noopener">Victron – MPPT troubleshooting / load output</a>. Poslední redakční kontrola: 17. 11. 2026. Účelem je naučit výpočet a bezpečné rozhodnutí, nikoli nahradit technický list výrobce.</small></p>
