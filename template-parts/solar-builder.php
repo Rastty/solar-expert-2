@@ -348,7 +348,7 @@
     <div class="se-note" style="margin-top:14px">Výsledek je orientační návrh velikosti systému a předběžná kontrola kompatibility. Ceny vycházejí z datovaných nabídek obchodů a mohou se změnit. Technické pořadí sestav neurčuje affiliate provize. Před nákupem ověřte kabeláž, jištění, teplotní Voc a přesný datasheet.</div>
     <div class="se-actions" data-se-builder-revise-without-reset="true">
       <button type="button" class="se-btn se-btn-primary"
-              @click="editPreview(); $nextTick(() => $refs.builderHeading.focus({preventScroll:true}))">Upravit zadání a přepočítat</button>
+              @click="editPreview(); $nextTick(() => { $refs.builderHeading.focus({preventScroll:true}); $refs.builderHeading.scrollIntoView({behavior:'smooth',block:'start'}); })">Upravit zadání a přepočítat</button>
       <button type="button" class="se-btn" @click="reset()">Začít znovu</button>
     </div>
   </div>
