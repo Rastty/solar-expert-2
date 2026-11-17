@@ -68,6 +68,13 @@
       <div class="se-result"><small>Systém</small><strong><span x-text="result?.voltage"></span> V</strong></div>
       <div class="se-result"><small>Měnič</small><strong>≥ <span x-text="result?.inverterW"></span> W</strong></div>
     </div>
+    <p class="se-muted" data-se-builder-ac-battery-assumptions="true" style="margin-top:10px">
+      Baterii počítáme pro modelové spotřebiče 230 V AC s 80 % využitelné jmenovité kapacity
+      a 90 % účinností měniče. Pro trvalé vybíjení baterie proto ověřujeme přibližně
+      <strong><span x-text="result?.batteryDcW"></span> W na DC straně</strong>.
+      Výpočet nezahrnuje vlastní klidový odběr měniče, skutečné napětí vybité baterie,
+      krátkodobé proudové špičky ani další ztráty. Doplňte je podle konkrétních zařízení.
+    </p>
     <div class="se-note" x-show="result?.voltageAlternativeFrom" x-cloak role="status"
          data-se-builder-available-voltage-alternative="true" style="margin-top:14px">
       <strong>Alternativa s doloženou nabídkou:</strong>

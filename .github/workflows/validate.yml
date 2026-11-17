@@ -70,6 +70,8 @@ jobs:
         run: node tests/builder-mppt-manufacturer-capacity.test.js
       - name: Builder transparent 12V to 24V catalog purchase alternative
         run: node tests/builder-catalog-voltage-alternative.test.js
+      - name: Builder AC battery autonomy and DC BMS discharge safety parity
+        run: node tests/builder-ac-battery-safety.test.js
       - name: Dual Growatt MPPT tracker and purchase gate for unverified absolute Isc
         run: node tests/growatt-tracker-purchase-gate.test.js
       - name: Actual merchant offer CTA labels, price freshness and tracking

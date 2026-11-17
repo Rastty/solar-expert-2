@@ -1,5 +1,8 @@
 window.solarExpertBuilder=function(){return{
   step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,catalogLoading:true,catalogError:false,bundles:[],result:null,trackedSteps:[],inputError:'',previewMode:false,articleExample:false,articleExampleDefaults:null,articleExampleApplied:false,
+  // Match the AC Battery Selector's documented model. These are sizing
+  // assumptions, not certified efficiency or usable capacity of a SKU.
+  batteryUsableFraction:0.80,inverterEfficiency:0.90,
   appliances:[
     {id:'fridge',name:'Lednice',watts:70,surge:700,hours:10,qty:1,selected:false},
     {id:'lights',name:'LED osvětlení',watts:40,surge:40,hours:5,qty:1,selected:false},
@@ -289,7 +292,13 @@ window.solarExpertBuilder=function(){return{
     const peak=Math.max(Number(this.manualPeak)||0,this.estimatedPeak);
     const inverterW=Math.max(300,Math.ceil((runningWatts*1.2)/100)*100);
     const voltage=this.chooseSystemVoltage(inverterW,peak);
-    const batteryKwh=Math.ceil((((energyWh*this.autonomy)/.85)/1000)*10)/10;
+    // The appliances are modeled as 230V AC loads. Allow for BOTH battery
+    // usable fraction and inverter losses; do not apply either factor twice.
+    const batteryKwh=Math.ceil((energyWh*this.autonomy/
+      (this.batteryUsableFraction*this.inverterEfficiency)/1000)*10)/10;
+    // BMS discharge is DC-side. Keep inverterW as AC output for inverter
+    // fit, display and analytics; the battery bank needs the higher DC draw.
+    const batteryDcW=Math.ceil(inverterW/this.inverterEfficiency);
     const mpptA=this.suggestedMpptA(panelWp,voltage);
     const riskFlags=[];
     if(this.season==='year')riskFlags.push('Celoroční ostrovní provoz vyžaduje lokalitní PV výpočet a obvykle větší zimní rezervu.');
@@ -298,7 +307,7 @@ window.solarExpertBuilder=function(){return{
     if(this.selectedAppliances.some(a=>a.id==='pondpump'))riskFlags.push('Model jezírkové filtrace předpokládá čerpadlo 230 V s měničem. Pro 12/24 V DC čerpadlo je nutný samostatný návrh zapojení a ochranných prvků. Elektrická zařízení u vody musí posoudit kvalifikovaný odborník.');
     // mpptA is a +25% planning suggestion, not a verified manufacturer PV
     // input limit or an explicit minimum battery charging current.
-    this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,nominalVoltage:voltage,batteryKwh,inverterW,mpptA,mpptAIsAdvisory:true,psh,riskFlags};
+    this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,nominalVoltage:voltage,batteryKwh,batteryDcW,inverterW,mpptA,mpptAIsAdvisory:true,psh,riskFlags};
     this.refreshBundles();
     this.step=4;
     this.previewMode=Boolean(previewOnly);

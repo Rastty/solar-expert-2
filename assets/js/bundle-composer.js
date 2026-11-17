@@ -37,7 +37,11 @@ window.SolarExpertBundleComposer = {
         const dischargePowerW = Number(product.system_voltage_class) * totalDischargeA;
 
         if (totalEnergyWh < Number(sizing.batteryKwh) * 1000) continue;
-        if (dischargePowerW < Number(sizing.inverterW)) continue;
+        // Selector callers historically pass their DC requirement in
+        // inverterW. Builder must preserve AC inverter selection separately
+        // while screening the battery for DC draw after inverter losses.
+        const requiredBatteryDcW=Number(sizing.batteryDcW ?? sizing.inverterW);
+        if (!(requiredBatteryDcW>0) || dischargePowerW < requiredBatteryDcW) continue;
 
         all.push({
           product,
