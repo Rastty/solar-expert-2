@@ -271,6 +271,18 @@
     <div class="se-note" x-show="!completeBundles.length" style="margin-top:14px">
       Pro zadané parametry zatím nemáme v ověřeném katalogu kompletní sestavu. Raději nezobrazíme neověřenou kombinaci, než doporučit technicky slabou variantu.
     </div>
+    <div class="se-note" data-se-builder-capacity-gap="true" x-show="batteryCapacityGap" x-cloak
+         role="status" style="margin-top:14px">
+      <strong>Proč zatím chybí vhodná baterie?</strong>
+      Pro vypočtený <span x-text="batteryCapacityGap?.voltage"></span>V systém potřebujeme
+      alespoň <strong x-text="batteryCapacityGap?.requiredKwh.toLocaleString('cs-CZ')+' kWh'"></strong>
+      jmenovité kapacity. Nejvyšší kapacita nyní skladem doložených baterií
+      při tomto napětí a ověřeném počtu paralelních modulů v našem katalogu je
+      <strong x-text="batteryCapacityGap?.availableKwh.toLocaleString('cs-CZ')+' kWh'"></strong>.
+      Chybí tedy <strong x-text="batteryCapacityGap?.missingWh.toLocaleString('cs-CZ')+' Wh'"></strong>.
+      Slabší baterii nedoporučíme. Můžete upravit zadání podle skutečně naměřené spotřeby,
+      nebo počkat na technicky doložený produkt s odpovídající kapacitou.
+    </div>
     <div class="se-muted se-tier-transparency" x-show="completeBundles.length && incompleteBundles.length">
       Neúplné cenové úrovně nezobrazujeme: <strong x-text="incompleteBundles.map(b=>b.label).join(', ')"></strong>. Zobrazí se až ve chvíli, kdy pro ně máme ověřenou baterii, měnič a panelové zapojení.
     </div>
@@ -334,6 +346,10 @@
     </section>
 
     <div class="se-note" style="margin-top:14px">Výsledek je orientační návrh velikosti systému a předběžná kontrola kompatibility. Ceny vycházejí z datovaných nabídek obchodů a mohou se změnit. Technické pořadí sestav neurčuje affiliate provize. Před nákupem ověřte kabeláž, jištění, teplotní Voc a přesný datasheet.</div>
-    <div class="se-actions"><button class="se-btn" @click="reset()">Přepočítat</button></div>
+    <div class="se-actions" data-se-builder-revise-without-reset="true">
+      <button type="button" class="se-btn se-btn-primary"
+              @click="editPreview(); $nextTick(() => $refs.builderHeading.focus({preventScroll:true}))">Upravit zadání a přepočítat</button>
+      <button type="button" class="se-btn" @click="reset()">Začít znovu</button>
+    </div>
   </div>
 </div>
