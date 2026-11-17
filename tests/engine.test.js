@@ -19,6 +19,15 @@ const assert = (condition, message) => {
 };
 
 const catalog = require('./fixtures/catalog-20261014.json');
+const builderFirstUseTemplate = require('node:fs').readFileSync(require('node:path').join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
+assert(builderFirstUseTemplate.includes('@click="preset(\'pond\')"')&&
+       builderFirstUseTemplate.includes('35 W × 24 h = 840 Wh/den')&&
+       builderFirstUseTemplate.includes('data-se-pond-example'),
+  'Builder UI must disclose and link the 230 V pond-filtration model');
+assert(builderFirstUseTemplate.includes('data-se-builder-risk-flags')&&
+       builderFirstUseTemplate.includes('result?.riskFlags?.length')&&
+       builderFirstUseTemplate.includes('x-text="warning"'),
+  'Builder must render computed safety warnings before purchase choices');
 // Preserve immutable October retailer prices/dates for legacy ranking
 // regressions while overlaying independently sourced, noncommercial
 // November 2026 PV Isc electrical specifications. Do not edit old snapshot
@@ -151,6 +160,22 @@ assert(builderFirstUse.dailyWh>withoutPumpWh,'Pump must increase daily energy on
 assert(builderFirstUse.estimatedPeak>withoutPumpPeak,'Pump must increase surge demand only when selected');
 builderFirstUse.preset('backup');
 assert(!builderFirstUse.selectedAppliances.some(a=>a.id==='pump'),'Changing scenario must clear old pump selection');
+builderFirstUse.preset('pond');
+assert(JSON.stringify(builderFirstUse.selectedAppliances.map(a=>a.id))===JSON.stringify(['pondpump']),
+  'Pond preset must select only the dedicated editable 230 V filtration model');
+assert(builderFirstUse.dailyWh===840&&builderFirstUse.estimatedPeak===105,
+  'Pond starter should reproduce the published 35 W × 24 h example, with illustrative 3x startup surge');
+builderFirstUse.advanceToUsage();
+assert(builderFirstUse.step===3,'Pond starter must continue through genuine use settings');
+builderFirstUse.calc();
+assert(builderFirstUse.step===4&&builderFirstUse.result.energyWh===840,
+  'Pond starter must calculate the actual energy model without a fake preview');
+assert(builderFirstUse.result.riskFlags.some(w=>w.includes('12/24 V DC'))&&
+       builderFirstUse.result.riskFlags.some(w=>w.includes('rozběhový proud')),
+  'Pond model must flag its AC-only assumptions and unknown motor surge');
+builderFirstUse.preset('chata');
+assert(!builderFirstUse.selectedAppliances.some(a=>a.id==='pondpump'),
+  'Changing away from pond must clear the model pump instead of carrying a 24-hour load');
 window.dataLayer=[];
 
 

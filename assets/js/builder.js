@@ -6,6 +6,9 @@ window.solarExpertBuilder=function(){return{
     {id:'laptop',name:'Notebook',watts:65,surge:90,hours:4,qty:1,selected:false},
     {id:'router',name:'Router / Wi-Fi',watts:12,surge:12,hours:24,qty:1,selected:false},
     {id:'tv',name:'Televize',watts:90,surge:120,hours:3,qty:1,selected:false},
+    // Editorial example for continuous 230 V pond filtration. DC pumps use
+    // different wiring and must not inherit this inverter-based calculation.
+    {id:'pondpump',name:'Jezírková filtrace 230 V (model)',watts:35,surge:105,hours:24,qty:1,selected:false},
     {id:'pump',name:'Vodní čerpadlo',watts:800,surge:2200,hours:.5,qty:1,selected:false},
     {id:'kettle',name:'Rychlovarná konvice',watts:2000,surge:2000,hours:.12,qty:1,selected:false},
     {id:'tools',name:'Elektrické nářadí',watts:1000,surge:1800,hours:.5,qty:1,selected:false}
@@ -154,7 +157,7 @@ window.solarExpertBuilder=function(){return{
   },
   selectPresetAppliances(type){
     this.appliances.forEach(a=>a.selected=false);
-    const ids=type==='chata'?['fridge','lights','laptop','router']:type==='offgrid'?['fridge','lights','laptop','router','tv']:['fridge','lights','router'];
+    const ids=type==='chata'?['fridge','lights','laptop','router']:type==='offgrid'?['fridge','lights','laptop','router','tv']:type==='pond'?['pondpump']:['fridge','lights','router'];
     ids.forEach(id=>{const a=this.appliances.find(x=>x.id===id);if(a)a.selected=true;});
     this.scenario=type;
   },
@@ -252,7 +255,8 @@ window.solarExpertBuilder=function(){return{
     const riskFlags=[];
     if(this.season==='year')riskFlags.push('Celoroční ostrovní provoz vyžaduje lokalitní PV výpočet a obvykle větší zimní rezervu.');
     if(peak>inverterW*1.8)riskFlags.push('Výrazná rozběhová špička: ověřte surge dobu konkrétního měniče a spotřebiče.');
-    if(this.selectedAppliances.some(a=>a.id==='pump'))riskFlags.push('U čerpadla ověřte skutečný rozběhový proud podle konkrétního modelu.');
+    if(this.selectedAppliances.some(a=>a.id==='pump'||a.id==='pondpump'))riskFlags.push('U čerpadla ověřte skutečný rozběhový proud podle konkrétního modelu.');
+    if(this.selectedAppliances.some(a=>a.id==='pondpump'))riskFlags.push('Model jezírkové filtrace předpokládá čerpadlo 230 V s měničem. Pro 12/24 V DC čerpadlo je nutný samostatný návrh zapojení a ochranných prvků. Elektrická zařízení u vody musí posoudit kvalifikovaný odborník.');
     this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,batteryKwh,inverterW,mpptA,psh,riskFlags};
     this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result,this.bundleDeals);
     this.step=4;
