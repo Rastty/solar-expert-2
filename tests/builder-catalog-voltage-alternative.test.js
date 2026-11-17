@@ -1,4 +1,4 @@
-// The live November catalog offers no source-priced 12V >=1.8kWh battery for
+// The live November catalog offers no source-priced 12V >=2.1kWh battery for
 // the example cottage, but does have a documented 24V alternative. The
 // Builder may change its automatically selected system voltage only when
 // there is a reconciled, electrically screened purchase path and the reason
@@ -25,7 +25,7 @@ const preview=(b)=>{window.dataLayer=[];b.quickPreview();return b;};
 test('true catalog shortage offers source-priced higher-voltage alternative without fabricated completion',()=>{
   const b=preview(builder());
   assert.equal(b.result.energyWh,1448);
-  assert.equal(b.result.batteryKwh,1.8);
+  assert.equal(b.result.batteryKwh,2.1);
   assert.equal(b.result.panelWp,700);
   assert.equal(b.result.nominalVoltage,12);
   assert.equal(b.result.voltage,24);
