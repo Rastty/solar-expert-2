@@ -41,6 +41,15 @@
             <a class="se-category-guide" href="<?php echo esc_url(home_url('/solarni-sestava-na-chatu-pro-lednici/')); ?>"><strong>Solár na chatu pro lednici 230 V</strong><span>Kolik energie spotřebuje, jak určit baterii, panely a měnič a jak sestavit vlastní řešení →</span></a>
           </div>
         </div>
+        <div class="se-category-buying" data-se-category-scenarios="internet-water">
+          <h3>Solár pro konkrétní spotřebič na chatě a zahradě</h3>
+          <p class="se-muted">Začněte skutečným odběrem zařízení, počtem hodin provozu a požadovanou zálohou. Pro každou situaci platí jiné dimenzování.</p>
+          <div class="se-category-curated-grid se-category-choice-grid">
+            <a class="se-category-guide" href="<?php echo esc_url(home_url('/starlink-mini-na-chate-solarni-panel-baterie-mppt/')); ?>"><strong>Starlink Mini ze solárního panelu</strong><span>Internet na chatě: stálý odběr, noční baterie, ztráty DC napájení a sezónní výroba →</span></a>
+            <a class="se-category-guide" href="<?php echo esc_url(home_url('/solarni-panel-pro-wifi-kameru-a-router-na-chate/')); ?>"><strong>Wi-Fi kamera a router mimo síť</strong><span>Celodenní dohled: nepřetržitá spotřeba, autonomie a vhodné napětí pro kameru →</span></a>
+            <a class="se-category-guide" href="<?php echo esc_url(home_url('/solarni-panel-pro-zahradni-cerpadlo-a-jezirko/')); ?>"><strong>Čerpadlo a zahradní jezírko</strong><span>Příkon a rozběh čerpadla, plánovaná doba chodu a potřeba bateriového provozu →</span></a>
+          </div>
+        </div>
         <p class="se-category-alternative">Potřebujete systém pro chatu bez připojení k síti? Použijte zvlášť <a href="<?php echo esc_url(solar_expert_public_url('solarni-sestava-na-chatu','/solarni-sestava-na-chatu/')); ?>">Solar Setup Builder</a>; nenahrazuje návrh domácí síťové FVE.</p>
       </section>
       <h2 class="se-category-archive-title">Další průvodci k solárním panelům</h2>
