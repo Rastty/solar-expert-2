@@ -151,6 +151,28 @@ window.solarExpertBuilder=function(){return{
     return best&&best.delta>0&&best.delta<=maxExtra?best:null;
   },
   get primarySingleShop(){return this.singleShopFor(this.primaryBundle);},
+  // Explain a genuine capacity shortfall without offering an undersized
+  // battery, treating an on-request SKU as stocked, or inventing a bank.
+  // The same documented parallel-unit ceilings drive the composer.
+  get batteryCapacityGap(){
+    const matcher=window.SolarExpertProductMatcher;
+    const requiredWh=Math.round(Number(this.result?.batteryKwh)*1000);
+    const voltage=Number(this.result?.voltage);
+    if(!this.catalogReady||!this.result||this.completeBundles.length||!matcher||
+       !Number.isFinite(requiredWh)||requiredWh<=0||!Number.isFinite(voltage)||voltage<=0)return null;
+    const available=this.catalog.filter(p=>p&&p.type==='battery'&&
+      Number(p.system_voltage_class)===voltage&&Number(p.energy_wh)>0&&
+      Number(p.max_discharge_a)>0&&matcher.availabilityRank(p)===2);
+    if(!available.length)return null;
+    const maxEnergyWh=Math.max(...available.map(p=>{
+      const documented=Number(p.parallel_max_units||1);
+      const units=Number.isSafeInteger(documented)&&documented>0?documented:1;
+      return Number(p.energy_wh)*units;
+    }));
+    if(!Number.isFinite(maxEnergyWh)||maxEnergyWh>=requiredWh)return null;
+    return {voltage,requiredKwh:requiredWh/1000,availableKwh:maxEnergyWh/1000,
+      missingWh:requiredWh-maxEnergyWh};
+  },
   checklistFor(bundle){
     if(!bundle||!bundle.complete)return [];
     const rows=[
