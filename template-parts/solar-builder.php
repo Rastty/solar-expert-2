@@ -11,14 +11,20 @@
       <div><strong>Chcete nejdřív vidět výsledek?</strong><small>Modelová chata: lednice, světla, notebook, Wi-Fi · jaro–podzim · baterie na 1 den. Výpočet lze potom upravit.</small></div>
       <button type="button" class="se-btn se-btn-primary" @click="quickPreview(); $nextTick(() => $refs.builderHeading.focus({preventScroll:true}))">Ukázat vzorovou sestavu →</button>
     </div>
-    <div class="se-note" style="margin-bottom:12px"><strong>Vyberte příklad, který je vám nejblíž.</strong> Spotřebiče předvyplníme jen pro začátek; ve druhém kroku je můžete přidat, odebrat a upravit dobu provozu. Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky.</div>
+    <div class="se-note" style="margin-bottom:12px"><strong>Vyberte příklad, který je vám nejblíž.</strong> Spotřebiče předvyplníme jen pro začátek; ve druhém kroku je můžete přidat, odebrat a upravit dobu provozu. Čerpadlo ani jiné výkonné zařízení nepřidáváme automaticky do tří obecných příkladů. U volby Jezírko je čerpadlo součástí upravitelné ukázky.</div>
     <button type="button" class="se-choice" @click="preset('chata')"><strong>Chata / zahradní domek →</strong><small>Lednice, světla, notebook a Wi-Fi. Vše upravíte.</small></button>
     <button type="button" class="se-choice" @click="preset('offgrid')"><strong>Ostrovní systém →</strong><small>Běžné spotřebiče včetně televize, bez přípojky.</small></button>
     <button type="button" class="se-choice" @click="preset('backup')"><strong>Záloha při výpadku →</strong><small>Lednice, světla a router při přerušení dodávky.</small></button>
+    <button type="button" class="se-choice" @click="preset('pond')"><strong>Jezírko / nepřetržitá filtrace →</strong><small>Modelové čerpadlo 230 V · 35 W × 24 h = 840 Wh/den. Zkontrolujte skutečný štítek a rozběh.</small></button>
     <div class="se-note" style="margin-top:12px"><strong>Máte síťovou fotovoltaiku na rodinném domě?</strong> Tento výpočet je pro ostrovní a záložní napájení. U domovní FVE začněte <a href="/kolik-stoji-fotovoltaika/">průvodcem návrhem a cenou fotovoltaiky</a>.</div>
   </div>
 
   <div x-show="step===2" x-cloak>
+    <div class="se-note" x-show="scenario==='pond'" x-cloak data-se-pond-example role="status" style="margin-bottom:14px">
+      <strong>Upravitelný příklad pro jezírkovou filtraci: 35 W × 24 h = 840 Wh/den.</strong>
+      Jde o modelové čerpadlo 230 V přes měnič, nikoli o naměřená data vašeho zařízení. Ověřte jeho příkon, délku provozu a rozběhový proud. Pro čerpadlo 12/24 V DC je nutný jiný návrh zapojení.
+      <a href="/solarni-panel-pro-zahradni-cerpadlo-a-jezirko/">Jak navrhnout napájení čerpadla</a>.
+    </div>
     <div class="se-note" x-show="articleExample" x-cloak data-se-article-example="fridge230" role="status" style="margin-bottom:14px">
       <strong>Otevřený modelový příklad z článku o lednici: původně 850 Wh/den.</strong>
       Lednice 65 W × 10 h, LED 20 W × 5 h, notebook či drobná elektronika 50 W × 2 h.
@@ -61,6 +67,10 @@
       <div class="se-result"><small>Baterie</small><strong><span x-text="result?.batteryKwh"></span> kWh</strong></div>
       <div class="se-result"><small>Systém</small><strong><span x-text="result?.voltage"></span> V</strong></div>
       <div class="se-result"><small>Měnič</small><strong>≥ <span x-text="result?.inverterW"></span> W</strong></div>
+    </div>
+    <div class="se-note se-note-error" x-show="result?.riskFlags?.length" x-cloak role="status" style="margin-top:14px" data-se-builder-risk-flags>
+      <strong>Co je nutné před nákupem ověřit:</strong>
+      <ul><template x-for="warning in (result?.riskFlags || [])" :key="warning"><li x-text="warning"></li></template></ul>
     </div>
 
     <div class="se-note" x-show="catalogLoading" style="margin-top:14px">
