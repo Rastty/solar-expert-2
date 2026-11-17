@@ -19,9 +19,9 @@ This is a **read-only source-evidence age monitor**. It never claims a real-time
 - `node tools/live-catalog-gap.mjs`
 - Optional reproducible time: `CATALOG_NOW_UTC=2026-11-07T12:00:00Z node tools/catalog-freshness.mjs`
 
-The watch runs on `dev` changes and by `workflow_dispatch` after it is reviewed and merged. The workflow specifies a **05:19 UTC daily** cron, with `ref: dev` for scheduled runs to ensure the real production source is audited.
+The `dev` workflow runs on relevant catalog/monitor changes and on manual dispatch. Its newly added `live-catalog-gap.mjs` step writes the lightweight `live-catalog-gap.json` artifact. This step does not automatically run just because a cron is written in the `dev` YAML.
 
-**Activation caveat (critical):** GitHub scheduled Actions load workflow definitions **only from the repository default branch**, which is currently `main`, while Solar Expert actually develops and deploys from `dev`. Merging this PR into `dev` does NOT by itself activate the daily cron. A separately reviewed **workflow-only sync of this file to `main`** is required. Do not merge all `dev` application code into `main` just to activate scheduling, and do not claim daily monitoring is running until a successful scheduled Actions run is observed. Alternatively the existing portfolio scheduler can dispatch the read-only monitor on `dev`.
+**Scheduled monitoring already has a separate default-branch definition.** Verified on 2026-11-17: the repository default branch is `main`, and `main` already contains `.github/workflows/catalog-freshness.yml` with **05:19 UTC daily** cron and `ref: dev` for scheduled execution. That `main` definition includes a broader independent read-only **source-vs-production catalog comparison**, historical live theme fingerprint investigation, and related audit artifacts. There is no need to copy over the entire `dev` application or create a second scheduler. The newly added `dev` JavaScript reporting step is **not** part of the `main` scheduled YAML unless separately adopted there. The existence of cron does not itself prove that a scheduled run succeeded; verify GitHub Actions run history before claiming daily execution success.
 
 ## Current expected baseline
 
