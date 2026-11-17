@@ -637,22 +637,32 @@ assert(builder.result.voltage===24, 'Cottage with explicitly enabled pump should
 assert(builder.result.inverterW>=builder.result.runningWatts, 'Continuous inverter target must cover running load');
 assert(builder.result.peak>builder.result.inverterW, 'Cottage pump scenario should keep surge separate from continuous inverter sizing');
 const cottageBest = builder.bundles.find(b=>b.tier==='best');
-assert(cottageBest && cottageBest.complete, 'Default cottage scenario should produce a complete Best Value bundle');
-assert(cottageBest.inverter.id==='inverter-rogerele-rep2000-24', 'Default cottage should select the verified in-stock 24V 2000W inverter');
-assert(cottageBest.inverter.peak_w>=builder.result.peak, 'Selected inverter must cover estimated surge');
-const cottageComparison=builder.comparisonFor(cottageBest);
+assert(builder.result.batteryKwh===2.6,
+  '1,848Wh AC for one day needs 2.6kWh nominal at 80% usable and 90% inverter efficiency');
+assert(!cottageBest.complete && !builder.primaryShoppingList,
+  'Do not sell an undersized 2.56kWh 24V bank as a full-day cottage-plus-pump solution');
+// A user who genuinely selects half-day autonomy can still see the
+// same sourced, physically compatible 24V inverter and battery options.
+builder.autonomy=.5;
+builder.calc();
+const cottageHalfDayBest = builder.bundles.find(b=>b.tier==='best');
+assert(cottageHalfDayBest && cottageHalfDayBest.complete,
+  'Explicit half-day reserve should offer a complete Best Value bundle');
+assert(cottageHalfDayBest.inverter.id==='inverter-rogerele-rep2000-24', 'Half-day cottage should select the verified in-stock 24V 2000W inverter');
+assert(cottageHalfDayBest.inverter.peak_w>=builder.result.peak, 'Selected inverter must cover estimated surge');
+const cottageComparison=builder.comparisonFor(cottageHalfDayBest);
 assert(cottageComparison&&cottageComparison.batteryKwh>=builder.result.batteryKwh,'Comparison must expose battery capacity that meets sizing target');
 assert(cottageComparison.inverterW>=builder.result.inverterW,'Comparison must expose continuous inverter reserve');
 assert(cottageComparison.surgeW>=builder.result.peak,'Comparison must expose surge reserve');
 assert(cottageComparison.panelWp>=builder.result.panelWp,'Comparison must expose PV reserve');
 assert(cottageComparison.reasons.length>=5,'Comparison should explain why the variant fits');
 
-const cottageChecklist=builder.checklistFor(cottageBest);
+const cottageChecklist=builder.checklistFor(cottageHalfDayBest);
 assert(cottageChecklist.some(x=>x.group==='included'&&x.label==='Baterie'),'Completion checklist must show battery as included');
 assert(cottageChecklist.some(x=>x.group==='included'&&x.label==='MPPT regulátor'),'Completion checklist must show MPPT coverage');
 assert(cottageChecklist.some(x=>x.group==='extra'&&x.label.includes('DC jištění')),'Completion checklist must surface battery DC protection');
 assert(cottageChecklist.some(x=>x.group==='extra'&&x.label.includes('Kabely')),'Completion checklist must surface cabling');
-assert(builder.primaryBundle===cottageBest,'Best Value should be the primary completeness checklist when available');
+assert(builder.primaryBundle===cottageHalfDayBest,'Best Value should be the primary completeness checklist when available');
 
 const quoteGood = global.window.solarExpertQuoteChecker();
 quoteGood.dailyKwh=2;
