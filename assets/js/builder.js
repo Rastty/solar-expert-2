@@ -13,7 +13,7 @@ window.solarExpertBuilder=function(){return{
     {id:'kettle',name:'Rychlovarná konvice',watts:2000,surge:2000,hours:.12,qty:1,selected:false},
     {id:'tools',name:'Elektrické nářadí',watts:1000,surge:1800,hours:.5,qty:1,selected:false}
   ],
-  async init(){this.catalogLoading=true;this.catalogError=false;this.applyInboundArticleExample();try{const r=await fetch(window.SolarExpertConfig.catalogUrl,{credentials:'same-origin'});if(!r.ok)throw new Error('catalog_http_'+r.status);const d=await r.json();this.catalog=d.products||[];this.bundleDeals=d.bundle_deals||[];this.catalogReady=true;if(this.result)this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result,this.bundleDeals);}catch(_){this.catalogReady=false;this.catalogError=true;}finally{this.catalogLoading=false;}},
+  async init(){this.catalogLoading=true;this.catalogError=false;this.applyInboundArticleExample();try{const r=await fetch(window.SolarExpertConfig.catalogUrl,{credentials:'same-origin'});if(!r.ok)throw new Error('catalog_http_'+r.status);const d=await r.json();this.catalog=d.products||[];this.bundleDeals=d.bundle_deals||[];this.catalogReady=true;if(this.result)this.refreshBundles();}catch(_){this.catalogReady=false;this.catalogError=true;}finally{this.catalogLoading=false;}},
   get selectedAppliances(){return this.appliances.filter(a=>a.selected);},
   get dailyWh(){return Math.round(this.selectedAppliances.reduce((s,a)=>s+a.watts*a.hours*a.qty,0));},
   get runningWatts(){return Math.round(this.selectedAppliances.reduce((s,a)=>s+a.watts*a.qty,0));},
@@ -229,6 +229,45 @@ window.solarExpertBuilder=function(){return{
     if(inverterW<=2500 && peak<=4000) return 24;
     return 48;
   },
+  suggestedMpptA(panelWp,voltage){
+    return Math.max(10,Math.ceil(((panelWp/voltage)*1.25)/5)*5);
+  },
+  hasReconciledBuyerOffer(bundles){
+    // A quoted integrated hybrid without the absolute PV Isc evidence does
+    // not qualify, even if someone later mistakenly sets priceComplete.
+    return bundles.some(b=>b&&b.complete&&this.purchaseBreakdownFor(b));
+  },
+  refreshBundles(){
+    if(!this.result)return;
+    const composer=window.SolarExpertBundleComposer;
+    const originalVoltage=Number(this.result.nominalVoltage||this.result.voltage);
+    // Rebuild from the engineering-first voltage every time fresh catalog
+    // evidence arrives. Never let an earlier alternative become the new
+    // hidden minimum when the nominal variant later gets a valid quote.
+    const nominal={...this.result,nominalVoltage:originalVoltage,voltage:originalVoltage,
+      mpptA:this.suggestedMpptA(this.result.panelWp,originalVoltage),voltageAlternativeFrom:null};
+    let picked=nominal;
+    let bundles=composer.compose(this.catalog,nominal,this.bundleDeals);
+    // No new SKU, fake battery parallelism, stale quote, price guess or
+    // relaxed electrical gates. Try an existing higher-voltage whole system
+    // only if the default is not purchase-actionable, and only with a
+    // reconciled quoted bill for the same requested loads and autonomy.
+    if(this.catalog.length && !this.hasReconciledBuyerOffer(bundles)){
+      for(const voltage of [24,48]){
+        if(voltage<=originalVoltage)continue;
+        const alternative={...nominal,voltage,
+          mpptA:this.suggestedMpptA(nominal.panelWp,voltage),
+          voltageAlternativeFrom:originalVoltage};
+        const alternateBundles=composer.compose(this.catalog,alternative,this.bundleDeals);
+        if(!this.hasReconciledBuyerOffer(alternateBundles))continue;
+        picked=alternative;
+        bundles=alternateBundles;
+        break;
+      }
+    }
+    this.result=picked;
+    this.bundles=bundles;
+  },
   calc(previewOnly=false){
     this.inputError=this.validateSelections();
     if(this.inputError){this.step=2;return;}
@@ -251,7 +290,7 @@ window.solarExpertBuilder=function(){return{
     const inverterW=Math.max(300,Math.ceil((runningWatts*1.2)/100)*100);
     const voltage=this.chooseSystemVoltage(inverterW,peak);
     const batteryKwh=Math.ceil((((energyWh*this.autonomy)/.85)/1000)*10)/10;
-    const mpptA=Math.max(10,Math.ceil(((panelWp/voltage)*1.25)/5)*5);
+    const mpptA=this.suggestedMpptA(panelWp,voltage);
     const riskFlags=[];
     if(this.season==='year')riskFlags.push('Celoroční ostrovní provoz vyžaduje lokalitní PV výpočet a obvykle větší zimní rezervu.');
     if(peak>inverterW*1.8)riskFlags.push('Výrazná rozběhová špička: ověřte surge dobu konkrétního měniče a spotřebiče.');
@@ -259,15 +298,15 @@ window.solarExpertBuilder=function(){return{
     if(this.selectedAppliances.some(a=>a.id==='pondpump'))riskFlags.push('Model jezírkové filtrace předpokládá čerpadlo 230 V s měničem. Pro 12/24 V DC čerpadlo je nutný samostatný návrh zapojení a ochranných prvků. Elektrická zařízení u vody musí posoudit kvalifikovaný odborník.');
     // mpptA is a +25% planning suggestion, not a verified manufacturer PV
     // input limit or an explicit minimum battery charging current.
-    this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,batteryKwh,inverterW,mpptA,mpptAIsAdvisory:true,psh,riskFlags};
-    this.bundles=window.SolarExpertBundleComposer.compose(this.catalog,this.result,this.bundleDeals);
+    this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,nominalVoltage:voltage,batteryKwh,inverterW,mpptA,mpptAIsAdvisory:true,psh,riskFlags};
+    this.refreshBundles();
     this.step=4;
     this.previewMode=Boolean(previewOnly);
     if(this.previewMode){
       this.trackStep('quick_preview');
     }else{
       this.trackStep('result');
-      if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'solar_builder_complete',scenario:this.scenario,voltage,panelWp,batteryKwh,inverterW,peak});
+      if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'solar_builder_complete',scenario:this.scenario,voltage:this.result.voltage,panelWp,batteryKwh,inverterW,peak});
     }
   },
   reset(){this.restoreArticleExample();this.step=1;this.inputError='';this.previewMode=false;this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}
