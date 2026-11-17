@@ -48,7 +48,7 @@ assert.equal(baseline.totalPrice,19026,
 
 // The real one-click Builder example asks for 700 Wp. The *electrical* MPPT
 // fallback is checked below with an in-stock 1kWh bank, since the current
-// catalog does not have a priced 1.8kWh 12V bank for that exact demo.
+// catalog does not have a priced 2.1kWh 12V bank for that exact demo.
 // Whole 190Wp panels require 4 x 190 = 760 Wp, so a 700Wp controller loses.
 const preview=window.solarExpertBuilder();
 preview.catalog=seed.products;
@@ -58,7 +58,7 @@ assert.equal(preview.result.mpptAIsAdvisory,true);
 assert.equal(preview.result.panelWp,700);
 assert.equal(preview.result.nominalVoltage,12);
 assert.equal(preview.result.voltage,24,
-  'Without a priced 1.8kWh 12V bank, demo must show the quoted 24V alternative transparently');
+  'Without a priced 2.1kWh 12V bank, demo must show the quoted 24V alternative transparently');
 const largerPlan=best(seed.products,{...sizing,panelWp:preview.result.panelWp,mpptA:preview.result.mpptA});
 assert.equal(largerPlan.complete,true);
 assert.equal(largerPlan.priceComplete,true);
