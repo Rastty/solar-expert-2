@@ -65,3 +65,20 @@ test('two exact buyer topics stay noncannibalizing and preserve existing GSC own
   assert(home.includes('data-se-home-offgrid-buying="guides"'));
   assert(!read(specs[0].path).includes('href="/quote-checker/"'),'MPPT product SKU guide should avoid unrelated offers');
 });
+test('homepage exposes three distinct published off-grid use-case guides',()=>{
+  const start=home.indexOf('data-se-home-offgrid-scenarios="internet-water"');
+  const end=home.indexOf('<div class="se-home-discovery-group"',start);
+  assert(start>0,'Homepage needs a separate use-case group alongside component guides');
+  const group=home.slice(start,end>start?end:undefined);
+  assert(group.includes('Internet, dohled a voda mimo elektrickou síť'));
+  for(const slug of [
+    'starlink-mini-na-chate-solarni-panel-baterie-mppt',
+    'solarni-panel-pro-wifi-kameru-a-router-na-chate',
+    'solarni-panel-pro-zahradni-cerpadlo-a-jezirko',
+  ]){
+    const href="home_url('/"+slug+"/')";
+    assert.equal(home.split(href).length-1,1,'One crawlable homepage discovery link per published guide: '+slug);
+    assert(group.includes(href),'Guide belongs in the dedicated use-case group: '+slug);
+  }
+  assert.equal((group.match(/class="se-home-guide"/g)||[]).length,3,'Show exactly three differentiated use cases');
+});
