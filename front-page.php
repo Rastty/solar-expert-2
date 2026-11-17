@@ -88,6 +88,23 @@
         </a>
       </div>
     </div>
+    <div class="se-home-discovery-group" data-se-home-offgrid-scenarios="internet-water">
+      <h3>Internet, dohled a voda mimo elektrickou síť</h3>
+      <div class="se-home-discovery-grid">
+        <a class="se-home-guide" href="<?php echo esc_url(home_url('/starlink-mini-na-chate-solarni-panel-baterie-mppt/')); ?>">
+          <strong>Starlink Mini na chatě ze soláru <span aria-hidden="true">→</span></strong>
+          <span>Spotřeba satelitního internetu, baterie na noc, ztráty napájení a dimenzování panelu podle místa a sezóny.</span>
+        </a>
+        <a class="se-home-guide" href="<?php echo esc_url(home_url('/solarni-panel-pro-wifi-kameru-a-router-na-chate/')); ?>">
+          <strong>Wi-Fi kamera a router bez zásuvky <span aria-hidden="true">→</span></strong>
+          <span>Jak spočítat nepřetržitý odběr, zálohu pro zatažené dny a bezpečné napájení dohledové techniky.</span>
+        </a>
+        <a class="se-home-guide" href="<?php echo esc_url(home_url('/solarni-panel-pro-zahradni-cerpadlo-a-jezirko/')); ?>">
+          <strong>Solární panel pro čerpadlo a jezírko <span aria-hidden="true">→</span></strong>
+          <span>Provozní příkon, rozběh čerpadla, denní doba chodu a rozdíl mezi přímým provozem a sestavou s baterií.</span>
+        </a>
+      </div>
+    </div>
     <div class="se-home-discovery-group">
       <h3>Jaký typ tepelného čerpadla potřebujete?</h3>
       <div class="se-home-discovery-grid">
