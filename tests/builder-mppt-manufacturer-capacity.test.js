@@ -56,7 +56,9 @@ preview.bundleDeals=seed.bundle_deals;
 preview.quickPreview();
 assert.equal(preview.result.mpptAIsAdvisory,true);
 assert.equal(preview.result.panelWp,700);
-assert.equal(preview.result.voltage,12);
+assert.equal(preview.result.nominalVoltage,12);
+assert.equal(preview.result.voltage,24,
+  'Without a priced 1.8kWh 12V bank, demo must show the quoted 24V alternative transparently');
 const largerPlan=best(seed.products,{...sizing,panelWp:preview.result.panelWp,mpptA:preview.result.mpptA});
 assert.equal(largerPlan.complete,true);
 assert.equal(largerPlan.priceComplete,true);

@@ -1211,7 +1211,10 @@ const builderUxTpl=fs.readFileSync(path.join(__dirname,'..','template-parts','so
 assert(builderUxJs.includes('catalogLoading:true'),'Builder must expose an explicit catalog loading state');
 assert(builderUxJs.includes('catalogError:false'),'Builder must expose an explicit catalog error state');
 assert(builderUxJs.includes("if(!r.ok)throw new Error('catalog_http_'"),'Builder must reject failed catalog HTTP responses');
-assert(builderUxJs.includes('if(this.result)this.bundles=window.SolarExpertBundleComposer.compose'),'Late catalog load must refresh an already calculated Builder result');
+assert(builderUxJs.includes('if(this.result)this.refreshBundles();')&&
+       builderUxJs.includes('refreshBundles(){')&&
+       builderUxJs.includes('this.bundles=bundles;'),
+  'Late catalog load must recompose already calculated bundles, including any verified voltage alternative');
 assert(builderUxTpl.includes('x-show="catalogLoading"'),'Builder template must display catalog loading feedback');
 assert(builderUxTpl.includes('x-show="catalogError"'),'Builder template must display catalog error feedback');
 assert(builderUxTpl.includes('Vyberte příklad, který je vám nejblíž.')&&builderUxTpl.includes('@click="preset(\'chata\')"'),'Builder first step must offer an explicit editable one-click scenario');
