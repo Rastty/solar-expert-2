@@ -131,6 +131,10 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-shopping-link:hover,.se-shopping-link:focus-visible{background:#dcf3e7;color:#064e36;border-color:#16734e;text-decoration:underline}
 .se-shopping-price{text-align:right;flex:0 0 auto}
 .se-shopping-total{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0;font-size:17px}
+.se-shopping-copy{margin:12px 0 18px}
+.se-shopping-copy>.se-btn{width:100%}
+.se-shopping-copy p{font-size:12px;line-height:1.5;margin:8px 0}
+.se-shopping-copy-fallback{display:block;width:100%;min-height:160px;margin-top:8px;font-family:monospace;font-size:12px;white-space:pre-wrap}
 .se-shopping-disclaimer{color:#4a5b52}
 .se-shopping-summary>.se-btn{width:100%}
 @media(max-width:570px){.se-shopping-summary{padding:15px}.se-shopping-line{align-items:start}.se-shopping-line small{max-width:190px}.se-shopping-price{max-width:145px}}

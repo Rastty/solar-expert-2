@@ -1,5 +1,5 @@
 window.solarExpertBuilder=function(){return{
-  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,catalogLoading:true,catalogError:false,bundles:[],result:null,trackedSteps:[],inputError:'',previewMode:false,articleExample:false,articleExampleDefaults:null,articleExampleApplied:false,
+  step:1,scenario:'',season:'three',autonomy:1,manualPeak:null,catalog:[],bundleDeals:[],catalogReady:false,catalogLoading:true,catalogError:false,bundles:[],result:null,trackedSteps:[],inputError:'',previewMode:false,articleExample:false,articleExampleDefaults:null,articleExampleApplied:false,copyStatus:'',showCopyFallback:false,
   // Match the AC Battery Selector's documented model. These are sizing
   // assumptions, not certified efficiency or usable capacity of a SKU.
   batteryUsableFraction:0.80,inverterEfficiency:0.90,
@@ -131,6 +131,49 @@ window.solarExpertBuilder=function(){return{
         matcher.hasSellerSource(o.raw) && affiliate.isActionableMerchantHref(o.href))||null;
       return {...row,...component,offer:exact};
     });
+  },
+  // A copyable bill is a set of actual merchant product destinations, NOT a
+  // prefilled basket. Fail closed if even one quoted line lacks its exact
+  // seller/source-backed, in-stock destination; never share a partial order.
+  get canCopyPrimaryPurchaseList(){
+    const rows=this.primaryPurchaseRows;
+    const affiliate=window.SolarExpertAffiliate;
+    return Boolean(this.primaryShoppingList && affiliate && rows.length &&
+      rows.every(row=>row.offer && affiliate.isActionableMerchantHref(row.offer.href)));
+  },
+  get primaryPurchaseText(){
+    if(!this.canCopyPrimaryPurchaseList)return '';
+    const bill=this.primaryShoppingList;
+    const rows=this.primaryPurchaseRows;
+    const lines=['Solar Expert – nákupní seznam hlavních komponent',
+      'Varianta: '+(this.primaryBundle?.label||'doporučená sestava'),''];
+    for(const row of rows){
+      lines.push(row.quantity+'× '+row.name+' ('+row.label+')');
+      lines.push('Orientačně '+row.subtotal.toLocaleString('cs-CZ')+' Kč celkem, '+
+        row.unitPrice.toLocaleString('cs-CZ')+' Kč/ks · '+(row.offer.merchant?.label||row.offer.merchantId));
+      lines.push(row.offer.href,'');
+    }
+    lines.push('Součet hlavních komponent: '+bill.total.toLocaleString('cs-CZ')+' Kč','',
+      'Každou položku objednejte zvlášť a nastavte uvedený počet kusů.','Cenu, sklad i dostupný počet znovu ověřte přímo u prodejce.',
+      'Cena nezahrnuje kabely, jištění, konstrukci, montáž ani revizi.',
+      'Návrh je orientační; kompatibilitu a elektrickou bezpečnost ověřte před nákupem.',
+      'Některé odkazy mohou být partnerské (affiliate).');
+    return lines.join('\n');
+  },
+  async copyPrimaryPurchaseList(){
+    const content=this.primaryPurchaseText;
+    if(!content){this.copyStatus='Nákupní seznam zatím nemá odkazy na všechny ověřené položky.';return false;}
+    try{
+      if(typeof navigator==='undefined'||!navigator.clipboard?.writeText)throw new Error('clipboard_unavailable');
+      await navigator.clipboard.writeText(content);
+      this.showCopyFallback=false;
+      this.copyStatus='Nákupní seznam s počty kusů a odkazy byl zkopírován.';
+      return true;
+    }catch(_){
+      this.showCopyFallback=true;
+      this.copyStatus='Automatické kopírování se nepovedlo. Označte a zkopírujte text níže.';
+      return false;
+    }
   },
   // Lower checkout friction only when the SAME verified shop has every
   // distinct component in stock. This is a list of individual product
@@ -306,6 +349,7 @@ window.solarExpertBuilder=function(){return{
   },
   preset(type){
     this.inputError='';
+    this.copyStatus='';this.showCopyFallback=false;
     this.previewMode=false;
     this.restoreArticleExample();
     this.selectPresetAppliances(type);
@@ -316,6 +360,7 @@ window.solarExpertBuilder=function(){return{
     // A complete example, not a user-tailored sizing result.
     // Do not fabricate step_2 / step_3 progress or emit builder_complete.
     this.inputError='';
+    this.copyStatus='';this.showCopyFallback=false;
     this.restoreArticleExample();
     this.selectPresetAppliances('chata');
     this.season='three';
@@ -386,6 +431,7 @@ window.solarExpertBuilder=function(){return{
       return;
     }
     this.inputError='';
+    this.copyStatus='';this.showCopyFallback=false;
     const energyWh=this.dailyWh;
     const runningWatts=this.runningWatts;
     const psh=this.season==='summer'?4.2:(this.season==='three'?2.8:1.6);
@@ -419,5 +465,5 @@ window.solarExpertBuilder=function(){return{
       if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'solar_builder_complete',scenario:this.scenario,voltage:this.result.voltage,panelWp,batteryKwh,inverterW,peak});
     }
   },
-  reset(){this.restoreArticleExample();this.step=1;this.inputError='';this.previewMode=false;this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}
+  reset(){this.restoreArticleExample();this.step=1;this.inputError='';this.copyStatus='';this.showCopyFallback=false;this.previewMode=false;this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}
 };};

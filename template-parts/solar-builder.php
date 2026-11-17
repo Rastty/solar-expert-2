@@ -129,6 +129,15 @@
       </div>
       <div class="se-shopping-total"><strong>Součet hlavních dílů</strong><strong x-text="primaryShoppingList?.total.toLocaleString('cs-CZ')+' Kč'"></strong></div>
       <p class="se-muted se-shopping-disclaimer">Nejde o jeden společný košík: ceny vycházejí z ověřených nabídek různých obchodů a mohou se změnit. Nezahrnují kabely, jištění, konstrukci, montáž ani revizi. U zvýhodněného setu se baterie a měnič nepočítají podruhé.</p>
+      <div class="se-shopping-copy" x-show="canCopyPrimaryPurchaseList" x-cloak>
+        <button type="button" class="se-btn se-btn-primary" @click="copyPrimaryPurchaseList()">Zkopírovat nákupní seznam i odkazy</button>
+        <p class="se-muted">Uložíte počty kusů, orientační součet a přímé odkazy na nabídky. Každou položku pak objednáte zvlášť; před nákupem ověřte cenu a sklad.</p>
+        <p class="se-muted" x-show="copyStatus" x-text="copyStatus" role="status" aria-live="polite"></p>
+        <div x-show="showCopyFallback && canCopyPrimaryPurchaseList" x-cloak>
+          <label for="se-shopping-copy-fallback">Text seznamu pro ruční zkopírování</label>
+          <textarea id="se-shopping-copy-fallback" class="se-input se-shopping-copy-fallback" readonly :value="primaryPurchaseText" @focus="$el.select()" @click="$el.select()"></textarea>
+        </div>
+      </div>
       <div class="se-note se-single-shop" data-se-builder-single-shop="true" x-show="primarySingleShop" x-cloak style="margin-top:14px">
         <strong>Alternativa: všechny hlavní díly u jednoho prodejce</strong>
         <p class="se-muted">Nabídky jednoho obchodu <strong x-text="primarySingleShop?.merchantLabel"></strong>

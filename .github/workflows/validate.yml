@@ -86,6 +86,8 @@ jobs:
         run: node --test tests/affiliate-intent-units.test.mjs
       - name: Immediate buyer bill checkout links with exact seller quote and fail-closed tracking
         run: node tests/builder-primary-purchase-links.test.js
+      - name: Safe copyable Builder purchase list with real seller URLs and clipboard fallback
+        run: node tests/builder-shopping-list-copy.test.js
       - name: Fail-closed actionable merchant links and honest outbound conversion
         run: node tests/actionable-merchant-outbound.test.js
       - name: Fail-closed E.ON lead links and genuine outbound lead-click signals
