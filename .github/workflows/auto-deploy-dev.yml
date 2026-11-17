@@ -1542,6 +1542,34 @@ jobs:
         run: |
           set -euo pipefail
           base='https://solar-expert.cz'
+          # Compare the exact three independently approved merchant offers from
+          # this release to the public catalog. A hardcoded verification date
+          # becomes wrong as soon as the real retailer evidence is refreshed.
+          vselektro_rows() {
+            jq -cS '
+              [.products[]
+               | select(.id == "mppt-victron-100-20" or .id == "mppt-victron-100-30" or .id == "mppt-victron-100-50")
+               | .id as $product_id
+               | (.offers // [])[]
+               | select(.merchant == "vselektro-eu")
+               | {product_id: $product_id, merchant, price_czk, availability, verified_at, source_url}]
+              | sort_by(.product_id)
+            ' "$1"
+          }
+          expected_vselektro="$(vselektro_rows assets/data/product-seed.json)"
+          if ! jq -e '
+            length == 3 and
+            all(.[];
+              .availability == "in_stock"
+              and (.price_czk | type) == "number"
+              and (.price_czk > 0)
+              and (.verified_at | type) == "string"
+              and (.verified_at | length) == 10
+              and (.source_url | startswith("https://www.vselektro.eu/")))
+          ' <<<"$expected_vselektro" >/dev/null; then
+            echo "::error::Release catalog lacks the three approved, source-backed independent VSelektro offers."
+            exit 1
+          fi
           passed=0
           for attempt in {1..6}; do
             catalog="$(mktemp)"
@@ -1552,12 +1580,9 @@ jobs:
             page_code="$(curl -sSL --max-time 30 -H 'Cache-Control: no-cache, no-store' \
               -o "$page" -w '%{http_code}' \
               "${base}/mppt-kalkulacka/?vselektro_probe=${GITHUB_SHA}&attempt=${attempt}" || true)"
+            actual_vselektro="$(vselektro_rows "$catalog" 2>/dev/null || true)"
             if [ "$code" = '200' ] && [ "$page_code" = '200' ] \
-              && jq -e '
-                ([.products[] | select(.id=="mppt-victron-100-20" or .id=="mppt-victron-100-30" or .id=="mppt-victron-100-50") | .offers[] | select(.merchant=="vselektro-eu")] | length) == 3
-                and
-                ([.products[] | (.offers // [])[] | select(.merchant=="vselektro-eu") | select(.availability=="in_stock" and .verified_at=="2026-10-13" and (.source_url | startswith("https://www.vselektro.eu/")))] | length) == 3
-              ' "$catalog" >/dev/null \
+              && [ "$actual_vselektro" = "$expected_vselektro" ] \
               && grep -Fq 'vselektro-eu' "$page" \
               && grep -Fq 'SolarExpertConfig' "$page" \
               && grep -Fq 'isIndependentAlternative(r.product,o.merchantId)' "$page" \
@@ -1570,7 +1595,7 @@ jobs:
             sleep 10
           done
           if [ "$passed" != 1 ]; then
-            echo "::error::Three VSelektro offers or their private WP merchant-base injection were not verified on production."
+            echo "::error::Live VSelektro SKUs (price, stock, evidence date, URL) do not match this release, or WP merchant injection was not verified."
             exit 1
           fi
 

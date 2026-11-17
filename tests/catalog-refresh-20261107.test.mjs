@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {spawnSync} from 'node:child_process';
 import {createRequire} from 'node:module';
 
 const require=createRequire(import.meta.url);
@@ -107,4 +108,37 @@ test('actual 30-day gate: all 48 product offers fresh as-of 2026-11-07 and expir
  const synthetic={id:'old-price',type:'battery',offers:[{merchant:'battery-cz',price_czk:1,availability:'in_stock',source_url:'https://www.battery.cz/sku/',verified_at:'2000-01-01'}]};
  assert.equal(M.verificationState(synthetic.offers[0].verified_at,now),'stale');
  assert.equal(A.resolveOffer(synthetic,synthetic.offers[0]).price_czk,null,'Stale prices must stay hidden');
+});
+
+test('production VSelektro readback compares exact release offers, not an obsolete hardcoded date',()=>{
+ const workflow=readFileSync('.github/workflows/auto-deploy-dev.yml','utf8');
+ const section=workflow.split('      - name: Verify monetized independent VSelektro SKU links on live site')[1]
+   ?.split('      - name: Verify battery selector')[0];
+ assert.ok(section,'Production release must retain its independent merchant proof');
+ assert.ok(section.includes('actual_vselektro')&&section.includes('expected_vselektro')&&
+   section.includes('[ "$actual_vselektro" = "$expected_vselektro" ]'),
+ 'Public readback must match release prices, availability, source URLs and evidence dates');
+ assert.ok(!section.includes('verified_at=="2026-10-13"'),
+ 'A fixed historical verified_at gate blocks a correctly refreshed catalog');
+ const matcher=section.match(/vselektro_rows\(\) \{\s+jq -cS '([\s\S]*?)' "\$1"/);
+ assert.ok(matcher,'Readback must have a query scoped to exact independent SKU offers');
+ const sellerRows=(source)=>{
+  const run=spawnSync('jq',['-cS',matcher[1]],{input:JSON.stringify(source),encoding:'utf8'});
+  assert.equal(run.status,0,run.stderr);
+  return run.stdout.trim();
+ };
+ const expected=JSON.parse(sellerRows(catalog));
+ assert.equal(expected.length,3);
+ assert.ok(expected.every(x=>x.merchant==='vselektro-eu'&&x.verified_at===AUDIT_DAY&&x.price_czk>0));
+ const guard=section.match(/if ! jq -e '([\s\S]*?)' <<<"\$expected_vselektro"/);
+ assert.ok(guard,'Release must reject missing, unpriced or unstocked seller evidence');
+ const guardAccepts=(rows)=>spawnSync('jq',['-e',guard[1]],{input:JSON.stringify(rows),encoding:'utf8'}).status===0;
+ assert.ok(guardAccepts(expected),'Current release-approved offers satisfy the source guard');
+ assert.ok(!guardAccepts(expected.slice(0,2)),'Missing one seller SKU must fail closed');
+ const unstocked=structuredClone(expected);unstocked[0].availability='on_request';
+ assert.ok(!guardAccepts(unstocked),'On-request stock must not pass the live-merchant coverage gate');
+ const changed=structuredClone(catalog);
+ changed.products.find(x=>x.id==='mppt-victron-100-20').offers.find(x=>x.merchant==='vselektro-eu').price_czk+=1;
+ assert.notEqual(sellerRows(changed),JSON.stringify(expected),
+  'A changed live seller price must not pass release provenance readback');
 });
