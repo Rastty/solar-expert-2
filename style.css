@@ -127,6 +127,8 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-shopping-line strong,.se-shopping-line small{display:block}
 .se-shopping-line strong{font-size:14px}
 .se-shopping-line small{margin-top:3px;color:var(--muted);font-size:12px;max-width:360px}
+.se-shopping-link{display:inline-flex;align-items:center;margin-top:7px;padding:6px 10px;border:1px solid #7eae94;border-radius:8px;color:#0b6142;font-size:13px;font-weight:750;line-height:1.3;text-decoration:none;background:#fff}
+.se-shopping-link:hover,.se-shopping-link:focus-visible{background:#dcf3e7;color:#064e36;border-color:#16734e;text-decoration:underline}
 .se-shopping-price{text-align:right;flex:0 0 auto}
 .se-shopping-total{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0;font-size:17px}
 .se-shopping-disclaimer{color:#4a5b52}

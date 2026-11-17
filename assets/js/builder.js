@@ -102,6 +102,36 @@ window.solarExpertBuilder=function(){return{
     return {rows,total:subtotal};
   },
   get primaryShoppingList(){return this.purchaseBreakdownFor(this.primaryBundle);},
+  // Put a real merchant destination beside each priced shopping-list line.
+  // Only bind a link when that EXACT source-backed unit price is in stock and
+  // the shop destination is actionable; never silently switch seller/price.
+  get primaryPurchaseRows(){
+    const bill=this.primaryShoppingList;
+    const bundle=this.primaryBundle;
+    const affiliate=window.SolarExpertAffiliate;
+    const matcher=window.SolarExpertProductMatcher;
+    if(!bill||!bundle)return [];
+    const components={
+      'Baterie':{product:bundle.battery,placement:'builder-primary-battery'},
+      'Baterie navíc':{product:bundle.battery,placement:'builder-primary-extra-battery'},
+      'Měnič':{product:bundle.inverter,placement:'builder-primary-inverter'},
+      'Solární panely':{product:bundle.panel?.product,placement:'builder-primary-panel'},
+      'MPPT regulátor':{product:bundle.mppt,placement:'builder-primary-mppt'},
+      'Set baterie + měnič':{deal:bundle.bundleDeal,placement:'builder-primary-set'}
+    };
+    return bill.rows.map(row=>{
+      const component=components[row.label]||{};
+      const offer=null;
+      if(!affiliate||!matcher||(!component.product&&!component.deal))return {...row,...component,offer};
+      const candidates=component.deal
+        ? affiliate.bundleDealOffers(component.deal)
+        : affiliate.offers(component.product);
+      const exact=candidates.find(o=>o?.availability==='in_stock' &&
+        Number(o.price_czk)===Number(row.unitPrice) &&
+        matcher.hasSellerSource(o.raw) && affiliate.isActionableMerchantHref(o.href))||null;
+      return {...row,...component,offer:exact};
+    });
+  },
   // Lower checkout friction only when the SAME verified shop has every
   // distinct component in stock. This is a list of individual product
   // destinations, NOT a shared cart, an affiliate redirect or a bundled SKU.
