@@ -782,3 +782,12 @@ const selectorCoreOneMerchant={
 };
 const selectorCoreTwoMerchants={
   ...selectorCoreCheap,
+  id:'selector-core-two-merchants',
+  offers:[
+    {merchant:'battery-cz',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://www.battery.cz/synthetic-cheap/'},
+    {merchant:'vselektro-eu',price_czk:8500,availability:'in_stock',verified_at:'2026-10-07',source_url:'https://www.vselektro.eu/synthetic-cheap/'}
+  ]
+};
+const selectorCoreMerchantTie=M.rank([selectorCoreOneMerchant,selectorCoreTwoMerchants],selectorCoreSizing);
+assert(selectorCoreMerchantTie[0].product.id==='selector-core-two-merchants','Merchant diversity must break an otherwise exact ranking tie');
+assert(selectorCoreMerchantTie[0].decision.merchantDiversity===2,'Core v1 must expose verified fresh merchant diversity');
