@@ -157,17 +157,26 @@ window.solarExpertMpptSelector=function(){return{
   run(track=true){
     if(!this.catalog.length||!this.inputValid){this.matches=[];return;}
     const voltage=Number(this.voltage),panelWp=Number(this.panelWp),mpptA=this.requiredChargeA;
-    const s={voltage,panelWp,mpptA};
+    // The 25% charge-current estimate is buying guidance, NOT an electrical
+    // rejection threshold. For example Victron explicitly rates its 100/20
+    // for 580Wp at 24V, so a 400Wp array must not be rejected merely because
+    // 400/24 * 1.25 rounds to 25A. The manufacturer's voltage-specific PV
+    // power rating, absolute Isc, cold Voc and startup window are the gates.
+    // Passing mpptA:0 keeps the shared Matcher/Builder policy unchanged.
+    const s={voltage,panelWp,mpptA:0};
     this.matches=window.SolarExpertProductMatcher.rank(this.catalog.filter(p=>p.type==='mppt'),s)
       .filter(x=>{
         const p=x.product;
         const maxVoc=Number(p.max_pv_voc_v||0);
         const minVmp=Number((p.min_pv_start_v_by_voltage||{})[String(voltage)]||0);
         const maxIsc=Number(p.max_pv_isc_a||0);
+        const ratedChargeA=Number(p.rated_charge_a||0);
+        const maxRatedWp=Number((p.max_pv_w_by_voltage||{})[String(voltage)]||0);
         // Series increases voltage, PARALLEL strings increase short-circuit
         // current. Never recommend a controller without audited Isc limit.
         // Preserve existing 2% guard margin from the full-system Builder.
-        return maxIsc>0 && this.arrayIsc<=maxIsc*.98 &&
+        return ratedChargeA>0 && maxRatedWp>=panelWp && maxIsc>0 &&
+          this.arrayIsc<=maxIsc*.98 &&
           this.coldStringVoc<maxVoc*.98 && this.stringVmp>=minVmp;
       })
       .slice(0,5);

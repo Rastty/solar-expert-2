@@ -81,6 +81,26 @@ async function main(){
   assert.equal(editorial.arrayIsc,11);
   assert.equal(editorial.inputValid,true);
   assert(editorial.matches.length>0,'Genuine model must retain technically valid catalog matches');
+  assert.equal(editorial.requiredChargeA,25,'25% extra charge-current headroom is advisory only');
+  assert(editorial.matches.some(r=>r.product.id==='mppt-victron-100-20'),
+    'Victron manufacturer rates 100/20 for 580Wp at 24V: 400Wp/11A must remain eligible');
+  assert(ui.includes('není to povinné minimum regulátoru')&&ui.includes('výrobcem uvedený přípustný výkon'),
+    'UI must explain why a manufacturer-rated 20A controller can appear alongside a 25A headroom estimate');
+  editorial.panelUnitWp=580;
+  editorial.run(false);
+  assert(editorial.matches.some(r=>r.product.id==='mppt-victron-100-20'),
+    '580Wp must pass the exact manufacturer 24V nominal PV power ceiling (20A is output, not PV input Isc)');
+  editorial.panelUnitWp=590;
+  editorial.run(false);
+  assert(!editorial.matches.some(r=>r.product.id==='mppt-victron-100-20'),
+    'A 590Wp field must fail the manufacturer 580Wp screen for Victron 100/20 at 24V');
+  editorial.panelUnitWp=400;
+  editorial.voltage=12;
+  editorial.run(false);
+  assert(!editorial.matches.some(r=>r.product.id==='mppt-victron-100-20'),
+    'A 400Wp field must fail the distinct 290Wp manufacturer rating at 12V');
+  editorial.voltage=24;
+  editorial.run(false);
   assert.equal(events().length,0,'Opening source-target model must not fake engagement or affiliate clicks');
 
   editorial.applyExample('single400');
@@ -148,7 +168,7 @@ async function main(){
   assert.equal(selection.matches.length,0,'Unknown manufacturer controller Isc must fail CLOSED');
   assert.equal(events().length,0,'Synthetic bad-input probes must not create conversion events');
 
-  // Changes in panel topology MUST change actual PV array Wp, required MPPT
+  // Changes in panel topology MUST change actual PV array Wp, advisory MPPT
   // battery charge current and product fit. Formerly the editable total Wp
   // could silently stay at 760 when a 5th/6th panel was added.
   const topology=window.solarExpertMpptSelector();
@@ -165,8 +185,9 @@ async function main(){
   topology.run(false);
   assert.equal(topology.panelWp,1140,'2S3P must immediately become 1140Wp, never retain 760');
   assert.equal(topology.requiredChargeA,60,'1140Wp/24V must demand 60A with existing guard');
-  assert(topology.matches.every(r=>r.product.rated_charge_a>=60),
-    'No underpowered controller may be returned after adding a parallel branch');
+  assert(topology.matches.every(r=>Number(r.product.rated_charge_a)>0 &&
+    Number(r.product.max_pv_w_by_voltage?.['24']||0)>=1140),
+    'All matches must have a real charge rating and permit all 1140Wp under manufacturer 24V PV limits');
   assert.equal(Math.round(topology.arrayIsc*100)/100,27.51,'Isc is summed per parallel string, independently of charge current');
   topology.parallelCount=2;
   topology.seriesCount=3;
