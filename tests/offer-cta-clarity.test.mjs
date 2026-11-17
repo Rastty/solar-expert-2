@@ -14,8 +14,12 @@ test('every tracked product offer has a visible, honest action without breaking 
   for(const [path,wanted,placement] of specs){
     const markup=read(path);
     const productLinks=[...markup.matchAll(/<a class="se-offer"[\s\S]*?<\/a>/g)].map(x=>x[0]);
-    assert.equal(productLinks.length,wanted,path+' product anchors must remain one-per-offer');
-    for(const link of productLinks){
+    const originalOffers=productLinks.filter(link=>link.includes(':href="o.href"'));
+    const singleShopOffers=productLinks.filter(link=>link.includes(':href="row.offer.href"'));
+    assert.equal(originalOffers.length,wanted,path+' original offer anchors must remain one-per-offer');
+    assert.equal(productLinks.length,wanted+(path==='template-parts/solar-builder.php'?1:0),
+      path+' must not duplicate ordinary product anchors');
+    for(const link of originalOffers){
       assert.match(link,/:href="o.href"/,path+' product URL must remain the original affiliate resolver');
       assert.match(link,/:data-se-product-id="[^"]+"/,path+' product exposure/click identity retained');
       assert.match(link,/:data-se-merchant="o.merchantId"/,path+' merchant dimension retained');
@@ -29,8 +33,21 @@ test('every tracked product offer has a visible, honest action without breaking 
         path+' missing/stale price must not suggest a verified current amount');
       assert(!/<a\b[^>]*>[\s\S]*?<a\b/.test(link),path+' no nested/untracked action anchors');
     }
+    if(path==='template-parts/solar-builder.php'){
+      assert.equal(singleShopOffers.length,1,'One repeated template for the verified all-one-shop option');
+      const link=singleShopOffers[0];
+      assert.match(link,/:data-se-product-id="row.product.id"/);
+      assert.match(link,/:data-se-merchant="row.offer.merchantId"/);
+      assert.match(link,/:data-se-placement="'builder-single-shop-'/);
+      assert.match(link,/@click="SolarExpertAffiliate\.trackOffer\(row.product,row.offer.raw/);
+      assert.match(link,/:rel="row.offer.monetized\?'sponsored nofollow noopener':'nofollow noopener'"/);
+      assert.match(link,/class="se-offer-cta">Otevřít nabídku u stejného prodejce/);
+      assert.equal((link.match(/class="se-offer-cta"/g)||[]).length,1);
+    }else{
+      assert.equal(singleShopOffers.length,0,'No Builder-only anchor on selector pages');
+    }
     // Explicit action must belong to each offer, not a global page footer.
-    assert.equal((markup.match(/class="se-offer-cta"/g)||[]).length,wanted,path);
+    assert.equal((markup.match(/class="se-offer-cta"/g)||[]).length,productLinks.length,path);
     assert(markup.includes(placement),'Placement regression '+path);
   }
 });
