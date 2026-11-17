@@ -102,6 +102,55 @@ window.solarExpertBuilder=function(){return{
     return {rows,total:subtotal};
   },
   get primaryShoppingList(){return this.purchaseBreakdownFor(this.primaryBundle);},
+  // Lower checkout friction only when the SAME verified shop has every
+  // distinct component in stock. This is a list of individual product
+  // destinations, NOT a shared cart, an affiliate redirect or a bundled SKU.
+  singleShopFor(bundle){
+    const bill=this.purchaseBreakdownFor(bundle);
+    const affiliate=window.SolarExpertAffiliate;
+    const matcher=window.SolarExpertProductMatcher;
+    if(!bill||!affiliate||!matcher||bundle.bundleDeal)return null;
+    const quantities=this.purchaseQuantitiesFor(bundle);
+    const components=[
+      {label:'Baterie',product:bundle.battery,quantity:quantities.battery},
+      {label:'Měnič',product:bundle.inverter,quantity:quantities.inverter},
+      {label:'Solární panely',product:bundle.panel?.product,quantity:bundle.panel?.count},
+      ...(!bundle.integratedMppt?[{label:'MPPT regulátor',product:bundle.mppt,quantity:1}]:[])
+    ];
+    if(components.some(row=>!row.product||!Number.isSafeInteger(Number(row.quantity))||Number(row.quantity)<1))return null;
+    const verified=components.map(row=>({
+      ...row,
+      offers:affiliate.offers(row.product).filter(o=>o&&o.availability==='in_stock'&&
+        Number.isFinite(Number(o.price_czk))&&Number(o.price_czk)>0&&
+        matcher.hasSellerSource(o.raw)&&affiliate.isActionableMerchantHref(o.href))
+    }));
+    const merchantIds=[...new Set(verified.flatMap(row=>row.offers.map(o=>o.merchantId)))];
+    const candidates=[];
+    for(const merchantId of merchantIds){
+      const rows=[];
+      for(const row of verified){
+        const offer=row.offers.find(o=>o.merchantId===merchantId);
+        if(!offer){rows.length=0;break;}
+        rows.push({label:row.label,product:row.product,quantity:Number(row.quantity),offer,
+          subtotal:Number(row.quantity)*Number(offer.price_czk)});
+      }
+      if(rows.length!==components.length)continue;
+      const total=rows.reduce((sum,row)=>sum+row.subtotal,0);
+      if(!Number.isFinite(total)||total<=0)continue;
+      candidates.push({merchantId,merchantLabel:rows[0].offer.merchant?.label||merchantId,
+        total,delta:Math.round(total-bill.total),rows});
+    }
+    // If a single shop already offers the exact lowest per-item total, the
+    // main price is itself the simpler option; don't add duplicate CTAs.
+    if(candidates.some(row=>Math.abs(row.total-bill.total)<=0.01))return null;
+    candidates.sort((a,b)=>a.total-b.total||a.merchantId.localeCompare(b.merchantId));
+    const best=candidates[0];
+    // Never promote a costly convenience variant. At most 3% or 1000 CZK
+    // above the reproducible lowest mixed-merchant sum, whichever is less.
+    const maxExtra=Math.min(1000,Math.round(bill.total*.03));
+    return best&&best.delta>0&&best.delta<=maxExtra?best:null;
+  },
+  get primarySingleShop(){return this.singleShopFor(this.primaryBundle);},
   checklistFor(bundle){
     if(!bundle||!bundle.complete)return [];
     const rows=[
