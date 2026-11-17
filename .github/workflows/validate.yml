@@ -82,6 +82,8 @@ jobs:
         run: node --test tests/offer-cta-clarity.test.mjs
       - name: Multi-unit panel and battery shopping quote honesty
         run: node --test tests/multi-unit-buyer-quote.test.mjs
+      - name: Anonymous multi-unit affiliate click intent and historical compatibility
+        run: node --test tests/affiliate-intent-units.test.mjs
       - name: Fail-closed actionable merchant links and honest outbound conversion
         run: node tests/actionable-merchant-outbound.test.js
       - name: Fail-closed E.ON lead links and genuine outbound lead-click signals

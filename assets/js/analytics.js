@@ -10,7 +10,7 @@
   ]);
   const allowedFields=new Set([
     'tool','selector','status','merchant','placement','scenario',
-    'productId','leadId','dealId','monetized','matchCount','page'
+    'productId','leadId','dealId','monetized','matchCount','quantity','page'
   ]);
 
   function currentPageKey(){
