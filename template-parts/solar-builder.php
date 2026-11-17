@@ -68,6 +68,16 @@
       <div class="se-result"><small>Systém</small><strong><span x-text="result?.voltage"></span> V</strong></div>
       <div class="se-result"><small>Měnič</small><strong>≥ <span x-text="result?.inverterW"></span> W</strong></div>
     </div>
+    <div class="se-note" x-show="result?.voltageAlternativeFrom" x-cloak role="status"
+         data-se-builder-available-voltage-alternative="true" style="margin-top:14px">
+      <strong>Alternativa s doloženou nabídkou:</strong>
+      Pro původně vypočtený systém <span x-text="result?.voltageAlternativeFrom"></span> V
+      nemáme v katalogu kompletní cenově ověřenou sestavu. Proto ukazujeme
+      <strong><span x-text="result?.voltage"></span>V variantu</strong> pro stejnou spotřebu,
+      výkon a rezervu baterie. Jde o předběžné doporučení, nikoli o záruku dostupnosti
+      ani hotový projekt elektrického zapojení. Pokud máte spotřebiče napájené přímo 12 V DC,
+      je pro 24V systém nutné ověřit vhodný DC-DC převodník; před nákupem ověřte parametry a montáž.
+    </div>
     <div class="se-note se-note-error" x-show="result?.riskFlags?.length" x-cloak role="status" style="margin-top:14px" data-se-builder-risk-flags>
       <strong>Co je nutné před nákupem ověřit:</strong>
       <ul><template x-for="warning in (result?.riskFlags || [])" :key="warning"><li x-text="warning"></li></template></ul>
