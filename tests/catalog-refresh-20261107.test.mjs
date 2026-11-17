@@ -130,6 +130,13 @@ test('production VSelektro readback compares exact release offers, not an obsole
  const expected=JSON.parse(sellerRows(catalog));
  assert.equal(expected.length,3);
  assert.ok(expected.every(x=>x.merchant==='vselektro-eu'&&x.verified_at===AUDIT_DAY&&x.price_czk>0));
+ const guard=section.match(/if ! jq -e '([\s\S]*?)' <<<"\$expected_vselektro"/);
+ assert.ok(guard,'Release must reject missing, unpriced or unstocked seller evidence');
+ const guardAccepts=(rows)=>spawnSync('jq',['-e',guard[1]],{input:JSON.stringify(rows),encoding:'utf8'}).status===0;
+ assert.ok(guardAccepts(expected),'Current release-approved offers satisfy the source guard');
+ assert.ok(!guardAccepts(expected.slice(0,2)),'Missing one seller SKU must fail closed');
+ const unstocked=structuredClone(expected);unstocked[0].availability='on_request';
+ assert.ok(!guardAccepts(unstocked),'On-request stock must not pass the live-merchant coverage gate');
  const changed=structuredClone(catalog);
  changed.products.find(x=>x.id==='mppt-victron-100-20').offers.find(x=>x.merchant==='vselektro-eu').price_czk+=1;
  assert.notEqual(sellerRows(changed),JSON.stringify(expected),
