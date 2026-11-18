@@ -835,7 +835,7 @@ function solar_expert_settings_page() {
       });
     ?>
     <h3>Obchody: zobrazení nabídek → prokliky</h3>
-    <p class="description">Porovnáváme stejné první-stranové události produktových nabídek pro každý obchod. Celkové kliky zahrnují partnerské i přímé trasy; zvlášť proto ukazujeme kliky přes nastavený partnerský odkaz. Jde o události na 100 zaznamenaných zobrazení, nikoliv návštěvníky, objednávky nebo provize. Historické nerozlišené trasy nepovažujeme za partnerské. „Požadované kusy“ nejsou potvrzená objednávka ani dostupnost; opakované kliky se započtou znovu. Sety a leady zde nejsou zahrnuty.</p>
+    <p class="description">Porovnáváme stejné první-stranové události produktových nabídek pro každý obchod. Celkové kliky zahrnují partnerské i přímé trasy; zvlášť proto ukazujeme kliky přes nastavený partnerský odkaz. Jde o události na 100 zaznamenaných zobrazení, nikoliv návštěvníky, objednávky nebo provize. Historické nerozlišené trasy nepovažujeme za partnerské. „Požadované kusy“ jsou pouze záměr vyjádřený při kliknutí, nikoliv objednávka či potvrzená dostupnost; opakované kliky se započtou znovu. Sety a leady zde nejsou zahrnuty.</p>
     <?php if ( ! empty($merchant_offer_keys) ) : ?>
       <table class="widefat striped" style="max-width:940px">
         <thead><tr><th>Obchod</th><th>Právní provozovatel</th><th>7 dní: zobrazení</th><th>7 dní: kliky</th><th>7 dní: požadované kusy</th><th>28 dní: zobrazení</th><th>28 dní: kliky</th><th>28 dní: partnerské kliky</th><th>28 dní: požadované kusy</th><th>Kliky / 100 zobrazení</th><th>Partnerské kliky / 100 zobrazení</th></tr></thead>
