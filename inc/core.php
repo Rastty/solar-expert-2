@@ -778,6 +778,12 @@ function solar_expert_settings_page() {
       </tbody>
     </table>
 
+    <?php $financial_evidence = solar_expert_affiliate_financial_outcomes(); ?>
+    <h3>Potvrzené affiliate výnosy</h3>
+    <?php if ( $financial_evidence['status'] === 'not_connected' ) : ?>
+      <p class="description"><strong>Zdroj partnerských objednávek a provizí není připojen.</strong> Schválené a vyplacené provize jsou neznámé (nikoli 0 Kč). Prokázat je mohou pouze výpisy nebo API partnerských sítí; prokliky měřené na webu nejsou objednávky.</p>
+    <?php endif; ?>
+
     <?php
       $merchant_keys = array_values(array_unique(array_merge(array_keys($funnel7['merchants'] ?? array()), array_keys($funnel28['merchants'] ?? array()))));
       usort($merchant_keys, function($a, $b) use ($funnel28) {
@@ -1772,6 +1778,32 @@ function solar_expert_funnel_outcome_summary($days = 28) {
   );
 }
 
+/**
+ * Explicit, fail-closed public contract for affiliate financial outcomes.
+ * Solar Expert has only first-party outbound navigation evidence. Confirmed
+ * orders, approved commissions and settled payouts belong to a separate,
+ * source-verified affiliate network ledger in Prometheus Core. Never derive
+ * a CZK value from an outbound click or claim a zero when no feed exists.
+ *
+ * This status must remain unavailable until a future authenticated network
+ * connector supplies actual transaction provenance and currency-safe totals.
+ */
+function solar_expert_affiliate_financial_outcomes() {
+  return array(
+    'schema_version' => 1,
+    'status' => 'not_connected',
+    'source_of_truth' => 'affiliate_network_transaction_report',
+    'network_verified_at_utc' => null,
+    'attribution_scope' => 'unavailable',
+    'currency' => null,
+    'confirmed_orders' => null,
+    'approved_commission_amount' => null,
+    'paid_commission_amount' => null,
+    'commission_reporting_period' => null,
+    'derived_from_clicks' => false,
+  );
+}
+
 function solar_expert_record_funnel_event(WP_REST_Request $request) {
   $origin = (string) $request->get_header('origin');
   if ( $origin ) {
@@ -2385,6 +2417,7 @@ function solar_expert_health_payload() {
     'affiliate_lead_coverage_pct' => (float) ($lead_coverage['coverage_pct'] ?? 0),
     'indexnow' => $indexnow_state,
     'funnel_tracking' => 'first_party_v2',
+    'affiliate_financial_outcomes' => solar_expert_affiliate_financial_outcomes(),
     'outcome_scoreboard' => array(
       'measurement' => 'aggregate_event_counts_not_unique_users',
       'activation_measurement' => 'viewport_exposure_v2_from_0_11_79',
