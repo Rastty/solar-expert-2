@@ -1724,9 +1724,30 @@ function solar_expert_actionable_affiliate_route($value) {
     return false;
   }
   $host = strtolower(rtrim($parts['host'], '.'));
-  return $host !== 'solar-expert.cz' &&
-    substr($host, -strlen('.solar-expert.cz')) !== '.solar-expert.cz' &&
-    ! in_array($host, array('localhost','127.0.0.1','::1'), true);
+  if ( $host === 'solar-expert.cz' ||
+       substr($host, -strlen('.solar-expert.cz')) === '.solar-expert.cz' ||
+       in_array($host, array('localhost','127.0.0.1','::1','[::1]'), true) ) {
+    return false;
+  }
+  if ( $host === 'ehub.cz' ) {
+    // A URL pointing merely to eHub is not a usable tracked affiliate route.
+    $query = array();
+    parse_str((string) ($parts['query'] ?? ''), $query);
+    return ($parts['path'] ?? '') === '/system/scripts/click.php' &&
+      is_string($query['a_aid'] ?? null) && trim($query['a_aid']) !== '' &&
+      is_string($query['a_bid'] ?? null) && trim($query['a_bid']) !== '';
+  }
+  return true;
+}
+
+/** Only an explicit partner destination template can generate product links. */
+function solar_expert_affiliate_base_supports_deeplink($value) {
+  if ( ! solar_expert_actionable_affiliate_route($value) ) { return false; }
+  $parts = parse_url($value);
+  if ( strtolower(rtrim($parts['host'], '.')) === 'ehub.cz' ) { return true; }
+  $query = array();
+  parse_str((string) ($parts['query'] ?? ''), $query);
+  return isset($query['desturl']) && is_string($query['desturl']);
 }
 
 function solar_expert_affiliate_coverage($catalog, $map, $bases) {
@@ -1767,7 +1788,7 @@ function solar_expert_affiliate_coverage($catalog, $map, $bases) {
       $mapped = solar_expert_actionable_affiliate_route($product_map[$exact_key] ?? null) || (
         ($product['merchant'] ?? '') === $merchant &&
         solar_expert_actionable_affiliate_route($product_map[$legacy_key] ?? null)
-      ) || solar_expert_actionable_affiliate_route($bases[$merchant] ?? null);
+      ) || solar_expert_affiliate_base_supports_deeplink($bases[$merchant] ?? null);
 
       if ( $active ) {
         $active_offers++;
@@ -1820,7 +1841,7 @@ function solar_expert_lead_coverage($map, $bases) {
   $monetized = 0;
   foreach ( $targets as $lead_id => $merchant_id ) {
     if ( solar_expert_actionable_affiliate_route($lead_map[$lead_id] ?? null) ||
-         solar_expert_actionable_affiliate_route($bases[$merchant_id] ?? null) ) {
+         solar_expert_affiliate_base_supports_deeplink($bases[$merchant_id] ?? null) ) {
       $monetized++;
     }
   }
