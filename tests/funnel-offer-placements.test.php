@@ -81,4 +81,38 @@ must(!isset($r['by_merchant']['eon-cz']) && !isset($r['by_operator']['eon-cz']),
 $short = solar_expert_funnel_offer_breakdown(1);
 must($short['total_exposures'] === 26 && $short['total_clicks'] === 5, 'Respect reporting window');
 
+$GLOBALS['se_offer_events'] = array($today => array(
+  'offer_exposure|merchant=battery-cz|placement=builder-battery-best|productid=bat-new' => 10,
+  'affiliate_click|merchant=battery-cz|placement=builder-battery-best|productid=bat-new|monetized=1' => 3,
+  'affiliate_click|merchant=battery-cz|placement=builder-battery-best|productid=bat-new|monetized=0' => 2,
+  'affiliate_click|merchant=battery-cz|placement=builder-battery-best|productid=bat-new' => 1,
+  'affiliate_click|merchant=battery-cz|placement=missing-exposure|productid=bat-other|monetized=1' => 1,
+  // Without full product identity this is only an overall outbound event.
+  'affiliate_click|merchant=battery-cz|placement=builder-battery-best|monetized=1' => 20,
+));
+$routes = solar_expert_funnel_offer_breakdown(7);
+must($routes['total_exposures'] === 10 && $routes['total_clicks'] === 7,
+  'Product-offer grouping must ignore invalid, noncomparable click identities');
+must($routes['configured_affiliate_route_clicks'] === 4 && $routes['direct_source_route_clicks'] === 2 &&
+  $routes['unknown_route_type_clicks'] === 1, 'Only explicit route evidence counts as configured partner intent');
+must($routes['configured_affiliate_clicks_per_100_exposures'] === 40.0,
+  'Partner clicks are counted across the full comparable product-offer population');
+$offer = $routes['rows']['bat-new|battery-cz|builder-battery-best'];
+must($offer['clicks'] === 6 && $offer['configured_affiliate_route_clicks'] === 3 &&
+  $offer['direct_source_route_clicks'] === 2 && $offer['unknown_route_type_clicks'] === 1,
+  'Offer detail preserves legacy/direct clicks without crediting them to partners');
+must($offer['configured_affiliate_clicks_per_100_exposures'] === 30.0,
+  'Configured offer click rate is 3 / 10 recorded exposures');
+must($routes['by_placement']['builder-battery-best']['configured_affiliate_route_clicks'] === 3 &&
+  $routes['by_placement']['builder-battery-best']['configured_affiliate_clicks_per_100_exposures'] === 30.0,
+  'Partner route rate is available at placement granularity');
+must($routes['by_merchant']['battery-cz']['configured_affiliate_route_clicks'] === 4 &&
+  $routes['by_operator']['efteria-cz']['unknown_route_type_clicks'] === 1,
+  'Store and legal operator both preserve route evidence');
+must($routes['rows']['bat-other|battery-cz|missing-exposure']['configured_affiliate_clicks_per_100_exposures'] === null,
+  'Partner rate without comparable exposure is unknown, never an invented zero');
+must(($routes['configured_affiliate_route_clicks'] + $routes['direct_source_route_clicks'] +
+  $routes['unknown_route_type_clicks']) === $routes['total_clicks'],
+  'All comparable click counts reconcile exactly across routes');
+
 echo "PASS: product-only exposure and click aggregation by placement, missing-denominator handling, 7/28d boundaries\\n";

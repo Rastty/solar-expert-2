@@ -732,7 +732,7 @@ function solar_expert_settings_page() {
         'selector_engaged' => 'Selector engagements',
         'quote_checker_complete' => 'Quote Checker completes',
         'offer_exposure' => 'Affiliate product-offer exposures',
-        'affiliate_click' => 'Affiliate product clicks',
+        'affiliate_click' => 'Product-offer outbound clicks (all routes)',
         'bundle_deal_exposure' => 'Bundle-deal offer exposures',
         'bundle_deal_click' => 'Bundle-deal clicks',
         'lead_click' => 'Lead clicks',
@@ -835,10 +835,10 @@ function solar_expert_settings_page() {
       });
     ?>
     <h3>Obchody: zobrazení nabídek → prokliky</h3>
-    <p class="description">Porovnáváme stejné první-stranové události produktových nabídek pro každý obchod. Jde o počet kliknutí na 100 zaznamenaných zobrazení nabídky, ne o procento lidí, nákupů ani provizi. „Požadované kusy“ je součet množství u prokliků, nikoliv objednávka či potvrzená dostupnost; opakované kliky se započtou znovu a u starších prokliků počítáme 1 kus. Sety a leady zde nejsou zahrnuty.</p>
+    <p class="description">Porovnáváme stejné první-stranové události produktových nabídek pro každý obchod. Celkové kliky zahrnují partnerské i přímé trasy; zvlášť proto ukazujeme kliky přes nastavený partnerský odkaz. Jde o události na 100 zaznamenaných zobrazení, nikoliv návštěvníky, objednávky nebo provize. Historické nerozlišené trasy nepovažujeme za partnerské. „Požadované kusy“ nejsou potvrzená objednávka ani dostupnost; opakované kliky se započtou znovu. Sety a leady zde nejsou zahrnuty.</p>
     <?php if ( ! empty($merchant_offer_keys) ) : ?>
       <table class="widefat striped" style="max-width:940px">
-        <thead><tr><th>Obchod</th><th>Právní provozovatel</th><th>7 dní: zobrazení</th><th>7 dní: kliky</th><th>7 dní: požadované kusy</th><th>28 dní: zobrazení</th><th>28 dní: kliky</th><th>28 dní: požadované kusy</th><th>Kliky / 100 zobrazení (28 dní)</th></tr></thead>
+        <thead><tr><th>Obchod</th><th>Právní provozovatel</th><th>7 dní: zobrazení</th><th>7 dní: kliky</th><th>7 dní: požadované kusy</th><th>28 dní: zobrazení</th><th>28 dní: kliky</th><th>28 dní: partnerské kliky</th><th>28 dní: požadované kusy</th><th>Kliky / 100 zobrazení</th><th>Partnerské kliky / 100 zobrazení</th></tr></thead>
         <tbody>
         <?php foreach ( $merchant_offer_keys as $merchant_offer_key ) :
           $seven = $merchant_offers7[$merchant_offer_key] ?? array();
@@ -853,8 +853,10 @@ function solar_expert_settings_page() {
             <td><?php echo esc_html((int) ($seven['requested_units_clicks'] ?? 0)); ?></td>
             <td><?php echo esc_html((int) ($month['exposures'] ?? 0)); ?></td>
             <td><?php echo esc_html((int) ($month['clicks'] ?? 0)); ?></td>
+            <td><?php echo esc_html((int) ($month['configured_affiliate_route_clicks'] ?? 0)); ?></td>
             <td><?php echo esc_html((int) ($month['requested_units_clicks'] ?? 0)); ?></td>
             <td><?php echo $rate === null ? '—' : esc_html(number_format_i18n((float) $rate, 1)); ?></td>
+            <td><?php echo ($month['configured_affiliate_clicks_per_100_exposures'] ?? null) === null ? '—' : esc_html(number_format_i18n((float) $month['configured_affiliate_clicks_per_100_exposures'], 1)); ?></td>
           </tr>
         <?php endforeach; ?>
         </tbody>
@@ -871,10 +873,10 @@ function solar_expert_settings_page() {
     <?php endif; ?>
 
     <h3>Viditelnost produktových nabídek a prokliky podle umístění</h3>
-    <p class="description">Počítáme zobrazení jednotlivých produktových nabídek ve viditelné části stránky a jejich následné affiliate kliky. Nejde o unikátní návštěvníky ani potvrzené nákupy. Sety a E.ON leady nemají stejný čitatel/jmenovatel a nejsou zde zahrnuty; starší dny před měřením zobrazení nemusí být plně srovnatelné.</p>
+    <p class="description">Počítáme zobrazení jednotlivých produktových nabídek ve viditelné části stránky a jejich prokliky. Samostatný sloupec partnerských kliků nezahrnuje přímé ani nerozlišené trasy. Nejde o unikátní návštěvníky ani potvrzené nákupy. Sety a E.ON leady nemají stejný čitatel/jmenovatel a nejsou zde zahrnuty.</p>
     <?php if ( ! empty($offer_placement_keys) ) : ?>
       <table class="widefat striped" style="max-width:860px">
-        <thead><tr><th>Umístění</th><th>7 dní: zobrazení</th><th>7 dní: kliky</th><th>7 dní: požadované kusy</th><th>28 dní: zobrazení</th><th>28 dní: kliky</th><th>28 dní: požadované kusy</th><th>28 dní: kliků / 100 zobrazení</th></tr></thead>
+        <thead><tr><th>Umístění</th><th>7 dní: zobrazení</th><th>7 dní: kliky</th><th>7 dní: požadované kusy</th><th>28 dní: zobrazení</th><th>28 dní: kliky</th><th>28 dní: partnerské kliky</th><th>28 dní: požadované kusy</th><th>28 dní: kliků / 100 zobrazení</th><th>Partnerské kliky / 100 zobrazení</th></tr></thead>
         <tbody>
         <?php foreach ( $offer_placement_keys as $offer_placement_key ) :
           $seven = $offer_placements7[$offer_placement_key] ?? array();
@@ -888,8 +890,10 @@ function solar_expert_settings_page() {
             <td><?php echo esc_html((int) ($seven['requested_units_clicks'] ?? 0)); ?></td>
             <td><?php echo esc_html((int) ($month['exposures'] ?? 0)); ?></td>
             <td><?php echo esc_html((int) ($month['clicks'] ?? 0)); ?></td>
+            <td><?php echo esc_html((int) ($month['configured_affiliate_route_clicks'] ?? 0)); ?></td>
             <td><?php echo esc_html((int) ($month['requested_units_clicks'] ?? 0)); ?></td>
             <td><?php echo $rate === null ? '—' : esc_html(number_format_i18n((float) $rate, 1)); ?></td>
+            <td><?php echo ($month['configured_affiliate_clicks_per_100_exposures'] ?? null) === null ? '—' : esc_html(number_format_i18n((float) $month['configured_affiliate_clicks_per_100_exposures'], 1)); ?></td>
           </tr>
         <?php endforeach; ?>
         </tbody>
@@ -1395,6 +1399,7 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
       $merchant = '';
       $placement = '';
       $quantity = 1; // Legacy clicks predate unit-intent tracking.
+      $route = 'unknown_route_type_clicks';
       foreach ( $parts as $part ) {
         if ( strpos($part, 'productid=') === 0 ) {
           $product_id = sanitize_key(substr($part, 10));
@@ -1408,6 +1413,10 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
           if ( preg_match('/^(?:[1-9]|1[0-9]|20)$/', $raw_quantity) ) {
             $quantity = (int) $raw_quantity;
           }
+        } elseif ( $part === 'monetized=1' ) {
+          $route = 'configured_affiliate_route_clicks';
+        } elseif ( $part === 'monetized=0' ) {
+          $route = 'direct_source_route_clicks';
         }
       }
 
@@ -1422,6 +1431,10 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
           'clicks' => 0,
           'requested_units_clicks' => 0,
           'click_rate_pct' => 0,
+          'configured_affiliate_route_clicks' => 0,
+          'direct_source_route_clicks' => 0,
+          'unknown_route_type_clicks' => 0,
+          'configured_affiliate_clicks_per_100_exposures' => null,
         );
       }
 
@@ -1429,6 +1442,7 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
         $rows[$key]['exposures'] += $count;
       } elseif ( $event === 'affiliate_click' ) {
         $rows[$key]['clicks'] += $count;
+        $rows[$key][$route] += $count;
         $rows[$key]['requested_units_clicks'] += $count * $quantity;
       }
     }
@@ -1438,6 +1452,9 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
     $exposures = (int) ($row['exposures'] ?? 0);
     $clicks = (int) ($row['clicks'] ?? 0);
     $rows[$key]['click_rate_pct'] = $exposures ? round(($clicks / $exposures) * 100, 1) : 0;
+    $rows[$key]['configured_affiliate_clicks_per_100_exposures'] = $exposures
+      ? round(((int) $row['configured_affiliate_route_clicks'] / $exposures) * 100, 1)
+      : null;
   }
 
   uasort($rows, function($a, $b) {
@@ -1449,6 +1466,9 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
   $total_exposures = array_sum(array_map(function($row){ return (int) ($row['exposures'] ?? 0); }, $rows));
   $total_clicks = array_sum(array_map(function($row){ return (int) ($row['clicks'] ?? 0); }, $rows));
   $total_requested_units = array_sum(array_map(function($row){ return (int) ($row['requested_units_clicks'] ?? 0); }, $rows));
+  $total_partner_clicks = array_sum(array_column($rows, 'configured_affiliate_route_clicks'));
+  $total_direct_clicks = array_sum(array_column($rows, 'direct_source_route_clicks'));
+  $total_unknown_clicks = array_sum(array_column($rows, 'unknown_route_type_clicks'));
 
   // Aggregate over ALL individual offers before truncating the detailed top 50.
   // A product-offer exposure is a counter event, not a unique visitor or sale.
@@ -1468,26 +1488,41 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
         $target =& $by_operator;
       }
       if ( ! isset($target[$key]) ) {
-        $target[$key] = array('exposures'=>0, 'clicks'=>0, 'requested_units_clicks'=>0, 'clicks_per_100_exposures'=>null);
+        $target[$key] = array('exposures'=>0, 'clicks'=>0, 'requested_units_clicks'=>0,
+          'configured_affiliate_route_clicks'=>0, 'direct_source_route_clicks'=>0,
+          'unknown_route_type_clicks'=>0, 'clicks_per_100_exposures'=>null,
+          'configured_affiliate_clicks_per_100_exposures'=>null);
       }
       $target[$key]['exposures'] += (int) $row['exposures'];
       $target[$key]['clicks'] += (int) $row['clicks'];
       $target[$key]['requested_units_clicks'] += (int) $row['requested_units_clicks'];
+      foreach ( array('configured_affiliate_route_clicks','direct_source_route_clicks','unknown_route_type_clicks') as $route_key ) {
+        $target[$key][$route_key] += (int) $row[$route_key];
+      }
       unset($target);
     }
     $placement = $row['placement'];
     if ( ! isset($by_placement[$placement]) ) {
-      $by_placement[$placement] = array('exposures'=>0, 'clicks'=>0, 'requested_units_clicks'=>0, 'clicks_per_100_exposures'=>null);
+      $by_placement[$placement] = array('exposures'=>0, 'clicks'=>0, 'requested_units_clicks'=>0,
+        'configured_affiliate_route_clicks'=>0, 'direct_source_route_clicks'=>0,
+        'unknown_route_type_clicks'=>0, 'clicks_per_100_exposures'=>null,
+        'configured_affiliate_clicks_per_100_exposures'=>null);
     }
     $by_placement[$placement]['exposures'] += (int) $row['exposures'];
     $by_placement[$placement]['clicks'] += (int) $row['clicks'];
     $by_placement[$placement]['requested_units_clicks'] += (int) $row['requested_units_clicks'];
+    foreach ( array('configured_affiliate_route_clicks','direct_source_route_clicks','unknown_route_type_clicks') as $route_key ) {
+      $by_placement[$placement][$route_key] += (int) $row[$route_key];
+    }
   }
   foreach ( $by_placement as $placement => $row ) {
     $exposures = (int) $row['exposures'];
     // No invented 0% when we do not have a comparable exposure denominator.
     $by_placement[$placement]['clicks_per_100_exposures'] = $exposures
       ? round(((int) $row['clicks'] / $exposures) * 100, 1)
+      : null;
+    $by_placement[$placement]['configured_affiliate_clicks_per_100_exposures'] = $exposures
+      ? round(((int) $row['configured_affiliate_route_clicks'] / $exposures) * 100, 1)
       : null;
   }
   foreach ( array('merchant','operator') as $dimension ) {
@@ -1500,6 +1535,9 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
       $exposures = (int) $row['exposures'];
       $target[$key]['clicks_per_100_exposures'] = $exposures
         ? round(((int) $row['clicks'] / $exposures) * 100, 1)
+        : null;
+      $target[$key]['configured_affiliate_clicks_per_100_exposures'] = $exposures
+        ? round(((int) $row['configured_affiliate_route_clicks'] / $exposures) * 100, 1)
         : null;
     }
     uasort($target, function($a, $b) {
@@ -1517,6 +1555,12 @@ function solar_expert_funnel_offer_breakdown($days = 28) {
   return array(
     'total_exposures' => $total_exposures,
     'total_clicks' => $total_clicks,
+    'configured_affiliate_route_clicks' => $total_partner_clicks,
+    'direct_source_route_clicks' => $total_direct_clicks,
+    'unknown_route_type_clicks' => $total_unknown_clicks,
+    'configured_affiliate_clicks_per_100_exposures' => $total_exposures
+      ? round(($total_partner_clicks / $total_exposures) * 100, 1)
+      : null,
     // Intent units in product-link clicks. Repeat clicks can count again;
     // this is not a unique-user estimate, an order or affiliate revenue.
     'requested_units_clicks' => $total_requested_units,
