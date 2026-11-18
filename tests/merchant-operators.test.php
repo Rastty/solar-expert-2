@@ -27,8 +27,8 @@ $catalog=array('products'=>array(
   ))
 ));
 $bases=array(
-  'battery-cz'=>'https://ehub.cz/approved-battery',
-  'solar-import-cz'=>'https://ehub.cz/approved-solar',
+  'battery-cz'=>'https://ehub.cz/system/scripts/click.php?a_aid=fixture&a_bid=battery',
+  'solar-import-cz'=>'https://ehub.cz/system/scripts/click.php?a_aid=fixture&a_bid=solar-import',
 );
 $result=solar_expert_affiliate_coverage($catalog,array('products'=>array()),$bases);
 check($result['monetized_merchants']===2,'Two valid affiliate storefronts should remain counted');
@@ -37,7 +37,7 @@ check($result['recommendable_offer_coverage_pct']===100.0,'Affiliate coverage sh
 check($result['active_offer_coverage_pct']===100.0,'No offer destinations should be removed');
 
 $catalog['products'][0]['offers'][]=array('merchant'=>'ampul-eu','availability'=>'in_stock');
-$bases['ampul-eu']='https://approved-network.example/ampul';
+$bases['ampul-eu']='https://approved-network.example/click?publisher=fixture&desturl=';
 $expanded=solar_expert_affiliate_coverage($catalog,array('products'=>array()),$bases);
 check($expanded['monetized_merchants']===3,'New independent brand counted');
 check($expanded['monetized_operators']===2,'New independent operator counted');
@@ -53,7 +53,10 @@ echo "PASS: 2 approved sites / 1 real seller; new independent merchants reported
 // WordPress option has a nonempty string, a same-site link or an unsafe scheme.
 $bad_urls=array('#','javascript:alert(1)','/prodejce/',
   'https://solar-expert.cz/prodejce/','https://www.solar-expert.cz/prodejce/',
-  'https://localhost/shop','not-a-url','https://ehub.cz/path with spaces');
+  'https://localhost/shop','not-a-url','https://ehub.cz/path with spaces',
+  'https://ehub.cz/approved-battery',
+  'https://ehub.cz/system/scripts/click.php?a_aid=fixture',
+  'https://ehub.cz/system/scripts/click.php?a_aid=fixture&a_bid=');
 foreach ( $bad_urls as $bad ) {
   check(!solar_expert_actionable_affiliate_route($bad),'Unsafe or internal route must fail: '.$bad);
   $badResult=solar_expert_affiliate_coverage($catalog,array('products'=>array('battery-demo@battery-cz'=>$bad)),
@@ -65,6 +68,18 @@ check(solar_expert_actionable_affiliate_route('https://ehub.cz/system/scripts/cl
   'Keep external configured affiliate links without contacting the tracking network');
 check(solar_expert_actionable_affiliate_route('https://approved-network.example/ampul'),
   'Unfamiliar approved providers remain configurable; commission proof is independent');
+check(!solar_expert_affiliate_base_supports_deeplink('https://www.battery.cz/'),
+  'A plain retailer homepage is not an affiliate deep-link template');
+check(!solar_expert_affiliate_base_supports_deeplink('https://approved-network.example/ampul'),
+  'External vendor or network URL without destination template cannot generate product links');
+check(solar_expert_affiliate_base_supports_deeplink('https://approved-network.example/click?desturl='),
+  'Allow explicitly configured non-eHub destination templates');
+check(solar_expert_affiliate_base_supports_deeplink('https://ehub.cz/system/scripts/click.php?a_aid=fixture&a_bid=solar'),
+  'Preserve validated eHub bases');
+$nonTrackingBase=solar_expert_affiliate_coverage($catalog,array('products'=>array()),
+  array('battery-cz'=>'https://www.battery.cz/','solar-import-cz'=>$bases['solar-import-cz']));
+check($nonTrackingBase['monetized_merchants']===1&&$nonTrackingBase['recommendable_offer_coverage_pct']===33.3,
+  'A configured shop homepage must not inflate tracked merchant coverage');
 
 $leadFrom=strpos($source,'function solar_expert_lead_coverage(', $to);
 $leadTo=strpos($source,'function solar_expert_deployed_theme_version(', $leadFrom);
@@ -78,5 +93,9 @@ $leadApproved=solar_expert_lead_coverage(array('leads'=>array('eon-solar'=>'#'))
   array('eon-cz'=>'https://ehub.cz/system/scripts/click.php?a_aid=stub&a_bid=stub'));
 check($leadApproved['monetized_targets']===2&&$leadApproved['coverage_pct']===100.0,
   'A valid merchant base provides both E.ON lead routes even if one override is invalid');
+$leadDirectBase=solar_expert_lead_coverage(array('leads'=>array()),
+  array('eon-cz'=>'https://www.eon.cz/domacnosti/'));
+check($leadDirectBase['monetized_targets']===0&&$leadDirectBase['coverage_pct']===0.0,
+  'A plain E.ON landing page base cannot generate affiliate leads');
 
 echo "PASS: invalid or same-site affiliate/lead mappings never inflate the reported usable coverage\n";
