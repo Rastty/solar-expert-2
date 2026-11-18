@@ -63,4 +63,10 @@ check(array_sum(array($month['configured_affiliate_route_clicks'], $month['direc
   $month['unknown_route_type_clicks'])) === $month['total_clicks'],
   'No outbound click counted twice or dropped');
 
+$GLOBALS['se_funnel_fixture'] = 'invalid_option_shape';
+$empty = solar_expert_funnel_outbound_route_breakdown(28);
+check($empty['total_clicks'] === 0 && $empty['configured_affiliate_route_clicks'] === 0 &&
+  empty($empty['by_placement']) && empty($empty['by_page']),
+  'Corrupted or missing WordPress option must return an empty report');
+
 echo "PASS: outbound product, bundle and lead routes split into configured, direct and unknown without revenue claims\n";
