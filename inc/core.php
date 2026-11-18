@@ -731,6 +731,7 @@ function solar_expert_settings_page() {
         'solar_builder_complete' => 'Builder completes',
         'selector_engaged' => 'Selector engagements',
         'quote_checker_complete' => 'Quote Checker completes',
+        'buyer_offer_gap' => 'Nedokončené nákupní cesty (pozorované události)',
         'offer_exposure' => 'Affiliate product-offer exposures',
         'affiliate_click' => 'Product-offer outbound clicks (all routes)',
         'bundle_deal_exposure' => 'Bundle-deal offer exposures',
@@ -751,6 +752,37 @@ function solar_expert_settings_page() {
           <td><?php echo esc_html((int) ($funnel28['events'][$event_key] ?? 0)); ?></td>
         </tr>
       <?php endforeach; ?>
+      </tbody>
+    </table>
+
+    <?php
+      $gap7 = solar_expert_funnel_offer_gap_breakdown(7);
+      $gap28 = solar_expert_funnel_offer_gap_breakdown(28);
+      $gap_labels = array(
+        'no_compatible_products' => 'Bez kompatibilního produktu ve výsledku',
+        'no_actionable_shortlist_offer' => 'Kompatibilní výsledek bez použitelného odkazu na prodejce',
+        'no_complete_bundle' => 'Nelze složit technicky kompletní sestavu',
+        'no_complete_shopping_list' => 'Sestava bez úplného nákupního seznamu s odkazy',
+      );
+    ?>
+    <h3>Kde zákazníci narazili na nedostupné doporučení</h3>
+    <p class="description">Měříme pouze skutečné výpočty spuštěné návštěvníkem, nikdy pouhé načtení stránky ani ukázkový náhled. Jedna příčina se na jedné stránce měří nejvýše jednou za návštěvu stránky. Jde o počty událostí, ne unikátní lidi, ztracené objednávky ani odhad provizí.</p>
+    <table class="widefat striped" style="max-width:850px">
+      <thead><tr><th>Nástroj</th><th>Důvod</th><th>7 dní</th><th>28 dní</th></tr></thead>
+      <tbody>
+      <?php foreach ( $gap28['by_tool_reason'] as $key => $count ) :
+        $parts = explode('|', $key, 2);
+      ?>
+        <tr>
+          <td><code><?php echo esc_html($parts[0]); ?></code></td>
+          <td><?php echo esc_html($gap_labels[$parts[1]] ?? $parts[1]); ?></td>
+          <td><?php echo esc_html((int) ($gap7['by_tool_reason'][$key] ?? 0)); ?></td>
+          <td><?php echo esc_html((int) $count); ?></td>
+        </tr>
+      <?php endforeach; ?>
+      <?php if ( empty($gap28['by_tool_reason']) ) : ?>
+        <tr><td colspan="4">Prozatím nejsou zaznamenány použitelné údaje o chybějících nákupních cestách.</td></tr>
+      <?php endif; ?>
       </tbody>
     </table>
 
@@ -997,6 +1029,7 @@ function solar_expert_funnel_allowed_events() {
     'solar_builder_complete',
     'selector_engaged',
     'quote_checker_complete',
+    'buyer_offer_gap',
     'offer_exposure',
     'bundle_deal_exposure',
     'affiliate_click',
@@ -1714,6 +1747,49 @@ function solar_expert_funnel_outbound_route_breakdown($days = 28) {
   ));
 }
 
+function solar_expert_funnel_gap_statuses() {
+  return array(
+    'builder' => array('no_complete_bundle', 'no_complete_shopping_list'),
+    'battery' => array('no_compatible_products', 'no_actionable_shortlist_offer'),
+    'mppt' => array('no_compatible_products', 'no_actionable_shortlist_offer'),
+    'inverter' => array('no_compatible_products', 'no_actionable_shortlist_offer'),
+  );
+}
+
+/** Buyer-initiated, deduplicated page-event counts; no monetary inference. */
+function solar_expert_funnel_offer_gap_breakdown($days = 28) {
+  $days = max(1, min(35, (int) $days));
+  $cutoff = gmdate('Y-m-d', time() - (($days - 1) * DAY_IN_SECONDS));
+  $data = get_option('solar_expert_funnel_daily', array());
+  $allowed = solar_expert_funnel_gap_statuses();
+  $result = array('total_events'=>0, 'by_tool'=>array(), 'by_reason'=>array(), 'by_tool_reason'=>array());
+  if ( ! is_array($data) ) { return $result; }
+  foreach ( $data as $date => $buckets ) {
+    if ( (string) $date < $cutoff || ! is_array($buckets) ) { continue; }
+    foreach ( $buckets as $bucket => $count ) {
+      $parts = explode('|', (string) $bucket);
+      if ( array_shift($parts) !== 'buyer_offer_gap' ) { continue; }
+      $dimensions = array();
+      foreach ( $parts as $part ) {
+        $pair = explode('=', $part, 2);
+        if ( count($pair) === 2 ) { $dimensions[$pair[0]] = $pair[1]; }
+      }
+      $tool = sanitize_key((string) ($dimensions['tool'] ?? ''));
+      $reason = sanitize_key((string) ($dimensions['status'] ?? ''));
+      if ( ! isset($allowed[$tool]) || ! in_array($reason, $allowed[$tool], true) ) { continue; }
+      $count = max(0, (int) $count);
+      if ( ! $count ) { continue; }
+      $key = $tool . '|' . $reason;
+      $result['total_events'] += $count;
+      $result['by_tool'][$tool] = ($result['by_tool'][$tool] ?? 0) + $count;
+      $result['by_reason'][$reason] = ($result['by_reason'][$reason] ?? 0) + $count;
+      $result['by_tool_reason'][$key] = ($result['by_tool_reason'][$key] ?? 0) + $count;
+    }
+  }
+  arsort($result['by_tool_reason']);
+  return $result;
+}
+
 function solar_expert_funnel_outcome_summary($days = 28) {
   $days = max(1, min(35, (int) $days));
   $summary = solar_expert_funnel_summary($days);
@@ -1773,6 +1849,7 @@ function solar_expert_funnel_outcome_summary($days = 28) {
     'builder_steps' => solar_expert_funnel_builder_steps($days),
     'offers' => solar_expert_funnel_offer_breakdown($days),
     'bundle_offers' => solar_expert_funnel_bundle_offer_breakdown($days),
+    'buyer_offer_gaps' => solar_expert_funnel_offer_gap_breakdown($days),
     'by_page' => solar_expert_funnel_page_breakdown($days),
     'tool_referrals' => solar_expert_funnel_referral_breakdown($days),
   );
@@ -1820,6 +1897,19 @@ function solar_expert_record_funnel_event(WP_REST_Request $request) {
   $event = sanitize_key($payload['event'] ?? '');
   if ( ! in_array($event, solar_expert_funnel_allowed_events(), true) ) {
     return new WP_Error('solar_expert_event', 'Unsupported event.', array('status'=>400));
+  }
+
+  if ( $event === 'buyer_offer_gap' ) {
+    $allowed_gaps = solar_expert_funnel_gap_statuses();
+    if ( ! isset($payload['tool'], $payload['status']) ||
+         ! is_scalar($payload['tool']) || ! is_scalar($payload['status']) ) {
+      return new WP_Error('solar_expert_gap', 'Invalid buyer-offer gap.', array('status'=>400));
+    }
+    $tool = sanitize_key((string) ($payload['tool'] ?? ''));
+    $reason = sanitize_key((string) ($payload['status'] ?? ''));
+    if ( ! isset($allowed_gaps[$tool]) || ! in_array($reason, $allowed_gaps[$tool], true) ) {
+      return new WP_Error('solar_expert_gap', 'Invalid buyer-offer gap.', array('status'=>400));
+    }
   }
 
   $dimensions = array();

@@ -6,6 +6,7 @@
   const allowedEvents=new Set([
     'tool_view','tool_start','tool_exposure','tool_activation','builder_step','solar_builder_complete','selector_engaged',
     'quote_checker_complete','offer_exposure','bundle_deal_exposure','affiliate_click','bundle_deal_click','lead_click',
+    'buyer_offer_gap',
     'tool_referral_click'
   ]);
   const allowedFields=new Set([
