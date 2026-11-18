@@ -17,6 +17,7 @@ const direct='https://www.eon.cz/domacnosti/usporne-technologie/solar/';
 const base='https://ehub.cz/system/scripts/click.php?a_aid=test&a_bid=approved-eon';
 
 for(const invalid of ['#','', '/nabidka','https://solar-expert.cz/nabidka',
+  'https://www.solar-expert.cz/nabidka','http://solar-expert.cz/nabidka',
   'javascript:alert(1)','data:text/html,evil','mailto:lead@example.com']){
   window.SolarExpertConfig.affiliateMap.leads['eon-solar']=invalid;
   window.dataLayer.length=0;
@@ -44,6 +45,11 @@ A.trackLead('eon-solar','fve_price_guide_compare',direct);
 assert.equal(events().length,1);
 assert.equal(events()[0].monetized,true);
 assert.equal(events()[0].hrefType,'affiliate');
+window.SolarExpertConfig.affiliateBases['eon-cz']='https://www.eon.cz/domacnosti/';
+const plainBase=A.resolveLead('eon-solar',direct);
+assert.equal(plainBase.href,direct,'Plain E.ON homepage base must retain exact direct landing page');
+assert.equal(plainBase.monetized,false,'A vendor homepage with fabricated desturl is not an affiliate lead');
+window.SolarExpertConfig.affiliateBases['eon-cz']=base;
 window.SolarExpertConfig.affiliateMap.leads['eon-solar']='https://ehub.cz/system/scripts/click.php?a_bid=valid-override';
 assert.equal(A.resolveLead('eon-solar',direct).href,
   window.SolarExpertConfig.affiliateMap.leads['eon-solar'],
