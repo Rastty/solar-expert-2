@@ -94,6 +94,8 @@ jobs:
         run: node --test tests/affiliate-intent-units.test.mjs
       - name: Immediate buyer bill checkout links with exact seller quote and fail-closed tracking
         run: node tests/builder-primary-purchase-links.test.js
+      - name: Prefer a complete linked buyer list over a priced but unclickable Best Value
+        run: node tests/builder-actionable-primary-fallback.test.js
       - name: Safe copyable Builder purchase list with real seller URLs and clipboard fallback
         run: node tests/builder-shopping-list-copy.test.js
       - name: Fail-closed actionable merchant links and honest outbound conversion
