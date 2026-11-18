@@ -32,9 +32,15 @@ window.solarExpertBuilder=function(){return{
   get primaryBundle(){
     const complete=this.completeBundles;
     const best=complete.find(b=>b.tier==='best')||null;
-    // A quoted, reconciled bill should never be hidden behind an unpriced
-    // Best Value technical fallback. This changes only the primary buyer
-    // summary/checklist, not the engineering compatibility or tier ranking.
+    // When a fully source-backed, priced alternative has a real destination
+    // for every component, don't strand the main shopping list on a technical
+    // Best Value tier with missing merchant links. Only complete, PV-safe
+    // variants can compete; engineering tiers and their order stay intact.
+    if(best && this.hasCompletePurchaseLinksFor(best))return best;
+    const actionable=complete.find(b=>this.hasCompletePurchaseLinksFor(b));
+    if(actionable)return actionable;
+    // Preserve the prior pricing fallback when no variant has a fully
+    // actionable buyer list. Never invent links or suppress technical advice.
     if(best && this.purchaseBreakdownFor(best))return best;
     return complete.find(b=>this.purchaseBreakdownFor(b))||best||complete[0]||null;
   },
@@ -105,9 +111,8 @@ window.solarExpertBuilder=function(){return{
   // Put a real merchant destination beside each priced shopping-list line.
   // Only bind a link when that EXACT source-backed unit price is in stock and
   // the shop destination is actionable; never silently switch seller/price.
-  get primaryPurchaseRows(){
-    const bill=this.primaryShoppingList;
-    const bundle=this.primaryBundle;
+  purchaseRowsFor(bundle){
+    const bill=this.purchaseBreakdownFor(bundle);
     const affiliate=window.SolarExpertAffiliate;
     const matcher=window.SolarExpertProductMatcher;
     if(!bill||!bundle)return [];
@@ -132,6 +137,13 @@ window.solarExpertBuilder=function(){return{
       return {...row,...component,offer:exact};
     });
   },
+  hasCompletePurchaseLinksFor(bundle){
+    const bill=this.purchaseBreakdownFor(bundle);
+    if(!bill||!bill.rows.length)return false;
+    const rows=this.purchaseRowsFor(bundle);
+    return rows.length===bill.rows.length && rows.every(row=>Boolean(row.offer));
+  },
+  get primaryPurchaseRows(){return this.purchaseRowsFor(this.primaryBundle);},
   // A copyable bill is a set of actual merchant product destinations, NOT a
   // prefilled basket. Fail closed if even one quoted line lacks its exact
   // seller/source-backed, in-stock destination; never share a partial order.

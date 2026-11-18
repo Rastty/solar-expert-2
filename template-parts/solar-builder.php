@@ -106,8 +106,9 @@
       <p class="se-muted" data-se-primary-priced-fallback="true"
          x-show="primaryBundle?.tier!=='best' && completeBundles.some(b => b.tier==='best')" x-cloak>
         Pro nákupní rozpis používáme variantu <strong x-text="primaryBundle?.label"></strong>:
-        u Best Value zatím není doložená kompletní cena a spolehlivý součet komponent.
-        Technické pořadí variant se tím nemění.
+        u Best Value zatím chybí spolehlivý úplný nákupní rozpis
+        (cena, součet některé položky nebo přímý odkaz na ověřenou nabídku).
+        Zvolená varianta splňuje technické podmínky; technické pořadí variant se nemění.
       </p>
       <div class="se-shopping-rows">
         <template x-for="item in primaryPurchaseRows" :key="item.label">
