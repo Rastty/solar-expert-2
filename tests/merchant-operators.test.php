@@ -48,3 +48,35 @@ check($partial['monetized_merchants']===2&&$partial['monetized_operators']===1,'
 check($partial['recommendable_offer_coverage_pct']===66.7,'Coverage calculation remains honest');
 
 echo "PASS: 2 approved sites / 1 real seller; new independent merchants reported separately\n";
+
+// The business dashboard must not claim revenue-ready routes just because a
+// WordPress option has a nonempty string, a same-site link or an unsafe scheme.
+$bad_urls=array('#','javascript:alert(1)','/prodejce/',
+  'https://solar-expert.cz/prodejce/','https://www.solar-expert.cz/prodejce/',
+  'https://localhost/shop','not-a-url','https://ehub.cz/path with spaces');
+foreach ( $bad_urls as $bad ) {
+  check(!solar_expert_actionable_affiliate_route($bad),'Unsafe or internal route must fail: '.$bad);
+  $badResult=solar_expert_affiliate_coverage($catalog,array('products'=>array('battery-demo@battery-cz'=>$bad)),
+    array('solar-import-cz'=>$bases['solar-import-cz']));
+  check($badResult['monetized_merchants']===1,'Placeholder mapping must not count as a paid route: '.$bad);
+  check($badResult['recommendable_offer_coverage_pct']===33.3,'Unusable base and override must not inflate coverage');
+}
+check(solar_expert_actionable_affiliate_route('https://ehub.cz/system/scripts/click.php?a_aid=stub&a_bid=stub'),
+  'Keep external configured affiliate links without contacting the tracking network');
+check(solar_expert_actionable_affiliate_route('https://approved-network.example/ampul'),
+  'Unfamiliar approved providers remain configurable; commission proof is independent');
+
+$leadFrom=strpos($source,'function solar_expert_lead_coverage(', $to);
+$leadTo=strpos($source,'function solar_expert_deployed_theme_version(', $leadFrom);
+check($leadFrom!==false&&$leadTo>$leadFrom,'Cannot isolate audited lead coverage');
+eval(substr($source,$leadFrom,$leadTo-$leadFrom));
+$leadUnsafe=solar_expert_lead_coverage(array('leads'=>array('eon-solar'=>'#','eon-heat-pump'=>'javascript:alert(1)')),
+  array('eon-cz'=>'https://solar-expert.cz/offer'));
+check($leadUnsafe['monetized_targets']===0&&$leadUnsafe['coverage_pct']===0.0,
+  'Invalid E.ON lead routes are not revenue-ready');
+$leadApproved=solar_expert_lead_coverage(array('leads'=>array('eon-solar'=>'#')),
+  array('eon-cz'=>'https://ehub.cz/system/scripts/click.php?a_aid=stub&a_bid=stub'));
+check($leadApproved['monetized_targets']===2&&$leadApproved['coverage_pct']===100.0,
+  'A valid merchant base provides both E.ON lead routes even if one override is invalid');
+
+echo "PASS: invalid or same-site affiliate/lead mappings never inflate the reported usable coverage\n";

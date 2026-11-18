@@ -1706,6 +1706,29 @@ function solar_expert_merchant_operator_id($merchant_id) {
   return $known[$merchant_id] ?? $merchant_id;
 }
 
+/**
+ * Affiliate coverage is a count of usable *configured* outbound routes, not
+ * proven commissions. A placeholder or internal URL must never inflate that
+ * count. Actual tracking / approved partner status is audited separately.
+ */
+function solar_expert_actionable_affiliate_route($value) {
+  if ( ! is_string($value) || ! $value || preg_match('/[\x00-\x20]/', $value) ||
+       ! filter_var($value, FILTER_VALIDATE_URL) ) {
+    return false;
+  }
+  $parts = parse_url($value);
+  if ( ! is_array($parts) || empty($parts['host']) ||
+       empty($parts['scheme']) ||
+       ! in_array(strtolower($parts['scheme']), array('http','https'), true) ||
+       isset($parts['user']) || isset($parts['pass']) ) {
+    return false;
+  }
+  $host = strtolower(rtrim($parts['host'], '.'));
+  return $host !== 'solar-expert.cz' &&
+    substr($host, -strlen('.solar-expert.cz')) !== '.solar-expert.cz' &&
+    ! in_array($host, array('localhost','127.0.0.1','::1'), true);
+}
+
 function solar_expert_affiliate_coverage($catalog, $map, $bases) {
   $products = isset($catalog['products']) && is_array($catalog['products']) ? $catalog['products'] : array();
   $product_map = isset($map['products']) && is_array($map['products']) ? $map['products'] : array();
@@ -1741,9 +1764,10 @@ function solar_expert_affiliate_coverage($catalog, $map, $bases) {
 
       $exact_key = ($product['id'] ?? '') . '@' . $merchant;
       $legacy_key = $product['id'] ?? '';
-      $mapped = isset($product_map[$exact_key]) || (
-        ($product['merchant'] ?? '') === $merchant && isset($product_map[$legacy_key])
-      ) || isset($bases[$merchant]);
+      $mapped = solar_expert_actionable_affiliate_route($product_map[$exact_key] ?? null) || (
+        ($product['merchant'] ?? '') === $merchant &&
+        solar_expert_actionable_affiliate_route($product_map[$legacy_key] ?? null)
+      ) || solar_expert_actionable_affiliate_route($bases[$merchant] ?? null);
 
       if ( $active ) {
         $active_offers++;
@@ -1795,7 +1819,8 @@ function solar_expert_lead_coverage($map, $bases) {
 
   $monetized = 0;
   foreach ( $targets as $lead_id => $merchant_id ) {
-    if ( ! empty($lead_map[$lead_id]) || ! empty($bases[$merchant_id]) ) {
+    if ( solar_expert_actionable_affiliate_route($lead_map[$lead_id] ?? null) ||
+         solar_expert_actionable_affiliate_route($bases[$merchant_id] ?? null) ) {
       $monetized++;
     }
   }
