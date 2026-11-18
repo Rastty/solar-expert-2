@@ -755,6 +755,30 @@ function solar_expert_settings_page() {
     </table>
 
     <?php
+      $route7 = solar_expert_funnel_outbound_route_breakdown(7);
+      $route28 = solar_expert_funnel_outbound_route_breakdown(28);
+      $route_labels = array(
+        'configured_affiliate_route_clicks' => 'Prokliky přes nastavené partnerské odkazy',
+        'direct_source_route_clicks' => 'Přímé prokliky na prodejce',
+        'unknown_route_type_clicks' => 'Historické prokliky bez rozlišení',
+      );
+    ?>
+    <h3>Jakým odkazem zákazníci odcházejí</h3>
+    <p class="description">Čítače zahrnují produkty, sety a leady. Partnerský odkaz znamená vybranou konfigurovanou trasu, nikoliv potvrzenou objednávku, schválenou ani vyplacenou provizi. Starší události bez typu odkazu nepřisuzujeme žádné skupině.</p>
+    <table class="widefat striped" style="max-width:720px">
+      <thead><tr><th>Typ odchozího odkazu</th><th>7 dní</th><th>28 dní</th></tr></thead>
+      <tbody>
+      <?php foreach ( $route_labels as $route_key => $route_label ) : ?>
+        <tr>
+          <td><?php echo esc_html($route_label); ?></td>
+          <td><?php echo esc_html((int) ($route7[$route_key] ?? 0)); ?></td>
+          <td><?php echo esc_html((int) ($route28[$route_key] ?? 0)); ?></td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+
+    <?php
       $merchant_keys = array_values(array_unique(array_merge(array_keys($funnel7['merchants'] ?? array()), array_keys($funnel28['merchants'] ?? array()))));
       usort($merchant_keys, function($a, $b) use ($funnel28) {
         return (int) ($funnel28['merchants'][$b] ?? 0) <=> (int) ($funnel28['merchants'][$a] ?? 0);
@@ -1565,6 +1589,81 @@ function solar_expert_funnel_bundle_offer_breakdown($days = 28) {
 }
 
 
+/**
+ * Split recorded outbound navigation from a configured partner route.
+ * `monetized=1` is the browser's route choice, never commission evidence.
+ * Older buckets without that dimension remain UNKNOWN, not direct or paid.
+ */
+function solar_expert_funnel_outbound_route_breakdown($days = 28) {
+  $days = max(1, min(35, (int) $days));
+  $data = get_option('solar_expert_funnel_daily', array());
+  if ( ! is_array($data) ) { $data = array(); }
+  $cutoff = gmdate('Y-m-d', time() - (($days - 1) * DAY_IN_SECONDS));
+  $events = array('affiliate_click'=>'product','bundle_deal_click'=>'bundle','lead_click'=>'lead');
+  $empty = array('total_clicks'=>0, 'configured_affiliate_route_clicks'=>0,
+    'direct_source_route_clicks'=>0, 'unknown_route_type_clicks'=>0);
+  $totals = $empty;
+  $by_event = array();
+  $by_placement = array();
+  $by_page = array();
+
+  foreach ( $data as $date => $buckets ) {
+    if ( (string) $date < $cutoff || ! is_array($buckets) ) { continue; }
+    foreach ( $buckets as $bucket => $raw_count ) {
+      $count = max(0, (int) $raw_count);
+      if ( ! $count ) { continue; }
+      $parts = explode('|', (string) $bucket);
+      $event = sanitize_key(array_shift($parts));
+      if ( ! isset($events[$event]) ) { continue; }
+
+      $route = 'unknown_route_type_clicks';
+      $placement = '';
+      $page = '';
+      foreach ( $parts as $part ) {
+        if ( $part === 'monetized=1' ) {
+          $route = 'configured_affiliate_route_clicks';
+        } elseif ( $part === 'monetized=0' ) {
+          $route = 'direct_source_route_clicks';
+        } elseif ( strpos($part, 'placement=') === 0 ) {
+          $placement = sanitize_key(substr($part, 10));
+        } elseif ( strpos($part, 'page=') === 0 ) {
+          $page = sanitize_key(substr($part, 5));
+        }
+      }
+
+      $totals['total_clicks'] += $count;
+      $totals[$route] += $count;
+      $event_type = $events[$event];
+      if ( ! isset($by_event[$event_type]) ) { $by_event[$event_type] = $empty; }
+      $by_event[$event_type]['total_clicks'] += $count;
+      $by_event[$event_type][$route] += $count;
+      if ( $placement ) {
+        if ( ! isset($by_placement[$placement]) ) { $by_placement[$placement] = $empty; }
+        $by_placement[$placement]['total_clicks'] += $count;
+        $by_placement[$placement][$route] += $count;
+      }
+      if ( $page ) {
+        if ( ! isset($by_page[$page]) ) { $by_page[$page] = $empty; }
+        $by_page[$page]['total_clicks'] += $count;
+        $by_page[$page][$route] += $count;
+      }
+    }
+  }
+
+  $rank_routes = function($a, $b) {
+    return ((int) $b['configured_affiliate_route_clicks'] <=> (int) $a['configured_affiliate_route_clicks'])
+      ?: ((int) $b['total_clicks'] <=> (int) $a['total_clicks']);
+  };
+  uasort($by_placement, $rank_routes);
+  uasort($by_page, $rank_routes);
+
+  return array_merge($totals, array(
+    'by_event'=>$by_event,
+    'by_placement'=>array_slice($by_placement, 0, 25, true),
+    'by_page'=>array_slice($by_page, 0, 25, true),
+  ));
+}
+
 function solar_expert_funnel_outcome_summary($days = 28) {
   $days = max(1, min(35, (int) $days));
   $summary = solar_expert_funnel_summary($days);
@@ -1587,6 +1686,7 @@ function solar_expert_funnel_outcome_summary($days = 28) {
   $tool_outcome_events = $builder_completes + $selector_engagements + $quote_completes;
   $commerce_clicks = $affiliate_clicks + $bundle_clicks;
   $outbound_clicks = $commerce_clicks + $lead_clicks;
+  $route_breakdown = solar_expert_funnel_outbound_route_breakdown($days);
 
   return array(
     'days' => $days,
@@ -1614,6 +1714,10 @@ function solar_expert_funnel_outcome_summary($days = 28) {
     'lead_clicks' => $lead_clicks,
     'tool_referral_clicks' => $tool_referral_clicks,
     'outbound_clicks' => $outbound_clicks,
+    'configured_affiliate_route_clicks' => (int) $route_breakdown['configured_affiliate_route_clicks'],
+    'direct_source_route_clicks' => (int) $route_breakdown['direct_source_route_clicks'],
+    'unknown_route_type_clicks' => (int) $route_breakdown['unknown_route_type_clicks'],
+    'outbound_route_breakdown' => $route_breakdown,
     'outbound_clicks_per_100_tool_views' => $tool_views ? round(($outbound_clicks / $tool_views) * 100, 1) : 0,
     'by_tool' => solar_expert_funnel_tool_breakdown($days),
     'builder_steps' => solar_expert_funnel_builder_steps($days),
