@@ -1,0 +1,53 @@
+name: Solar Expert Public Affiliate Readiness
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - "tools/live-affiliate-readiness.mjs"
+      - "tests/live-affiliate-readiness.test.mjs"
+      - ".github/workflows/affiliate-readiness.yml"
+  push:
+    branches: [dev]
+    paths:
+      - "tools/live-affiliate-readiness.mjs"
+      - "tests/live-affiliate-readiness.test.mjs"
+      - ".github/workflows/affiliate-readiness.yml"
+  workflow_dispatch:
+  # Scheduled workflows load from main; after gate-approved adoption, audit dev.
+  schedule:
+    - cron: '31 6 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-affiliate-readiness-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  read-only-affiliate-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout audit source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate offline probe behavior
+        run: |
+          node --check tools/live-affiliate-readiness.mjs
+          node --test tests/live-affiliate-readiness.test.mjs
+      - name: Observe public WordPress affiliate readiness without redirect clicks
+        run: node tools/live-affiliate-readiness.mjs
+      - name: Upload sanitized public readiness report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-affiliate-readiness-${{ github.run_id }}
+          path: artifacts/live-affiliate-readiness.json
+          if-no-files-found: warn
+          retention-days: 30
