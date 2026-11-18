@@ -56,7 +56,8 @@ $bad_urls=array('#','javascript:alert(1)','/prodejce/',
   'https://localhost/shop','not-a-url','https://ehub.cz/path with spaces',
   'https://ehub.cz/approved-battery',
   'https://ehub.cz/system/scripts/click.php?a_aid=fixture',
-  'https://ehub.cz/system/scripts/click.php?a_aid=fixture&a_bid=');
+  'https://ehub.cz/system/scripts/click.php?a_aid=fixture&a_bid=',
+  'https://ehub.cz/system/scripts/click.php?a_aid=fixture&a_bid%5B%5D=invalid');
 foreach ( $bad_urls as $bad ) {
   check(!solar_expert_actionable_affiliate_route($bad),'Unsafe or internal route must fail: '.$bad);
   $badResult=solar_expert_affiliate_coverage($catalog,array('products'=>array('battery-demo@battery-cz'=>$bad)),
@@ -72,6 +73,8 @@ check(!solar_expert_affiliate_base_supports_deeplink('https://www.battery.cz/'),
   'A plain retailer homepage is not an affiliate deep-link template');
 check(!solar_expert_affiliate_base_supports_deeplink('https://approved-network.example/ampul'),
   'External vendor or network URL without destination template cannot generate product links');
+check(!solar_expert_affiliate_base_supports_deeplink('https://approved-network.example/click?desturl%5B%5D=x'),
+  'Malformed destination arrays are not usable templates');
 check(solar_expert_affiliate_base_supports_deeplink('https://approved-network.example/click?desturl='),
   'Allow explicitly configured non-eHub destination templates');
 check(solar_expert_affiliate_base_supports_deeplink('https://ehub.cz/system/scripts/click.php?a_aid=fixture&a_bid=solar'),
