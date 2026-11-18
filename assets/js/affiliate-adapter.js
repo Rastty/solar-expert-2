@@ -52,12 +52,16 @@ window.SolarExpertAffiliate = {
   // Never treat "#" or javascript:, data:, mailto: or same-site routes as
   // an outbound buyer click. Preserve legitimate direct and partner URLs.
   isActionableMerchantHref(href) {
-    if(typeof href!=='string'||!href.trim())return false;
+    if(typeof href!=='string'||!href||/[\u0000-\u0020]/.test(href))return false;
     try {
       const u=new URL(href);
-      if((u.protocol!=='https:'&&u.protocol!=='http:')||!u.hostname)return false;
-      const ownOrigin=window.location?.origin || 'https://solar-expert.cz';
-      return u.origin!==ownOrigin;
+      if((u.protocol!=='https:'&&u.protocol!=='http:')||!u.hostname||u.username||u.password)return false;
+      const host=u.hostname.toLowerCase().replace(/\.$/,'');
+      const ownHost=new URL(window.location?.origin || 'https://solar-expert.cz').hostname.toLowerCase().replace(/\.$/,'');
+      // A different scheme, port, www/subdomain or local network address is
+      // not a qualified external merchant visit or affiliate conversion.
+      return host!==ownHost && host!=='solar-expert.cz' && !host.endsWith('.solar-expert.cz') &&
+        !['localhost','127.0.0.1','[::1]','::1'].includes(host);
     } catch (_) { return false; }
   },
 
@@ -100,6 +104,14 @@ window.SolarExpertAffiliate = {
     if (!this.isActionableMerchantHref(base)||!this.isActionableMerchantHref(targetUrl))return null;
     try {
       const u = new URL(base, window.location?.origin || 'https://solar-expert.cz');
+      // `desturl` is not a universal merchant parameter. Appending it to a
+      // plain shop homepage silently loses the product and falsely marks the
+      // click as affiliate-tracked. Only use eHub's known click endpoint or
+      // another network's explicitly configured `desturl` template.
+      const host=u.hostname.toLowerCase().replace(/\.$/,'');
+      const isEhub=host==='ehub.cz' && u.pathname==='/system/scripts/click.php' &&
+        Boolean(u.searchParams.get('a_aid')?.trim()) && Boolean(u.searchParams.get('a_bid')?.trim());
+      if(!isEhub && !u.searchParams.has('desturl'))return null;
       u.searchParams.delete('desturl');
       u.searchParams.set('desturl', targetUrl);
       return u.toString();
