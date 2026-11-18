@@ -108,6 +108,8 @@ jobs:
         run: node tests/seller-domain-source-integrity.test.js
       - name: Buyer SEO guides claim, intent and indexability validation
         run: node --test tests/buyer-seo-posts.test.mjs
+      - name: First-screen disclosed E.ON lead CTA and independent click placements
+        run: node --test tests/fve-buyer-lead-visibility.test.mjs
       - name: Existing indexed guides to new buying paths
         run: php tests/buyer-discovery.test.php
       - name: Managed category discovery
