@@ -99,7 +99,7 @@ const mainKey=product.id+'@battery-cz';
 const legacyAffiliate='https://ehub.cz/system/scripts/click.php?a_bid=legacy-battery';
 const exactAffiliate='https://ehub.cz/system/scripts/click.php?a_bid=exact-battery';
 window.SolarExpertConfig.affiliateMap.products[product.id]=legacyAffiliate;
-for(const invalid of ['#','javascript:alert(1)','https://solar-expert.cz/own-page']){
+for(const invalid of ['#','javascript:alert(1)','data:text/plain,bad','/internal','https://solar-expert.cz/own-page']){
   window.SolarExpertConfig.affiliateMap.products[mainKey]=invalid;
   assert.equal(A.resolveOffer(product,main).href,legacyAffiliate,
     'Broken exact override cannot hide a usable legacy affiliate link: '+invalid);
