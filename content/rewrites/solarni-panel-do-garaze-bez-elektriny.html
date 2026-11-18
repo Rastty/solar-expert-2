@@ -1,0 +1,64 @@
+<p class="se-lead"><strong>Máte garáž bez přípojky a chcete v ní svítit, provozovat kameru nebo otevírat vrata?</strong> Solární panel může napájet menší spotřebiče, ale u garážových vrat rozhoduje nejen energie na jeden pohyb, nýbrž také celodenní klidová spotřeba řídicí jednotky a způsob napájení určený výrobcem. Nezačínejte nákupem „100W sady“: nejprve spočítejte skutečné watthodiny za den a ověřte, zda smíte daný spotřebič napájet ostrovně.</p>
+
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Spočítat potřebnou baterii →</a> <a class="se-btn" href="/mppt-kalkulacka/">Zkontrolovat panely a MPPT →</a></p>
+
+<div class="se-note"><strong>Nejdřív rozlišujte tři případy:</strong> samotné 12V LED světlo má jiný odběr než kamera s routerem běžící 24 hodin denně. Elektrická vrata jsou třetí kategorie: pohon může vyžadovat vlastní bateriovou/solární sadu a bezpečnostní prvky výrobce. Tento článek nenahrazuje schválený způsob zapojení pohonu ani projekt elektrické instalace.</div>
+
+<h2>Kolik elektřiny garáž za den skutečně potřebuje?</h2>
+<p>Na štítku nebo v dokumentaci hledejte <strong>příkon ve W</strong> a počet hodin provozu. Denní energie v Wh je příkon násobený dobou běhu. U pohonu vrat přičtěte i <strong>pohotovostní odběr</strong>, protože jednotka, přijímač dálkového ovládání nebo připojené čidlo mohou odebírat energii nepřetržitě.</p>
+
+<table><thead><tr><th>Ilustrační spotřebič</th><th>Modelový výpočet</th><th>Energie za den</th></tr></thead><tbody>
+<tr><td>LED světlo 12 W, 3 h</td><td>12 × 3</td><td>36 Wh</td></tr>
+<tr><td>IP kamera 8 W, nepřetržitě</td><td>8 × 24</td><td>192 Wh</td></tr>
+<tr><td>Wi-Fi router 10 W, nepřetržitě</td><td>10 × 24</td><td>240 Wh</td></tr>
+<tr><td>Řídicí jednotka vrat v klidu 4 W</td><td>4 × 24</td><td>96 Wh</td></tr>
+<tr><td>Pohon vrat 400 W, čtyři pohyby po 15 s</td><td>400 × 60 / 3600</td><td>přibližně 7 Wh</td></tr>
+</tbody></table>
+<p>Všechny příkony jsou <strong>vymyšlené modelové hodnoty pro vysvětlení výpočtu</strong>, nikoli ověřené parametry prodávaného pohonu, kamery nebo baterie. LED světlo + kamera + router v této ukázce potřebují 36 + 192 + 240 = <strong>468 Wh za den</strong> ještě před ztrátami. V modelu vrat spotřebuje pohon při čtyřech krátkých pohybech jen přibližně 7 Wh, zatímco řídicí jednotka v klidu 96 Wh. Skutečný pohon může mít jiné parametry, větší rozběhové proudy i požadavky na automatiku.</p>
+
+<h2>Baterie do garáže: 50 Ah, nebo 100 Ah?</h2>
+<p>Pro srovnání kapacit převádějte ampérhodiny na watthodiny: <strong>jmenovité napětí × Ah = nominální Wh</strong>. Modelová LiFePO₄ baterie 12,8 V / 50 Ah má nominálně 640 Wh, verze 12,8 V / 100 Ah 1280 Wh. Pokud jen pro výpočet předpokládáme využitelných 80 %, jde o 512 Wh a 1024 Wh před ztrátami měniče a další elektroniky. Nejde o univerzální doporučenou hloubku vybití žádného konkrétního výrobku.</p>
+<p>U osvětlení + kamery + routeru s ukázkovým odběrem 468 Wh/den je na <strong>dva dny bez dobíjení potřeba přibližně 936 Wh využitelné energie</strong>. Modelová 100Ah baterie (1024 Wh po ilustrační 80% rezervě) by tuto hrubou bilanci převýšila jen nepatrně; po započtení konverze, chladu, stárnutí a dalšího příslušenství už stačit nemusí. Proto je správným dalším krokem přepočet podle skutečného odběru a požadované autonomie, ne nákup podle samotného čísla Ah.</p>
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Přepočítat kapacitu baterie →</a> <a href="/solarni-panel-pro-wifi-kameru-a-router-na-chate/">Podrobný návod pro kameru a router v nepřetržitém provozu</a></p>
+
+<h2>Jak velký panel stačí pro garáž bez elektřiny?</h2>
+<p>Výkon ve Wp není denní energie. Pro orientaci použijte model <strong>Wp × ekvivalentní hodiny plného slunce × koeficient ztrát</strong>. Následující hodiny slunce a koeficient 0,75 jsou záměrně zjednodušené scénáře, ne předpověď vaší střechy.</p>
+<table><thead><tr><th>Ilustrační den</th><th>Výpočet</th><th>Modelová energie</th></tr></thead><tbody>
+<tr><td>200 Wp, 2 plné hodiny slunce</td><td>200 × 2 × 0,75</td><td>300 Wh</td></tr>
+<tr><td>300 Wp, 2 plné hodiny slunce</td><td>300 × 2 × 0,75</td><td>450 Wh</td></tr>
+<tr><td>400 Wp, 2 plné hodiny slunce</td><td>400 × 2 × 0,75</td><td>600 Wh</td></tr>
+<tr><td>400 Wp, 1 plná hodina slunce</td><td>400 × 1 × 0,75</td><td>300 Wh</td></tr>
+</tbody></table>
+<p>Pro ukázkových 468 Wh denně nestačí ani modelový 300Wp panel v uvedeném dvouhodinovém dni. Z tabulky ale <strong>nelze vyvozovat, že panel 400 Wp bude stačit celoročně</strong>; při kratším zimním dni, stínu okolních budov, sněhu nebo špatné orientaci může být bilance záporná. Skutečnou výrobu pro konkrétní místo, sklon a orientaci modelujte v oficiálním <a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="nofollow noopener">PVGIS Evropské komise</a>.</p>
+
+<h2>12V světla, IP kamera, nebo motor vrat: pozor na správné napětí</h2>
+<ol>
+<li><strong>12V LED:</strong> napětí nabíjené LiFePO₄ baterie není konstantních 12,0 V. Světlo i regulace musí zvládnout skutečný rozsah napětí, jištění a odpojení při nízkém stavu baterie.</li>
+<li><strong>IP kamera a Wi-Fi:</strong> kamera může používat PoE, USB nebo napájecí adaptér s vlastním napětím. Nepředpokládejte, že označení „12V kamera“ dovoluje přímé připojení na baterii. Zjistěte i spotřebu routeru, datové připojení a zimní provoz.</li>
+<li><strong>230V spotřebiče:</strong> měnič potřebuje dostatečný trvalý i špičkový výkon. Ilustrační vlastní spotřeba měniče 8 W po 24 hodinách znamená dalších <strong>192 Wh za den</strong>, i kdyby připojené světlo většinu dne nesvítilo. Vždy použijte skutečný příkon daného modelu.</li>
+<li><strong>Pohon garážových vrat:</strong> nejdříve ověřte, zda výrobce vůbec povoluje solární/bateriový provoz, který originální kit vyžaduje a jak se zachová při vybité baterii. Bez ověření bezpečnostních prvků, detekce překážek a nouzového ovládání nevytvářejte vlastní napájecí náhradu.</li>
+</ol>
+<p>Solární regulátor MPPT vybírejte z datasheetu podle napětí baterie, výkonu a parametrů panelů včetně <strong>Voc v největším mrazu, Vmp a Isc při daném zapojení</strong>. Samotné označení „100/20“ nezaručí kompatibilitu. Výrobce <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_75-10_up_to_100-20/en/installation.html" rel="nofollow noopener">Victron v instalačním manuálu</a> uvádí modelově závislé mezní napětí FV vstupu a postup konfigurace. Zátěž nepřipojujte na výstup LOAD, dokud není doložen jeho povolený proud včetně rozběhu.</p>
+<p><a class="se-btn se-btn-primary" href="/mppt-kalkulacka/">Zkontrolovat MPPT a zapojení panelů →</a></p>
+<p class="se-muted"><small>Veřejná kalkulačka nedokládá za každý konkrétní výrobek všechny limity paralelních větví a zkratových proudů Isc. Před objednávkou vždy porovnejte kompletní datasheety a případný zvláštní postup výrobce pohonu vrat.</small></p>
+
+<h2>Co koupit až po ověření spotřeby</h2>
+<ol>
+<li>Seznam konkrétních spotřebičů s elektrickým příkonem v běhu i ve standby, typem napětí a počtem hodin provozu.</li>
+<li>Baterii v potřebných Wh, s BMS, ochranou proti podvybití a výrobcem povoleným nabíjením v očekávaných teplotách.</li>
+<li>Panel nebo panelové pole podle sezóny a stínění, ne pouze podle jedné příznivé letní tabulky.</li>
+<li>MPPT kompatibilní s baterií, Voc/Vmp/Isc panelů i teplotními limity.</li>
+<li>Případný DC-DC měnič nebo 230V měnič s doloženou účinností, vlastním odběrem a požadovanou rozběhovou rezervou.</li>
+<li>Kabely, jištění, přepěťovou ochranu, bezpečné odpojení a vhodné krytí v garáži. Návrh pevné instalace svěřte kvalifikovanému elektrikáři.</li>
+</ol>
+<div class="se-note"><strong>Bezpečnost a nabídky:</strong> Výpočty jsou ilustrativní, nikoli projekt, záruka funkce ani potvrzení konkrétní baterie, měniče nebo pohonu vrat. Cenu, zásobu a technický list ověřujte přímo u prodejce. Pokud později zobrazíme partnerský odkaz, jeho pravidla popisuje <a href="/affiliate-transparentnost/">affiliate transparentnost</a> a <a href="/jak-doporucujeme/">metodika doporučování</a>.</div>
+
+<h2>Časté otázky</h2>
+<h3>Stačí na LED světlo v garáži 100W solární panel?</h3>
+<p>Nelze to určit jen podle Wp. Potřebujete znát příkon, dobu svícení, požadovaný počet dní bez slunce a reálnou sezónní výrobu. Samotný panel navíc bez správně navržené akumulace neudrží světlo po setmění.</p>
+<h3>Proč pohon vrat může potřebovat větší baterii než čekám?</h3>
+<p>Nejen kvůli startu motoru. Trvalá spotřeba přijímače, elektroniky a případně měniče se sčítá každých 24 hodin. Zásadní je také originální výrobní napájecí kit a bezpečné nouzové otevření vrat.</p>
+<h3>Mohu připojit garážová vrata přímo na solární panel?</h3>
+<p>Ne bez výslovného souhlasu výrobce a odpovídajícího systému. Solární panel neposkytuje stabilní zdroj energie pro motor a bezpečnostní automatiku; takové zapojení může být nefunkční i nebezpečné.</p>
+
+<p class="se-muted"><small>Redakce Solar Expert. Poslední redakční kontrola: 18. 11. 2026. Technické zdroje: <a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="nofollow noopener">PVGIS – Joint Research Centre</a> a <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_75-10_up_to_100-20/en/installation.html" rel="nofollow noopener">Victron – SmartSolar MPPT Installation</a>. U uvedených příkonů a výdrží jde o modely, nikoli o parametry ověřených výrobků.</small></p>
