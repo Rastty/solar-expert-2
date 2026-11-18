@@ -93,6 +93,26 @@ assert.equal(A.resolveOffer(product,safeAlt).href,safeAlt.source_url);
 assert.equal(A.resolveOffer(product,safeAlt).monetized,false,
   'Rejected unsafe merchant mapping does not count as monetized');
 
+// A broken exact override for the primary merchant must not suppress its
+// still-valid legacy product mapping. Secondary merchants must not inherit it.
+const mainKey=product.id+'@battery-cz';
+const legacyAffiliate='https://ehub.cz/system/scripts/click.php?a_bid=legacy-battery';
+const exactAffiliate='https://ehub.cz/system/scripts/click.php?a_bid=exact-battery';
+window.SolarExpertConfig.affiliateMap.products[product.id]=legacyAffiliate;
+for(const invalid of ['#','javascript:alert(1)','data:text/plain,bad','/internal','https://solar-expert.cz/own-page']){
+  window.SolarExpertConfig.affiliateMap.products[mainKey]=invalid;
+  assert.equal(A.resolveOffer(product,main).href,legacyAffiliate,
+    'Broken exact override cannot hide a usable legacy affiliate link: '+invalid);
+  assert.equal(A.resolveOffer(product,main).monetized,true);
+  assert.equal(A.resolveOffer(product,safeAlt).href,safeAlt.source_url,
+    'The primary legacy affiliate must never redirect the alternate merchant');
+}
+window.SolarExpertConfig.affiliateMap.products[mainKey]=exactAffiliate;
+assert.equal(A.resolveOffer(product,main).href,exactAffiliate,
+  'A valid exact affiliate link retains precedence over the legacy fallback');
+delete window.SolarExpertConfig.affiliateMap.products[mainKey];
+delete window.SolarExpertConfig.affiliateMap.products[product.id];
+
 window.SolarExpertConfig.affiliateBases['solar-import-cz']='https://ehub.cz/system/scripts/click.php?a_aid=safe&a_bid=real';
 const affiliate=A.resolveOffer(product,safeAlt);
 assert.equal(affiliate.monetized,true,'Approved affiliate base with real seller URL remains functional');

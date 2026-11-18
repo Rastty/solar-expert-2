@@ -147,7 +147,9 @@ window.SolarExpertAffiliate = {
     const exactKey = product.id + '@' + offer.merchant;
     const exactMapped = products[exactKey];
     const legacyMapped = offer.merchant === product.merchant ? products[product.id] : null;
-    const mapped = exactMapped || legacyMapped;
+    // An invalid exact override must not mask a still-valid legacy affiliate
+    // route for the primary merchant. Keep exact overrides preferred when
+    // actionable, and never share a primary legacy route with another shop.
     // An explicit alternate merchant may not inherit the primary shop's
     // product URL: this would send an affiliate customer to the wrong store.
     const explicitOffers=Array.isArray(product.offers)&&product.offers.length>0;
@@ -164,7 +166,8 @@ window.SolarExpertAffiliate = {
       : (offer.source_url||parentSource);
     const generated = this.merchantDeepLink(offer.merchant, target);
     const link = this.selectMerchantLink([
-      {href:mapped,monetized:true},
+      {href:exactMapped,monetized:true},
+      {href:legacyMapped,monetized:true},
       {href:offer.affiliate_url,monetized:true},
       {href:generated,monetized:true},
       {href:target,monetized:false}
