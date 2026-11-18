@@ -386,6 +386,20 @@ window.solarExpertBuilder=function(){return{
     // not qualify, even if someone later mistakenly sets priceComplete.
     return bundles.some(b=>b&&b.complete&&this.purchaseBreakdownFor(b));
   },
+  trackBuyerOfferGap(){
+    // A complete technical calculation without a complete, source-priced,
+    // individually actionable shopping list is a real buyer-journey gap.
+    // An unpublished example preview or an unloaded catalog is not one.
+    if(!this.catalogReady||!this.result||!Array.isArray(window.dataLayer)||
+       !window.SolarExpertAffiliate||!window.SolarExpertProductMatcher)return;
+    const status=!this.completeBundles.length?'no_complete_bundle':
+      (!this.canCopyPrimaryPurchaseList?'no_complete_shopping_list':'');
+    if(!status)return;
+    if(!this.offerGapsSeen)this.offerGapsSeen=new Set();
+    if(this.offerGapsSeen.has(status))return;
+    this.offerGapsSeen.add(status);
+    window.dataLayer.push({event:'buyer_offer_gap',tool:'builder',status,matchCount:this.completeBundles.length});
+  },
   refreshBundles(){
     if(!this.result)return;
     const composer=window.SolarExpertBundleComposer;
@@ -463,6 +477,7 @@ window.solarExpertBuilder=function(){return{
     }else{
       this.trackStep('result');
       if(Array.isArray(window.dataLayer))window.dataLayer.push({event:'solar_builder_complete',scenario:this.scenario,voltage:this.result.voltage,panelWp,batteryKwh,inverterW,peak});
+      this.trackBuyerOfferGap();
     }
   },
   reset(){this.restoreArticleExample();this.step=1;this.inputError='';this.copyStatus='';this.showCopyFallback=false;this.previewMode=false;this.result=null;this.bundles=[];this.manualPeak=null;this.appliances.forEach(a=>a.selected=false);}

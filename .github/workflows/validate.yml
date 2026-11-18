@@ -42,6 +42,10 @@ jobs:
         run: php tests/funnel-outbound-route.test.php
       - name: Never infer commissions or paid revenue from affiliate clicks
         run: php tests/affiliate-financial-outcomes.test.php
+      - name: Count buyer-initiated unbuyable results without inventing lost sales
+        run: php tests/buyer-offer-gap.test.php
+      - name: Only track real selector and builder offer gaps with deduplication
+        run: node tests/buyer-offer-gap.test.js
       - name: Bundle-deal offer exposure and verified per-seller conversion reporting
         run: php tests/funnel-bundle-offers.test.php
       - name: Buyer-visible bundle impressions and once-only event tracking

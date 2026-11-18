@@ -10,6 +10,32 @@ function seTrackSelectorOnce(ctx,selector,detail){
   }
 }
 
+// Report a buyer-facing catalog gap only after an actual selector action.
+// Page load, editorial prefill and a missing affiliate adapter are not proof
+// that a visitor encountered an unbuyable result. No sizing inputs, URL,
+// identity or inferred revenue leave the browser.
+function seTrackSelectorOfferGap(ctx,tool){
+  if(!ctx||!Array.isArray(ctx.matches)||!Array.isArray(window.dataLayer))return;
+  let status='';
+  if(!ctx.matches.length){
+    status='no_compatible_products';
+  }else{
+    const affiliate=window.SolarExpertAffiliate;
+    if(!affiliate||typeof affiliate.offers!=='function'||
+       typeof affiliate.isActionableMerchantHref!=='function')return;
+    try{
+      const actionable=ctx.matches.some(row=>row?.product &&
+        affiliate.offers(row.product).some(offer=>affiliate.isActionableMerchantHref(offer.href)));
+      if(!actionable)status='no_actionable_shortlist_offer';
+    }catch(_){return;} // A broken adapter is unknown, not an empty catalog.
+  }
+  if(!status)return;
+  if(!ctx.offerGapsSeen)ctx.offerGapsSeen=new Set();
+  if(ctx.offerGapsSeen.has(status))return;
+  ctx.offerGapsSeen.add(status);
+  window.dataLayer.push({event:'buyer_offer_gap',tool,status,matchCount:ctx.matches.length});
+}
+
 window.solarExpertBatterySelector=function(){return{
   voltage:24,dailyKwh:1.5,autonomy:1,inverterW:1200,supplyMode:'ac',catalog:[],matches:[],engagementTracked:false,catalogLoading:true,catalogError:false,pendingExample:false,articleExample:false,articleExampleKind:'',activeScenario:'',
   // AC: 80% usable LiFePO4 nominal energy and 90% inverter efficiency
@@ -102,7 +128,10 @@ window.solarExpertBatterySelector=function(){return{
           unitPrice:window.SolarExpertProductMatcher.effectivePrice(r.product),
           totalPrice:window.SolarExpertProductMatcher.effectivePrice(r.product)
         })).slice(0,5);
-    if(track) seTrackSelectorOnce(this,'battery',{voltage:s.voltage,batteryKwh,inverterW:Number(this.inverterW),...(this.activeScenario?{scenario:this.activeScenario}:{})});
+    if(track){
+      seTrackSelectorOnce(this,'battery',{voltage:s.voltage,batteryKwh,inverterW:Number(this.inverterW),...(this.activeScenario?{scenario:this.activeScenario}:{})});
+      seTrackSelectorOfferGap(this,'battery');
+    }
   }
 };};
 
@@ -180,7 +209,10 @@ window.solarExpertMpptSelector=function(){return{
           this.coldStringVoc<maxVoc*.98 && this.stringVmp>=minVmp;
       })
       .slice(0,5);
-    if(track) seTrackSelectorOnce(this,'mppt',{voltage,panelWp,requiredChargeA:mpptA,seriesCount:Number(this.seriesCount),parallelCount:Number(this.parallelCount),arrayIsc:this.arrayIsc,stringVmp:this.stringVmp,coldStringVoc:this.coldStringVoc});
+    if(track){
+      seTrackSelectorOnce(this,'mppt',{voltage,panelWp,requiredChargeA:mpptA,seriesCount:Number(this.seriesCount),parallelCount:Number(this.parallelCount),arrayIsc:this.arrayIsc,stringVmp:this.stringVmp,coldStringVoc:this.coldStringVoc});
+      seTrackSelectorOfferGap(this,'mppt');
+    }
   }
 };};
 
@@ -210,6 +242,9 @@ window.solarExpertInverterSelector=function(){return{
     if(!this.catalog.length||!this.inputValid){this.matches=[];return;}
     const s={voltage:Number(this.voltage),inverterW:Number(this.continuousW),peak:Number(this.peakW)};
     this.matches=window.SolarExpertProductMatcher.rank(this.catalog.filter(p=>p.type==='inverter'||p.type==='inverter_hybrid'),s).slice(0,5);
-    if(track) seTrackSelectorOnce(this,'inverter',{voltage:s.voltage,continuousW:s.inverterW,peakW:s.peak,requiredDcA:this.requiredDcA,peakDcA:this.peakDcA});
+    if(track){
+      seTrackSelectorOnce(this,'inverter',{voltage:s.voltage,continuousW:s.inverterW,peakW:s.peak,requiredDcA:this.requiredDcA,peakDcA:this.peakDcA});
+      seTrackSelectorOfferGap(this,'inverter');
+    }
   }
 };};
