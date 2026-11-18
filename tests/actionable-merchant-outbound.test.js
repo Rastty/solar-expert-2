@@ -56,7 +56,11 @@ assert.equal(events('bundle_deal_click').length,1,'Legacy set click chooses actu
 assert.equal(events('bundle_deal_click')[0].merchant,'battery-cz');
 
 for(const bad of ['#','javascript:alert(1)','data:text/html,evil','mailto:vendor@example.com',
-  'https://solar-expert.cz/another-page','/affiliate?click=1','']){
+  'https://solar-expert.cz/another-page','https://www.solar-expert.cz/other',
+  'https://cdn.solar-expert.cz/other','http://solar-expert.cz/other',
+  'https://solar-expert.cz:8443/other','http://localhost:8080/test',
+  'http://127.0.0.1/','http://[::1]/','https://user:pass@ehub.cz/redirect',
+  'https://ehub.cz/redirect\n','/affiliate?click=1','']){
   assert.equal(A.isActionableMerchantHref(bad),false,'Rejected non-external buyer URL: '+bad);
   const poisoned={...main,source_url:bad,affiliate_url:bad};
   reset();
@@ -117,6 +121,19 @@ window.SolarExpertConfig.affiliateBases['solar-import-cz']='https://ehub.cz/syst
 const affiliate=A.resolveOffer(product,safeAlt);
 assert.equal(affiliate.monetized,true,'Approved affiliate base with real seller URL remains functional');
 assert.equal(new URL(affiliate.href).searchParams.get('desturl'),safeAlt.source_url);
+window.SolarExpertConfig.affiliateBases['solar-import-cz']='https://www.solar-import.cz/';
+const directBase=A.resolveOffer(product,safeAlt);
+assert.equal(directBase.href,safeAlt.source_url,
+  'A merchant homepage must never become a fabricated product deep link');
+assert.equal(directBase.monetized,false,
+  'Appending desturl to a shop homepage is not proof of affiliate monetization');
+window.SolarExpertConfig.affiliateBases['solar-import-cz']='https://ehub.cz/system/scripts/click.php?a_aid=safe&a_bid=';
+assert.equal(A.merchantDeepLink('solar-import-cz',safeAlt.source_url),null,
+  'eHub deep link requires both nonempty publisher and campaign identifiers');
+window.SolarExpertConfig.affiliateBases['solar-import-cz']='https://partner-network.example/track?publisher=owner&desturl=https%3A%2F%2Fold.example%2F';
+const customTemplate=A.resolveOffer(product,safeAlt);
+assert.equal(customTemplate.monetized,true,'Explicit partner destination templates remain eligible');
+assert.equal(new URL(customTemplate.href).searchParams.get('desturl'),safeAlt.source_url);
 const poisoned={...safeAlt,source_url:'javascript:alert(1)'};
 assert.equal(A.merchantDeepLink('solar-import-cz',poisoned.source_url),null,
   'Never encode unsafe URL in affiliate desturl, even behind a valid network redirect');
