@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-garden-pump-pond-20261117-v1.json",
-  "activation_revision": 15,
-  "notice": "One guarded NEW buyer guide on solar garden pumps and pond circulation. Distinct intent from 400/800Wp rewrites, immutable pinned content SHA256, exact slug absent in public WordPress REST at preparation time. Post_create requires authenticated absence across all statuses and zero new published posts within rolling 24h, encrypted prewrite snapshot, one POST maximum and authenticated readback. No theme or product deploy. WEDOS restore gate #148 unaffected."
+  "manifest": "ops/editorial-manifests/solar-garage-offgrid-20261118-v1.json",
+  "activation_revision": 16,
+  "notice": "One guarded NEW buyer guide on off-grid garage lighting, camera/router and garage-door standby power. Immutable pinned content SHA256. Post_create requires authenticated exact-slug absence across all statuses and zero new published posts within rolling 24h, encrypted prewrite snapshot, one POST maximum and authenticated readback. Model values are illustrative, not product claims. No theme or product deploy. WEDOS restore gate #148 unaffected."
 }

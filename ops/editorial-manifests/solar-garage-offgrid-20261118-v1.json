@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_create",
+  "operation_id": "solar-garage-offgrid-20261118-v1",
+  "slug": "solarni-panel-do-garaze-bez-elektriny",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární panel do garáže bez elektřiny: světla, kamera a vrata",
+  "excerpt": "Jak napájet garáž bez přípojky: výpočet spotřeby LED světla, kamery, routeru i pohonu vrat; kapacita baterie, výkon panelu, MPPT a bezpečnostní limity.",
+  "source_commit": "46b42e19440728faeb4ef7045c10d09aa6869b0c",
+  "source_file": "content/rewrites/solarni-panel-do-garaze-bez-elektriny.html",
+  "source_sha256": "178c4e9a541654a9396dde6a68eefcad645f7b6e8e911f983a8995eede8364b2",
+  "expect_absent": true
+}
