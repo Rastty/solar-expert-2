@@ -87,6 +87,13 @@
       const url=new URL(link.href,window.location.href);
       if(url.origin!==window.location.origin) return '';
       const path=(url.pathname||'/').replace(/\/+$/,'')||'/';
+      const currentPath=((window.location&&window.location.pathname)||'/').replace(/\/+$/,'')||'/';
+      // A CTA inside its own canonical tool page is an activation or an anchor,
+      // not a referral from another page. In particular, the Builder's
+      // first-screen sample dispatches an Alpine event without navigation.
+      if(path===currentPath&&toolPaths.has(path)) return '';
+      // The homepage embeds a Builder, so its #builder link is a genuine
+      // handoff from discovery content into the on-page tool.
       if(path==='/'&&url.hash==='#builder') return 'builder';
       return toolPaths.get(path)||'';
     }catch(_){
