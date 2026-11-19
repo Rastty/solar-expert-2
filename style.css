@@ -80,6 +80,21 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-category-archive-title+.se-muted{font-size:14px;line-height:1.5;margin:5px 0 14px}
 @media(max-width:650px){.se-category-hub{padding:15px}.se-category-curated-grid{grid-template-columns:1fr}.se-category-guide-primary{grid-column:auto}}
 .se-content{width:min(820px,calc(100% - 40px));margin:auto;padding:60px 0}.se-content h1{font-size:clamp(38px,6vw,64px);line-height:1;letter-spacing:-.04em}.se-content h2{font-size:30px;margin-top:42px}.se-content p,.se-content li{font-size:18px;color:#34423c}
+/* The Builder landing page is a working tool, not a long-form article intro.
+   Put the one-click example above the introductory copy and keep both paths
+   visible on narrow screens without changing other calculator/article pages. */
+.se-content-builder{padding-top:28px}
+.se-content-builder h1{font-size:clamp(36px,5vw,54px);line-height:1.06;margin:12px 0 0}
+.se-page-builder-actions{margin-top:18px;gap:10px}
+.se-page-builder-actions .se-btn{min-height:48px;text-align:center}
+.se-content-builder .se-page-builder-hint{font-size:14px;line-height:1.5;color:var(--muted);margin:10px 0 18px}
+.se-content-builder>.se-lead{font-size:16px;line-height:1.55;margin:0 0 22px}
+@media(max-width:570px){
+  .se-content-builder{padding-top:22px}
+  .se-content-builder h1{font-size:clamp(32px,8vw,40px)}
+  .se-page-builder-actions{flex-direction:column;align-items:stretch}
+  .se-page-builder-actions .se-btn{width:100%}
+}
 .se-footer{background:var(--green);color:white;margin-top:80px}.se-footer-inner{padding:50px 0;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px}.se-footer p{color:rgba(255,255,255,.65)}
 .se-note{padding:14px;border-radius:14px;background:var(--solar2);border:1px solid #f9dd82;font-size:14px}.se-note-error{background:#fff0ed;border-color:#e7aaa0;color:#6f241b}.se-muted{color:var(--muted)}[x-cloak]{display:none!important}
 .se-quote-summary{display:flex;flex-direction:column;gap:5px;padding:18px;border-radius:16px;margin-bottom:12px;border:1px solid var(--line);background:white}.se-quote-summary.pass{background:#edf7f0;border-color:#9dceb0}.se-quote-summary.warn{background:#fff8df;border-color:#efd173}.se-quote-summary.fail{background:#fff0ed;border-color:#e7aaa0}
