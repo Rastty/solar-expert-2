@@ -5,7 +5,9 @@ on:
     branches: [dev]
     paths:
       - "tools/catalog-freshness.mjs"
+      - "tools/catalog-offer-evidence.mjs"
       - "tests/catalog-freshness.test.mjs"
+      - "tests/catalog-offer-evidence.test.mjs"
       - "tools/live-catalog-gap.mjs"
       - "tests/live-catalog-gap.test.mjs"
       - ".github/workflows/catalog-freshness.yml"
@@ -15,7 +17,9 @@ on:
     branches: [dev]
     paths:
       - "tools/catalog-freshness.mjs"
+      - "tools/catalog-offer-evidence.mjs"
       - "tests/catalog-freshness.test.mjs"
+      - "tests/catalog-offer-evidence.test.mjs"
       - "tools/live-catalog-gap.mjs"
       - "tests/live-catalog-gap.test.mjs"
       - ".github/workflows/catalog-freshness.yml"
@@ -38,7 +42,7 @@ concurrency:
 jobs:
   freshness:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout effective catalog source
         uses: actions/checkout@v4
@@ -50,12 +54,15 @@ jobs:
       - name: Prove monitor behavior (no network and no merchant writes)
         run: |
           node --check tools/catalog-freshness.mjs
+          node --check tools/catalog-offer-evidence.mjs
           node --check tools/live-catalog-gap.mjs
-          node --test tests/catalog-freshness.test.mjs tests/live-catalog-gap.test.mjs
+          node --test tests/catalog-freshness.test.mjs tests/catalog-offer-evidence.test.mjs tests/live-catalog-gap.test.mjs
       - name: Review every exact seller price-evidence date, including bundles
         run: node tools/catalog-freshness.mjs
       - name: Observe production price-freshness gap (read-only, no affiliate clicks)
         run: node tools/live-catalog-gap.mjs
+      - name: Verify exact seller SKU, visible availability and CZK price (read-only)
+        run: node tools/catalog-offer-evidence.mjs
       - name: Upload dated re-verification queue
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,6 +70,7 @@ jobs:
           name: solar-catalog-freshness-${{ github.run_id }}
           path: |
             artifacts/catalog-freshness.json
+            artifacts/catalog-offer-evidence.json
             artifacts/live-catalog-gap.json
           if-no-files-found: warn
           retention-days: 30
