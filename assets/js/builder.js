@@ -398,6 +398,13 @@ window.solarExpertBuilder=function(){return{
     // not qualify, even if someone later mistakenly sets priceComplete.
     return bundles.some(b=>b&&b.complete&&this.purchaseBreakdownFor(b));
   },
+  hasActionableBuyerOffer(bundles){
+    // A reconciled bill can still have missing or non-actionable merchant
+    // URLs. Only exact source-priced, in-stock component destinations form
+    // a complete shopping path. Without an adapter, never assume links.
+    return Boolean(window.SolarExpertAffiliate)&&bundles.some(b=>b&&b.complete&&
+      this.hasCompletePurchaseLinksFor(b));
+  },
   trackBuyerOfferGap(){
     // A complete technical calculation without a complete, source-priced,
     // individually actionable shopping list is a real buyer-journey gap.
@@ -423,21 +430,34 @@ window.solarExpertBuilder=function(){return{
       mpptA:this.suggestedMpptA(this.result.panelWp,originalVoltage),voltageAlternativeFrom:null};
     let picked=nominal;
     let bundles=composer.compose(this.catalog,nominal,this.bundleDeals);
-    // No new SKU, fake battery parallelism, stale quote, price guess or
-    // relaxed electrical gates. Try an existing higher-voltage whole system
-    // only if the default is not purchase-actionable, and only with a
-    // reconciled quoted bill for the same requested loads and autonomy.
-    if(this.catalog.length && !this.hasReconciledBuyerOffer(bundles)){
+    // Prefer a fully actionable buyer path at the nominal voltage. If a
+    // priced nominal quote lacks exact seller links, search higher-voltage
+    // fully linked alternatives before settling for that stranded quote.
+    // Preserve the old priced (not claimed actionable) fallback when no
+    // voltage has complete checkout URLs; never invent a product or price.
+    if(this.catalog.length && !this.hasActionableBuyerOffer(bundles)){
+      const hasNominalPrice=this.hasReconciledBuyerOffer(bundles);
+      let pricedFallback=null;
       for(const voltage of [24,48]){
         if(voltage<=originalVoltage)continue;
         const alternative={...nominal,voltage,
           mpptA:this.suggestedMpptA(nominal.panelWp,voltage),
           voltageAlternativeFrom:originalVoltage};
         const alternateBundles=composer.compose(this.catalog,alternative,this.bundleDeals);
-        if(!this.hasReconciledBuyerOffer(alternateBundles))continue;
-        picked=alternative;
-        bundles=alternateBundles;
-        break;
+        if(this.hasActionableBuyerOffer(alternateBundles)){
+          picked=alternative;
+          bundles=alternateBundles;
+          pricedFallback=null;
+          break;
+        }
+        if(!hasNominalPrice&&!pricedFallback&&
+           this.hasReconciledBuyerOffer(alternateBundles)){
+          pricedFallback={alternative,alternateBundles};
+        }
+      }
+      if(pricedFallback){
+        picked=pricedFallback.alternative;
+        bundles=pricedFallback.alternateBundles;
       }
     }
     this.result=picked;
