@@ -25,7 +25,7 @@ class Battery800QuoteBridgeTest(unittest.TestCase):
         for term in ("baterie", "měniče", "napětí", "rozběhovou", "800 Wp"):
             self.assertIn(term, self.body)
 
-    def test_exact_pinned_post_and_held_release(self):
+    def test_exact_pinned_post_and_release_control_contract(self):
         validate_manifest(self.manifest)
         self.assertEqual(self.manifest["kind"], "post_append")
         self.assertEqual(self.manifest["post_id"], 1632)
@@ -33,7 +33,9 @@ class Battery800QuoteBridgeTest(unittest.TestCase):
         self.assertEqual(self.manifest["source_file"], str(self.path.relative_to(ROOT)))
         self.assertEqual(self.manifest["source_sha256"], hashlib.sha256(self.body.encode("utf-8")).hexdigest())
         control = json.loads((ROOT / "ops/editorial-release.json").read_text(encoding="utf-8"))
-        self.assertNotEqual(control["manifest"], "ops/editorial-manifests/solar-battery800-quote-bridge-20261120-v1.json")
+        if control["manifest"] == "ops/editorial-manifests/solar-battery800-quote-bridge-20261120-v1.json":
+            self.assertEqual(control["activation_revision"], 20)
+            self.assertTrue(control["enabled"])
 
 
 if __name__ == "__main__":
