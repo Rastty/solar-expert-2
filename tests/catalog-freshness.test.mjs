@@ -29,15 +29,15 @@ test('future, missing and malformed merchant dates are unsafe not fresh',()=>{
 });
 test('full catalog source and public-runtime mirror are equal and status totals consistent',()=>{
   assert.deepEqual(catalog,runtime);
-  const result=reviewCatalogFreshness(catalog,'2026-11-07T12:00:00Z');
+  const result=reviewCatalogFreshness(catalog,'2026-11-20T12:00:00Z');
   assert.equal(result.total_offers,result.by_kind.product+result.by_kind.bundle);
   assert.equal(result.total_offers,Object.values(result.counts).reduce((a,b)=>a+b,0));
   assert.equal(result.by_kind.product,48);
   assert.equal(result.by_kind.bundle,4);
   assert.equal(result.total_offers,52);
   assert.equal(result.counts.expiring_soon,0,'All three independently verified VSelektro offers now have fresh 2026-11-07 evidence');
-  assert.equal(result.counts.fresh,52,'48 product offers and four bundle offers must all be date-fresh in the fully reverified source');
-  assert.equal(result.counts.stale,0,'No expired merchant evidence in final source as of November 7');
+  assert.equal(result.counts.fresh,52,'All 48 product and four bundle offers have dated source evidence as of November 20');
+  assert.equal(result.counts.stale,0,'No expired merchant evidence in final source as of November 20');
   assert.ok(result.attention.every(x=>x.state!=='fresh'));
   assert.ok(result.attention.every(x=>x.kind==='bundle'||x.kind==='product'));
   assert.ok(freshnessSummaryMarkdown(result).includes('catalog price evidence watch'));
