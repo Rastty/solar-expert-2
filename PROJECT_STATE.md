@@ -8,14 +8,15 @@ Earn attributable affiliate/lead revenue with a trustworthy solar decision engin
 
 ## Verified state
 
-- `main` runs the independent, one-post-only guarded editorial workflow. The latest **confirmed production** publication is `/solarni-cerpadlo-do-studny-bez-elektriny/`, WordPress #1641, 2026-11-20T13:30:38Z, HTTP 200. PR #260 was merged as `22233f9`; the GitHub Action run `44744832872` passed its one-write and authenticated-readback jobs. No theme deployment was made.
+- `main` runs the independent, one-post-only guarded editorial workflow. **Production-verified cycle 1:** well-pump guide `/solarni-cerpadlo-do-studny-bez-elektriny/`, WordPress #1641, published 2026-11-20T13:30:38Z, HTTP 200; PR #260 merged as `22233f9`, release run `44744832872` passed authenticated readback. **Production-verified cycle 2:** one contextual link in existing pond-pump guide `/solarni-panel-pro-zahradni-cerpadlo-a-jezirko/`, WordPress #1639, `modified_gmt=2026-11-20T13:40:05`, source link verified on live page; PR #262 merged as `7a249e0`, run `44746252279` passed. Content SHA and modification CAS protected the previous live body. No theme deployment was made.
 - `dev` head was `eac6aa4` at inspection; PR #257 (Builder demo) and #258 (self-referral analytics) are integrated and tested in `dev`, **not verified in production**.
 - Public WordPress health GET on 2026-11-20 returned `status=ok`, theme `0.12.27`, 24 catalog products and **52/52 price snapshots stale** (30-day policy); this is not an acceptable live offer freshness level.
 - Homepage HTTP 200 and WordPress public REST are reachable. `catalog_price_stale=52` is a quality warning even though the endpoint health `status` is `ok`.
 
 ## Current operation
 
-- Editorial release revision 17 was confirmed live as WP #1641. Next bounded cycle: obtain authenticated read-only SHA and modified timestamp for published pond-pump guide WP #1639 before one possible CAS-guarded contextual link to the new well-pump buyer guide; no post write is authorized by this fingerprint-only change.
+- Editorial revisions 17 and 18 have both completed verified production publication. Revision 18 was a bounded append to WP #1639 after an independent authenticated fingerprint; no other post or theme was mutated. Do not republish or add a duplicate cross-link.
+- The main growth constraint is live offer trust and monetization: 52/52 aging price snapshots, with no supported claim of verified merchant conversion/commission. The next release should prioritize offer freshness or evidence collection over more stand-alone articles.
 
 ## Release blockers
 
@@ -25,6 +26,6 @@ Earn attributable affiliate/lead revenue with a trustworthy solar decision engin
 
 ## Next 3 value cycles (ranked by expected value and authorization)
 
-1. Add one verified contextual link from the distinct pond-pump article to the newly live well-pump buyer guide, with exact current WordPress content CAS and encrypted prewrite. This is a follow-up conversion/discovery bridge, not a new article.
-2. Unblock **highest economic upside:** evaluate a reviewed minimal code-only theme release excluding managed content sync and protected DB mutations. Existing full-theme workflow must remain fail-closed without its current restore evidence; do not use unbacked release receipts. Validate live source fingerprint, current code tests, compatibility and CTA/offer paths before any alternate production mutation.
-3. Join actual query → tool use → affiliate outbound event → approved/paid commission evidence through existing Prometheus Core adapters; change only buyer paths with measurable missing outcomes. Do not claim commission data without it.
+1. **Offer freshness / conversion:** identify the actual authority and refresh route for 52 stale price snapshots; improve live offer verification and avoid misleading prices. If a release is needed, prepare a separately reviewed minimal code-only path (no DB/upload sync), with exact live source fingerprint, rollback and evidence. Preserve the fail-closed full-theme gate at issue #148.
+2. **Revenue attribution:** join actual query → tool use → affiliate outbound event → approved/paid commission evidence through existing Prometheus Core adapters. Do not infer commissions from clicks.
+3. **Buyer path optimization:** based on measured user journeys, improve the highest-value tool → merchant/lead CTA path. Avoid another generic article or duplicate link.
