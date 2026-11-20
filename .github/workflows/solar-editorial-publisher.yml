@@ -15,6 +15,7 @@ on:
       - "tests/test_solar_pond_pump_buyer_guide.py"
       - "tests/test_solar_garage_buyer_guide.py"
       - "tests/test_solar_well_pump_buyer_guide.py"
+      - "tests/test_solar_circulation_pump_buyer_guide.py"
   push:
     branches: [main]
     paths:
@@ -28,6 +29,7 @@ on:
       - "tests/test_solar_pond_pump_buyer_guide.py"
       - "tests/test_solar_garage_buyer_guide.py"
       - "tests/test_solar_well_pump_buyer_guide.py"
+      - "tests/test_solar_circulation_pump_buyer_guide.py"
   schedule:
     - cron: "11 * * * *"
   workflow_dispatch:
@@ -62,6 +64,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_solar_garage_buyer_guide.py' -v
       - name: Well-pump guide head/flow and real inverter standby regression
         run: python -m unittest discover -s tests -p 'test_solar_well_pump_buyer_guide.py' -v
+      - name: Heating circulation pump UPS/battery buyer guide safety and autonomy
+        run: python -m unittest discover -s tests -p 'test_solar_circulation_pump_buyer_guide.py' -v
 
   one-post-wordpress-publisher:
     needs: offline-contract
