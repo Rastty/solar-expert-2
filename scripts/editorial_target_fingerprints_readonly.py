@@ -18,6 +18,7 @@ TARGETS = (
     (1612, "jak-vybrat-mppt-regulator-pro-400w-panel"),
     (1613, "solarni-sestava-na-chatu-pro-lednici"),
     (1615, "jakou-baterii-k-solarnimu-panelu-400w"),
+    (1639, "solarni-panel-pro-zahradni-cerpadlo-a-jezirko"),
 )
 OUTPUT = publisher.ROOT / "artifacts/solar-editorial-target-fingerprints-readonly.json"
 
@@ -27,7 +28,7 @@ def inspect() -> dict:
         "schema_version": 1,
         "observed_at_utc": datetime.now(timezone.utc).isoformat(),
         "site": "solar-expert.cz",
-        "purpose": "three_existing_buyer_post_cas_fingerprints_get_only",
+        "purpose": "four_existing_buyer_post_cas_fingerprints_get_only",
         "publish_authorized": False,
         "theme_deploy_authorized": False,
         "writes": 0,
