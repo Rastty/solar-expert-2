@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-installation-builder-bridge-20261120-v1",
+  "post_id": 341,
+  "slug": "jak-zapojit-solarni-panely",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Jak zapojit solární panely: série, paralelně a co hlídat u MPPT",
+  "excerpt": "Praktický návod na bezpečné sériové a paralelní zapojení panelů včetně kontroly napětí a odkazu na kompletní ostrovní sestavu pro chatu.",
+  "source_commit": "769a540278288c2d165d9ca6e64ce2c168e98ea6",
+  "source_file": "content/editorial-append/jak-zapojit-solarni-panely.html",
+  "source_sha256": "c84924b2f1e1464e6fa43101bf045a037d0e5d0cc8e579fffabf2eaac88360ce",
+  "link_target": "/solarni-sestava-na-chatu/",
+  "expected_current_sha256": "85683b64aafac0d7f145c6650f13e3a402044e06f99aaaa31548e8d25e553d66",
+  "expected_modified_gmt": "2026-11-08T07:32:08"
+}
