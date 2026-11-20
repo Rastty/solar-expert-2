@@ -16,7 +16,7 @@ const sha256=buffer=>createHash('sha256').update(buffer).digest('hex');
 const validPath=p=>typeof p==='string'&&p.startsWith('content/')&&
   !p.includes('\\')&&!p.split('/').some(x=>!x||x==='.'||x==='..');
 
-function manifestPaths(bytes){
+export function manifestPaths(bytes){
   let doc;
   try { doc=JSON.parse(Buffer.from(bytes).toString('utf8')); }
   catch(_) { throw new Error('Invalid managed-content manifest JSON'); }
