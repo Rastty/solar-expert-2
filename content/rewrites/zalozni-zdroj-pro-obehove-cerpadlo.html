@@ -1,0 +1,57 @@
+<p class="se-lead"><strong>Chcete, aby při výpadku proudu dál běželo oběhové čerpadlo topení?</strong> Samotný údaj „čerpadlo 30 W“ nestačí k výběru UPS, baterie ani měniče. Musíte zjistit, co všechno má zůstat napájené, jak dlouho, jak se zdroj přepne při výpadku a zda kotel vyžaduje samostatné ochrany proti přehřátí. Ukážeme výpočet výdrže pro modelových 40 W, rozdíl mezi záložním zdrojem a samostatným měničem a bezpečný další krok k výběru komponent.</p>
+
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Prověřit kapacitu baterie podle Wh →</a> <a class="se-btn" href="/vyber-menice/">Ověřit výkon a napětí měniče →</a></p>
+
+<div class="se-note"><strong>Nejdůležitější upozornění:</strong> U kotle na dřevo nebo jiné tuhé palivo nelze výpočet baterie zaměnit za projekt ochrany proti přetopení. Výrobce <a href="https://www.atmos.eu/instalace-kotlu/" rel="nofollow noopener">ATMOS ve svém montážním přehledu</a> popisuje další způsoby zabezpečení včetně dochlazovací smyčky a zapojení pro samotížnou cirkulaci. Konkrétní kotel i celý topný systém musí posoudit autorizovaný odborník; domácí sestava s běžným měničem nemusí být přípustnou ochranou.</div>
+
+<h2>Co chcete zálohovat: samotné čerpadlo, nebo celý kotel?</h2>
+<p>Nejprve oddělte tři situace. U <strong>samostatného oběhového čerpadla 230 V</strong> potřebujete znát skutečný příkon v konkrétním režimu, náběhový proud a povolený způsob napájení. U <strong>plynového kotle</strong> mohou běžet také řídicí elektronika, ventilátor, zapalování a několik čerpadel; jejich součet není příkonem jednoho čerpadla. U <strong>kotle na tuhá paliva</strong> je přerušení oběhu potenciálně nebezpečné a záložní napájení je jen jedna část ochrany navržené pro daný kotel.</p>
+<p>Úsporná elektronicky regulovaná čerpadla mohou mít velmi různý příkon podle režimu. Například <a href="https://api.grundfos.com/literature/Grundfosliterature-6014959.pdf" rel="nofollow noopener">technická dokumentace Grundfos ALPHA2</a> uvádí křivky spotřeby a provozní parametry konkrétních variant. Není správné přebrat příkon jiného modelu podle podobného názvu; opište identifikaci a údaje ze štítku svého čerpadla nebo provoz změřte.</p>
+
+<h2>Výpočet baterie pro oběhové čerpadlo: 4, 8, 12 a 24 hodin</h2>
+<p>Pro transparentní příklad uvažujeme <strong>celkový souvislý odběr 40 W na výstupu 230 V</strong> (čerpadlo a případné drobné řízení), <strong>90% účinnost měniče</strong>, <strong>10 W jeho vlastní spotřeby na DC straně</strong> a <strong>80% využitelný podíl nominální energie baterie</strong>. Všechna tato čísla jsou zvolené modelové předpoklady, nikoliv datasheet konkrétního výrobku. Přepínání, bateriové ztráty, teploty, stárnutí a neobvyklé odběrové špičky mohou výdrž dále zhoršit.</p>
+<p>Modelový příkon odebraný z baterie je <strong>40 / 0,90 + 10 ≈ 54,4 W</strong>. Potřebná nominální energie pro 8 hodin vychází <strong>54,4 × 8 / 0,80 ≈ 544 Wh</strong>. Nejde tedy o zjednodušené „40 W × 8 h = 320 Wh baterie“: samotné přepočítání pouze AC zátěže podhodnotí odběr měniče.</p>
+<table><thead><tr><th>Požadovaná doba</th><th>Modelová energie odebraná z baterie</th><th>Minimální modelová nominální kapacita při 80 %</th></tr></thead><tbody>
+<tr><td>4 hodiny</td><td>≈ 218 Wh</td><td>≈ 272 Wh</td></tr>
+<tr><td>8 hodin</td><td>≈ 436 Wh</td><td>≈ 544 Wh</td></tr>
+<tr><td>12 hodin</td><td>≈ 653 Wh</td><td>≈ 817 Wh</td></tr>
+<tr><td>24 hodin</td><td>≈ 1307 Wh</td><td>≈ 1633 Wh</td></tr>
+</tbody></table>
+<p>Pro srovnání má baterie LiFePO₄ 12,8 V / 100 Ah nominálně <strong>12,8 × 100 = 1280 Wh</strong>. V tomto jediném modelu by energeticky mohla pokrýt 8–12 hodin, ale nikoliv 24 hodin. To <strong>není hotové doporučení baterie</strong>: ověřte proud BMS včetně startu, povolenou teplotu nabíjení, vhodný nabíjecí profil, kabeláž a kompatibilitu zdroje. Skutečná UPS navíc může spotřebovávat energii jinak než předpokládaný samostatný měnič.</p>
+<p><strong>Další zátěže změní výpočet rychle.</strong> Jestliže dvě čerpadla a elektronika dohromady odebírají modelových 100 W AC a zbytek předpokladů zůstane stejný, osmihodinová nominální potřeba je přibližně <strong>((100 / 0,90) + 10) × 8 / 0,80 ≈ 1211 Wh</strong>. Baterie s nominální kapacitou 1280 Wh by měla jen malou modelovou energetickou rezervu a bez dalších provozních údajů z ní nelze dělat bezpečný výběr.</p>
+
+<h2>UPS pro kotel versus samostatný měnič 12/24 V na 230 V</h2>
+<p><strong>Skutečný záložní zdroj (UPS)</strong> musí zvládnout výrobcem určený způsob připojení na síť, nabíjení baterie a přepnutí při výpadku. Ověřte výstupní sinusový průběh, maximální trvalý výkon ve W (nejen VA), krátkodobý rozběh, dobu přepnutí, nulový/ochranný vodič podle projektu a chování při vybití. Pro kotel je rozhodující, zda výrobce takový zdroj povoluje. Například <a href="https://www.victronenergy.com/media/pg/MultiPlus_20kW_230V/en/configuration.html" rel="nofollow noopener">dokumentace Victron MultiPlus</a> popisuje funkci UPS při výpadku AC vstupu; samotný měnič bez přepínacího zařízení ale není automaticky totéž co UPS.</p>
+<p><strong>Samostatný DC/AC měnič</strong> napájí připojenou zátěž z baterie. Když má běžet i při dostupné síti a automaticky převzít napájení po výpadku, musí být celý systém správně navržen s bezpečným přepínáním a nabíjením. Zásuvkový nebo ostrovní měnič nikdy nepřipojujte improvizovaně do domovní elektroinstalace, kde by mohl nebezpečně napájet síť zpět. Nepřekračujte limity výrobce a nezkoušejte přepojování 230 V svépomocí.</p>
+<p><strong>Start motoru a další elektronika:</strong> zkontrolujte měřenou nebo výrobcem uvedenou rozběhovou špičku čerpadla i požadovanou dobu, po kterou ji zdroj udrží. Jestliže součet běžných odběrů činí 40 W, neznamená to, že libovolný „50W měnič“ bezpečně nastartuje motor či kotel. U nekompatibilní UPS může kotel při přechodu na baterii zhasnout, restartovat se nebo chybně vyhodnotit napájení.</p>
+<p><a class="se-btn se-btn-primary" href="/vyber-menice/">Prověřit trvalý a špičkový výkon →</a> <a href="/vyber-baterii/">Porovnat baterie podle kWh a BMS →</a></p>
+
+<h2>LiFePO₄, AGM a automatické nabíjení: co zkontrolovat před koupí</h2>
+<p>LiFePO₄ může nabídnout vysoký počet cyklů, ale není zaměnitelná s olověnou AGM baterií v každé nabíječce nebo UPS. Prověřte <strong>výrobcem povolenou chemii, napěťové rozsahy, nabíjecí profil, proudové limity BMS a obnovu provozu po odpojení</strong>. V nevytápěném prostoru je zásadní omezení nabíjení za nízkých teplot; ochranu BMS nikdy neobcházejte.</p>
+<p>Velká baterie má smysl jen tehdy, když ji zdroj umí správně nabít, bezpečně přepnout napájení a při poruše ohlásit závadu. Pro topení může být důležitější prokazatelná kompatibilita s kotlem a dostupný servis než maximální nominální počet Ah za stejnou cenu. U zamýšlených několika hodin autonomie prověřte také pravidelné funkční zkoušky a výměnný interval baterie podle výrobce.</p>
+
+<h2>Má význam solární panel pro zálohu oběhového čerpadla?</h2>
+<p>Solární panel může přes vhodný regulátor dobíjet ostrovní baterii, ale <strong>nesmí být jediným zdůvodněním bezpečnosti topení při zimním výpadku</strong>. Během noci panel nedodává energii a v prosinci může být i denní výroba velmi nízká. Pro plánování slunce v konkrétním místě použijte <a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="nofollow noopener">PVGIS Evropské komise</a>; ani jeho průměry nejsou garancí energie pro bezpečnostní systém v konkrétní den.</p>
+<p>Pokud už panel vlastníte, nestačí znát jen jeho výkon 400 Wp. Před výběrem MPPT ověřte jeho <strong>Voc za mrazu, Vmp při pracovních teplotách a Isc</strong> v reálném zapojení, napětí baterie a výrobní limity regulátoru. Nominální nabíjecí proud MPPT není totéž co přípustný zkratový proud FV pole. K dispozici je <a href="/mppt-kalkulacka/">kontrola MPPT, Voc a Isc</a> a podrobnější <a href="/jak-vybrat-mppt-regulator-pro-400w-panel/">výběr MPPT k panelu 400 W</a>. Pevné záložní napájení kotle musí i v tomto případě navrhnout odborník.</p>
+
+<h2>Kontrolní seznam před objednáním zálohy topení</h2>
+<ol>
+<li>Seznam všech skutečně zálohovaných spotřebičů: čerpadlo/čerpadla, regulace kotle, ventilátor a další nezbytné obvody.</li>
+<li>Typ kotle a povolený způsob zálohy podle jeho výrobce; u tuhých paliv samostatně doložená ochrana proti přehřátí.</li>
+<li>Měřený odběr ve W a maximální rozběhová špička ve W/VA včetně doby jejího trvání.</li>
+<li>Požadovaná autonomie v hodinách, účinnost a skutečná vlastní spotřeba konkrétní UPS/měniče.</li>
+<li>Kompatibilita baterie a nabíječky: 12/24/48 V, chemie, BMS, ochrany při nízké teplotě a servis.</li>
+<li>Dokumentovaný výstupní sinus, způsob přepnutí a bezpečné elektrické zapojení autorizovanou osobou.</li>
+<li>Reálná nabídka výrobce/prodejce včetně aktualizované ceny, skladovosti a záruky. Datovaný katalog není závazným ceníkem.</li>
+</ol>
+<p>Jde-li místo oběhového čerpadla topení o <strong>čerpadlo vody ve studni</strong>, vyžaduje jiný návrh výtlaku, průtoku a motorové zátěže. Přečtěte si <a href="/solarni-cerpadlo-do-studny-bez-elektriny/">solární čerpadlo do studny bez elektřiny</a>. Pro běžnou ostrovní chatu s více spotřebiči pomůže <a href="/solarni-sestava-na-chatu/">Solar Setup Builder</a>; ten není certifikovanou UPS kalkulačkou pro topení.</p>
+
+<h2>Časté otázky</h2>
+<h3>Jak dlouho vydrží baterie 12 V / 100 Ah s oběhovým čerpadlem?</h3>
+<p>Nominální energie modelové LiFePO₄ 12,8 V / 100 Ah je 1280 Wh. U výše uvedených modelových 40 W AC, 90% účinnosti, 10 W vlastní spotřeby a 80% využití vychází pouze orientačně kolem 18,8 hodiny; po rezervách, stárnutí, chladu a skutečném provozu může být výdrž kratší. U jiné UPS nebo více čerpadel nelze toto číslo převzít.</p>
+<h3>Stačí měnič s čistou sinusovkou místo UPS?</h3>
+<p>Ne automaticky. Čistá sinusovka je jen jedna požadovaná vlastnost. Pro přechod při výpadku je třeba kompatibilní a bezpečně navržené přepínání, nabíjení baterie, ochrany a často také odpovídající chování vůči regulaci kotle. Rozhoduje návod konkrétního kotle i zdroje.</p>
+<h3>Mohu zálohu oběhového čerpadla připojit svépomocí?</h3>
+<p>Neprovádějte improvizované spojování zásuvek, měniče ani pevného rozvodu. Bezpečný typ a zapojení zdroje má určit odborník podle kotle, elektroinstalace a ochrany proti zpětnému napájení sítě. U kotle na tuhá paliva musí být nezávisle řešeno i riziko přetopení.</p>
+
+<p class="se-muted"><small>Redakce Solar Expert · technická kontrola 20. 11. 2026. Primární zdroje: <a href="https://www.atmos.eu/instalace-kotlu/" rel="nofollow noopener">ATMOS – instalace kotlů, záložní zdroje a ochrana před přetopením</a>; <a href="https://api.grundfos.com/literature/Grundfosliterature-6014959.pdf" rel="nofollow noopener">Grundfos – ALPHA2 Data Booklet</a>; <a href="https://www.victronenergy.com/media/pg/MultiPlus_20kW_230V/en/configuration.html" rel="nofollow noopener">Victron – UPS funkce MultiPlus</a>; <a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="nofollow noopener">Evropská komise – PVGIS</a>. Uvedené W, účinnosti a doby jsou ilustrativní výpočty, nikoli parametry doporučené UPS, instalace nebo garantovaná výdrž.</small></p>
