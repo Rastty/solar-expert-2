@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-caravan-builder-bridge-20261120-v1",
+  "post_id": 1618,
+  "slug": "solarni-panel-na-karavan-200w",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární panel na karavan 200 W: jakou 12V baterii a MPPT vybrat",
+  "excerpt": "Výběr 190–200Wp panelu, baterie, MPPT a měniče pro karavan s upozorněním na odlišnosti vozidlové instalace a orientační kontrolou celé ostrovní sestavy.",
+  "source_commit": "ae55de7e5020273f474e9b64b67774a4dbd80763",
+  "source_file": "content/editorial-append/solarni-panel-na-karavan-200w.html",
+  "source_sha256": "628aff1ed6bc49dffe82133df88442b89737c268ab01a8b16cc882844ac446ed",
+  "link_target": "/solarni-sestava-na-chatu/",
+  "expected_current_sha256": "d9cb4ec6700c91129f3ba83a4dfb5ed30935c92b634283eed54440fc6a14d8b2",
+  "expected_modified_gmt": "2026-11-07T13:08:39"
+}
