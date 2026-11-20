@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-pond-well-crosslink-20261120-v1.json",
-  "activation_revision": 18,
-  "notice": "One guarded single-paragraph contextual link from existing published pond-pump post #1639 to newly verified well-pump buyer guide #1641. Exact original raw HTML SHA256 and modified_gmt pinned from authenticated GET-only workflow #44745855966. One POST maximum, encrypted prewrite, exact current readback and public confirmation. No theme, product or bulk content sync."
+  "manifest": "ops/editorial-manifests/solar-installation-builder-bridge-20261120-v1.json",
+  "activation_revision": 19,
+  "notice": "One guarded contextual off-grid Builder link in existing solar installation guide #341. Exact original raw body SHA256 and modified_gmt pinned from authenticated GET-only workflow #44795146724. One POST at most, encrypted prewrite, source-lock and exact live readback. Existing article preserved, no new post, theme, products or bulk content sync."
 }
