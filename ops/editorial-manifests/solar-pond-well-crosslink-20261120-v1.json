@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-pond-well-crosslink-20261120-v1",
+  "slug": "solarni-panel-pro-zahradni-cerpadlo-a-jezirko",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární panel pro zahradní čerpadlo a jezírko: výpočet baterie a MPPT",
+  "excerpt": "Praktický výpočet pro zahradní čerpadlo a jezírko, s bezpečným odkazem na odlišný scénář čerpání vody ze studny bez elektřiny.",
+  "source_commit": "95de4a49a1e29bb899a611990e252a49823a17ba",
+  "source_file": "content/editorial-append/solarni-panel-pro-zahradni-cerpadlo-a-jezirko.html",
+  "source_sha256": "a1da017665a309c9bfbb5d4ae8c3c5cbef2bb2694ede9c9854371e16b264a697",
+  "post_id": 1639,
+  "expected_modified_gmt": "2026-11-17T08:03:35",
+  "expected_current_sha256": "5f44f4928c1d17261869b66c540a91c40cf5d839e0b884ac3b9f1661cc42d67f",
+  "link_target": "/solarni-cerpadlo-do-studny-bez-elektriny/"
+}
