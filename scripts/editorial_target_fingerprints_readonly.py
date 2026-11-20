@@ -15,6 +15,7 @@ from scripts import editorial_release as publisher
 
 
 TARGETS = (
+    (341, "jak-zapojit-solarni-panely"),
     (1612, "jak-vybrat-mppt-regulator-pro-400w-panel"),
     (1613, "solarni-sestava-na-chatu-pro-lednici"),
     (1615, "jakou-baterii-k-solarnimu-panelu-400w"),
@@ -28,7 +29,7 @@ def inspect() -> dict:
         "schema_version": 1,
         "observed_at_utc": datetime.now(timezone.utc).isoformat(),
         "site": "solar-expert.cz",
-        "purpose": "four_existing_buyer_post_cas_fingerprints_get_only",
+        "purpose": "five_existing_buyer_post_cas_fingerprints_get_only",
         "publish_authorized": False,
         "theme_deploy_authorized": False,
         "writes": 0,
