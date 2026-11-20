@@ -10,8 +10,9 @@ require('../assets/js/bundle-composer.js');
 const M=window.SolarExpertProductMatcher, B=window.SolarExpertBundleComposer;
 const catalog=JSON.parse(readFileSync('assets/data/product-seed.json','utf8'));
 const CHECKED_AT='2026-11-07';
+const PYLONTECH_RECHECK='2026-11-20';
 const checked=[
- ['battery-pylontech-us5000','solar-import-cz',22900,'in_stock'],
+ ['battery-pylontech-us5000','solar-import-cz',22900,'on_request'],
  ['battery-seplos-polo-w-48','battery-cz',20990,'on_request'],
  ['battery-seplos-polo-w-48','solar-import-cz',20990,'on_request'],
  ['mppt-victron-100-50','solar-import-cz',4305,'in_stock'],
@@ -45,7 +46,7 @@ test('second seller-page audit is exact, distinct and genuinely dated',()=>{
   seen.add(key);
   assert.equal(offer.price_czk,price,'Exact evidence price '+key);
   assert.equal(offer.availability,availability,'Exact evidence status '+key);
-  assert.equal(offer.verified_at,CHECKED_AT,'Exact verification day '+key);
+  assert.equal(offer.verified_at,id==='battery-pylontech-us5000'?PYLONTECH_RECHECK:CHECKED_AT,'Exact verification day '+key);
   const url=new URL(offer.source_url);
   assert.equal(url.protocol,'https:');
   assert.equal(url.hostname,merchant==='battery-cz'?'www.battery.cz':'www.solar-import.cz');
@@ -54,14 +55,14 @@ test('second seller-page audit is exact, distinct and genuinely dated',()=>{
    assert.equal(product.price_czk,offer.price_czk,'Primary price must match '+key);
    assert.equal(product.price_czk_snapshot,offer.price_czk,'Snapshot must match '+key);
    assert.equal(product.availability,offer.availability,'Primary stock must match '+key);
-   assert.equal(product.verified_at,CHECKED_AT,'Primary observation date must match '+key);
+   assert.equal(product.verified_at,id==='battery-pylontech-us5000'?PYLONTECH_RECHECK:CHECKED_AT,'Primary observation date must match '+key);
   }
  }
  assert.equal(seen.size,20);
- assert.equal(catalog.products.flatMap(p=>p.offers||[]).filter(o=>o.verified_at===CHECKED_AT).length,48);
+ assert.equal(catalog.products.flatMap(p=>p.offers||[]).filter(o=>o.verified_at===CHECKED_AT).length,46);
  const remaining=catalog.products.flatMap(p=>p.offers||[]).filter(o=>o.verified_at!==CHECKED_AT);
- assert.equal(remaining.length,0);
- assert.ok(catalog.products.flatMap(p=>p.offers||[]).every(o=>o.verified_at===CHECKED_AT),'All independent third-party offers now have actual fresh seller-page evidence');
+ assert.equal(remaining.length,2);
+ assert.ok(remaining.every(o=>o.verified_at===PYLONTECH_RECHECK),'Only two independently rechecked Pylontech offers have newer evidence');
 });
 test('source product identity and bundle offer receipts',()=>{
  const p=catalog.products.find(p=>p.id==='battery-pylontech-us5000');

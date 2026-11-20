@@ -153,7 +153,7 @@
       "type": "battery",
       "merchant": "battery-cz",
       "sku": "E8221",
-      "tier": "premium",
+      "tier": "reference",
       "name": "Pylontech US5000 48V 4.8kWh",
       "system_voltage_class": 48,
       "nominal_voltage_v": 48,
@@ -164,7 +164,7 @@
         "CAN",
         "RS485"
       ],
-      "availability": "in_stock",
+      "availability": "on_request",
       "price_czk_snapshot": 22900,
       "source_url": "https://www.battery.cz/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
       "price_czk": 22900,
@@ -173,22 +173,22 @@
         {
           "merchant": "battery-cz",
           "price_czk": 22900,
-          "availability": "in_stock",
+          "availability": "on_request",
           "source_url": "https://www.battery.cz/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
-          "verified_at": "2026-11-07"
+          "verified_at": "2026-11-20"
         },
         {
           "merchant": "solar-import-cz",
           "price_czk": 22900,
-          "availability": "in_stock",
+          "availability": "on_request",
           "source_url": "https://www.solar-import.cz/baterie/pylontech-us5000-lithiova-baterie-48v-4-8kwh/",
-          "verified_at": "2026-11-07"
+          "verified_at": "2026-11-20"
         }
       ],
       "parallel_max_units": 16,
       "parallel_evidence_url": "https://en.pylontech.com.cn/products/c23/134.html",
       "parallel_verified_at": "2026-10-05",
-      "verified_at": "2026-11-07"
+      "verified_at": "2026-11-20"
     },
     {
       "id": "battery-seplos-pusung-48",

@@ -16,6 +16,7 @@ const raw=readFileSync('data/product-seed.json','utf8');
 const runtime=readFileSync('assets/data/product-seed.json','utf8');
 const catalog=JSON.parse(raw);
 const AUDIT_DAY='2026-11-07';
+const PYLONTECH_RECHECK='2026-11-20';
 const checked=[
  ['battery-goowei-12-100','battery-cz',8650,'in_stock'],
  ['battery-goowei-12-100','solar-import-cz',8650,'in_stock'],
@@ -37,7 +38,7 @@ const checked=[
  ['panel-victron-190','solar-import-cz',2251,'in_stock'],
  ['inverter-victron-24-1200','battery-cz',7431,'in_stock'],
  ['inverter-victron-24-1200','solar-import-cz',7431,'in_stock'],
- ['battery-pylontech-us5000','battery-cz',22900,'in_stock'],
+ ['battery-pylontech-us5000','battery-cz',22900,'on_request'],
  ['inverter-rogerele-rep2000-24','battery-cz',4990,'in_stock'],
  ['inverter-rogerele-rep2000-24','solar-import-cz',4990,'in_stock'],
  ['inverter-growatt-48-6000','battery-cz',13490,'in_stock'],
@@ -52,7 +53,7 @@ test('runtime and source catalogs remain byte-identical; preserve source/runtime
  assert.ok(catalog.bundle_deals.every(d=>d.offers.every(o=>o.verified_at===AUDIT_DAY)),'All four bundle offers have new source-page evidence');
 });
 
-test('first 25 exact retailer offers retain the initial 2026-11-07 evidence',()=>{
+test('first 25 audited offers preserve evidence, with the newer Pylontech stock correction',()=>{
  assert.equal(CHECKED_SIZE(),25);
  const observed=new Set();
  for(const [id,merchant,price,stock] of checked){
@@ -65,18 +66,19 @@ test('first 25 exact retailer offers retain the initial 2026-11-07 evidence',()=
    observed.add(key);
    assert.equal(offer.price_czk,price,key+' price');
    assert.equal(offer.availability,stock,key+' availability');
-   assert.equal(offer.verified_at,AUDIT_DAY,key+' exact dated evidence');
+   assert.equal(offer.verified_at,id==='battery-pylontech-us5000'?PYLONTECH_RECHECK:AUDIT_DAY,key+' exact dated evidence');
    const url=new URL(offer.source_url);
    assert.equal(url.protocol,'https:');
    assert.equal(url.hostname,merchant==='battery-cz'?'www.battery.cz':'www.solar-import.cz');
    assert.ok(!url.searchParams.has('desturl')&&!url.hostname.includes('ehub'),'No affiliate tracking request in evidence');
  }
- assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===AUDIT_DAY)).length,48,'All 48 exact retailer offers now have fresh real seller-page evidence');
+ assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===AUDIT_DAY)).length,46,'46 unchanged November 7 retailer receipts');
+ assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===PYLONTECH_RECHECK)).length,2,'Two corrected Pylontech retailer receipts');
  assert.equal(new Set(checked.map(x=>x[0])).size,13);
  for(const id of new Set(checked.map(x=>x[0]))){
    const product=catalog.products.find(x=>x.id===id);
    const primary=product.offers.find(x=>x.merchant===product.merchant);
-   assert.equal(product.verified_at,AUDIT_DAY,id+' primary product verification');
+   assert.equal(product.verified_at,id==='battery-pylontech-us5000'?PYLONTECH_RECHECK:AUDIT_DAY,id+' primary product verification');
    assert.equal(product.price_czk,primary.price_czk,id+' product-price mirror');
    assert.equal(product.price_czk_snapshot,primary.price_czk,id+' product snapshot mirror');
    assert.equal(product.availability,primary.availability,id+' availability mirror');
@@ -94,10 +96,10 @@ test('seller on-request signal prevents unsupported 12V ready-to-buy bank',()=>{
  assert.ok(!candidates.some(x=>x.product.id===product.id),'Do not recommend unstocked 12V 200Ah battery');
 });
 
-test('actual 30-day gate: all 48 product offers fresh as-of 2026-11-07 and expire automatically',()=>{
+test('actual 30-day gate: historic and newer receipts are fresh on November 20 and expire automatically',()=>{
  const offers=catalog.products.flatMap(p=>p.offers||[]);
  assert.equal(offers.length,48);
- const now='2026-11-07T12:00:00Z';
+ const now='2026-11-20T12:00:00Z';
  assert.equal(offers.filter(o=>M.verificationState(o.verified_at,now)==='fresh').length,48);
  assert.equal(offers.filter(o=>M.verificationState(o.verified_at,now)==='stale').length,0);
  const vselektro=offers.filter(o=>o.merchant==='vselektro-eu');
