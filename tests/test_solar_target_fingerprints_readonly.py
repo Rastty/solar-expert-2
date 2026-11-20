@@ -37,10 +37,10 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
                 return [item]
         raise AssertionError("Unexpected REST route")
 
-    def test_four_published_posts_get_fingerprints_no_writes_or_body_leak(self):
+    def test_five_published_posts_get_fingerprints_no_writes_or_body_leak(self):
         with patch.object(publisher, "wp", side_effect=self.wp):
             result = evidence.inspect()
-        self.assertEqual(len(result["posts"]), 4)
+        self.assertEqual(len(result["posts"]), 5)
         self.assertTrue(all(x["status"] == "verified_current_published_post"
                             for x in result["posts"]))
         self.assertTrue(all(x["current_source_sha256"] == publisher.sha(self.private_content)
@@ -49,10 +49,10 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
         self.assertFalse(result["publish_authorized"])
         self.assertFalse(result["theme_deploy_authorized"])
         self.assertNotIn(self.private_content, json.dumps(result))
-        self.assertEqual(len(self.requests), 9)
+        self.assertEqual(len(self.requests), 11)
 
     def test_identity_change_fails_only_affected_post(self):
-        self.bad_id = 1612
+        self.bad_id = 341
         with patch.object(publisher, "wp", side_effect=self.wp):
             result = evidence.inspect()
         self.assertEqual(result["posts"][0]["status"], "unknown_or_unavailable")
