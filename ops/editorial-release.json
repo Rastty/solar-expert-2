@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-caravan-builder-bridge-20261120-v1.json",
-  "activation_revision": 21,
-  "notice": "One contextual complete off-grid Builder link in existing 200Wp caravan guide WordPress #1618. Authenticated GET-only fingerprint #44801459155 pinned raw SHA and modified time; exactly one guarded append, encrypted prewrite and one POST max. Original article preserved, no new WordPress post, catalog, theme or product sync. UPS new-post guide remains held for later release revision 22 and one-new-post/24h gate."
+  "manifest": "ops/editorial-manifests/solar-camera-builder-bridge-20261120-v1.json",
+  "activation_revision": 22,
+  "notice": "Single guarded contextual full-kit Builder link for existing cottage Wi-Fi camera + router 24/7 guide WordPress #1626. Authenticated GET-only fingerprint run #44802800648 pinned raw SHA and modified GMT; exactly one source-locked append, encrypted prewrite and one WordPress POST max. Contains 24/7 uptime, winter autonomy and DC/PoE caveats. No new WordPress post, catalog/theme/product sync. UPS new-post guide remains held for later release revision 23 and the global 24h new-post cooldown."
 }
