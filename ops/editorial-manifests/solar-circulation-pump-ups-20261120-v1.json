@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_create",
+  "operation_id": "solar-circulation-pump-ups-20261120-v1",
+  "slug": "zalozni-zdroj-pro-obehove-cerpadlo",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Záložní zdroj pro oběhové čerpadlo: baterie, UPS a výdrž při výpadku",
+  "excerpt": "Kolik vydrží baterie s oběhovým čerpadlem? Výpočet pro 4–24 hodin, spotřeba měniče, UPS přepínání, bezpečnost kotle a výběr komponent.",
+  "source_commit": "2bfec97ea2a3af955087131e48289fe1dcff0b27",
+  "source_file": "content/rewrites/zalozni-zdroj-pro-obehove-cerpadlo.html",
+  "source_sha256": "6013b235a696ebf7b5524db5f837864a3fd5680ba32cedd9d52636ed2d2ceee7",
+  "expect_absent": true
+}

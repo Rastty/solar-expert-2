@@ -4,6 +4,7 @@ No WordPress mutation, electrical installation, merchant request or invented
 performance measurement. The editorial publisher retains its global 24h gate.
 """
 from pathlib import Path
+import json
 import re
 import unittest
 
@@ -13,6 +14,7 @@ from scripts import editorial_release as publisher
 ROOT = Path(__file__).resolve().parents[1]
 SLUG = "zalozni-zdroj-pro-obehove-cerpadlo"
 ARTICLE = ROOT / "content" / "rewrites" / f"{SLUG}.html"
+MANIFEST = ROOT / "ops" / "editorial-manifests" / "solar-circulation-pump-ups-20261120-v1.json"
 
 
 class HeatingPumpBuyerGuide(unittest.TestCase):
@@ -25,6 +27,15 @@ class HeatingPumpBuyerGuide(unittest.TestCase):
         self.assertGreaterEqual(self.body.count("<h2>"), 5)
         self.assertNotIn("href=\"https://ehub.cz/", self.body)
         self.assertNotRegex(self.body, r"(?i)<(?:script|iframe|form|img)\b")
+
+    def test_held_release_identity_and_source_digest(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        publisher.validate_manifest(manifest)
+        self.assertEqual(manifest["kind"], "post_create")
+        self.assertEqual(manifest["slug"], SLUG)
+        self.assertTrue(manifest["expect_absent"])
+        self.assertEqual(manifest["source_sha256"], publisher.sha(self.body))
+        self.assertEqual(manifest["source_file"], "content/rewrites/" + SLUG + ".html")
 
     def test_energy_math_accounts_for_inverter_losses_and_idle_draw(self):
         # Explicit editorial example, not a catalog SKU claim.
