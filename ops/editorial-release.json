@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-battery800-quote-bridge-20261120-v1.json",
-  "activation_revision": 20,
-  "notice": "One contextual off-grid Quote Checker link in existing battery+MPPT 800Wp buyer guide WordPress #1632. Authenticated GET-only fingerprint #44798679833 pinned raw SHA and modified time; one guarded append only, encrypted prewrite and single POST. No new post, no theme or catalog deploy; scheduled UPS guide remains held for a later create-only release revision."
+  "manifest": "ops/editorial-manifests/solar-caravan-builder-bridge-20261120-v1.json",
+  "activation_revision": 21,
+  "notice": "One contextual complete off-grid Builder link in existing 200Wp caravan guide WordPress #1618. Authenticated GET-only fingerprint #44801459155 pinned raw SHA and modified time; exactly one guarded append, encrypted prewrite and one POST max. Original article preserved, no new WordPress post, catalog, theme or product sync. UPS new-post guide remains held for later release revision 22 and one-new-post/24h gate."
 }
