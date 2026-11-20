@@ -7,7 +7,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from scripts.editorial_release import validate_html  # noqa: E402
+from scripts.editorial_release import validate_html, validate_append_snippet  # noqa: E402
 
 
 class GardenPumpGuideTest(unittest.TestCase):
@@ -25,6 +25,14 @@ class GardenPumpGuideTest(unittest.TestCase):
             self.assertIn(expected, self.body)
         for caveat in ("rozběhov", "Isc", "Voc", "modelové", "kvalifikovan"):
             self.assertIn(caveat, self.body)
+
+    def test_single_well_pump_crosslink_is_pinned_and_bounded(self):
+        snippet = (ROOT / "content/editorial-append/solarni-panel-pro-zahradni-cerpadlo-a-jezirko.html").read_text(encoding="utf-8")
+        destination = "/solarni-cerpadlo-do-studny-bez-elektriny/"
+        validate_append_snippet(snippet, {"link_target": destination})
+        self.assertEqual(snippet.count('href="' + destination + '"'), 1)
+        self.assertIn("Výtlačná výška", snippet)
+        self.assertNotIn(destination, self.body, "Avoid duplicating an existing source link")
 
 
 if __name__ == "__main__":
