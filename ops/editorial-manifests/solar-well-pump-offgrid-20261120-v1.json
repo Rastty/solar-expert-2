@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_create",
+  "operation_id": "solar-well-pump-offgrid-20261120-v1",
+  "slug": "solarni-cerpadlo-do-studny-bez-elektriny",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární čerpadlo do studny bez elektřiny: panel, baterie a měnič",
+  "excerpt": "Jak navrhnout solární čerpání vody ze studny: výtlačná výška, průtok, rozběh 230V motoru, výkon panelů, výdrž baterie a bezpečnost u vody.",
+  "source_commit": "6bbe05a11cd0486d2843214eb2a4f4eaa5c109b7",
+  "source_file": "content/rewrites/solarni-cerpadlo-do-studny-bez-elektriny.html",
+  "source_sha256": "828291ea8466f2e79708a4242120ccd833fea89cb82e9e9d1e6a67e28a613686",
+  "expect_absent": true
+}

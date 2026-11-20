@@ -1,0 +1,66 @@
+<p class="se-lead"><strong>Potřebujete dostat vodu ze studny na chatě, zahradě nebo vzdáleném pozemku bez elektrické přípojky?</strong> Vybírat jen podle „solárního panelu 400 W“ nestačí. O vhodnosti sestavy rozhodují především hloubka hladiny, požadovaný průtok, výtlačná výška, typ čerpadla a to, zda budete vodu čerpat jen za slunce, nebo i v noci. Ukážeme, co zkontrolovat před koupí solárního čerpadla, baterie, měniče a regulátoru.</p>
+
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Spočítat kapacitu baterie →</a> <a class="se-btn" href="/vyber-menice/">Prověřit měnič pro čerpadlo →</a></p>
+
+<div class="se-note"><strong>Dvě odlišné nákupní cesty:</strong> Nové čerpadlo určené výrobcem pro solární provoz může čerpat přes den do zásobní nádrže a obejít se bez velké baterie. Pokud už máte běžné 230V čerpadlo, budete zpravidla řešit měnič, jeho rozběhový výkon, spotřebu naprázdno, baterii a elektrickou ochranu. Nelze automaticky připojit jakékoliv čerpadlo přímo na FV panel.</div>
+
+<h2>Nejdřív studna a voda: výtlačná výška, průtok a ochrana proti chodu nasucho</h2>
+<p>Je potřeba znát <strong>dynamickou hladinu vody při čerpání</strong>, výšku nadzemní nádrže či kohoutu, tlakové ztráty v potrubí a požadované litry za hodinu nebo za den. Výška od země k hladině sama neudává celý výtlak. Při nízké vydatnosti studny přidejte kontrolu chodu nasucho a ověřte, zda je v daném zdroji vůbec možné požadovaný objem bezpečně odebrat.</p>
+<p>Například zalévání ze zásobní nádrže, která se naplní během slunečného dne, je jiné zadání než automatická dodávka vody do domu v libovolnou hodinu. Při požadavku na pitnou vodu ověřte také hygienickou vhodnost všech materiálů, filtraci a kvalitu vody. Samotná fotovoltaická kalkulačka nemůže potvrdit průtok ani kvalitu pitné vody.</p>
+<p>Výrobce <a href="https://api.grundfos.com/literature/Grundfosliterature-145359.pdf" rel="nofollow noopener">Grundfos ve svém technickém průvodci solárních čerpadel SQFlex</a> vybírá model podle požadovaného průtoku a celkové dynamické výtlačné výšky. Neznamená to, že konkrétní model nebo rozměr panelů z tohoto dokumentu je vhodný právě pro vaši studnu.</p>
+
+<h2>Kolik elektřiny spotřebuje čerpadlo za den?</h2>
+<p>Pro předběžný energetický rozpočet použijte příkon konkrétního čerpadla v <strong>W × skutečnou dobu čerpání v hodinách = Wh za den</strong>. U 230V systému nezapomeňte na spotřebu měniče, řídicí jednotky, případného tlakového spínače a ztráty. Následující údaje jsou pouze ilustrační modely, nikoliv vlastnosti ověřených produktů.</p>
+<table><thead><tr><th>Modelová situace</th><th>Výpočet</th><th>Energie</th></tr></thead><tbody>
+<tr><td>500W čerpadlo, 30 minut denně</td><td>500 × 0,5</td><td>250 Wh/den</td></tr>
+<tr><td>500W čerpadlo, dvě hodiny denně</td><td>500 × 2</td><td>1000 Wh/den</td></tr>
+<tr><td>Měnič v pohotovosti 12 W, celý den</td><td>12 × 24</td><td>288 Wh/den</td></tr>
+<tr><td>Krátké denní čerpání + trvale zapnutý modelový měnič</td><td>250 + 288</td><td>538 Wh/den před ztrátami</td></tr>
+</tbody></table>
+<p>V krátkém modelovém provozu může pohotovostní odběr měniče převýšit samotnou spotřebu čerpadla. Záleží na jeho skutečném režimu: napájení je možné řídit jen způsobem, který výrobce čerpadla, měniče a tlakového systému výslovně dovoluje. <a href="https://www.victronenergy.com/media/pg/Inverter_Smart_2k5_%26_4k_230V_-_new_models/en/technical-specifications.html" rel="nofollow noopener">Technické tabulky měničů Victron</a> uvádějí spotřebu naprázdno i časově omezený špičkový výkon odděleně. Nepřebírejte číslo 12 W z našeho modelu jako údaj libovolného měniče.</p>
+
+<h2>Jak velký solární panel a baterie pro čerpadlo ze studny?</h2>
+<p>Hrubá modelová denní výroba panelu se dá zapsat jako <strong>Wp × ekvivalentní hodiny slunce × souhrnný koeficient</strong>. V tabulce používáme hypotetický koeficient 0,75, nikoliv naměřené hodnoty vaší střechy nebo záruku dodávky. Pro čerpání v konkrétním místě prověřte zimní a letní výrobu, sklon, orientaci a stínění v nástroji <a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="nofollow noopener">PVGIS Evropské komise</a>, který má i režim pro ostrovní sestavy.</p>
+<table><thead><tr><th>Ilustrační panel / den</th><th>Výpočet</th><th>Modelová výroba</th></tr></thead><tbody>
+<tr><td>400 Wp, 3 ekvivalentní hodiny slunce</td><td>400 × 3 × 0,75</td><td>900 Wh</td></tr>
+<tr><td>400 Wp, 1 ekvivalentní hodina slunce</td><td>400 × 1 × 0,75</td><td>300 Wh</td></tr>
+<tr><td>600 Wp, 3 ekvivalentní hodiny slunce</td><td>600 × 3 × 0,75</td><td>1350 Wh</td></tr>
+</tbody></table>
+<p>U modelu s denní spotřebou 538 Wh tak 400Wp panel ve scénáři 1 hodiny slunce nestačí ani na průměrnou denní bilanci; příznivá tabulka pro 3 hodiny zase negarantuje spouštěcí výkon motoru nebo nepřetržitou dodávku. Voda v nádrži může být levnější a robustnější zásobník než další akumulátor, pokud hygienický a hydraulický návrh takový provoz umožní.</p>
+<p>Modelová LiFePO₄ baterie <strong>12,8 V / 100 Ah</strong> má nominálně 12,8 × 100 = <strong>1280 Wh</strong>. Při hypotetickém využití 80 % jde o 1024 Wh ještě před ztrátami. Pro dva modelové dny bez nabíjení by bylo potřeba alespoň 2 × 538 = <strong>1076 Wh</strong> před dalšími ztrátami. Tato 100Ah baterie tedy v ukázce nestačí, i kdyby její BMS zvládla proud. Skutečná využitelná kapacita závisí na výrobci, teplotě, stárnutí a nastavení ochran.</p>
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Přepočítat baterii podle Wh a autonomie →</a> <a href="/jakou-baterii-k-solarnimu-panelu-400w/">Jak vybrat baterii k panelu 400 Wp</a></p>
+
+<h2>12V, 24V, nebo 230V čerpadlo: pozor na rozběh a jištění</h2>
+<ol>
+<li><strong>Solární DC čerpadlo:</strong> kupujte jen jako výrobcem povolený celek s odpovídající regulací. Část těchto systémů má vlastní řídicí jednotku; obecný MPPT regulátor pro nabíjení baterie ji nemusí nahradit.</li>
+<li><strong>Běžné čerpadlo 230 V:</strong> zkontrolujte požadovanou sinusovku, trvalý výkon i rozběhovou špičku motoru. Měnič ani BMS nelze dimenzovat jen podle denních Wh nebo štítkových W. Potřebný rozběhový výkon musí být doložený pro přesné čerpadlo a délku rozběhu.</li>
+<li><strong>Napětí baterie:</strong> při hypotetických 500 W představuje ideální proud 500 / 12,8 ≈ 39 A nebo 500 / 25,6 ≈ 20 A. Reálný vstupní proud měniče bude vyšší kvůli ztrátám; start motoru může vyžadovat mnohem víc. Tato čísla nejsou návrhem vodičů ani pojistek.</li>
+<li><strong>MPPT a panely:</strong> ověřte napětí naprázdno <strong>Voc</strong> za mrazu, pracovní napětí Vmp, zkratový proud <strong>Isc</strong> a uspořádání panelů vůči datasheetu regulátoru. Veřejný výběrový nástroj sám nemůže certifikovat veškeré paralelní Isc limity.</li>
+<li><strong>Elektřina a voda:</strong> 230V instalace u studny vyžaduje kvalifikovaně navrženou ochranu před úrazem, vhodné krytí a jištění. Při spuštění čerpadla nasucho může dojít k poškození; ověřte ochranu proti chodu nasucho a proti přeplnění nádrže.</li>
+</ol>
+<p><a class="se-btn se-btn-primary" href="/vyber-menice/">Prověřit napětí a výkon měniče →</a> <a href="/mppt-kalkulacka/">Zkontrolovat MPPT, Voc a Isc →</a></p>
+
+<h2>Co ověřit před objednávkou solární sestavy pro studnu</h2>
+<ol>
+<li>Změřenou dynamickou hladinu, vydatnost studny, požadovaný průtok a celkovou výtlačnou výšku včetně tlakových ztrát.</li>
+<li>Zda voda může být ukládána do hygienicky vhodné nádrže, nebo je potřeba tlak a čerpání i po setmění.</li>
+<li>Provozní elektrický příkon přesného čerpadla, charakter rozběhu a zda je určené pro solární napájení nebo pro 230V měnič.</li>
+<li>Model sezónní výroby v PVGIS a stínění; reálné omezení provozu v zimě a při několika špatných dnech.</li>
+<li>Kapacitu baterie ve Wh, proud BMS, ochrany při vybíjení a povolené teploty nabíjení LiFePO₄.</li>
+<li>Kompatibilitu Voc/Vmp/Isc, napětí baterie, MPPT a skutečný rozběhový výkon měniče.</li>
+<li>Schválenou ochranu čerpadla, jištění, elektrickou bezpečnost u vody a pravidla pro pitnou vodu.</li>
+<li>Aktuální cenu, skladovou dostupnost a platný technický list u obchodníka. Nepovažujte starou cenu z katalogu za potvrzenou nabídku.</li>
+</ol>
+<p>Pokud řešíte jen <strong>dekorativní čerpadlo do jezírka</strong>, které má jiný provozní režim, podívejte se na <a href="/solarni-panel-pro-zahradni-cerpadlo-a-jezirko/">samostatný návod pro zahradní čerpadlo a jezírko</a>. Ten neřeší výtlačnou výšku a vydatnost hlubší studny.</p>
+
+<div class="se-note"><strong>Bezpečnost a transparentnost:</strong> Výpočty jsou modelové, nikoliv projekt instalace, záruka výsledku ani doporučení konkrétního prodávaného čerpadla. Nedoporučujeme neověřené propojení panelu s 230V čerpadlem, pevnou elektrickou instalaci musí posoudit odborník. Případné obchodní odkazy a způsob hodnocení vysvětluje <a href="/affiliate-transparentnost/">affiliate transparentnost</a> a <a href="/jak-doporucujeme/">metodika doporučování</a>.</div>
+
+<h2>Časté otázky</h2>
+<h3>Stačí 400W solární panel na čerpadlo do studny?</h3>
+<p>Bez údajů o čerpadle, výtlaku, průtoku, režimu a rozběhovém proudu to určit nelze. Panel s výkonem 400 Wp není stabilním zdrojem 400 W po celý den. U výrobní solární sady se řiďte jejím návrhovým postupem; u 230V čerpadla ověřte i měnič a případné ukládání energie.</p>
+<h3>Je lepší baterie, nebo nádrž na vodu?</h3>
+<p>Pokud lze vodu bezpečně čerpat přes den a ukládat do vhodné nádrže, může být zásoba vody praktičtější než baterie pro noční provoz čerpadla. Závisí to na hygieně, objemu, výtlaku, tlaku u odběrných míst a podmínkách studny.</p>
+<h3>Mohu použít staré 230V čerpadlo se solárním panelem?</h3>
+<p>Nikoli přímo. Potřebujete elektricky i hydraulicky správně navrženou soustavu s výrobcem povoleným napájením, měničem, bezpečnostními ochranami a adekvátní rezervou pro start motoru.</p>
+
+<p class="se-muted"><small>Redakce Solar Expert. Poslední redakční kontrola: 20. 11. 2026. Technické zdroje: <a href="https://api.grundfos.com/literature/Grundfosliterature-145359.pdf" rel="nofollow noopener">Grundfos – SQFlex Product Guide</a>; <a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="nofollow noopener">Evropská komise – PVGIS</a>; <a href="https://www.victronenergy.com/media/pg/Inverter_Smart_2k5_%26_4k_230V_-_new_models/en/technical-specifications.html" rel="nofollow noopener">Victron – Inverter Smart, technické specifikace</a>. Všechny zde počítané příkony a sluneční hodiny jsou ilustrativní, nikoliv parametry výrobků na trhu.</small></p>
