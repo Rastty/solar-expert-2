@@ -59,10 +59,10 @@ test('second seller-page audit is exact, distinct and genuinely dated',()=>{
   }
  }
  assert.equal(seen.size,20);
- assert.equal(catalog.products.flatMap(p=>p.offers||[]).filter(o=>o.verified_at===CHECKED_AT).length,46);
+ assert.equal(catalog.products.flatMap(p=>p.offers||[]).filter(o=>o.verified_at===CHECKED_AT).length,45);
  const remaining=catalog.products.flatMap(p=>p.offers||[]).filter(o=>o.verified_at!==CHECKED_AT);
- assert.equal(remaining.length,2);
- assert.ok(remaining.every(o=>o.verified_at===PYLONTECH_RECHECK),'Only two independently rechecked Pylontech offers have newer evidence');
+ assert.equal(remaining.length,3);
+ assert.ok(remaining.every(o=>o.verified_at===PYLONTECH_RECHECK),'Two Pylontech and one Victron 190W retailer offers have newer evidence');
 });
 test('source product identity and bundle offer receipts',()=>{
  const p=catalog.products.find(p=>p.id==='battery-pylontech-us5000');
@@ -71,15 +71,16 @@ test('source product identity and bundle offer receipts',()=>{
  assert.equal(catalog.verifiedAt,'2026-10-07','Full-catalog audit date must not be relabeled');
  assert.equal(catalog.bundle_deals.length,2);
  for(const deal of catalog.bundle_deals){
-   assert.equal(deal.verified_at,CHECKED_AT);
+   const isPolo=deal.id==='deal-battery-polo-w-growatt6000';
+   assert.equal(deal.verified_at,isPolo?PYLONTECH_RECHECK:CHECKED_AT);
    assert.equal(deal.price_czk,32990);
-   assert.equal(deal.availability,'in_stock');
+   assert.equal(deal.availability,isPolo?'on_request':'in_stock');
    assert.equal(deal.offers.length,2);
    assert.equal(deal.verified_price_source_url,deal.offers.find(o=>o.merchant===deal.merchant).source_url);
    for(const o of deal.offers){
     assert.equal(o.price_czk,32990);
-    assert.equal(o.availability,'in_stock');
-    assert.equal(o.verified_at,CHECKED_AT);
+    assert.equal(o.availability,isPolo?'on_request':'in_stock');
+    assert.equal(o.verified_at,isPolo?PYLONTECH_RECHECK:CHECKED_AT);
     assert.ok(o.source_url.startsWith(o.merchant==='battery-cz'?'https://www.battery.cz/':'https://www.solar-import.cz/'));
     assert.ok(o.source_url.includes('/set-lithiova-baterie-seplos-'),'Only exact SKU bundle links pass');
    }

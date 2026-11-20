@@ -32,7 +32,8 @@ for(const deal of source.bundle_deals){
   }
   assert(Number(deal.price_czk)>0,'Bundle deal price must be positive: '+deal.id);
   assert(/^https:\/\//.test(deal.source_url||''),'Bundle deal source must be HTTPS: '+deal.id);
-  assert(deal.availability==='in_stock','Only verified in-stock bundle deals may be active: '+deal.id);
+  assert(['in_stock','on_request'].includes(deal.availability),
+    'Bundle deals must preserve verified availability; on-request deals are retained as evidence but excluded from active savings: '+deal.id);
 }
 
 const merchantRegistry=JSON.parse(fs.readFileSync(path.join(__dirname,'..','data','merchant-registry.json'),'utf8'));
@@ -50,12 +51,15 @@ for(const deal of source.bundle_deals){
       offerMerchants.add(offer.merchant);
       assert(/^https:\/\//.test(offer.source_url||''),'Bundle offer source must be HTTPS for '+deal.id+'@'+offer.merchant);
       assert(Number(offer.price_czk)>0,'Bundle offer price must be positive for '+deal.id+'@'+offer.merchant);
-      assert(offer.availability==='in_stock','Only in-stock bundle offers may be active: '+deal.id+'@'+offer.merchant);
+      assert(['in_stock','on_request'].includes(offer.availability),
+        'Bundle offer availability must be explicitly verified; on-request offers cannot enter active Builder savings: '+deal.id+'@'+offer.merchant);
       assert(verifiedDate.test(offer.verified_at||deal.verified_at||''),'Bundle offer must be date-verified: '+deal.id+'@'+offer.merchant);
     }
     const primary=deal.offers.find(o=>o.merchant===deal.merchant);
     assert(primary,'Primary bundle merchant must exist in offers for '+deal.id);
     assert(Number(deal.price_czk)===Number(primary.price_czk),'Bundle primary price must match primary offer for '+deal.id);
+    assert(deal.availability===primary.availability,
+      'Bundle primary availability must match primary seller evidence for '+deal.id);
   }
 }
 

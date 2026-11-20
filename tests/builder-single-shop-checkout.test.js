@@ -6,7 +6,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {mock}=require('node:test');
-mock.timers.enable({apis:['Date'],now:new Date('2026-11-17T12:00:00Z')});
+mock.timers.enable({apis:['Date'],now:new Date('2026-11-20T12:00:00Z')});
 global.window={location:{origin:'https://solar-expert.cz'},dataLayer:[],
   SolarExpertConfig:{affiliateBases:{},affiliateMap:{products:{},leads:{}}}};
 require('../assets/js/product-matcher.js');
@@ -73,11 +73,9 @@ assert.equal(split.primarySingleShop,null,
 
 const stale=example('chata',updated('solar-import-cz','battery-goowei-24-100',
   {verified_at:'2026-10-05'}));
-assert(stale.primarySingleShop);
-assert.equal(stale.primarySingleShop.merchantId,'battery-cz',
-  'An expired seller quote cannot masquerade as a fresh full-shop choice');
-assert.equal(stale.primarySingleShop.total,35089);
-assert.equal(stale.primarySingleShop.delta,980);
+assert(stale.primaryShoppingList,'Even without a convenient single seller, keep the real mixed-shop alternatives');
+assert.equal(stale.primarySingleShop,null,
+  'With the newly higher Battery.cz panel quote, an expired Solar-Import battery offer must not produce an unattractive or fake single-shop checkout');
 
 const changed=updated('solar-import-cz','mppt-victron-100-30',
   {price_czk:2984});
