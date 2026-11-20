@@ -465,7 +465,26 @@ function solar_expert_content_sync_state() {
   );
 }
 
+/**
+ * Theme loading/upgrading is not permission to rewrite WordPress posts/pages.
+ * The reviewed release workflow calls /deploy-sync explicitly after the
+ * theme code has converged; the admin nonce-protected button remains usable.
+ * Sites that deliberately need legacy self-healing may opt back in through
+ * wp-config.php, but a code-only release must keep this unset/false.
+ *
+ * This protects requests loading the NEW code. An updater that loaded the OLD
+ * theme before replacement can still execute old hooks: a separate staging
+ * rehearsal and pre-update suppression are required for first migration.
+ */
+function solar_expert_automatic_content_sync_enabled() {
+  return defined('SOLAR_EXPERT_ENABLE_AUTOMATIC_CONTENT_SYNC')
+    && SOLAR_EXPERT_ENABLE_AUTOMATIC_CONTENT_SYNC === true;
+}
+
 function solar_expert_schedule_content_sync() {
+  if ( ! solar_expert_automatic_content_sync_enabled() ) {
+    return;
+  }
   $state = solar_expert_content_sync_state();
   if ( empty($state['required']) ) {
     return;
@@ -478,6 +497,10 @@ function solar_expert_schedule_content_sync() {
 add_action('init', 'solar_expert_schedule_content_sync', 50);
 
 function solar_expert_run_async_content_sync() {
+  // Even a pending cron event from the previous theme must fail closed.
+  if ( ! solar_expert_automatic_content_sync_enabled() ) {
+    return;
+  }
   $state = solar_expert_content_sync_state();
   if ( empty($state['required']) ) {
     return;
@@ -494,12 +517,21 @@ function solar_expert_run_async_content_sync() {
 add_action('solar_expert_async_content_sync', 'solar_expert_run_async_content_sync');
 
 function solar_expert_maybe_sync_content() {
-  solar_expert_sync_managed_content(false);
+  if ( solar_expert_automatic_content_sync_enabled() ) {
+    solar_expert_sync_managed_content(false);
+  }
 }
 add_action('admin_init', 'solar_expert_maybe_sync_content');
-add_action('after_switch_theme', function(){ solar_expert_sync_managed_content(true); });
+add_action('after_switch_theme', function(){
+  if ( solar_expert_automatic_content_sync_enabled() ) {
+    solar_expert_sync_managed_content(true);
+  }
+});
 
 function solar_expert_sync_after_theme_update($upgrader, $options) {
+  if ( ! solar_expert_automatic_content_sync_enabled() ) {
+    return;
+  }
   if ( empty($options['type']) || $options['type'] !== 'theme' ) {
     return;
   }
@@ -656,7 +688,7 @@ function solar_expert_settings_page() {
     <p><strong>Build <code>dev-rc-0.11.55</code></strong></p>
     <?php $content_sync_state = solar_expert_content_sync_state(); ?>
     <?php if ( ! empty($content_sync_state['required']) ) : ?>
-      <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. Automatický sync je naplánovaný; ruční tlačítko níže zůstává jako fallback.</p></div>
+      <div class="notice notice-warning"><p><strong>Managed content: <?php echo esc_html(strtoupper($content_sync_state['status'])); ?></strong> — nový manifest ještě není plně synchronizovaný. <?php echo solar_expert_automatic_content_sync_enabled() ? 'Automatický sync je naplánovaný.' : 'Automatický sync je vypnutý; použijte výslovně autorizovaný deploy-sync nebo ruční tlačítko níže.'; ?></p></div>
     <?php else : ?>
       <div class="notice notice-success"><p><strong>Managed content: CURRENT</strong> — WordPress obsah odpovídá aktuálnímu manifestu.</p></div>
     <?php endif; ?>
