@@ -34,7 +34,7 @@ const checked=[
  ['battery-goowei-24-50','solar-import-cz',8650,'in_stock'],
  ['mppt-victron-100-20','battery-cz',2091,'in_stock'],
  ['mppt-victron-100-20','solar-import-cz',2098,'in_stock'],
- ['panel-victron-190','battery-cz',2496,'in_stock'],
+ ['panel-victron-190','battery-cz',3486,'in_stock'],
  ['panel-victron-190','solar-import-cz',2251,'in_stock'],
  ['inverter-victron-24-1200','battery-cz',7431,'in_stock'],
  ['inverter-victron-24-1200','solar-import-cz',7431,'in_stock'],
@@ -50,7 +50,7 @@ test('runtime and source catalogs remain byte-identical; preserve source/runtime
  assert.equal(catalog.products.length,24);
  assert.equal(catalog.verifiedAt,'2026-10-07','Partial recheck must not move whole-catalog verification date');
  assert.equal(catalog.bundle_deals.length,2,'Original bundle deals must stay distinct, not silently refreshed');
- assert.ok(catalog.bundle_deals.every(d=>d.offers.every(o=>o.verified_at===AUDIT_DAY)),'All four bundle offers have new source-page evidence');
+ assert.ok(catalog.bundle_deals.every(d=>d.offers.every(o=>o.verified_at===(d.id==='deal-battery-polo-w-growatt6000'?PYLONTECH_RECHECK:AUDIT_DAY))),'All bundle offers have dated exact seller-page evidence');
 });
 
 test('first 25 audited offers preserve evidence, with the newer Pylontech stock correction',()=>{
@@ -66,14 +66,14 @@ test('first 25 audited offers preserve evidence, with the newer Pylontech stock 
    observed.add(key);
    assert.equal(offer.price_czk,price,key+' price');
    assert.equal(offer.availability,stock,key+' availability');
-   assert.equal(offer.verified_at,id==='battery-pylontech-us5000'?PYLONTECH_RECHECK:AUDIT_DAY,key+' exact dated evidence');
+   assert.equal(offer.verified_at,id==='battery-pylontech-us5000'||(id==='panel-victron-190'&&merchant==='battery-cz')?PYLONTECH_RECHECK:AUDIT_DAY,key+' exact dated evidence');
    const url=new URL(offer.source_url);
    assert.equal(url.protocol,'https:');
    assert.equal(url.hostname,merchant==='battery-cz'?'www.battery.cz':'www.solar-import.cz');
    assert.ok(!url.searchParams.has('desturl')&&!url.hostname.includes('ehub'),'No affiliate tracking request in evidence');
  }
- assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===AUDIT_DAY)).length,46,'46 unchanged November 7 retailer receipts');
- assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===PYLONTECH_RECHECK)).length,2,'Two corrected Pylontech retailer receipts');
+ assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===AUDIT_DAY)).length,45,'45 unchanged November 7 retailer receipts');
+ assert.equal(catalog.products.flatMap(p=>(p.offers||[]).filter(o=>o.verified_at===PYLONTECH_RECHECK)).length,3,'Two Pylontech and one panel retailer rechecks');
  assert.equal(new Set(checked.map(x=>x[0])).size,13);
  for(const id of new Set(checked.map(x=>x[0]))){
    const product=catalog.products.find(x=>x.id===id);
