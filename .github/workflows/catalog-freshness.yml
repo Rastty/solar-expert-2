@@ -34,7 +34,7 @@ concurrency:
 jobs:
   freshness:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout effective catalog source
         uses: actions/checkout@v4
@@ -50,8 +50,12 @@ jobs:
         run: |
           node --check tools/catalog-freshness.mjs
           node --test tests/catalog-freshness.test.mjs
+          node --check tools/catalog-offer-evidence.mjs
+          node --test tests/catalog-offer-evidence.test.mjs
       - name: Review every exact seller price-evidence date, including bundles
         run: node tools/catalog-freshness.mjs
+      - name: Recheck exact merchant SKU, CZK price and visible stock (read-only)
+        run: node tools/catalog-offer-evidence.mjs
       - name: Audit public live theme byte hashes against dev HEAD (GET only)
         shell: bash
         run: |
@@ -356,6 +360,7 @@ jobs:
           name: solar-catalog-freshness-${{ github.run_id }}
           path: |
             artifacts/catalog-freshness.json
+            artifacts/catalog-offer-evidence.json
             artifacts/solar-live-vs-dev-catalog.json
             artifacts/solar-live-vs-dev-theme-sources.json
             artifacts/solar-live-theme-history-candidate.json
