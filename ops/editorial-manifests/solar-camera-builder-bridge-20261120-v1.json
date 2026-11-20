@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-camera-builder-bridge-20261120-v1",
+  "post_id": 1626,
+  "slug": "solarni-panel-pro-wifi-kameru-a-router-na-chate",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární panel pro Wi-Fi kameru a router na chatě: baterie a MPPT",
+  "excerpt": "Napájení Wi-Fi nebo LTE routeru a kamery 24/7 na chatě bez sítě: panel, baterie, MPPT a kontrola celé sestavy s limity zimní autonomie.",
+  "source_commit": "099795510159a98d4251a2fbfdd79f2ed13f1258",
+  "source_file": "content/editorial-append/solarni-panel-pro-wifi-kameru-a-router-na-chate.html",
+  "source_sha256": "f3bd9299c6c0cabe0f7cb49481904a28c72fe71716ad7112e2156232a5a8a628",
+  "link_target": "/solarni-sestava-na-chatu/",
+  "expected_current_sha256": "87a6af54673c9e13dc1223299e3e0373ad5793e7ee47f3df9da366366dea0280",
+  "expected_modified_gmt": "2026-11-15T08:05:08"
+}

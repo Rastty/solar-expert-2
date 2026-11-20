@@ -20,6 +20,7 @@ on:
       - "tests/test_solar_battery_inverter_2000w_guide.py"
       - "tests/test_solar_battery800_quote_bridge.py"
       - "tests/test_solar_caravan_builder_bridge.py"
+      - "tests/test_solar_camera_builder_bridge.py"
   push:
     branches: [main]
     paths:
@@ -38,6 +39,7 @@ on:
       - "tests/test_solar_battery_inverter_2000w_guide.py"
       - "tests/test_solar_battery800_quote_bridge.py"
       - "tests/test_solar_caravan_builder_bridge.py"
+      - "tests/test_solar_camera_builder_bridge.py"
   schedule:
     - cron: "11 * * * *"
   workflow_dispatch:
@@ -82,6 +84,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_solar_battery800_quote_bridge.py' -v
       - name: Caravan 200Wp guide links to complete off-grid Builder with vehicle caveats
         run: python -m unittest discover -s tests -p 'test_solar_caravan_builder_bridge.py' -v
+      - name: Camera + router 24/7 guide to complete off-grid Builder with safety caveats
+        run: python -m unittest discover -s tests -p 'test_solar_camera_builder_bridge.py' -v
 
   one-post-wordpress-publisher:
     needs: offline-contract
