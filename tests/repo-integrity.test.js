@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 38596)
+Total output lines: 1652
+
 const fs=require('fs');
 const path=require('path');
 const assert=require('assert');
@@ -32,7 +35,8 @@ for(const deal of source.bundle_deals){
   }
   assert(Number(deal.price_czk)>0,'Bundle deal price must be positive: '+deal.id);
   assert(/^https:\/\//.test(deal.source_url||''),'Bundle deal source must be HTTPS: '+deal.id);
-  assert(deal.availability==='in_stock','Only verified in-stock bundle deals may be active: '+deal.id);
+  assert(['in_stock','on_request'].includes(deal.availability),
+    'Bundle deals must preserve verified availability; on-request deals are retained as evidence but excluded from active savings: '+deal.id);
 }
 
 const merchantRegistry=JSON.parse(fs.readFileSync(path.join(__dirname,'..','data','merchant-registry.json'),'utf8'));
@@ -50,12 +54,15 @@ for(const deal of source.bundle_deals){
       offerMerchants.add(offer.merchant);
       assert(/^https:\/\//.test(offer.source_url||''),'Bundle offer source must be HTTPS for '+deal.id+'@'+offer.merchant);
       assert(Number(offer.price_czk)>0,'Bundle offer price must be positive for '+deal.id+'@'+offer.merchant);
-      assert(offer.availability==='in_stock','Only in-stock bundle offers may be active: '+deal.id+'@'+offer.merchant);
+      assert(['in_stock','on_request'].includes(offer.availability),
+        'Bundle offer availability must be explicitly verified; on-request offers cannot enter active Builder savings: '+deal.id+'@'+offer.merchant);
       assert(verifiedDate.test(offer.verified_at||deal.verified_at||''),'Bundle offer must be date-verified: '+deal.id+'@'+offer.merchant);
     }
     const primary=deal.offers.find(o=>o.merchant===deal.merchant);
     assert(primary,'Primary bundle merchant must exist in offers for '+deal.id);
     assert(Number(deal.price_czk)===Number(primary.price_czk),'Bundle primary price must match primary offer for '+deal.id);
+    assert(deal.availability===primary.availability,
+      'Bundle primary availability must match primary seller evidence for '+deal.id);
   }
 }
 
@@ -815,198 +822,7 @@ assert(selectorsJs.includes('this.run(this.pendingExample)')&&selectorsJs.includ
   'Selector initialization must count genuine early preset clicks, but never count passive page loads as engagement');
 
 
-const builderTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts','solar-builder.php'),'utf8');
-assert(builderTemplate.includes('Výhodnější set baterie + měnič'),'Builder template must show verified bundle deal savings');
-assert(builderTemplate.includes('Rozpis hlavních komponent'),'Builder must present a clear purchase breakdown before merchant offers');
-assert(builderTemplate.includes('Přejít k nabídkám obchodů'),'Shopping list must route to existing merchant offers');
-assert(builderTemplate.includes('id="builder-offers"'),'Merchant offers must be reachable by shopping CTA');
-assert(builderTemplate.includes('item.quantity>1 ? item.unitPrice.toLocaleString'),'Quantity-aware product lines must disclose the per-unit price');
-assert(builderTemplate.includes('Nejde o jeden společný košík'),'Buyer-facing totals must disclose mixed merchants and exclusions');
-
-assert(builderTemplate.includes('trackBundleDeal'),'Builder bundle-deal CTA must emit dedicated analytics');
-assert(affiliateAdapter.includes('resolveBundleDeal(deal)'),'Affiliate adapter must resolve bundle deals through merchant base links');
-assert(affiliateAdapter.includes("event:'bundle_deal_click'"),'Bundle deal clicks must emit a dedicated dataLayer event');
-
-
-const builderJs=fs.readFileSync(path.join(__dirname,'..','assets','js','builder.js'),'utf8');
-assert(builderJs.includes('purchaseBreakdownFor(bundle)'),'Buyer list must derive from compatible bundles');
-assert(builderJs.includes('Math.abs(subtotal-Number(bundle.totalPrice))>0.01'),'Unreconciled bundle prices must fail closed');
-
-const composerJs=fs.readFileSync(path.join(__dirname,'..','assets','js','bundle-composer.js'),'utf8');
-assert(composerJs.includes('batteryBankCandidates(products, sizing, tier)'),'Bundle composer must support verified battery banks');
-assert(composerJs.includes('batteryBank.unitPrice + inverterPrice'),'Bundle deal must be evaluated against exactly one battery plus inverter');
-assert(composerJs.includes('extraBatteryUnits = Math.max(0, batteryBank.quantity - 1)'),'Multi-battery bundle pricing must account for extra battery units explicitly');
-assert(composerJs.includes('batteryBank.unitPrice * bundleDeal.extraBatteryUnits'),'Extra battery modules must be added at verified unit price');
-assert(builderJs.includes('Paralelní bateriový bank'),'Builder checklist must surface parallel-bank verification');
-assert(builderTemplate.includes("b.batteryQuantity||1"),'Builder must render battery quantity');
-assert(builderTemplate.includes('kWh celkem'),'Builder must render total battery-bank energy');
-
-
-const builderLogic=fs.readFileSync(path.join(__dirname,'..','assets','js','builder.js'),'utf8');
-assert(builderLogic.includes('get incompleteBundles()'),'Builder must keep incomplete tiers available for transparency messaging');
-assert(builderTemplate.includes('x-for="b in completeBundles"'),'Builder must render only technically complete bundle tiers');
-assert(builderTemplate.includes('Neúplné cenové úrovně nezobrazujeme'),'Builder must explain why incomplete tiers are hidden');
-assert(!builderTemplate.includes('zatím neúplná varianta'),'Builder must not present incomplete tier cards as user-facing recommendations');
-assert(builderTemplate.includes('Raději nezobrazíme neověřenou kombinaci'),'Zero-result state must prefer no recommendation over weak technical evidence');
-
-
-assert(contentSyncCore.includes("function solar_expert_content_sync_state()"),'Managed content sync must expose deterministic drift state');
-assert(contentSyncCore.includes("function solar_expert_update_post_meta_if_changed"),'Managed content sync must update metadata without forcing save_post churn');
-assert(contentSyncCore.includes("$post_changed ="),'Managed content sync must compare stored content before calling wp_update_post');
-assert(contentSyncCore.includes("if ( $post_changed )"),'Managed content sync must gate wp_update_post behind an actual post diff');
-assert(contentSyncCore.includes("'meta_updated'=>0"),'Managed content sync result must distinguish metadata-only repairs');
-assert(contentSyncCore.includes("hash_update($ctx, wp_json_encode(array("),'Managed content fingerprint must include SEO metadata values');
-assert(contentSyncCore.includes("managed-content-sync-v4-incremental"),'Managed content fingerprint must change when sync/indexability semantics change');
-assert(contentSyncCore.includes("solar_expert_seo_meta($slug)"),'Managed content sync must resolve the shared SEO map by slug');
-assert(contentSyncCore.includes("solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_title'"),'Managed content sync must persist SEO titles into Yoast meta');
-assert(contentSyncCore.includes("solar_expert_update_post_meta_if_changed($id, '_yoast_wpseo_metadesc'"),'Managed content sync must persist SEO descriptions into Yoast meta');
-assert(contentSyncCore.includes("add_action('init', 'solar_expert_schedule_content_sync'"),'Git deploys must schedule a bounded managed-content sync');
-assert(contentSyncCore.includes("wp_next_scheduled('solar_expert_async_content_sync')"),'Async content sync must not be scheduled repeatedly');
-assert(contentSyncCore.includes("wp_schedule_single_event(time() + 10, 'solar_expert_async_content_sync')"),'Async content sync must use a prompt one-shot delayed event');
-assert(contentSyncCore.includes("get_transient('solar_expert_content_sync_lock')"),'Async content sync must use a concurrency lock');
-assert(contentSyncCore.includes("delete_transient('solar_expert_content_sync_lock')"),'Async content sync lock must be released');
-assert(contentSyncCore.includes("'content_sync_status'"),'Public health payload must expose content sync status');
-assert(contentSyncCore.includes("'content_sync_required'"),'Public health payload must expose whether managed content is stale');
-assert(contentSyncCore.includes("'content_sync_errors'"),'Public health payload must expose managed-content sync errors');
-for(const field of ['content_sync_last_updated_posts','content_sync_last_created_posts','content_sync_last_meta_updated_posts','content_sync_last_skipped_items']){
-  assert(contentSyncCore.includes("'"+field+"'"),'Public health payload missing managed-content churn field: '+field);
-}
-assert(deployWorkflow.includes('release content sync performed='),'Auto deploy must log current-release managed-content churn');
-assert(settingsCore.includes('Managed content: CURRENT'),'Admin diagnostics must show a current managed-content state');
-assert(settingsCore.includes('Automatický sync je naplánovaný'),'Admin diagnostics must explain pending automatic sync');
-
-
-const annualSlug='kolik-vyrobi-fotovoltaika-za-rok';
-const annualItem=manifest.items.find(x=>x.slug===annualSlug);
-assert(annualItem&&annualItem.preserve_status===true,'Annual FVE output near-win must remain managed and preserve status');
-assert(annualItem.file&&fs.existsSync(path.join(__dirname,'..',annualItem.file)),'Annual FVE output rewrite file missing');
-assert(seoCore.includes("'"+annualSlug+"' => array("),'Annual FVE output near-win must have dedicated SEO metadata');
-const annualHtml=fs.readFileSync(path.join(__dirname,'..',annualItem.file),'utf8');
-assert(annualHtml.includes('PVGIS'),'Annual FVE output guide must use locality-aware PVGIS methodology');
-assert(annualHtml.includes('specifický výnos'),'Annual FVE output guide must explain specific yield');
-assert(!annualHtml.includes('1 200 – 1 500'),'Annual FVE output guide must not keep the stale universal Czech production range');
-assert(annualHtml.includes('/solarni-sestava-na-chatu/'),'Annual FVE output guide must route users into Builder');
-assert(seoCore.includes("'kompletni-pruvodce-velikosti-solarnich-panelu' => 'velikost-rozmery-a-hmotnost-solarnich-panelu'"),'Duplicate size guide must 301 to the stronger managed dimensions guide');
-
-
-const hpVsBoilerSlug='tepelne-cerpadlo-nebo-elektrokotel';
-const hpVsBoilerItem=manifest.items.find(x=>x.slug===hpVsBoilerSlug);
-assert(hpVsBoilerItem&&hpVsBoilerItem.preserve_status===true,'Heat-pump vs electric-boiler near-win must remain managed');
-assert(hpVsBoilerItem.file&&fs.existsSync(path.join(__dirname,'..',hpVsBoilerItem.file)),'Heat-pump vs electric-boiler rewrite file missing');
-assert(seoCore.includes("'"+hpVsBoilerSlug+"' => array("),'Heat-pump vs electric-boiler guide must have dedicated SEO metadata');
-const hpVsBoilerHtml=fs.readFileSync(path.join(__dirname,'..',hpVsBoilerItem.file),'utf8');
-assert(hpVsBoilerHtml.includes('12 000 kWh'),'Heating comparison should include a transparent worked energy example');
-assert(hpVsBoilerHtml.includes('data-se-lead-id="eon-heat-pump"'),'Heating comparison must expose bounded E.ON comparison lead CTA');
-assert(hpVsBoilerHtml.includes('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/'),'Heating comparison must link into the combined FVE + heat-pump decision page');
-assert(!hpVsBoilerHtml.includes('třikrát levnější v provozních nákladech'),'Heating comparison must not keep the old universal 3x-cheaper claim');
-assert(!hpVsBoilerHtml.includes('v zimě záložní zdroj tepla'),'Heating comparison must not claim every heat pump always requires backup heating');
-
-
-const bestHpSlug='nejlepsi-tepelna-cerpadla-se-zdrojem-vzduchu';
-const bestHpItem=manifest.items.find(x=>x.slug===bestHpSlug);
-assert(bestHpItem&&bestHpItem.preserve_status===true,'Best heat-pumps guide must remain managed');
-assert(bestHpItem.file&&fs.existsSync(path.join(__dirname,'..',bestHpItem.file)),'Best heat-pumps guide file missing');
-assert(seoCore.includes("'"+bestHpSlug+"' => array("),'Best heat-pumps guide must have dedicated SEO metadata');
-const bestHpHtml=fs.readFileSync(path.join(__dirname,'..',bestHpItem.file),'utf8');
-for(const family of ['Altherma 4 H','aroTHERM plus 2026','S2125','Vitocal 250-A','THERMA V R290']){
-  assert(bestHpHtml.includes(family),'Best heat-pumps guide must include current verified family: '+family);
-}
-assert(bestHpHtml.includes('nejspolehlivější tepelné čerpadlo'),'Best heat-pumps guide must address reliability intent explicitly');
-assert(bestHpHtml.includes('data-se-lead-id="eon-heat-pump"'),'Best heat-pumps guide must retain bounded comparison lead CTA');
-assert(bestHpHtml.includes('/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/'),'Best heat-pumps guide must route into combined FVE decision page');
-assert(!bestHpHtml.includes('výběr 10 nejlepších'),'Best heat-pumps guide must not revert to the stale unmethodical Top-10 framing');
-assert(!bestHpHtml.includes('ve Velké Británii'),'Best heat-pumps guide must not retain UK-market framing');
-
-
-const lgSlug='tepelne-cerpadla-lg-vyhody-nevyhody-ceny';
-const lgItem=manifest.items.find(x=>x.slug===lgSlug);
-assert(lgItem&&lgItem.preserve_status===true,'LG review near-win must remain managed');
-assert(lgItem.file&&fs.existsSync(path.join(__dirname,'..',lgItem.file)),'LG review rewrite file missing');
-assert(seoCore.includes("'"+lgSlug+"' => array("),'LG review near-win must have dedicated SEO metadata');
-const lgHtml=fs.readFileSync(path.join(__dirname,'..',lgItem.file),'utf8');
-assert(lgHtml.includes('THERMA V R290'),'LG review must cover current R290 platform');
-assert(lgHtml.includes('75 °C'),'LG review must cover current high-temperature capability with caveats');
-assert(lgHtml.includes('data-se-lead-id="eon-heat-pump"'),'LG review must retain bounded comparison lead CTA');
-assert(!lgHtml.includes('120000 až 400000'),'LG review must not keep stale undated installation-price range');
-assert(!lgHtml.includes('patří k nejlepším na trhu'),'LG review must avoid unsupported best-on-market claims');
-assert(lgHtml.includes('nejde o placenou recenzi LG'),'LG review must disclose methodology and independence');
-
-
-const viessmannSlug='recenze-tepelneho-cerpadla-viessman-klady-zapory-a-naklady';
-const viessmannItem=manifest.items.find(x=>x.slug===viessmannSlug);
-assert(viessmannItem&&viessmannItem.preserve_status===true,'Viessmann review near-win must remain managed');
-assert(viessmannItem.file&&fs.existsSync(path.join(__dirname,'..',viessmannItem.file)),'Viessmann review rewrite file missing');
-assert(seoCore.includes("'"+viessmannSlug+"' => array("),'Viessmann review near-win must have dedicated SEO metadata');
-const viessmannHtml=fs.readFileSync(path.join(__dirname,'..',viessmannItem.file),'utf8');
-assert(viessmannHtml.includes('Vitocal 250-A'),'Viessmann review must focus on the current Vitocal 250-A platform');
-assert(viessmannHtml.includes('R290'),'Viessmann review must cover current R290 platform');
-assert(viessmannHtml.includes('data-se-lead-id="eon-heat-pump"'),'Viessmann review must retain bounded comparison lead CTA');
-assert(!viessmannHtml.includes('Renewable Heat Incentive'),'Viessmann review must not keep obsolete UK RHI guidance');
-assert(!viessmannHtml.includes('120 000 korun do více než 350 000'),'Viessmann review must not keep stale undated price range');
-assert(viessmannHtml.includes('nejde o placenou recenzi Viessmannu'),'Viessmann review must disclose methodology and independence');
-
-
-const legacyCleanupCore=fs.readFileSync(path.join(__dirname,'..','inc','core.php'),'utf8');
-assert(legacyCleanupCore.includes('solar_expert_quarantine_legacy_frontend_plugins'),'Legacy frontend quarantine must be scoped and explicit');
-assert(legacyCleanupCore.includes("function_exists('snp_footer')"),'Ninja Popups footer output must be quarantined');
-assert(legacyCleanupCore.includes("MTSNB_Shared"),'MyThemeShop notification bar object callbacks must be targeted by class');
-assert(legacyCleanupCore.includes("display_bar"),'Legacy notification-bar display callback must be removed');
-assert(legacyCleanupCore.includes("display_hidden_bars"),'Legacy delayed notification-bar callback must be removed');
-assert(legacyCleanupCore.includes("wpsabox_author_box"),'Simple Author Box content injection must be removed');
-assert(legacyCleanupCore.includes("Simple_Author_Box"),'Simple Author Box styles/scripts must be removed by class signature');
-assert(legacyCleanupCore.includes("SeoAutomatedLinkBuilding\\\\Plugin"),'SEO Automated Link Building content mutation must be targeted by exact class');
-assert(legacyCleanupCore.includes("changeContent"),'SEO Automated Link Building the_content callback must be removed');
-for(const legacyPath of [
-  '/plugins/mts-wp-notification-bar/',
-  '/plugins/arscode-ninja-popups/',
-  '/plugins/simple-author-box/',
-  '/plugins/seo-automated-link-building/'
-]){
-  assert(legacyCleanupCore.includes(legacyPath),'Legacy frontend asset path must be quarantined: '+legacyPath);
-}
-assert(legacyCleanupCore.includes('if ( is_admin() )'),'Legacy quarantine must leave WordPress admin behavior untouched');
-assert(!legacyCleanupCore.includes("remove_all_actions('wp_footer'"),'Legacy cleanup must never remove all wp_footer callbacks');
-assert(!legacyCleanupCore.includes("remove_all_filters('the_content'"),'Legacy cleanup must never remove all the_content filters');
-
-
-const groundPvSlug='fotovoltaika-na-pozemku';
-const groundPvItem=manifest.items.find(x=>x.slug===groundPvSlug);
-assert(groundPvItem&&groundPvItem.create_if_missing===true,'Ground-mounted PV guide must be managed and creatable');
-assert(groundPvItem.type==='post'&&groundPvItem.status_if_new==='publish','Ground-mounted PV guide must publish explicitly as a managed post');
-assert(groundPvItem.file&&fs.existsSync(path.join(__dirname,'..',groundPvItem.file)),'Ground-mounted PV guide file missing');
-assert(seoCore.includes("'"+groundPvSlug+"' => array("),'Ground-mounted PV guide must have dedicated SEO metadata');
-const groundPvHtml=fs.readFileSync(path.join(__dirname,'..',groundPvItem.file),'utf8');
-assert(groundPvHtml.includes('12. 1. 2026'),'Ground-mounted PV guide must cite current MMR methodology date');
-assert(groundPvHtml.includes('249/2025'),'Ground-mounted PV guide must cite the current renewable-permitting law');
-assert(groundPvHtml.includes('/mppt-kalkulacka/'),'Ground-mounted PV guide must route into MPPT tool');
-assert(groundPvHtml.includes('/solarni-sestava-na-chatu/'),'Ground-mounted PV guide must route into Builder');
-assert(!groundPvHtml.includes('do 100 kW bez povolení'),'Ground-mounted PV guide must not claim a universal no-permit rule');
-assert(groundPvHtml.includes('Limit 100 kW je důležitý, ale sám o sobě nestačí'),'Ground-mounted PV guide must explicitly reject simplistic 100kW permitting advice');
-
-
-const wiringHtml=fs.readFileSync(path.join(__dirname,'..','content','rewrites','jak-zapojit-solarni-panely.html'),'utf8');
-assert(wiringHtml.includes('Schéma zapojení solárních panelů pro 12V systém'),'12V wiring query intent must remain explicit');
-assert(wiringHtml.includes('Varianta 2S'),'12V wiring guide must show a series example');
-assert(wiringHtml.includes('Varianta 2P'),'12V wiring guide must show a parallel example');
-assert(wiringHtml.includes('panely se běžně nepřipojují „jen tak“ přímo na 12V baterii'),'12V wiring guide must reject direct-panel-to-battery interpretation');
-assert(wiringHtml.includes('/mppt-kalkulacka/'),'12V wiring guide must route into MPPT calculator');
-const wiringStyle=fs.readFileSync(path.join(__dirname,'..','style.css'),'utf8');
-assert(wiringStyle.includes('.se-code'),'Technical wiring diagrams must have readable responsive styling');
-
-
-const selectorJs=fs.readFileSync(path.join(__dirname,'..','assets','js','selectors.js'),'utf8');
-const batterySelectorTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts','battery-selector.php'),'utf8');
-assert(selectorJs.includes('batteryBankCandidatesAll'),'Battery Selector must use shared verified bank logic');
-assert(batterySelectorTemplate.includes("(r.quantity||1)+'× '"),'Battery Selector must render bank quantity');
-assert(batterySelectorTemplate.includes('r.totalEnergyWh'),'Battery Selector must render total bank energy');
-assert(batterySelectorTemplate.includes('r.totalDischargeA'),'Battery Selector must render total discharge current');
-assert(batterySelectorTemplate.includes('r.totalPrice'),'Battery Selector must render total bank price');
-assert(batterySelectorTemplate.includes('Ověřený paralelní bank'),'Battery Selector must explain parallel-bank installation checks');
-
-
-assert(builderTemplate.includes('Set obsahuje 1× baterii + měnič'),'Builder must explain multi-bank set composition');
-assert(affiliateAdapter.includes('extraBatteryUnits'),'Bundle analytics must include extra battery units');
-assert(affiliateAdapter.includes('bankSavingsCzk'),'Bundle analytics must include whole-bank savings');
+const builderTemplate=fs.readFileSync(path.join(__dirname,'..','template-parts…4596 tokens truncated…assert(affiliateAdapter.includes('bankSavingsCzk'),'Bundle analytics must include whole-bank savings');
 
 
 for(const product of source.products||[]){
