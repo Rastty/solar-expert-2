@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           jq -e '.writes == 0 and .publish_authorized == false and
-            .theme_deploy_authorized == false and (.posts | length == 5)' \
+            .theme_deploy_authorized == false and (.posts | length == 6)' \
             artifacts/solar-editorial-target-fingerprints-readonly.json >/dev/null
           {
             echo '## Buyer post body fingerprints – read-only, not release authorization'
