@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-garage-offgrid-20261118-v1.json",
-  "activation_revision": 16,
-  "notice": "One guarded NEW buyer guide on off-grid garage lighting, camera/router and garage-door standby power. Immutable pinned content SHA256. Post_create requires authenticated exact-slug absence across all statuses and zero new published posts within rolling 24h, encrypted prewrite snapshot, one POST maximum and authenticated readback. Model values are illustrative, not product claims. No theme or product deploy. WEDOS restore gate #148 unaffected."
+  "manifest": "ops/editorial-manifests/solar-well-pump-offgrid-20261120-v1.json",
+  "activation_revision": 17,
+  "notice": "One guarded NEW buyer guide on solar-powered water pumping from a well, with head/flow, inverter standby and motor start checks. Pinned immutable source SHA256. Post_create requires authenticated slug absence across statuses and 24h no-new-post gate, encrypted prewrite, one POST maximum and readback. No theme or catalog deploy. WEDOS restore gate #148 unaffected."
 }
