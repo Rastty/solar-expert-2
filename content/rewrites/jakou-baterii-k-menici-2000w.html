@@ -1,0 +1,49 @@
+<p><strong>Jakou LiFePO₄ baterii k měniči 2000 W?</strong> Nejdřív zjistěte, zda jde o měnič na 12 V, 24 V, nebo 48 V a jak dlouho skutečně poběží vaše spotřebiče. Údaj „2000 W“ říká výkon měniče na výstupu, nikoli potřebnou kapacitu baterie. Dva systémy s baterií 100 Ah mohou mít při jiném napětí násobně odlišnou zásobu energie a rozdílný proud, který musí zvládnout BMS, kabely a jištění.</p>
+
+<p>V následujícím výpočtu jde o <strong>modelovou orientaci pro 230V AC spotřebiče</strong>, nikoli o schválení konkrétní elektrické sestavy. Vždy mají přednost štítky a instalační příručky přesného měniče, baterie a BMS. Aktuální cenu, stav zásob a počet kusů je nutné zkontrolovat přímo u obchodníka; zde neuvádíme smyšlené skladové nabídky.</p>
+
+<h2>Nejdřív ověřte 12 V, 24 V nebo 48 V na vstupu měniče</h2>
+<p>Štítek „2000 W“ sám neříká napětí bateriové větve. Běžné systémy se označují 12/24/48 V, ale typické nominální napětí jednotlivých LiFePO₄ baterií může být 12,8/25,6/51,2 V. Správná kombinace se posuzuje podle dovoleného rozsahu DC vstupu měniče, napětí při nabíjení i vypínání BMS. Nepropojujte 24V baterii s měničem určeným jen pro 12 V.</p>
+<p>Stejný výkon na 230 V vyžaduje při nižším bateriovém napětí vyšší proud. Pro jednoduchý srovnávací model bereme plný trvalý AC odběr 2000 W a účinnost měniče 90 %. Přibližný proud na DC straně je <strong>I = 2000 W ÷ (napětí baterie × 0,90)</strong>:</p>
+<table><thead><tr><th>Nominální LiFePO₄ baterie</th><th>Modelový DC proud pro 2000 W AC</th><th>Co ověřit</th></tr></thead><tbody>
+<tr><td>12,8 V</td><td>174 A</td><td>Velmi vysoký proud, BMS, součásti, kabeláž a úbytek napětí</td></tr>
+<tr><td>25,6 V</td><td>87 A</td><td>Trvalý proud BMS a rezerva pro rozběh</td></tr>
+<tr><td>51,2 V</td><td>43 A</td><td>Kompatibilní 48V měnič a výrobcem dovolený proud banku</td></tr>
+</tbody></table>
+<p>Skutečný proud se mění s napětím při vybíjení, účinností a profilem zatížení. Tabulka není dimenzování pojistky ani kabelů. Rozběh motoru nebo kompresoru může být krátkodobě podstatně vyšší než 2000 W; musí jej výslovně umožnit jak měnič, tak baterie s BMS.</p>
+
+<h2>Kolik kWh baterie potřebujete na 15, 30, 60 nebo 120 minut?</h2>
+<p>Kapacita se vybírá podle energie, nikoli podle maximálního výkonu samotného měniče. Pokud je na 230V výstupu skutečně odebíráno 2000 W nepřetržitě, model potřebné nominální energie zahrnuje účinnost měniče 90 % a využitelný podíl baterie 80 %: <strong>kapacita = příkon × hodiny ÷ (0,90 × 0,80)</strong>. Jde o konzervativní pracovní předpoklady, ne o univerzální garantované hodnoty každé baterie.</p>
+<table><thead><tr><th>Trvalá zátěž 2000 W</th><th>AC energie</th><th>Modelová nominální kapacita baterie</th></tr></thead><tbody>
+<tr><td>15 minut</td><td>500 Wh</td><td>694 Wh</td></tr>
+<tr><td>30 minut</td><td>1000 Wh</td><td>1389 Wh</td></tr>
+<tr><td>60 minut</td><td>2000 Wh</td><td>2778 Wh</td></tr>
+<tr><td>120 minut</td><td>4000 Wh</td><td>5556 Wh</td></tr>
+</tbody></table>
+<p>Příklad: nominální LiFePO₄ 25,6 V × 100 Ah má přibližně 2560 Wh. Při uvedených modelových ztrátách je na AC výstupu dostupných asi 1843 Wh, což je u zátěže 2000 W jen kolem 55 minut. Naopak 12,8 V × 100 Ah má nominálně 1280 Wh a modelově asi 922 Wh na výstupu, tedy 28 minut. To <strong>neznamená, že konkrétní 100Ah baterie smí takový výkon trvale dodat</strong> – samostatně musí projít kontrolou BMS a vybíjecího proudu.</p>
+
+<h2>Proč nestačí samotné Ah: limit BMS rozhoduje o použitelnosti</h2>
+<p>Baterie může mít dost Wh pro plánovanou dobu provozu, ale současně nedostatečný trvalý či špičkový vybíjecí proud. U 12,8V systému vychází už modelová ustálená zátěž 2000 W zhruba na 174 A. Pokud výrobce dané baterie nebo BMS připouští méně, nelze ji pro takovou kombinaci doporučit ani na krátkou dobu. U měničů je nutné ověřit i průběh rozběhové špičky, dobu jejího trvání a ochranné vypnutí při poklesu DC napětí.</p>
+<p>Výrobce baterie určuje také podmínky paralelního a sériového spojování, komunikaci s měničem, schválené jištění a teplotní limity nabíjení. Dva samostatné akumulátory se stejnou kapacitou nejsou automaticky bezpečným bankem. Nevyvozujte povolené zapojení z pouhého součtu ampérhodin; řešte shodné modely, vyvážení větví, jištění jednotlivých větví a BMS. Pro konkrétní produkt si otevřete <a href="/vyber-baterii/">výběr LiFePO₄ baterie podle napětí a potřeby</a> a každý výstup ověřte v technickém listu.</p>
+
+<h2>Kdy stačí menší baterie, i když máte měnič 2000 W?</h2>
+<p>Měnič 2000 W nemusí stále dodávat 2000 W. Pokud napájí jen router 12 W, LED osvětlení 25 W a občas notebook 65 W, skutečná spotřeba vychází z doby jejich zapnutí, nikoli ze jmenovité hodnoty měniče. Na druhou stranu bývá významná vlastní spotřeba měniče naprázdno nebo ve standby; přičtěte ji, pokud má zařízení běžet 24 hodin denně. Nepřenášejte automaticky model jedné baterie na domácí záložní zdroj s nepřetržitým provozem.</p>
+<p>U lednice, mrazáku, čerpadla nebo nářadí je nutné vedle denních Wh znát skutečný rozběhový příkon a dobu špičky. Při přechodu z běžné sítě na baterii může být potřeba UPS nebo přepínač zdrojů se správnými ochrannými funkcemi; samotný ostrovní měnič není automaticky bezpečnou náhradou síťového připojení domu. Pro kontrolu příkonu a rozběhu otevřete <a href="/vyber-menice/">výběr měniče podle spotřebiče</a>.</p>
+
+<h2>Chcete přidat solární panely? Kontrolujte MPPT zvlášť</h2>
+<p>Bez solárního nabíjení pro výběr baterie k měniči žádný MPPT nepotřebujete. Pokud ale tvoříte kompletní ostrovní sestavu, musí být správně zvolené nejen bateriové napětí, ale i napětí a proud samotného FV pole. Součet zimních napětí naprázdno <strong>Voc</strong> v sérii nesmí překročit limit vstupu regulátoru; u paralelních větví se sčítají zkratové proudy <strong>Isc</strong> a musí zůstat v mezích, které povoluje přesná výrobní verze MPPT. U různých panelů nelze bezpečnost odhadnout jen ze součtu wattů.</p>
+<p>Modelový 2000W měnič také automaticky neurčuje velikost FV pole. Tu stanovte z denních Wh, sezóny, lokality, ztrát a potřebné doby dobíjení. K prvotní kontrole použijte <a href="/mppt-kalkulacka/">MPPT kalkulačku</a> a pro kompletní orientační propojení baterie, měniče, panelů a regulátoru <a href="/solarni-sestava-na-chatu/">návrh solární sestavy na chatu</a>. U výstupu zkontrolujte každou položku a dostupnost individuálně; automatický návrh není revizní zpráva.</p>
+
+<h2>Rozhodovací kontrola před objednávkou</h2>
+<ol>
+<li><strong>DC napětí:</strong> Opište přesný povolený rozsah měniče a článkového banku, včetně nabíjecího a odpojovacího napětí.</li>
+<li><strong>Skutečná spotřeba:</strong> Počítejte příkon a hodiny jednotlivých spotřebičů, ztráty měniče a jeho klidový odběr.</li>
+<li><strong>Trvalý a špičkový proud:</strong> Ověřte BMS, bateriový proud, délku rozběhu a limity měniče. Nominálních 100 Ah samo nestačí.</li>
+<li><strong>Instalace:</strong> DC pojistka/odpínač co nejblíže zdroji podle projektu, vhodné vodiče, konektory, ochranná opatření a odborné provedení 230 V.</li>
+<li><strong>Solární nabíjení:</strong> Jen pokud používáte FV panely – u přesného MPPT ověřit zimní Voc, Isc, povolený výkon a nabíjecí profil LiFePO₄.</li>
+<li><strong>Nákup:</strong> Ověřte aktuální cenu, počet kusů skladem, záruční podmínky a kompatibilitu výrobcem; ceny v přehledech nejsou automaticky platnou nabídkou.</li>
+</ol>
+
+<h2>Primární technické zdroje a hranice doporučení</h2>
+<p>Výpočty výše používají jednoduchou fyziku energie a explicitně uvedené modelové předpoklady. Pro povolené proudy a konfigurace vždy rozhoduje dokumentace konkrétního zařízení: <a href="https://www.victronenergy.com/media/pg/Lithium_Battery_Smart/en/technical-data.html">Victron Energy – technické parametry LiFePO₄ baterií a jejich vybíjecích limitů</a>, <a href="https://www.victronenergy.com/media/pg/Lithium_Battery_Smart/en/system-design-and-bms-selection-guide.html">Victron Energy – výběr BMS a návrh bateriového systému</a> a <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/technical-specifications.html">Victron Energy – elektrické limity MPPT</a>. Tyto dokumenty popisují konkrétní výrobky Victron, nejsou obecnou certifikací jiných značek.</p>
+<p><strong>Závěr:</strong> Pro měnič kolem 2000 W nejde vybrat baterii jen podle 2000 W ani podle Ah. Kritické jsou kompatibilní napětí, dosažitelná energie v Wh, trvalý i krátkodobý proud BMS a bezpečné provedení. Větší napětí často znamená nižší DC proud, ale samo o sobě nedokazuje vhodnost konkrétního produktu nebo instalace.</p>
