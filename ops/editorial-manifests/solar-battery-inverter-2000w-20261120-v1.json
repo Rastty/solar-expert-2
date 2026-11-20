@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_create",
+  "operation_id": "solar-battery-inverter-2000w-20261120-v1",
+  "slug": "jakou-baterii-k-menici-2000w",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Jakou LiFePO4 baterii k měniči 2000 W? BMS, 12/24/48 V a výdrž",
+  "excerpt": "Jak spočítat kapacitu a bezpečný vybíjecí proud LiFePO4 baterie k měniči 2000 W, ověřit napětí a BMS i modelovou výdrž při skutečném odběru.",
+  "source_commit": "fa784766d02c84f55d3690bf800a565780f6e3a3",
+  "source_file": "content/rewrites/jakou-baterii-k-menici-2000w.html",
+  "source_sha256": "6a297327d8ffb1265211acafebcb9a1f757b6b7f3134d30339208d2d5b74f138",
+  "expect_absent": true
+}
