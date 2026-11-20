@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-battery800-quote-bridge-20261120-v1",
+  "post_id": 1632,
+  "slug": "jakou-baterii-a-mppt-k-solarnim-panelum-800w",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Jakou LiFePO4 baterii a MPPT k solárním panelům 800 W?",
+  "excerpt": "Dva 400Wp panely na chatě: rozhodnutí 12 V vs. 24 V, výpočet LiFePO4 baterie podle kWh a autonomie, bezpečné limity Voc a Isc při výběru MPPT a cesta k porovnání nabídek.",
+  "source_commit": "ab0979f62b8e301a2ef4061da3a5d77d22228c9b",
+  "source_file": "content/editorial-append/jakou-baterii-a-mppt-k-solarnim-panelum-800w.html",
+  "source_sha256": "9d50bc5e5b9875262969c153ae6bef599cfbaf29891f20382234b591b964db2d",
+  "link_target": "/quote-checker/",
+  "expected_current_sha256": "a38cc43416259b883ec6863f66394b46f2d5526f13a5e0ce0cea730d4486f67d",
+  "expected_modified_gmt": "2026-11-15T07:59:42"
+}
