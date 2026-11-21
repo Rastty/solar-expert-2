@@ -56,6 +56,22 @@ jobs:
             and .configured_secret_values_logged == false
             and (.rows | length) == 4
           ' artifacts/solar-24v-authorized-feed-evidence.json >/dev/null
+      - name: Operational evidence gate - never report unverified feeds as renewed prices
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! jq -e '
+            .verified == 4
+            and .unknown == 0
+            and .changed == 0
+            and .merchant_sources["battery-cz"].status == "parsed"
+            and .merchant_sources["solar-import-cz"].status == "parsed"
+          ' artifacts/solar-24v-authorized-feed-evidence.json >/dev/null; then
+            echo "::error title=24V price evidence not ready::Official merchant XML feeds missing, stale, changed or not provable; 0 WordPress prices were refreshed. Review source-only artifact and required GitHub feed secrets."
+            exit 2
+          fi
+          echo "SOLAR_24V_FEED_GATE status=four_exact_sources_verified no_price_or_date_mutation=true"
       - name: Optional blocked original HTML direct-source diagnostic (manual only)
         if: github.event_name == 'workflow_dispatch'
         run: node tools/solar-24v-seller-evidence.mjs
