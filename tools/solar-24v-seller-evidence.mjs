@@ -78,6 +78,15 @@ export function parseProductJsonLd(html){
   }
   return products;
 }
+/** Same 30-day cutoff as the frontend matcher (stale only when age>30). */
+export function daysUntilQuoteExpiry(verifiedAt,now=new Date()){
+  if(typeof verifiedAt!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(verifiedAt))return null;
+  const start=new Date(verifiedAt+'T00:00:00Z');
+  if(!Number.isFinite(start.getTime())||start.toISOString().slice(0,10)!==verifiedAt||
+     start.getTime()>now.getTime())return null;
+  return 30-Math.floor((now.getTime()-start.getTime())/86400000);
+}
+
 function numericPrice(value){
   if(typeof value==='number')return Number.isFinite(value)&&value>0&&value<250000?value:null;
   if(typeof value!=='string'||!/^\d{1,6}(?:\.\d{1,2})?$/.test(value.trim()))return null;
@@ -140,7 +149,8 @@ export async function capture(fetcher=fetch,now=new Date()){
       qty:target.qty,source_host:target.host,
       catalog_price_czk:Number(offer.price_czk)||null,
       catalog_availability:offer.availability||null,
-      catalog_verified_at:offer.verified_at||null};
+      catalog_verified_at:offer.verified_at||null,
+      days_until_30day_quote_expiry:daysUntilQuoteExpiry(offer.verified_at,now)};
     try{
       const page=await fetchPage(fetcher,url,'text/html',MAX_BYTES);
       const parsed=qualifySchema(page,target.sku);
@@ -170,6 +180,11 @@ export async function capture(fetcher=fetch,now=new Date()){
     selected_source_product_count:4,
     observed_verified:verified.length,observed_changed:changed.length,
     observed_unknown:results.length-verified.length,
+    quotes_expiring_within_7_days:results.filter(x=>
+      x.days_until_30day_quote_expiry!==null &&
+      x.days_until_30day_quote_expiry<=7).length,
+    earliest_catalog_quote_days_remaining:Math.min(...results.map(x=>
+      x.days_until_30day_quote_expiry??999)),
     wordpress_writes:0,affiliate_network_gets:0,
     merchant_product_gets:4,merchant_clicks:0,
     automatic_catalog_date_refresh:false,
@@ -197,6 +212,7 @@ export async function main(){
   for(const x of report.rows||[]){
     console.log('SOLAR_24V_SELLER product='+x.id+
       ' merchant='+x.merchant+
+      ' expiry_in_days='+(x.days_until_30day_quote_expiry??'unknown')+
       ' status='+x.observation_status+
       ' observed_price='+(x.observed_price_czk??'unknown')+
       ' stock='+(x.observed_availability??'unknown'));
