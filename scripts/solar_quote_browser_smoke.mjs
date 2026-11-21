@@ -262,7 +262,7 @@ try{
           merchant:a.dataset.seMerchant||'',protocol:url.protocol,
           host:url.hostname,external:url.origin!==window.location.origin,
           rel:a.rel,
-          sponsored:a.rel.split(/\\s+/).includes('sponsored'),
+          sponsored:a.rel.split(/\s+/).includes('sponsored'),
           // Never expose whole tracking URLs or click on an affiliate link.
           // The destination HOST alone establishes the network/shop route.
           network_link:['ehub.cz','www.ehub.cz'].includes(url.hostname),
