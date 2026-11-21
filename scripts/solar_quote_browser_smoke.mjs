@@ -152,6 +152,13 @@ try{
       result.synthetic_offer_clicks=0;
     }else{
       assert.equal(model.catalogReady,true,'Builder failed catalog initialization');
+      // The new reversible WordPress overlay must be invisible until a
+      // genuinely calculated (step 4) result is missing all safe bundles.
+      // A static HTML/REST proof alone cannot establish Alpine visibility.
+      const recovery=page.locator('#builder [data-se-builder-recovery="v1"]');
+      await recovery.waitFor({state:'attached',timeout:LIMIT_MS});
+      assert.equal(await recovery.isVisible(),false,
+        'Recovery warning should stay hidden before Builder calculation');
       const button=page.getByRole('button',{name:/Ukázat vzorovou sestavu/});
       assert.equal(await button.count(),1,'Builder first-use CTA not unique');
       // Real user interaction on own tool only. All analytics POSTs
@@ -174,6 +181,26 @@ try{
       },def.root);
       assert.ok(after.resultValid,'Builder sample result is absent after click');
       assert.equal(after.catalogReady,true,'Builder catalog not ready after sample');
+      assert.equal(after.completeBundles,0,'Unexpected complete technical bundle: reassess recovery branch');
+      await recovery.waitFor({state:'visible',timeout:10000});
+      assert.equal(await page.locator('#builder [data-se-builder-recovery="v1"]').count(),1,
+        'Recovery note is duplicated within Builder');
+      assert.equal(await recovery.locator('[data-se-recovery-12v]').isVisible(),true,
+        'Source-evidenced 12V stock limitation is not presented');
+      assert.equal(await recovery.locator('[data-se-recovery-general]').isVisible(),false,
+        'Generic fallback should not obscure specific 12V explanation');
+      const handoff=recovery.locator('a[data-se-recovery-destination]');
+      assert.equal(await handoff.count(),1,'Safe same-site battery handoff is missing');
+      assert.equal(await handoff.getAttribute('href'),'/vyber-baterii/?scenario=panel400',
+        'Buyer recovery must never take the user to a merchant or arbitrary page');
+      assert.equal(await handoff.isVisible(),true,
+        'Safe alternative model link is not visible or actionable');
+      const copy=await recovery.innerText();
+      assert.ok(copy.includes('ne náhradní hotovou sestavu'),
+        'Recovery must disclose that a partial battery example is not a complete system');
+      result.empty_result_recovery_visible=true;
+      result.safe_handoff_link='/vyber-baterii/?scenario=panel400';
+      result.recovery_warning_discloses_incomplete_system=true;
       result.example_step=after.step;
       result.complete_technical_bundles=after.completeBundles;
       result.incomplete_bundles=after.incompleteBundles;
@@ -210,6 +237,7 @@ try{
       ' catalog_gets='+x.catalog_gets+
       ' fresh_in_stock='+x.fresh_in_stock_offer_rows+
       ' visible_offers='+(x.visible_merchant_offers??'not_applicable')+
-      ' compatible_bundles='+(x.complete_technical_bundles??'not_applicable'));
+      ' compatible_bundles='+(x.complete_technical_bundles??'not_applicable')+
+      ' safe_recovery_visible='+(x.empty_result_recovery_visible??'not_applicable'));
   }
 }
