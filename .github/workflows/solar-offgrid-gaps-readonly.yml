@@ -1,5 +1,10 @@
 name: Solar Expert off-grid post purchase-route gap discovery (GET only)
 on:
+  pull_request:
+    paths:
+      - "scripts/editorial_offgrid_gaps_readonly.py"
+      - "tests/test_solar_offgrid_gaps_readonly.py"
+      - ".github/workflows/solar-offgrid-gaps-readonly.yml"
   push:
     branches: [main]
     paths:
@@ -18,7 +23,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check Python syntax and synthetic no-write behavior
+        run: |
+          python -m py_compile scripts/editorial_offgrid_gaps_readonly.py tests/test_solar_offgrid_gaps_readonly.py
+          python -m unittest discover -s tests -p 'test_solar_offgrid_gaps_readonly.py' -v
   inspect-only:
+    needs: offline-contract
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
@@ -26,8 +44,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Prove GET-only, fail-closed behavior on synthetic WordPress data
-        run: python -m unittest discover -s tests -p 'test_solar_offgrid_gaps_readonly.py' -v
       - name: Find canonical unlinked off-grid editorial buyer candidates
         env:
           SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
