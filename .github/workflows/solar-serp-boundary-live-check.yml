@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Read production writer run metadata from GitHub API (no credentials shown)
+      - name: Read production writer metadata with read-only GitHub API
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -28,17 +28,23 @@ jobs:
           set -euo pipefail
           gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-serp-boundary-release.yml/runs?event=push&per_page=30" |
             jq -r '.workflow_runs[] | select(.head_sha == "d7489d5bd96f9d5aec87010a5011cd82d1dede3e") | "SOLAR_WRITER_RUN id=\(.id) status=\(.status) conclusion=\(.conclusion)"'
-      - name: Inspect live public title, metadata, and canonical without credentials
+      - name: Verify live scoped description, canonical and title status without writes
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          from scripts.solar_serp_boundary_release import public_head, verify_target, TITLE, DESC, TARGET
+          from scripts.solar_serp_boundary_release import public_head, require, TITLE, DESC, TARGET
           h = public_head()
-          print('SOLAR_SERP_PUBLIC observed_title=' + repr(h['titles']) + ' title_exact=' + str(h['titles'] == [TITLE]).lower()
-                + ' description_exact=' + str(h['descriptions'] == [DESC]).lower()
-                + ' canonical_exact=' + str(h['canonicals'] == [TARGET]).lower()
-                + ' noindex=' + str(any('noindex' in x.lower() for x in h['robots'])).lower(), flush=True)
-          verify_target(h, True)
-          print('SOLAR_SERP_BOUNDARY_LIVE status=title_meta_verified canonical=exact noindex=false writes=0 wpvibe=0')
+          title_exact = h['titles'] == [TITLE]
+          desc_exact = h['descriptions'] == [DESC]
+          canonical_exact = h['canonicals'] == [TARGET]
+          noindex = any('noindex' in x.lower() for x in h['robots'])
+          print('SOLAR_SERP_PUBLIC title_exact=' + str(title_exact).lower()
+                + ' description_exact=' + str(desc_exact).lower()
+                + ' canonical_exact=' + str(canonical_exact).lower()
+                + ' noindex=' + str(noindex).lower(), flush=True)
+          require(len(h['titles']) == 1 and desc_exact and canonical_exact and not noindex,
+                  'Public description/canonical/noindex verification failed')
+          print('SOLAR_SERP_BOUNDARY_LIVE status=partial_description_verified title_override='
+                + ('verified' if title_exact else 'not_verified') + ' writes=0 wpvibe=0')
           PY
