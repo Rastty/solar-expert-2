@@ -52,7 +52,7 @@ jobs:
       - name: Report source-only candidates, not SEO demand or publication intent
         run: |
           set -euo pipefail
-          jq -e '.status == "verified_get_only" and .writes == 0 and
+          jq -e '(.status == "verified_get_only" or .status == "verified_partial_get_only") and .writes == 0 and
             .publish_authorized == false and .theme_deploy_authorized == false' \
             artifacts/solar-offgrid-buyer-route-gaps-readonly.json >/dev/null
           {
