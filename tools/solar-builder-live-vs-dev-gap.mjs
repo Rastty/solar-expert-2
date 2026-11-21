@@ -51,7 +51,11 @@ function sandboxVersion(rev,products,bundleDeals){
     setTimeout(){throw new Error('No timers in static model diagnostic')}
   };
   vm.createContext(sandbox);
+  // Dev Builder requires the real offer adapter for complete-purchase-link
+  // evidence and voltage fallback. Omitting it would falsely report a
+  // zero-bundle gap even with valid source-backed merchant destinations.
   for(const path of [
+    'assets/js/affiliate-adapter.js',
     'assets/js/product-matcher.js',
     'assets/js/bundle-composer.js',
     'assets/js/builder.js'
