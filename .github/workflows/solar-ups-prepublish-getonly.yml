@@ -4,11 +4,13 @@ on:
     branches: [main]
     paths:
       - 'scripts/solar_ups_post_getonly_eligibility.py'
+      - 'tests/test_solar_ups_post_getonly_eligibility.py'
       - '.github/workflows/solar-ups-prepublish-getonly.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/solar_ups_post_getonly_eligibility.py'
+      - 'tests/test_solar_ups_post_getonly_eligibility.py'
       - '.github/workflows/solar-ups-prepublish-getonly.yml'
 permissions:
   contents: read
@@ -26,6 +28,7 @@ jobs:
       - name: Source syntax and prohibit any mutation in independent proof
         run: |
           python -m py_compile scripts/solar_ups_post_getonly_eligibility.py
+          python -m unittest discover -s tests -p 'test_solar_ups_post_getonly_eligibility.py' -v
           ! grep -E -q 'e\.wp\(.POST.|e\.apply\(|e\.prepare\(' scripts/solar_ups_post_getonly_eligibility.py
       - name: Verify immutable source and LIVE WordPress slug, category, public 404, global UTC 24h
         env:
