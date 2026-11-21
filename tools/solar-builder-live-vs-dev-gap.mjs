@@ -115,12 +115,34 @@ function sandboxVersion(rev,products,bundleDeals){
   };
 }
 const data=await catalog();
+// This is the FIRST re-run after the new REST source has manufacturer PV
+// short-circuit current evidence. Prove identity/values so this does not
+// accidentally repeat the 2026-11-21 10:44 old-payload experiment.
+const byId=new Map(data.products.map(p=>[p.id,p]));
+const sourceValues=new Map([
+  ['panel-victron-190',['isc_a',9.17]],
+  ['mppt-victron-100-20',['max_pv_isc_a',20]],
+  ['mppt-victron-100-30',['max_pv_isc_a',35]],
+  ['mppt-victron-100-50',['max_pv_isc_a',60]],
+  ['mppt-victron-150-35',['max_pv_isc_a',35]],
+  ['mppt-victron-150-70',['max_pv_isc_a',50]],
+  ['mppt-victron-250-100',['max_pv_isc_a',70]]
+]);
+for(const [id,[field,exactValue]] of sourceValues){
+  const row=byId.get(id);
+  if(!row||Number(row[field])!==exactValue)
+    throw new Error('The new 7-product production PV evidence is absent: '+id);
+  const sourceField=field==='isc_a'?'isc_source_url':'max_pv_isc_source_url';
+  if(typeof row[sourceField]!=='string'||!row[sourceField].startsWith('https://'))
+    throw new Error('Missing reviewed source URL for '+id);
+}
 const old=sandboxVersion(LEGACY,data.products,data.bundle_deals);
 const next=sandboxVersion(DEV,data.products,data.bundle_deals);
 const report={
   schema_version:1,
   method:'exact_old_and_pinned_dev_javascript_on_identical_current_public_rest_catalog',
   live_rest_catalog_items:data.products.length,
+  verified_pv_isc_source_rows:sourceValues.size,
   live_rest_bundle_deals:data.bundle_deals.length,
   legacy:old,
   pinned_dev:next,
@@ -149,5 +171,13 @@ for(const x of [old,next]){
       t.tier+':'+(t.complete?'complete':'missing_'+t.missing.join('_'))+
       ':'+(t.priceComplete?'priced':'notpriced')).join(','));
 }
+const dev24=next.voltage_probes.find(p=>p.voltage===24);
+const legacy24=old.voltage_probes.find(p=>p.voltage===24);
+console.log('SOLAR_PV_EVIDENCE_BUYER_24V manufacturer_pv_rows='+sourceValues.size+
+  ' dev_technical_complete='+dev24.complete_tiers+
+  ' dev_priced='+dev24.price_complete_tiers+
+  ' legacy_technical_complete='+legacy24.complete_tiers+
+  ' verified_complete_system_purchase=false'+
+  ' theme_deployed=false synthetic_affiliate_clicks=0');
 console.log('SOLAR_BUILDER_GAP_DIAGNOSTIC status=read_only code_versions=2'+
   ' wordpress_writes=0 affiliate_clicks=0 theme_deployed=false');
