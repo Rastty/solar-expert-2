@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-circulation-pump-ups-20261120-v1.json",
-  "activation_revision": 25,
-  "notice": "HELD FOR COOLDOWN: a single new buyer guide on the heating circulation pump UPS/battery selection, immutable source commit 2bfec97ea2a3af955087131e48289fe1dcff0b27 and manifest SHA pinned. DO NOT MERGE before 2026-11-21T13:30:38Z (14:30:38 Europe/Prague). On eligibility, recheck actual newest WordPress published post, exact target slug absence, existing editor publication concurrency, and source integrity in the guarded one-write publisher. Encrypted prewrite, at most ONE POST, no retry on uncertainty. No theme/catalog deployment or proof of revenue."
+  "manifest": "ops/editorial-manifests/solar-battery-inverter-2000w-20261120-v1.json",
+  "activation_revision": 26,
+  "notice": "HELD for the global 24h NEW-post limit: prior UPS guide WordPress #1649 published 2026-11-21T18:48:41 UTC. NEVER merge before 2026-11-22T18:48:41 UTC / 19:48:41 CET AND independent fresh WordPress last-post/slug absence, immutable source SHA256 6a297327d8ffb1265211acafebcb9a1f757b6b7f3134d30339208d2d5b74f138 and publisher CI verified. One exact reviewed battery-to-2000W-inverter article, zero theme/catalog/affiliate changes, encryption before one WordPress POST, no automatic retry on uncertain write."
 }
