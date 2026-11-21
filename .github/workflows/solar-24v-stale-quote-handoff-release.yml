@@ -28,6 +28,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Reconstruct exact current public 48-source quote fixture, GET only
+        run: node tools/catalog-price-overlay-preflight.mjs
       - name: Real PHP and Node future-date 4-SKU source-locked seller/safety proof
         run: |
           python -m py_compile scripts/solar_24v_expired_quote_recovery_release.py
