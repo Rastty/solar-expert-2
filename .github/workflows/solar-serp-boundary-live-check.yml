@@ -77,7 +77,7 @@ jobs:
                 + ' noindex=' + str(noindex).lower(), flush=True)
           require(len(h['titles']) == 1 and desc_exact and canonical_exact and not noindex,
                   'Public description/canonical/noindex verification failed')
-          print('SOLAR_SERP_BOUNDARY_LIVE status=partial_description_verified title_override='
+          print('SOLAR_SERP_BOUNDARY_LIVE status=' + ('full_title_description_verified' if title_exact else 'partial_description_verified') + ' title_override='
                 + ('verified' if title_exact else 'not_verified') + ' writes=0 wpvibe=0')
           PY
   authenticated-title-diagnostic:
