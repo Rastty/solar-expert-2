@@ -1,0 +1,65 @@
+name: Solar GSC direct REST option capability preflight (no WPVibe)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/solar_gsc_direct_rest_preflight.py"
+      - "tests/test_solar_gsc_direct_rest_preflight.py"
+      - ".github/workflows/solar-gsc-direct-rest-preflight.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/solar_gsc_direct_rest_preflight.py"
+      - "tests/test_solar_gsc_direct_rest_preflight.py"
+      - ".github/workflows/solar-gsc-direct-rest-preflight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-gsc-direct-preflight
+  cancel-in-progress: false
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify GET-only URL and safe summary contract
+        run: |
+          python -m py_compile scripts/solar_gsc_direct_rest_preflight.py
+          python -m unittest discover -s tests -p 'test_solar_gsc_direct_rest_preflight.py' -v
+  live-capabilities:
+    needs: contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Authenticated direct WordPress GET only; sanitize site options and plugin metadata
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python scripts/solar_gsc_direct_rest_preflight.py
+      - name: Record only supported capability metadata without sensitive option values
+        run: |
+          set -euo pipefail
+          jq -e '.word_press_writes == 0 and .wpvibe_calls == 0 and .gsc_tag_inserted == false and .theme_deployed == false' artifacts/solar-gsc-direct-rest-preflight.json >/dev/null
+          {
+            echo '## Direct authenticated WordPress REST capability preflight'
+            jq -r '"Application Password GET verified: **\(.authenticated_user_checked)**; manage_options: **\(.can_manage_options // "unknown")**; GSC field route detected: **\(.proof_of_writable_gsc_verification_field)**"' artifacts/solar-gsc-direct-rest-preflight.json
+            echo 'No WPVibe call; no WordPress option/content/theme change; no duplicate or speculative verification tag.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: solar-gsc-direct-rest-capabilities-${{ github.run_id }}
+          path: artifacts/solar-gsc-direct-rest-preflight.json
+          retention-days: 7
+          if-no-files-found: error
