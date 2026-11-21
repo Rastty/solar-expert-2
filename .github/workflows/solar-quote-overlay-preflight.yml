@@ -1,0 +1,46 @@
+name: Solar quote-only catalog overlay candidate (NO deploy or affiliate clicks)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/catalog-price-overlay-preflight.mjs'
+      - 'tests/catalog-price-overlay-preflight.test.mjs'
+      - '.github/workflows/solar-quote-overlay-preflight.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/catalog-price-overlay-preflight.mjs'
+      - 'tests/catalog-price-overlay-preflight.test.mjs'
+      - '.github/workflows/solar-quote-overlay-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-quote-overlay-preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Test exact merchant/SKU identity, dated price patch and fail-closed safety
+        run: node --test tests/catalog-price-overlay-preflight.test.mjs
+      - name: Create read-only 24-product/52-quote LIVE+immutable-dev overlay PREVIEW
+        run: node tools/catalog-price-overlay-preflight.mjs
+      - name: Prove no WordPress release, no affiliate network request and zero writes
+        run: |
+          jq -e '.summary.release_authorized==false
+                 and .summary.active_theme_modified==false
+                 and .summary.wordpress_writes==0
+                 and .summary.affiliate_clicks==0
+                 and .summary.merchant_requests==0
+                 and .summary.counts.all_offer_rows==52
+                 and .summary.source_revision=="535698742864442c839261613c6583110223204f"' artifacts/solar-catalog-quote-overlay-preview.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-catalog-price-overlay-preview-${{ github.run_id }}
+          path: artifacts/solar-catalog-quote-overlay-preview.json
+          retention-days: 7
+          if-no-files-found: warn
