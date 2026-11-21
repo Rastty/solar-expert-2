@@ -102,7 +102,7 @@ window.SolarExpertBundleComposer = {
           ['growatt.com','growatt.tech'].some(domain=>host===domain || host.endsWith('.'+domain));
       } catch (_) { /* Missing or malformed source: fail closed. */ }
       const checkedOn=String(i.pv_isc_absolute_checked_on || '');
-      const dateValid=/^\\d{4}-\\d{2}-\\d{2}$/.test(checkedOn) &&
+      const dateValid=/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(checkedOn) &&
         Number.isFinite(Date.parse(checkedOn+'T00:00:00Z')) &&
         new Date(checkedOn+'T00:00:00Z').toISOString().slice(0,10)===checkedOn &&
         Date.parse(checkedOn+'T00:00:00Z')<=Date.now();
