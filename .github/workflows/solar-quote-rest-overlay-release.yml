@@ -1,0 +1,77 @@
+name: Solar REST-backed 48-quote runtime overlay (no media or theme update)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_quote_rest_overlay_release.py'
+      - 'tests/test_solar_quote_rest_overlay_release.py'
+      - 'ops/solar-quote-rest-overlay-release.json'
+      - '.github/workflows/solar-quote-rest-overlay-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_quote_rest_overlay_release.py'
+      - 'tests/test_solar_quote_rest_overlay_release.py'
+      - 'ops/solar-quote-rest-overlay-release.json'
+      - '.github/workflows/solar-quote-rest-overlay-release.yml'
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Real PHP REST JSON contract, quote date/SKU and one-shot REST mock
+        run: |
+          python -m py_compile scripts/solar_quote_rest_overlay_release.py
+          python -m unittest discover -s tests -p 'test_solar_quote_rest_overlay_release.py' -v
+          node --test tests/catalog-price-overlay-preflight.test.mjs
+  one-shot-rest-overlay:
+    needs: contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Exact separately reviewed new control-only activation gate
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          changed="$(git diff --name-only "$BEFORE" "$AFTER" -- ops/solar-quote-rest-overlay-release.json)"
+          [[ "$changed" == 'ops/solar-quote-rest-overlay-release.json' ]] || exit 0
+          if jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"one_reversible_48_quote_wp_rest_snippet"}' ops/solar-quote-rest-overlay-release.json >/dev/null; then
+            echo 'armed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Regenerate exact immutable source-pinned live 48-quote preview (GET only)
+        if: steps.gate.outputs.armed == 'true'
+        run: node tools/catalog-price-overlay-preflight.mjs
+      - name: One inactive existing-plugin snippet create, readback, activate, public JSON and two-page verification
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_quote_rest_overlay_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-quote-rest-overlay-receipt-${{ github.run_id }}
+          path: artifacts/solar-quote-rest-overlay-release.json
+          retention-days: 21
+          if-no-files-found: warn
