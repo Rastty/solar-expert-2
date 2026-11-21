@@ -25,6 +25,7 @@ TARGETS = (
     (1626, "solarni-panel-pro-wifi-kameru-a-router-na-chate"),
     (1632, "jakou-baterii-a-mppt-k-solarnim-panelum-800w"),
     (1639, "solarni-panel-pro-zahradni-cerpadlo-a-jezirko"),
+    (1641, "solarni-cerpadlo-do-studny-bez-elektriny"),
 )
 OUTPUT = publisher.ROOT / "artifacts/solar-editorial-target-fingerprints-readonly.json"
 
@@ -71,7 +72,7 @@ def inspect() -> dict:
         "schema_version": 1,
         "observed_at_utc": datetime.now(timezone.utc).isoformat(),
         "site": "solar-expert.cz",
-        "purpose": "eight_existing_buyer_post_cas_and_first_party_route_counts_get_only",
+        "purpose": "nine_existing_buyer_post_cas_and_first_party_route_counts_get_only",
         "publish_authorized": False,
         "theme_deploy_authorized": False,
         "writes": 0,
