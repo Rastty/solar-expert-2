@@ -1,6 +1,6 @@
 # Solar Expert 2.0 — PROJECT_STATE
 
-Updated: 2026-11-21 07:35 UTC. Truth: current GitHub `main`, protected WordPress publication receipts and authenticated live reads (not PR intent alone).
+Updated: 2026-11-21 08:45 CET (07:45 UTC). Truth: current GitHub `main`, protected WordPress publication receipts and authenticated live reads (not PR intent alone).
 
 ## Goal
 
@@ -17,6 +17,8 @@ Grow attributable affiliate and lead profit through a reliable solar decision pa
 
 ## OVĚŘENO / business evidence and unreleased work
 
+- **2026-11-21 UPS release 25 staged, NOT published:** [draft PR #296](https://github.com/Rastty/solar-expert-2/pull/296) contains only the exact `ops/editorial-release.json` activation for previously merged, immutable circulation-pump UPS buyer guide (PR #270). Offline/Validate/Playground CI passed; the publisher's WordPress write is deliberately skipped on a PR. Minimum next-new-post cutoff **2026-11-21T13:30:38 UTC / 14:30:38 CET**. A one-time guarded autonomous check is scheduled for 14:45 CET (task `6b014bc2ca488191ad68a112dd1c9c92`) and MUST independently re-check latest WP post, slug absence, control version and CI before merging; it is not evidence of future publication. No theme/catalog deploy.
+- **Core GSC investigation:** [Prometheus Core PR #2285](https://github.com/Rastty/prometheus-growth-os/pull/2285) proposes allowlisted Google 403 reason diagnostics with offline tests and no credential/query leakage for existing [Core issue #2219](https://github.com/Rastty/prometheus-growth-os/issues/2219). As of this state update it is an OPEN PR, NOT a restored successful GSC capture or measured SEO uplift.
 - Latest documented live theme/offer sample (2026-11-20, **not refreshed in this run**): theme `0.12.27`, 24 catalog products, **52/52 price snapshots stale** under the 30-day policy. Seller drift monitor validated 49/52 exact URLs; 3 Vselektro URLs inconclusive. `dev` contains tested offer/Builder fixes, including Pylontech/SEPLOS stock downgrades and alternative fully linked quote, but deployment is not verified.
 - Earlier 28-day public aggregate: 208 tool views, 8 starts, 3 affiliate clicks, 0 lead clicks. Events are not unique visitors; no approved/paid commission or causal conversion lift verified.
 - **Prepared, not published:** circulation-pump UPS buyer article (PR #270, pinned manifest `solar-circulation-pump-ups-20261120-v1`) and 2000W LiFePO4 inverter-battery guide (PR #274). Last confirmed NEW post was 2026-11-20 13:30:38 UTC. No next new post before **2026-11-21 13:30:38 UTC (14:30:38 Europe/Prague)**, with a fresh absence and most-recent-post check. Releases 23 and 24 were existing-post appends, not new posts.
@@ -30,7 +32,7 @@ Grow attributable affiliate and lead profit through a reliable solar decision pa
 ## DALŠÍ PRIORITA (effect / effort)
 
 1. **High effect, gated:** get a safe production path for tested `dev` offer and Builder improvements (#148) while protecting existing content; exact confirmed seller stock/price must precede buyer-facing offers.
-2. **Next isolated SEO publication:** after the 24h NEW-post gate and fresh WordPress absence check, activate **editorial revision 25** for the already prepared UPS circulation-pump guide. Do not reuse completed revisions 23 or 24. Later publish 2000W battery guide in its own later 24h window.
+2. **Next isolated SEO publication:** after the 24h NEW-post gate and fresh WordPress absence check, review and merge **staged draft PR #296 / editorial revision 25** for the already prepared UPS circulation-pump guide. Do not reuse completed revisions 23 or 24. Later publish 2000W battery guide in its own later 24h window.
 3. **Evidence/monetization:** let Prometheus Core restore GSC #2219; reconcile first-party affiliate clicks with partner-confirmed approved/paid commissions. Avoid more repeated Builder links before measured results.
 
 History and detailed prior evidence are preserved in `docs/archive/PROJECT_STATE-20261120-before-compact.md`.
