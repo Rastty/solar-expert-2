@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-well-pump-ac-fullkit-bridge-20261121-v1.json",
-  "activation_revision": 24,
-  "notice": "Guarded single existing-post append for Solar Expert WordPress #1641, exact source-locked SHA/modified GMT from authenticated 2026-11-21 GET-only audit #44880338933. One Builder link only for off-grid 230V AC well pump with battery and inverter. Explicit exclusion for direct DC pumps, hydraulic head, flow, dry-run and surge checks. Encrypted prewrite + at most one CAS guarded POST; no theme/catalog update or new post. Next NEW post UPS guide: editorial revision 25 after 2026-11-21 13:30:38 UTC only with fresh 24h cooldown and absence proof."
+  "manifest": "ops/editorial-manifests/solar-circulation-pump-ups-20261120-v1.json",
+  "activation_revision": 25,
+  "notice": "HELD FOR COOLDOWN: a single new buyer guide on the heating circulation pump UPS/battery selection, immutable source commit 2bfec97ea2a3af955087131e48289fe1dcff0b27 and manifest SHA pinned. DO NOT MERGE before 2026-11-21T13:30:38Z (14:30:38 Europe/Prague). On eligibility, recheck actual newest WordPress published post, exact target slug absence, existing editor publication concurrency, and source integrity in the guarded one-write publisher. Encrypted prewrite, at most ONE POST, no retry on uncertainty. No theme/catalog deployment or proof of revenue."
 }
