@@ -49,10 +49,9 @@ function rowMap(row){
   return map;
 }
 function dated(when,now){
-  guard(typeof when==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(when),'Invalid seller verification date');
+  if(typeof when!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(when))return false;
   const epoch=Date.parse(when+'T00:00:00Z');
-  guard(Number.isFinite(epoch) && new Date(epoch).toISOString().slice(0,10)===when,
-        'Invalid seller calendar date');
+  if(!Number.isFinite(epoch)||new Date(epoch).toISOString().slice(0,10)!==when)return false;
   const days=Math.floor((now.getTime()-epoch)/86400000);
   return days>=0&&days<=30;
 }
@@ -81,7 +80,7 @@ export function previewOverlay(live,dev,{now=new Date()}={}){
   guard([...oldDeals.keys()].every(id=>devDeals.has(id)),'Bundle identities not identical');
 
   const patch=JSON.parse(JSON.stringify(live));
-  const counts={all_offer_rows:0,exact_seller_matches:0,eligible:0,
+  const counts={all_offer_rows:0,raw_offer_rows:0,ignored_discontinued_or_unpriced:0,exact_seller_matches:0,eligible:0,
                 skipped_unresolved_sku:0,skipped_source_changed:0,
                 skipped_date_expired:0,skipped_bad_quote:0,
                 changed_price:0,changed_stock:0};
@@ -101,6 +100,14 @@ export function previewOverlay(live,dev,{now=new Date()}={}){
             'Offer count drift: '+row.id);
       const changed=[];
       for(const quote of originalOffers){
+        counts.raw_offer_rows++;
+        // The existing PHP health excludes discontinued and non-priced rows;
+        // never stamp them fresh or confuse raw catalog size with active quotes.
+        if(quote.availability==='discontinued'||
+           !Number.isFinite(Number(quote.price_czk))||Number(quote.price_czk)<=0){
+          counts.ignored_discontinued_or_unpriced++;
+          continue;
+        }
         counts.all_offer_rows++;
         const key=sourceKey(quote);
         const candidate=alternatives.get(key);
