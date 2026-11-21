@@ -641,13 +641,26 @@ assert(builder.result.batteryKwh===2.6,
   '1,848Wh AC for one day needs 2.6kWh nominal at 80% usable and 90% inverter efficiency');
 assert(!cottageBest.complete && !builder.primaryShoppingList,
   'Do not sell an undersized 2.56kWh 24V bank as a full-day cottage-plus-pump solution');
-// A user who genuinely selects half-day autonomy can still see the
-// same sourced, physically compatible 24V inverter and battery options.
+// Shortening energy autonomy cannot certify the battery BMS for the
+// still-unchanged pump startup current. Preserve an honest missing result.
 builder.autonomy=.5;
+builder.calc();
+const unsafeHalfDayBest=builder.bundles.find(b=>b.tier==='best');
+assert(!unsafeHalfDayBest.complete && !builder.primaryShoppingList,
+  'Half-day reserve alone cannot override a 24V battery BMS startup-current mismatch');
+assert(builder.result.batteryPeakDcW>2400,
+  'AC pump surge exceeds the real catalog 24V/100A bank discharge ceiling');
+// Synthetic ONLY: model a separately manufacturer-proven 120A continuous BMS
+// limit to exercise a legitimate recovery. This does not update the real
+// catalog, retailer price, evidence date or any buyer-facing offer.
+builder.catalog=builder.catalog.map(p=>p.id==='battery-goowei-24-100'
+  ? {...p,max_discharge_a:120}:p);
 builder.calc();
 const cottageHalfDayBest = builder.bundles.find(b=>b.tier==='best');
 assert(cottageHalfDayBest && cottageHalfDayBest.complete,
-  'Explicit half-day reserve should offer a complete Best Value bundle');
+  'Only a genuinely adequate independently specified BMS can restore a complete Best Value bundle');
+assert(cottageHalfDayBest.battery.max_discharge_a===120,
+  'The recovered battery bank must carry sufficient documented continuous current');
 assert(cottageHalfDayBest.inverter.id==='inverter-rogerele-rep2000-24', 'Half-day cottage should select the verified in-stock 24V 2000W inverter');
 assert(cottageHalfDayBest.inverter.peak_w>=builder.result.peak, 'Selected inverter must cover estimated surge');
 const cottageComparison=builder.comparisonFor(cottageHalfDayBest);
