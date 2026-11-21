@@ -4,23 +4,39 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/solar-serp-boundary-live-check.yml'
+      - 'scripts/solar_serp_title_diagnostic.py'
+      - 'tests/test_solar_serp_title_diagnostic.py'
   push:
     branches: [main]
     paths:
       - '.github/workflows/solar-serp-boundary-live-check.yml'
+      - 'scripts/solar_serp_title_diagnostic.py'
+      - 'tests/test_solar_serp_title_diagnostic.py'
   workflow_dispatch:
 permissions:
   contents: read
   actions: read
 jobs:
+  offline-diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python syntax and exact GET-only field-redaction contract
+        run: |
+          python -m py_compile scripts/solar_serp_title_diagnostic.py
+          python -m unittest discover -s tests -p 'test_solar_serp_title_diagnostic.py' -v
   live-public-head:
+    needs: offline-diagnostic
     runs-on: ubuntu-24.04
     timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Read production writer metadata with read-only GitHub API
+      - name: Read previous production writer metadata via GitHub API
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -28,7 +44,7 @@ jobs:
           set -euo pipefail
           gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-serp-boundary-release.yml/runs?event=push&per_page=30" |
             jq -r '.workflow_runs[] | select(.head_sha == "d7489d5bd96f9d5aec87010a5011cd82d1dede3e") | "SOLAR_WRITER_RUN id=\(.id) status=\(.status) conclusion=\(.conclusion)"'
-      - name: Verify live scoped description, canonical and title status without writes
+      - name: Public title, meta description and canonical, zero writes
         shell: bash
         run: |
           set -euo pipefail
@@ -48,3 +64,27 @@ jobs:
           print('SOLAR_SERP_BOUNDARY_LIVE status=partial_description_verified title_override='
                 + ('verified' if title_exact else 'not_verified') + ' writes=0 wpvibe=0')
           PY
+  authenticated-title-diagnostic:
+    needs: offline-diagnostic
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: GET-only exact Code Snippets state and Yoast title provenance
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_serp_title_diagnostic
+      - name: Confirm artifact cannot indicate a WordPress write
+        run: |
+          jq -e '.wp_writes==0 and .wpvibe_calls==0 and .theme_deployed==false and .request_methods==["GET"]' artifacts/solar-serp-title-diagnostic-readonly.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-serp-title-getonly-${{ github.run_id }}
+          path: artifacts/solar-serp-title-diagnostic-readonly.json
+          retention-days: 7
+          if-no-files-found: warn
