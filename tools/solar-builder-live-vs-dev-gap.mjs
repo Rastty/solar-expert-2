@@ -82,12 +82,32 @@ function sandboxVersion(rev,products,bundleDeals){
   }));
   const completed=b.completeBundles||[];
   const priced=completed.filter(x=>x.priceComplete&&Number.isFinite(x.totalPrice));
+  const voltageProbes=[12,24,48].map(voltage=>{
+    const size={...b.result,voltage,
+      mpptA:Math.max(10,Math.ceil(((b.result.panelWp/voltage)*1.25)/5)*5)};
+    const batteryProducts=products.filter(p=>p.type==='battery');
+    const batteryBanks=window.SolarExpertBundleComposer.batteryBankCandidatesAll(
+      batteryProducts,size);
+    const rows=window.SolarExpertBundleComposer.compose(products,size,bundleDeals);
+    return{
+      voltage,available_battery_banks:batteryBanks.length,
+      complete_tiers:rows.filter(x=>x.complete).length,
+      price_complete_tiers:rows.filter(x=>x.complete&&x.priceComplete).length,
+      rows:rows.map(row=>({
+        tier:row.tier,complete:!!row.complete,
+        priced:!!row.priceComplete,missing:row.missing||[],
+        battery:row.battery?.id||null,inverter:row.inverter?.id||null,
+        mppt:row.mppt?.id||null,pvIscVerified:row.pvIscVerified??null
+      }))
+    };
+  });
   return {
     revision:rev,
     sample:{system_v:b.result.voltage,panel_wp:b.result.panelWp,
       battery_kwh:b.result.batteryKwh,inverter_w:b.result.inverterW,
       mppt_a:b.result.mpptA,energy_wh:b.result.energyWh,
       peak_w:b.result.peak},
+    voltage_probes:voltageProbes,
     valid_bundles:completed.length,
     purchase_priced_bundles:priced.length,
     tier_status:tierStatus,
@@ -113,6 +133,12 @@ mkdirSync('artifacts',{recursive:true});
 writeFileSync('artifacts/solar-builder-live-vs-dev-gap.json',
   JSON.stringify(report,null,2)+'\n','utf8');
 for(const x of [old,next]){
+  for(const probe of x.voltage_probes){
+    console.log('SOLAR_BUILDER_VOLTAGE version='+(x.revision===LEGACY?'old':'dev')+
+      ' voltage='+probe.voltage+' battery_banks='+probe.available_battery_banks+
+      ' complete='+probe.complete_tiers+' priced='+probe.price_complete_tiers+
+      ' missing='+probe.rows.map(q=>q.tier+':'+(q.missing||[]).join('_')).join(','));
+  }
   console.log('SOLAR_BUILDER_GAP version='+(
     x.revision===LEGACY?'legacy_live_code':'pinned_dev')+
     ' voltage='+x.sample.system_v+
