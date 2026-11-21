@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
       - name: Read exact main production writer run ID and result
         env:
-          ${{ github.token }}: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
