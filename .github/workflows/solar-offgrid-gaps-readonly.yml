@@ -1,0 +1,75 @@
+name: Solar Expert off-grid post purchase-route gap discovery (GET only)
+on:
+  pull_request:
+    paths:
+      - "scripts/editorial_offgrid_gaps_readonly.py"
+      - "tests/test_solar_offgrid_gaps_readonly.py"
+      - ".github/workflows/solar-offgrid-gaps-readonly.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/editorial_offgrid_gaps_readonly.py"
+      - "tests/test_solar_offgrid_gaps_readonly.py"
+      - ".github/workflows/solar-offgrid-gaps-readonly.yml"
+  schedule:
+    - cron: "43 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check Python syntax and synthetic no-write behavior
+        run: |
+          python -m py_compile scripts/editorial_offgrid_gaps_readonly.py tests/test_solar_offgrid_gaps_readonly.py
+          python -m unittest discover -s tests -p 'test_solar_offgrid_gaps_readonly.py' -v
+  inspect-only:
+    needs: offline-contract
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Check out trusted default branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Find canonical unlinked off-grid editorial buyer candidates
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.editorial_offgrid_gaps_readonly
+      - name: Report source-only candidates, not SEO demand or publication intent
+        run: |
+          set -euo pipefail
+          jq -e '.status == "verified_get_only" and .writes == 0 and
+            .publish_authorized == false and .theme_deploy_authorized == false' \
+            artifacts/solar-offgrid-buyer-route-gaps-readonly.json >/dev/null
+          {
+            echo '## Off-grid article-to-purchase route coverage — authenticated GET only'
+            echo ''
+            jq -r '"Examined: \(.posts_examined); off-grid-intent slug candidates: \(.buyer_intent_posts); already linked to Builder: \(.with_builder); missing both Builder and Quote Checker: \(.missing_both)"' \
+              artifacts/solar-offgrid-buyer-route-gaps-readonly.json
+            echo ''
+            jq -r '.candidates[:20][] | "- WP #\(.post_id) `\(.slug)` — requires editorial/technical scope review and a separate fresh CAS before any post append"' \
+              artifacts/solar-offgrid-buyer-route-gaps-readonly.json
+            echo ''
+            echo 'No new posts, no WP writes, no GSC assertions, no theme deployment.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Retain only public safe coverage metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-offgrid-route-gaps-${{ github.run_id }}
+          path: artifacts/solar-offgrid-buyer-route-gaps-readonly.json
+          retention-days: 7
+          if-no-files-found: error
