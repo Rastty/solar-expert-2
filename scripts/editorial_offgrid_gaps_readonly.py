@@ -39,7 +39,7 @@ def inspect() -> dict:
         "status": "unverified", "publish_authorized": False,
         "theme_deploy_authorized": False, "writes": 0,
         "posts_examined": 0, "buyer_intent_posts": 0, "with_builder": 0,
-        "with_quote_checker": 0, "missing_both": 0, "candidates": [],
+        "with_quote_checker": 0, "missing_both": 0, "unverified_rows": 0, "candidates": [],
     }
     category = wp.category_id()  # Authenticated GET, fail closed if unavailable
     seen = set()
@@ -54,19 +54,26 @@ def inspect() -> dict:
         LAST_SAFE_PHASE = "page_" + str(page) + "_validate"
         wp.require(isinstance(rows, list), "Malformed WordPress listing")
         for row in rows:
-            wp.require(isinstance(row, dict), "Invalid post row")
-            slug = row.get("slug")
-            post_id = row.get("id")
-            body = row.get("content", {}).get("raw") if isinstance(row.get("content"), dict) else None
-            wp.require(type(post_id) is int and post_id > 0 and
-                       isinstance(slug, str) and re.fullmatch(r"[a-z0-9-]{8,150}", slug) and
-                       isinstance(body, str) and row.get("status") == "publish" and
-                       category in row.get("categories", []), "Unverified post/category/body")
-            uri = urlsplit(str(row.get("link", "")))
-            wp.require(uri.scheme == "https" and uri.hostname == "solar-expert.cz" and
-                       uri.path == "/" + slug + "/" and not uri.query and not uri.fragment,
-                       "Unverified post URL")
-            wp.require(post_id not in seen, "Duplicate page boundary/post")
+            # One historical permalink or unavailable raw body must not make
+            # the verified records from other pages disappear. Skip and count
+            # it as UNVERIFIED; never infer that it has no buyer CTA.
+            try:
+                wp.require(isinstance(row, dict), "Invalid post row")
+                slug = row.get("slug")
+                post_id = row.get("id")
+                body = row.get("content", {}).get("raw") if isinstance(row.get("content"), dict) else None
+                wp.require(type(post_id) is int and post_id > 0 and
+                           isinstance(slug, str) and re.fullmatch(r"[a-z0-9-]{8,150}", slug) and
+                           isinstance(body, str) and row.get("status") == "publish" and
+                           category in row.get("categories", []), "Unverified post/category/body")
+                uri = urlsplit(str(row.get("link", "")))
+                wp.require(uri.scheme == "https" and uri.hostname == "solar-expert.cz" and
+                           uri.path == "/" + slug + "/" and not uri.query and not uri.fragment,
+                           "Unverified post URL")
+                wp.require(post_id not in seen, "Duplicate page boundary/post")
+            except (wp.Blocked, ValueError, TypeError, KeyError):
+                snapshot["unverified_rows"] += 1
+                continue
             seen.add(post_id)
             snapshot["posts_examined"] += 1
             if any(bad in slug for bad in EXCLUDE) or not any(key in slug for key in TOPICS):
@@ -89,7 +96,9 @@ def inspect() -> dict:
         if len(rows) < PER_PAGE:
             break
     LAST_SAFE_PHASE = "success"
-    snapshot["status"] = "verified_get_only"
+    wp.require(snapshot["posts_examined"] > 0, "No verified post in sampled pages")
+    snapshot["status"] = ("verified_partial_get_only" if snapshot["unverified_rows"]
+                          else "verified_get_only")
     # Do not copy title, body, excerpt, full href, credentials, author data.
     return snapshot
 
@@ -109,12 +118,13 @@ def main() -> int:
     print("SOLAR_OFFGRID_GAP status=" + result["status"] +
           " examined=" + str(result.get("posts_examined", "unverified")) +
           " potential=" + str(result.get("missing_both", "unverified")) +
+          " unverified=" + str(result.get("unverified_rows", "unknown")) +
           " safe_phase=" + result.get("failed_stage", "success") +
           " writes=0")
     for row in result["candidates"][:20]:
         print("SOLAR_OFFGRID_GAP_CANDIDATE id=" + str(row["post_id"]) +
               " slug=" + row["slug"] + " builder=0 quote=0")
-    return 0 if result["status"] == "verified_get_only" else 2
+    return 0 if result["status"] in ("verified_get_only", "verified_partial_get_only") else 2
 
 
 if __name__ == "__main__":
