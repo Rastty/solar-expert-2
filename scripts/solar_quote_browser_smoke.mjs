@@ -21,6 +21,8 @@ const OUTPUT='artifacts/solar-browser-buyer-runtime.json';
 const pageDefinitions=[
   {name:'battery',path:'/vyber-baterii/?scenario=panel400&solar_browser_audit=20261121',
    root:'[x-data="solarExpertBatterySelector()"]'},
+  {name:'cottage_battery',path:'/vyber-baterii/?scenario=builder-chata&solar_browser_audit=20261121',
+   root:'[x-data="solarExpertBatterySelector()"]'},
   {name:'builder',path:'/solarni-sestava-na-chatu/?solar_browser_audit=20261121',
    root:'[x-data="solarExpertBuilder()"]'},
   {name:'home',path:'/?solar_browser_audit=20261121',
@@ -133,7 +135,7 @@ try{
       stale_offer_rows:model.stalePricedOffers,
       runtime_url_exact:true,js_exceptions:jsErrors.length
     };
-    if(def.name==='battery'){
+    if(def.name==='battery'||def.name==='cottage_battery'){
       // Zero clicks: scenario=panel400 is a pre-reviewed editorial deep link.
       // An empty match list or hidden CTA is an actual business-flow failure.
       const visibleCards=await page.locator(def.root+' .se-bundle:visible').count();
@@ -152,6 +154,42 @@ try{
       result.sponsored_affiliate_links=sponsored;
       result.dead_cta_links=invalidHref;
       result.synthetic_offer_clicks=0;
+      if(def.name==='cottage_battery'){
+        const banner=page.locator('[data-se-builder-cottage-model="v2"]');
+        await banner.waitFor({state:'visible',timeout:10000});
+        const fields=await page.evaluate(root=>{
+          const d=window.Alpine.$data(document.querySelector(root));
+          return {voltage:Number(d.voltage),dailyKwh:Number(d.dailyKwh),
+            autonomy:Number(d.autonomy),inverterW:Number(d.inverterW),
+            requiredBatteryKwh:Number(d.requiredBatteryKwh),
+            requiredDischargeA:Number(d.requiredDischargeA),
+            productIds:Array.from(d.matches||[]).map(r=>r.product?.id),
+            engagementTracked:!!d.engagementTracked};
+        },def.root);
+        assert.equal(fields.voltage,24,'Cottage handoff voltage must match source');
+        assert.ok(Math.abs(fields.dailyKwh-1.448)<0.000001,
+          'Cottage handoff must preserve the 1448Wh/day Builder model');
+        assert.equal(fields.autonomy,1);
+        assert.equal(fields.inverterW,900,'BMS startup screening must be conservative');
+        assert.equal(fields.requiredBatteryKwh,2.1,
+          'Correct one-day 80%-usable 90%-AC-efficiency minimum is 2.1kWh');
+        assert.equal(fields.requiredDischargeA,42,
+          'Required DC discharge is ceil(900W/0.9/24V) = 42A');
+        assert.ok(fields.productIds.includes('battery-goowei-24-100'),
+          'Actual source-verified 24V 2.56kWh battery must be recommended');
+        assert.ok(!fields.productIds.includes('battery-goowei-24-50'),
+          'Undersized 24V 1.28kWh battery must never appear');
+        assert.equal(fields.engagementTracked,false,
+          'Opening an editorial deep link must not fake user engagement');
+        const message=await banner.innerText();
+        assert.ok(message.includes('nikoli schválenou solární sestavu'),
+          'Handoff must disclose that a battery is not a complete system');
+        result.cottage_model_exact=true;
+        result.under_capacity_battery_excluded=true;
+        result.synthetic_engagement=false;
+        result.model_minimum_kwh=fields.requiredBatteryKwh;
+        result.model_bms_minimum_a=fields.requiredDischargeA;
+      }
     }else{
       assert.equal(model.catalogReady,true,'Builder failed catalog initialization');
       // The new reversible WordPress overlay must be invisible until a
@@ -196,7 +234,7 @@ try{
         'Generic fallback should not obscure specific 12V explanation');
       const handoff=recovery.locator('a[data-se-recovery-destination]');
       assert.equal(await handoff.count(),1,'Safe same-site battery handoff is missing');
-      assert.equal(await handoff.getAttribute('href'),'/vyber-baterii/?scenario=panel400',
+      assert.equal(await handoff.getAttribute('href'),'/vyber-baterii/?scenario=builder-chata',
         'Buyer recovery must never take the user to a merchant or arbitrary page');
       assert.equal(await handoff.isVisible(),true,
         'Safe alternative model link is not visible or actionable');
@@ -205,7 +243,7 @@ try{
         'Recovery must disclose that a partial battery example is not a complete system');
       result.empty_result_recovery_visible=true;
       result.homepage_primary_cta_exercised=def.name==='home';
-      result.safe_handoff_link='/vyber-baterii/?scenario=panel400';
+      result.safe_handoff_link='/vyber-baterii/?scenario=builder-chata';
       result.recovery_warning_discloses_incomplete_system=true;
       result.example_step=after.step;
       result.complete_technical_bundles=after.completeBundles;
