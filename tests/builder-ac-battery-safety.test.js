@@ -78,8 +78,11 @@ assert.equal(pumphouse.primaryShoppingList,null,
   '2.56kWh nominal stock cannot be falsely sold for a 2.6kWh requirement');
 pumphouse.autonomy=.5;
 pumphouse.calc();
-assert(pumphouse.primaryShoppingList,
-  'A distinct, user-chosen half-day reserve still gets a legitimate quote');
+assert.equal(pumphouse.result.batteryPeakDcW,Math.ceil(pumphouse.result.peak/0.90));
+assert.equal(pumphouse.primaryShoppingList,null,
+  'Reducing autonomy cannot make a 24V BMS able to supply an unsafe AC well-pump start surge');
+assert(pumphouse.result.riskFlags.some(w=>w.includes('BMS')),
+  'Explain the distinct battery surge-current constraint rather than silently dropping the bill');
 
 const html=fs.readFileSync(path.join(__dirname,'..','template-parts/solar-builder.php'),'utf8');
 assert(html.includes('data-se-builder-ac-battery-assumptions="true"'));
