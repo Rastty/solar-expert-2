@@ -1,0 +1,71 @@
+name: Solar Quote Checker exact buyer link via Code Snippets (no WPVibe)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_quote_bridge_release.py'
+      - 'tests/test_solar_quote_bridge_release.py'
+      - 'ops/solar-quote-bridge-release.json'
+      - '.github/workflows/solar-quote-bridge-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_quote_bridge_release.py'
+      - 'tests/test_solar_quote_bridge_release.py'
+      - 'ops/solar-quote-bridge-release.json'
+      - '.github/workflows/solar-quote-bridge-release.yml'
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python and PHP syntax, idempotency, page scope and exact REST write mocks
+        run: |
+          python -m py_compile scripts/solar_quote_bridge_release.py
+          python -m unittest discover -s tests -p 'test_solar_quote_bridge_release.py' -v
+  one-exact-snippet:
+    needs: contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Require fresh exact control change, not source merge or retry
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          changed="$(git diff --name-only "$BEFORE" "$AFTER" -- ops/solar-quote-bridge-release.json)"
+          [[ "$changed" == 'ops/solar-quote-bridge-release.json' ]] || exit 0
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"one_quote_checker_indexed_tool_bridge"}' ops/solar-quote-bridge-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Create one reviewed inactive snippet, verify code, activate once, read back three public pages
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_quote_bridge_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-quote-bridge-safe-receipt-${{ github.run_id }}
+          path: artifacts/solar-quote-bridge-receipt.json
+          retention-days: 21
+          if-no-files-found: warn
