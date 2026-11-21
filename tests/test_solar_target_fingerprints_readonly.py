@@ -50,6 +50,26 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
         self.assertFalse(result["theme_deploy_authorized"])
         self.assertNotIn(self.private_content, json.dumps(result))
         self.assertEqual(len(self.requests), 17)
+        self.assertTrue(all(row["buyer_route_counts"] == {"complete_kit_builder": 0, "offgrid_quote_checker": 0} for row in result["posts"]))
+
+    def test_count_real_anchors_only_and_never_store_body_or_urls(self):
+        self.private_content = (
+            '<p>Private evidence <a href="/solarni-sestava-na-chatu/">Builder</a> '
+            '<a href="https://solar-expert.cz/quote-checker/?ref=internal">Quote</a> '
+            '<a href="https://evil.example/solarni-sestava-na-chatu/">Unsafe</a> '
+            '<a href="//evil.example/quote-checker/">Offsite</a> '
+            '<a href="/solarni-sestava-na-chatu/faq">Subpath</a></p>'
+            '<pre>href="/solarni-sestava-na-chatu/"</pre>'
+        )
+        with patch.object(publisher, "wp", side_effect=self.wp):
+            result = evidence.inspect()
+        for row in result["posts"]:
+            self.assertEqual(row["buyer_route_counts"], {
+                "complete_kit_builder": 1, "offgrid_quote_checker": 1
+            })
+        self.assertNotIn(self.private_content, json.dumps(result))
+        self.assertNotIn("evil.example", json.dumps(result))
+        self.assertEqual(result["writes"], 0)
 
     def test_identity_change_fails_only_affected_post(self):
         self.bad_id = 341
@@ -57,6 +77,7 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
             result = evidence.inspect()
         self.assertEqual(result["posts"][0]["status"], "unknown_or_unavailable")
         self.assertIsNone(result["posts"][0]["current_source_sha256"])
+        self.assertIsNone(result["posts"][0]["buyer_route_counts"])
         self.assertEqual(result["posts"][1]["status"], "verified_current_published_post")
 
     def test_auth_failure_never_archives_private_error_or_body(self):
@@ -67,6 +88,7 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
             saved = evidence.OUTPUT.read_text(encoding="utf-8")
             self.assertNotIn("SECRET", saved)
             self.assertNotIn(self.private_content, saved)
+            self.assertTrue(all(r["buyer_route_counts"] is None for r in json.loads(saved)["posts"]))
             self.assertTrue(all(row["status"] == "unknown_or_unavailable"
                                 for row in json.loads(saved)["posts"]))
 
