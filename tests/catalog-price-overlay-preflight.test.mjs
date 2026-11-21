@@ -92,3 +92,18 @@ test('unsafe seller links, duplicate offer sources and extra bundles fail closed
   dev.bundle_deals.pop();
   assert.throws(()=>audit(live,dev),/Bundle identity cohort drift/);
 });
+
+test('one discontinued/unpriced item with no date is excluded from 52 priced live quotes',()=>{
+  const {live,dev}=fixture();
+  const inactive=quote('retired','other-shop','');
+  inactive.availability='discontinued';
+  live.products[0].offers.push(inactive);
+  dev.products[0].offers.push(structuredClone(inactive));
+  const result=audit(live,dev);
+  assert.equal(result.summary.counts.raw_offer_rows,53);
+  assert.equal(result.summary.counts.ignored_discontinued_or_unpriced,1);
+  assert.equal(result.summary.counts.all_offer_rows,52);
+  assert.equal(result.summary.counts.eligible,49);
+  assert.equal(result.catalog.products[0].offers[2].availability,'discontinued');
+  assert.equal(result.catalog.products[0].offers[2].verified_at,'');
+});
