@@ -195,6 +195,10 @@ try{
       // The new reversible WordPress overlay must be invisible until a
       // genuinely calculated (step 4) result is missing all safe bundles.
       // A static HTML/REST proof alone cannot establish Alpine visibility.
+      const modelCard=page.locator('#builder [data-se-reviewed-24v-example="v1"]');
+      await modelCard.waitFor({state:'attached',timeout:LIMIT_MS});
+      assert.equal(await modelCard.isVisible(),false,
+        'One 24V model card must stay hidden until genuine fixed sample');
       const recovery=page.locator('#builder [data-se-builder-recovery="v1"]');
       await recovery.waitFor({state:'attached',timeout:LIMIT_MS});
       assert.equal(await recovery.isVisible(),false,
@@ -241,6 +245,44 @@ try{
       const copy=await recovery.innerText();
       assert.ok(copy.includes('ne náhradní hotovou sestavu'),
         'Recovery must disclose that a partial battery example is not a complete system');
+      // The 24V variant is a source-reviewed illustrative set of separate
+      // purchases, never a custom installation sign-off or a shared cart.
+      await modelCard.waitFor({state:'visible',timeout:10000});
+      assert.equal(await page.locator('#builder [data-se-reviewed-24v-example="v1"]').count(),1,
+        'Do not duplicate preview 24V example');
+      const productAnchors=modelCard.locator('a[data-se-placement="builder-24v-reviewed-model"]');
+      assert.equal(await productAnchors.count(),4,
+        'Source-backed priced kit must have all four purchase destinations, not partial links');
+      const quotes=await productAnchors.evaluateAll(nodes=>nodes.map(a=>{
+        const url=new URL(a.href);
+        return {id:a.dataset.seProductId||'',
+          merchant:a.dataset.seMerchant||'',protocol:url.protocol,
+          host:url.hostname,external:url.origin!==window.location.origin,
+          rel:a.rel,
+          placeholder:a.getAttribute('href')==='#'};
+      }));
+      assert.deepEqual(new Set(quotes.map(q=>q.id)),new Set([
+        'battery-goowei-24-100','inverter-victron-24-1200',
+        'mppt-victron-100-30','panel-victron-190'
+      ]),'A priced 24V model must show exact source-reviewed component IDs');
+      assert.ok(quotes.every(q=>q.external&&q.protocol==='https:'&&
+        !q.placeholder&&q.merchant&&q.rel.includes('nofollow')&&
+        q.rel.includes('noopener')),
+        'No dead, internal, unsafe or unlabelled merchant offer links');
+      const modelTotal=await modelCard.locator('[data-se-model-total="true"]').innerText();
+      assert.equal(modelTotal.replace(/[^0-9]/g,''),'34109',
+        'Current source-locked 24V 2S2P four-component subtotal must reconcile');
+      const buyerCopy=await modelCard.innerText();
+      assert.ok(buyerCopy.includes('2S2P')&&
+        buyerCopy.includes('Toto není jeden společný košík')&&
+        buyerCopy.includes('nejde o instalační projekt')&&
+        buyerCopy.includes('Battery.cz a Solar-Import.cz'),
+        'Source-priced 24V model must keep seller-independence and incomplete-install disclaimers');
+      result.reviewed_24v_model_visible=true;
+      result.reviewed_24v_model_seller_links=quotes.length;
+      result.reviewed_24v_model_exact_price_czk=34109;
+      result.reviewed_model_installation_claim=false;
+      result.reviewed_model_synthetic_merchant_clicks=0;
       result.empty_result_recovery_visible=true;
       result.homepage_primary_cta_exercised=def.name==='home';
       result.safe_handoff_link='/vyber-baterii/?scenario=builder-chata';
@@ -282,6 +324,8 @@ try{
       ' fresh_in_stock='+x.fresh_in_stock_offer_rows+
       ' visible_offers='+(x.visible_merchant_offers??'not_applicable')+
       ' compatible_bundles='+(x.complete_technical_bundles??'not_applicable')+
-      ' safe_recovery_visible='+(x.empty_result_recovery_visible??'not_applicable'));
+      ' safe_recovery_visible='+(x.empty_result_recovery_visible??'not_applicable')+
+      ' reviewed_24v_links='+(x.reviewed_24v_model_seller_links??'not_applicable')+
+      ' model_price='+(x.reviewed_24v_model_exact_price_czk??'not_applicable'));
   }
 }

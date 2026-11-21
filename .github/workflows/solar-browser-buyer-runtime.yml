@@ -47,6 +47,15 @@ jobs:
           gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-builder-cottage-handoff-release.yml/runs?event=push&per_page=70" |
             jq -e '[.workflow_runs[] | select(.head_sha == "ef13104f09dc5a33062786dea6202cfad41c821a") | select(.status=="completed" and .conclusion=="success")] | length == 1' >/dev/null
           echo 'SOLAR_COTTAGE_HANDOFF_WRITER main_release_success=true exact_sha=true'
+      - name: Verify exact one-shot source-priced 24V model publisher concluded successfully
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-24v-reviewed-model-card-release.yml/runs?event=push&per_page=70" |
+            jq -e '[.workflow_runs[] | select(.head_sha == "300e869ce36b6e1a3d11ebd45b5ae609e999e799") | select(.status=="completed" and .conclusion=="success")] | length == 1' >/dev/null
+          echo 'SOLAR_24V_MODEL_PUBLISHER status=completed_success exact_main_sha=true'
       - name: Install pinned Chromium test runner
         run: |
           test -f package.json || npm init -y > /dev/null
@@ -68,7 +77,10 @@ jobs:
             and ([.tools[] | select(.tool=="cottage_battery") | .cottage_model_exact] | all(. == true))
             and ([.tools[] | select(.tool=="cottage_battery") | .under_capacity_battery_excluded] | all(. == true))
             and ([.tools[] | select(.tool=="builder" or .tool=="home") | .empty_result_recovery_visible] | all(. == true))
-            and ([.tools[] | select(.tool=="home") | .homepage_primary_cta_exercised] | all(. == true))' artifacts/solar-browser-buyer-runtime.json > /dev/null
+            and ([.tools[] | select(.tool=="home") | .homepage_primary_cta_exercised] | all(. == true))
+            and ([.tools[] | select(.tool=="home" or .tool=="builder") | .reviewed_24v_model_visible] | all(. == true))
+            and ([.tools[] | select(.tool=="home" or .tool=="builder") | .reviewed_24v_model_seller_links] | all(. == 4))
+            and ([.tools[] | select(.tool=="home" or .tool=="builder") | .reviewed_24v_model_exact_price_czk] | all(. == 34109))' artifacts/solar-browser-buyer-runtime.json > /dev/null
       - uses: actions/upload-artifact@v4
         if: always()
         with:
