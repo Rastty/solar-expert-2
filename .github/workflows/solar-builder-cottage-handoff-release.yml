@@ -1,0 +1,73 @@
+name: Solar Builder cottage → exact 24V Battery Selector model (existing snippet, one PUT)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_builder_cottage_handoff_release.py'
+      - 'tests/test_solar_builder_cottage_handoff_release.py'
+      - 'ops/solar-builder-cottage-handoff-release.json'
+      - '.github/workflows/solar-builder-cottage-handoff-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_builder_cottage_handoff_release.py'
+      - 'tests/test_solar_builder_cottage_handoff_release.py'
+      - 'ops/solar-builder-cottage-handoff-release.json'
+      - '.github/workflows/solar-builder-cottage-handoff-release.yml'
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Source-safe consumer model with real PHP + syntax check
+        run: |
+          python -m py_compile scripts/solar_builder_cottage_handoff_release.py
+          python -m unittest discover -s tests -p 'test_solar_builder_cottage_handoff_release.py' -v
+  one-existing-snippet:
+    needs: contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Allow only exact separately reviewed control-only OFF→ON commit
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-builder-cottage-handoff-release.json' ]] || exit 0
+          git show "$BEFORE:ops/solar-builder-cottage-handoff-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,"mode":"one_inplace_builder_model_cottage_24v_handoff"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"one_inplace_builder_model_cottage_24v_handoff"}' ops/solar-builder-cottage-handoff-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: One existing active snippet PUT and public homepage/Builder/Battery readback
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_builder_cottage_handoff_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-cottage-model-handoff-receipt-${{ github.run_id }}
+          path: artifacts/solar-builder-cottage-handoff-receipt.json
+          retention-days: 21
+          if-no-files-found: warn
