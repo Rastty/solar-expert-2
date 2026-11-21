@@ -73,7 +73,7 @@ echo json_encode(['first'=>$first,'final'=>$injected],JSON_UNESCAPED_UNICODE);
                 self.assertEqual(data['first'],data['final'])
                 self.assertEqual(data['first'][0][0],'solar-expert-affiliate')
                 self.assertEqual(data['first'][0][2],'after')
-                self.assertIn(URL,data['first'][0][1])
+                self.assertIn(URL.replace('/',r'\/'),data['first'][0][1])
 
     def test_exact_origin_restriction_and_no_cross_site_media(self):
         for url in (
@@ -91,6 +91,8 @@ echo json_encode(['first'=>$first,'final'=>$injected],JSON_UNESCAPED_UNICODE);
         html=('...affiliate-adapter.js...product-matcher.js...'
               'window.SolarExpertConfig.catalogUrl = "'+URL+'";').encode()
         self.assertTrue(m.inspect_scripts(html,URL))
+        html_escaped=html.replace(URL.encode(),URL.replace('/',r'\/').encode())
+        self.assertTrue(m.inspect_scripts(html_escaped,URL))
         with self.assertRaises(m.Blocked):m.inspect_scripts(html+html,URL)
         with self.assertRaises(m.Blocked):m.inspect_scripts(b'no markup',URL)
 
