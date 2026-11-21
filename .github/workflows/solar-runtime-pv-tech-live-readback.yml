@@ -25,7 +25,7 @@ jobs:
         run: node tools/catalog-price-overlay-preflight.mjs
       - name: Independent GitHub API read of exact one-shot main release result
         env:
-          ${{ github.token }}: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
@@ -35,7 +35,7 @@ jobs:
           echo "SOLAR_PV_TECH_WRITER main_release_exact_sha=true status=success run_id=$id"
       - name: Authenticated exact active PHP source and public REST JSON (no write)
         env:
-          SOLAR_${{ secrets.SOLAR_WP_USER }}: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
           SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
         shell: bash
         run: |
@@ -43,7 +43,7 @@ jobs:
           python - <<'PY'
           import os
           from scripts import solar_runtime_pv_tech_release as m
-          u=os.environ['SOLAR_${{ secrets.SOLAR_WP_USER }}'].strip()
+          u=os.environ['SOLAR_WP_USER'].strip()
           p=os.environ['SOLAR_WP_APP_PASSWORD'].strip()
           old_catalog,new_catalog,old_code,new_code=m.expected_sources()
           status,items=m.wp('GET',m.old.LIST,u,p)
