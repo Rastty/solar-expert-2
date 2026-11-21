@@ -45,11 +45,16 @@ function sandboxVersion(rev,products,bundleDeals){
     dataLayer:[]
   };
   const sandbox={
-    window,console,URL,URLSearchParams,Date,Math,Number,Array,Set,Map,
+    // URL above is this script's first-party catalog URL STRING, not the
+    // WHATWG URL constructor! In a VM this would silently reject EVERY
+    // legitimate seller source and fabricate a zero-priced 24V bundle.
+    window,console,URL:globalThis.URL,URLSearchParams,Date,Math,Number,Array,Set,Map,
     CustomEvent:class{},
     fetch(){throw new Error('No runtime or merchant fetch permitted in offline diagnostic')},
     setTimeout(){throw new Error('No timers in static model diagnostic')}
   };
+  if(typeof sandbox.URL!=='function'||sandbox.URL!==globalThis.URL)
+    throw new Error('Sandbox MUST expose the real WHATWG URL constructor for merchant source evidence');
   vm.createContext(sandbox);
   // Dev Builder requires the real offer adapter for complete-purchase-link
   // evidence and voltage fallback. Omitting it would falsely report a
@@ -97,7 +102,40 @@ function sandboxVersion(rev,products,bundleDeals){
         tier:row.tier,complete:!!row.complete,
         priced:!!row.priceComplete,missing:row.missing||[],
         battery:row.battery?.id||null,inverter:row.inverter?.id||null,
-        mppt:row.mppt?.id||null,pvIscVerified:row.pvIscVerified??null
+        mppt:row.mppt?.id||null,pvIscVerified:row.pvIscVerified??null,
+        panel_id:row.panel?.product?.id||null,
+        panel_count:row.panel?.count||0,
+        panel_topology:row.panel?.topology||null,
+        total_price_czk:row.priceComplete&&Number.isFinite(Number(row.totalPrice))?Number(row.totalPrice):null,
+        pending_physical_checks:Array.isArray(row.checksPending)?row.checksPending:[],
+        // Source-backed quote readiness per real selected component.
+        // Exposes only publicly visible effective price or null, no
+        // merchant tracking URL, token or fabricated checkout route.
+        parts:[
+          ['battery',row.battery],['inverter',row.inverter],
+          ['mppt',row.mppt],['panel',row.panel?.product]
+        ].filter(([,p])=>p).map(([kind,p])=>{
+          const n=window.SolarExpertProductMatcher.effectivePrice(p);
+          const valid=Number.isFinite(n)&&n>0&&n<Number.MAX_SAFE_INTEGER;
+          const offers=Array.isArray(p.offers)?p.offers:[];
+          return {kind,id:p.id,price_czk:valid?n:null,
+            public_quote_rows:offers.map(o=>({
+              merchant:o.merchant||null,availability:o.availability||null,
+              verified_at:o.verified_at||null,price_czk:Number(o.price_czk)||null,
+              host:(()=>{try{return new globalThis.URL(o.source_url).hostname}catch{return 'invalid'}})(),
+              seller_source_accepted:typeof window.SolarExpertProductMatcher.hasSellerSource==='function'
+                ?window.SolarExpertProductMatcher.hasSellerSource(o):null,
+              freshness:typeof window.SolarExpertProductMatcher.verificationState==='function'
+                ?window.SolarExpertProductMatcher.verificationState(o.verified_at):'legacy'
+            })),
+            dated_in_stock_source_offers:offers.filter(o=>
+              typeof window.SolarExpertProductMatcher.hasSellerSource==='function' &&
+              window.SolarExpertProductMatcher.hasSellerSource(o)&&
+              o.availability==='in_stock'&&
+              typeof window.SolarExpertProductMatcher.verificationState==='function' &&
+              window.SolarExpertProductMatcher.verificationState(o.verified_at)==='fresh'
+            ).length};
+        })
       }))
     };
   });
@@ -115,12 +153,34 @@ function sandboxVersion(rev,products,bundleDeals){
   };
 }
 const data=await catalog();
+// This is the FIRST re-run after the new REST source has manufacturer PV
+// short-circuit current evidence. Prove identity/values so this does not
+// accidentally repeat the 2026-11-21 10:44 old-payload experiment.
+const byId=new Map(data.products.map(p=>[p.id,p]));
+const sourceValues=new Map([
+  ['panel-victron-190',['isc_a',9.17]],
+  ['mppt-victron-100-20',['max_pv_isc_a',20]],
+  ['mppt-victron-100-30',['max_pv_isc_a',35]],
+  ['mppt-victron-100-50',['max_pv_isc_a',60]],
+  ['mppt-victron-150-35',['max_pv_isc_a',35]],
+  ['mppt-victron-150-70',['max_pv_isc_a',50]],
+  ['mppt-victron-250-100',['max_pv_isc_a',70]]
+]);
+for(const [id,[field,exactValue]] of sourceValues){
+  const row=byId.get(id);
+  if(!row||Number(row[field])!==exactValue)
+    throw new Error('The new 7-product production PV evidence is absent: '+id);
+  const sourceField=field==='isc_a'?'isc_source_url':'max_pv_isc_source_url';
+  if(typeof row[sourceField]!=='string'||!row[sourceField].startsWith('https://'))
+    throw new Error('Missing reviewed source URL for '+id);
+}
 const old=sandboxVersion(LEGACY,data.products,data.bundle_deals);
 const next=sandboxVersion(DEV,data.products,data.bundle_deals);
 const report={
   schema_version:1,
   method:'exact_old_and_pinned_dev_javascript_on_identical_current_public_rest_catalog',
   live_rest_catalog_items:data.products.length,
+  verified_pv_isc_source_rows:sourceValues.size,
   live_rest_bundle_deals:data.bundle_deals.length,
   legacy:old,
   pinned_dev:next,
@@ -149,5 +209,14 @@ for(const x of [old,next]){
       t.tier+':'+(t.complete?'complete':'missing_'+t.missing.join('_'))+
       ':'+(t.priceComplete?'priced':'notpriced')).join(','));
 }
+const dev24=next.voltage_probes.find(p=>p.voltage===24);
+const legacy24=old.voltage_probes.find(p=>p.voltage===24);
+console.log('SOLAR_PV_EVIDENCE_BUYER_24V manufacturer_pv_rows='+sourceValues.size+
+  ' dev_technical_complete='+dev24.complete_tiers+
+  ' dev_priced='+dev24.price_complete_tiers+
+  ' dev_best_quote_parts='+JSON.stringify(dev24.rows.find(r=>r.tier==='best')?.parts||[])+
+  ' legacy_technical_complete='+legacy24.complete_tiers+
+  ' verified_complete_system_purchase=false'+
+  ' theme_deployed=false synthetic_affiliate_clicks=0');
 console.log('SOLAR_BUILDER_GAP_DIAGNOSTIC status=read_only code_versions=2'+
   ' wordpress_writes=0 affiliate_clicks=0 theme_deployed=false');
