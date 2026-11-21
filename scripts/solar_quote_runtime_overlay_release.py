@@ -178,10 +178,14 @@ def inspect_scripts(html,url):
     # This validates the server-injected first-party override. It is not a
     # JavaScript/browser-run or a claimed affiliate click.
     source=html.decode('utf-8','replace')
-    exact="'window.SolarExpertConfig.catalogUrl'"  # do not depend on this literal
     marker='window.SolarExpertConfig.catalogUrl = '
-    require(source.count(marker)==1 and url in source,
-            'Public page lacks one exact first-party catalog override')
+    hits=list(re.finditer(re.escape(marker)+r'\s*("(?:\\\\.|[^"\\\\])*")\s*;',source))
+    require(len(hits)==1,'Public page lacks one unique first-party catalog override')
+    try:
+        configured=json.loads(hits[0].group(1))
+    except ValueError:
+        raise Blocked('Public inline catalog override invalid JSON') from None
+    require(configured==url,'Public page quote catalog URL mismatches approved media')
     require('affiliate-adapter.js' in source and 'product-matcher.js' in source,
             'Required old theme runtime missing')
     return True
