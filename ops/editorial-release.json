@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-mppt400-fullkit-bridge-20261121-v1.json",
-  "activation_revision": 23,
-  "notice": "Single guarded append to published MPPT 400Wp buyer guide WP #1612. Source-pinned exact authenticated 2026-11-21 07:09 UTC GET-only SHA and modified time from run #44878863806, one Builder link with Voc/Isc and off-grid-only caveats, encrypted original snapshot, one POST max and independent readback. Preserve prior published battery selector link. No new WordPress post, theme or catalog release. Circulation-pump UPS new post remains held for revision 24 after the 24h post cooldown and fresh absence check."
+  "manifest": "ops/editorial-manifests/solar-well-pump-ac-fullkit-bridge-20261121-v1.json",
+  "activation_revision": 24,
+  "notice": "Guarded single existing-post append for Solar Expert WordPress #1641, exact source-locked SHA/modified GMT from authenticated 2026-11-21 GET-only audit #44880338933. One Builder link only for off-grid 230V AC well pump with battery and inverter. Explicit exclusion for direct DC pumps, hydraulic head, flow, dry-run and surge checks. Encrypted prewrite + at most one CAS guarded POST; no theme/catalog update or new post. Next NEW post UPS guide: editorial revision 25 after 2026-11-21 13:30:38 UTC only with fresh 24h cooldown and absence proof."
 }
