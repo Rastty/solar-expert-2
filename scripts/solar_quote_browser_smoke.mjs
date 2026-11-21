@@ -1,0 +1,208 @@
+#!/usr/bin/env node
+/**
+ * Browser-executed LIVE buyer path (Chromium + Alpine) with ZERO server-side
+ * analytics POST, affiliate network navigation or synthetic paid traffic.
+ * A previous independent GET-only verification already proved HTML and REST
+ * bytes; this proves the old frontend ACTUALLY fetches that REST URL and
+ * renders compatible/dated offers rather than showing loading/error fallbacks.
+ *
+ * Navigation is restricted to exact own domain + Alpine CDN; all POST and
+ * non-first-party traffic is aborted. Click only a first-party internal sample
+ * CTA while outbound/analytics traffic stays blocked. Never click an offer.
+ */
+import assert from 'node:assert/strict';
+import {mkdirSync,writeFileSync} from 'node:fs';
+import {chromium} from 'playwright';
+
+const ORIGIN='https://solar-expert.cz';
+const CATALOG=ORIGIN+'/wp-json/solar-quote-overlay/v2/catalog';
+const LIMIT_MS=35000;
+const OUTPUT='artifacts/solar-browser-buyer-runtime.json';
+const pageDefinitions=[
+  {name:'battery',path:'/vyber-baterii/?scenario=panel400&solar_browser_audit=20261121',
+   root:'[x-data="solarExpertBatterySelector()"]'},
+  {name:'builder',path:'/solarni-sestava-na-chatu/?solar_browser_audit=20261121',
+   root:'[x-data="solarExpertBuilder()"]'}
+];
+let deniedMethods=0,deniedExternal=0;
+const onlyAllowed=(url,method)=>{
+  if(method!=='GET'&&method!=='HEAD'){deniedMethods++;return false;}
+  let parsed;
+  try{parsed=new URL(url);}catch{return false;}
+  if(parsed.protocol!=='https:'){deniedExternal++;return false;}
+  if(parsed.origin===ORIGIN)return true;
+  if(parsed.hostname==='cdn.jsdelivr.net'&&
+     parsed.pathname==='/npm/alpinejs@3.14.9/dist/cdn.min.js')return true;
+  deniedExternal++;return false;
+};
+const safeNote=(value)=>String(value).replace(/https?:\/\/[^\s]+/g,'[url]').slice(0,180);
+
+const results=[];
+const browser=await chromium.launch({
+  headless:true,
+  args:['--disable-background-networking','--no-default-browser-check']
+});
+const context=await browser.newContext({
+  serviceWorkers:'block',acceptDownloads:false,
+  viewport:{width:1360,height:850},locale:'cs-CZ',
+  extraHTTPHeaders:{'X-Solar-Expert-QA':'no-events-no-affiliate'}
+});
+await context.route('**/*',async route=>{
+  const req=route.request();
+  if(!onlyAllowed(req.url(),req.method())){
+    await route.abort('blockedbyclient');
+    return;
+  }
+  await route.continue();
+});
+
+let succeeded=false;
+try{
+  for(const def of pageDefinitions){
+    const page=await context.newPage();
+    const observedCatalog=[];
+    const jsErrors=[];
+    page.on('response',response=>{
+      if(response.url()===CATALOG){
+        observedCatalog.push({status:response.status(),
+          method:response.request().method()});
+      }
+    });
+    page.on('pageerror',error=>jsErrors.push(safeNote(error.message)));
+
+    const response=await page.goto(ORIGIN+def.path,{
+      waitUntil:'domcontentloaded',timeout:LIMIT_MS
+    });
+    assert.equal(response?.status(),200,def.name+' returned non-200 HTML');
+    await page.waitForFunction(root=>{
+      const el=document.querySelector(root);
+      if(!el||!window.Alpine||!window.Alpine.$data)return false;
+      const data=window.Alpine.$data(el);
+      return data.catalogLoading===false;
+    },def.root,{timeout:LIMIT_MS});
+
+    const model=await page.evaluate(root=>{
+      const el=document.querySelector(root);
+      const d=window.Alpine.$data(el);
+      const catalog=Array.from(d.catalog||[]);
+      const offers=catalog.flatMap(p=>Array.isArray(p.offers)&&p.offers.length?p.offers:[p]);
+      const matcher=window.SolarExpertProductMatcher;
+      const freshOffers=offers.filter(o=>o.availability==='in_stock'&&
+        Number(o.price_czk)>0&&
+        matcher.verificationState(o.verified_at)==='fresh');
+      const staleOffers=offers.filter(o=>o.availability!=='discontinued'&&
+        Number(o.price_czk)>0&&matcher.verificationState(o.verified_at)==='stale');
+      const common={
+        catalogUrl:window.SolarExpertConfig?.catalogUrl,
+        alpine:!!window.Alpine,
+        catalogLength:catalog.length,
+        catalogLoading:!!d.catalogLoading,
+        catalogError:!!d.catalogError,
+        freshInStockOffers:freshOffers.length,
+        stalePricedOffers:staleOffers.length
+      };
+      return root.includes('BatterySelector')
+        ? {...common,matches:Array.from(d.matches||[]).length,
+           engagementTracked:!!d.engagementTracked}
+        : {...common,catalogReady:!!d.catalogReady,
+           bundleDealCount:Array.from(d.bundleDeals||[]).length};
+    },def.root);
+
+    assert.equal(model.catalogUrl,CATALOG,def.name+': runtime URL did not override static catalog');
+    assert.equal(model.catalogLength,24,def.name+': browser did not hydrate 24 products');
+    assert.equal(model.catalogError,false,def.name+': catalog error state in live browser');
+    assert.ok(model.freshInStockOffers>0,def.name+': no fresh purchasable offer');
+    assert.equal(observedCatalog.length,1,def.name+': expected exactly one actual frontend catalog fetch');
+    assert.deepEqual(observedCatalog[0],{status:200,method:'GET'},
+      def.name+': catalog GET was not 200');
+    assert.deepEqual(jsErrors,[],def.name+': browser JavaScript exception(s)');
+
+    const result={
+      tool:def.name,catalog_gets:observedCatalog.length,
+      catalog_status:200,catalog_products:model.catalogLength,
+      fresh_in_stock_offer_rows:model.freshInStockOffers,
+      stale_offer_rows:model.stalePricedOffers,
+      runtime_url_exact:true,js_exceptions:jsErrors.length
+    };
+    if(def.name==='battery'){
+      // Zero clicks: scenario=panel400 is a pre-reviewed editorial deep link.
+      // An empty match list or hidden CTA is an actual business-flow failure.
+      const visibleCards=await page.locator(def.root+' .se-bundle:visible').count();
+      const visibleOffers=await page.locator(def.root+' a.se-offer:visible').count();
+      const sponsored=await page.locator(
+        def.root+' a.se-offer:visible[rel*="sponsored"]').count();
+      assert.ok(model.matches>0,'Battery selector has no compatible recommendation');
+      assert.ok(visibleCards>0,'Battery selector model has no visible recommendation card');
+      assert.ok(visibleOffers>0,'Battery selector has no visible merchant offer');
+      const invalidHref=await page.locator(def.root+' a.se-offer:visible').evaluateAll(
+        links=>links.filter(l=>!l.href||l.getAttribute('href')==='#').length);
+      assert.equal(invalidHref,0,'Buyer product CTA link is a dead placeholder');
+      result.match_count=model.matches;
+      result.visible_cards=visibleCards;
+      result.visible_merchant_offers=visibleOffers;
+      result.sponsored_affiliate_links=sponsored;
+      result.dead_cta_links=invalidHref;
+      result.synthetic_offer_clicks=0;
+    }else{
+      assert.equal(model.catalogReady,true,'Builder failed catalog initialization');
+      const button=page.getByRole('button',{name:/Ukázat vzorovou sestavu/});
+      assert.equal(await button.count(),1,'Builder first-use CTA not unique');
+      // Real user interaction on own tool only. All analytics POSTs
+      // and outbound links are blocked at browser-context routing.
+      await button.click({timeout:10000});
+      await page.waitForFunction(root=>{
+        const d=window.Alpine.$data(document.querySelector(root));
+        return d.step===4&&!!d.result;
+      },def.root,{timeout:15000});
+      const after=await page.evaluate(root=>{
+        const d=window.Alpine.$data(document.querySelector(root));
+        return{
+          step:d.step,
+          completeBundles:Array.from(d.completeBundles||[]).length,
+          incompleteBundles:Array.from(d.incompleteBundles||[]).length,
+          catalogReady:!!d.catalogReady,
+          resultValid:Number.isFinite(Number(d.result?.energyKwh))&&
+            Number(d.result?.energyKwh)>0
+        };
+      },def.root);
+      assert.ok(after.resultValid,'Builder sample result is absent after click');
+      assert.equal(after.catalogReady,true,'Builder catalog not ready after sample');
+      result.example_step=after.step;
+      result.complete_technical_bundles=after.completeBundles;
+      result.incomplete_bundles=after.incompleteBundles;
+      result.sample_result_rendered=true;
+      result.synthetic_outbound_clicks=0;
+    }
+    results.push(result);
+    await page.close();
+  }
+  succeeded=true;
+}finally{
+  await context.close();
+  await browser.close();
+  mkdirSync('artifacts',{recursive:true});
+  const report={
+    schema_version:1,
+    site:ORIGIN,mode:'live_chromium_runtime_read_only',
+    status:succeeded?'browser_verified':'browser_not_verified',
+    expected_catalog_path:'/wp-json/solar-quote-overlay/v2/catalog',
+    tools:results,non_get_requests_blocked:deniedMethods,
+    external_requests_blocked:deniedExternal,
+    affiliate_navigation_attempts:0,
+    merchant_requests:0,word_press_writes:0,
+    analytics_events_sent:0,theme_deployed:false,
+    browser_execution_verified:succeeded,
+    commission_verified:false
+  };
+  writeFileSync(OUTPUT,JSON.stringify(report,null,2)+'\n');
+  console.log('SOLAR_BROWSER_RUNTIME status='+report.status+
+    ' tools='+results.length+' analytics_posts_blocked='+deniedMethods+
+    ' external_blocked='+deniedExternal+' WP_writes=0 affiliate_clicks=0');
+  for(const x of results){
+    console.log('SOLAR_BROWSER_TOOL tool='+x.tool+
+      ' catalog_gets='+x.catalog_gets+
+      ' fresh_in_stock='+x.fresh_in_stock_offer_rows+
+      ' visible_offers='+(x.visible_merchant_offers??'not_applicable')+
+      ' compatible_bundles='+(x.complete_technical_bundles??'not_applicable'));
+  }
+}
