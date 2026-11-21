@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-well-pump-ac-fullkit-bridge-20261121-v1",
+  "post_id": 1641,
+  "slug": "solarni-cerpadlo-do-studny-bez-elektriny",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Solární čerpadlo do studny bez elektřiny: panel, baterie a výběr",
+  "excerpt": "Čerpání vody ze studny bez sítě: výtlak, průtok, přímé DC čerpání proti 230V čerpadlu, baterie, měnič a bezpečné dimenzování ostrovní sestavy.",
+  "source_commit": "580a3310cb2a8e869b479647a73ea3249eda8311",
+  "source_file": "content/editorial-append/solarni-cerpadlo-do-studny-bez-elektriny.html",
+  "source_sha256": "c804536029a584023263328186626b320b58e81d10b34b25acd3ecc42e6c61a8",
+  "link_target": "/solarni-sestava-na-chatu/",
+  "expected_current_sha256": "828291ea8466f2e79708a4242120ccd833fea89cb82e9e9d1e6a67e28a613686",
+  "expected_modified_gmt": "2026-11-20T13:30:38"
+}

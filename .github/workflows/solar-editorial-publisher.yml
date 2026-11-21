@@ -22,6 +22,7 @@ on:
       - "tests/test_solar_caravan_builder_bridge.py"
       - "tests/test_solar_camera_builder_bridge.py"
       - "tests/test_solar_mppt400_builder_bridge.py"
+      - "tests/test_solar_well_pump_ac_builder_bridge.py"
   push:
     branches: [main]
     paths:
@@ -42,6 +43,7 @@ on:
       - "tests/test_solar_caravan_builder_bridge.py"
       - "tests/test_solar_camera_builder_bridge.py"
       - "tests/test_solar_mppt400_builder_bridge.py"
+      - "tests/test_solar_well_pump_ac_builder_bridge.py"
   schedule:
     - cron: "11 * * * *"
   workflow_dispatch:
@@ -90,6 +92,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_solar_camera_builder_bridge.py' -v
       - name: MPPT 400Wp guide to full off-grid kit Builder with Voc/Isc constraints
         run: python -m unittest discover -s tests -p 'test_solar_mppt400_builder_bridge.py' -v
+      - name: Existing well-pump guide AC-only Builder handoff with DC safety constraints
+        run: python -m unittest discover -s tests -p 'test_solar_well_pump_ac_builder_bridge.py' -v
 
   one-post-wordpress-publisher:
     needs: offline-contract
