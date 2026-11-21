@@ -30,7 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           runs="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-runtime-tech-evidence-release.yml/runs?event=push&per_page=70")"
-          result="$(printf '%s' "$runs" | jq -r '[.workflow_runs[] | select(.head_sha=="3b72581c98fef56bcba237b861a3cabfe6a5d627") | {id,status,conclusion}] | first // empty')"
+          result="$(printf '%s' "$runs" | jq -r '[.workflow_runs[] | select(.head_sha=="28eaeaeb2ccef5a751fcd89985e53b136acf91aa") | {id,status,conclusion}] | first // empty')"
           if [[ -n "$result" ]]; then
             printf '%s' "$result" | jq -cr '"SOLAR_PV_TECH_WRITER run_id=\(.id) status=\(.status) conclusion=\(.conclusion)"'
           else
