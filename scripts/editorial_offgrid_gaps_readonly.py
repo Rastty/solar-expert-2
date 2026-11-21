@@ -15,7 +15,7 @@ from scripts.editorial_target_fingerprints_readonly import buyer_route_counts
 
 OUTPUT = wp.ROOT / "artifacts/solar-offgrid-buyer-route-gaps-readonly.json"
 PER_PAGE = 12
-MAX_PAGES = 6
+MAX_PAGES = 5
 LAST_SAFE_PHASE = "init"
 # Specific off-grid/battery use cases; generic grid-connected residential FVE
 # is deliberately excluded instead of promoting the off-grid Builder there.
@@ -34,7 +34,7 @@ def inspect() -> dict:
     observed = datetime.now(timezone.utc).isoformat()
     snapshot = {
         "schema_version": 1, "observed_at_utc": observed,
-        "scope": "up_to_72_recently_modified_solarni_panely_posts",
+        "scope": "up_to_60_recently_modified_solarni_panely_posts",
         "category": "solarni-panely", "site": "solar-expert.cz",
         "status": "unverified", "publish_authorized": False,
         "theme_deploy_authorized": False, "writes": 0,
