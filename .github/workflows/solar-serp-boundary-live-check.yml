@@ -28,14 +28,14 @@ jobs:
           set -euo pipefail
           gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-serp-boundary-release.yml/runs?event=push&per_page=30" |
             jq -r '.workflow_runs[] | select(.head_sha == "d7489d5bd96f9d5aec87010a5011cd82d1dede3e") | "SOLAR_WRITER_RUN id=\(.id) status=\(.status) conclusion=\(.conclusion)"'
-      - name: Verify exact public title, meta description and canonical without WordPress credentials
+      - name: Inspect live public title, metadata, and canonical without credentials
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from scripts.solar_serp_boundary_release import public_head, verify_target, TITLE, DESC, TARGET
           h = public_head()
-          print('SOLAR_SERP_PUBLIC title_exact=' + str(h['titles'] == [TITLE]).lower()
+          print('SOLAR_SERP_PUBLIC observed_title=' + repr(h['titles']) + ' title_exact=' + str(h['titles'] == [TITLE]).lower()
                 + ' description_exact=' + str(h['descriptions'] == [DESC]).lower()
                 + ' canonical_exact=' + str(h['canonicals'] == [TARGET]).lower()
                 + ' noindex=' + str(any('noindex' in x.lower() for x in h['robots'])).lower(), flush=True)
