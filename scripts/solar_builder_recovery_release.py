@@ -185,11 +185,13 @@ def exact_readback(user,password,active):
 def public_readback():
     source=public_html(BUILDER+'?solar_recovery_verify=v1')
     comparison=public_html(BATTERY+'?solar_recovery_verify=v1')
-    require(source.count(MARKER)==1 and source.count(JS_MARKER)>=1 and
+    require(source.count('se-builder-recovery-note')==1 and
+            source.count(JS_MARKER)>=1 and
             '/vyber-baterii/?scenario=panel400' in source and
             'solar-expert-builder' in source,
             'Builder page lacks exact recovery inline source or safe destination')
-    require(MARKER not in comparison and JS_MARKER not in comparison,
+    require('se-builder-recovery-note' not in comparison and
+            JS_MARKER not in comparison,
             'Recovery snippet spilled into battery page')
 
 def receipt(status,**extra):
