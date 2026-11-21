@@ -55,7 +55,17 @@ class SolarBatteryInverter2000WGuideTest(unittest.TestCase):
         self.assertEqual(self.manifest["source_file"], str(self.path.relative_to(ROOT)))
         self.assertEqual(self.manifest["source_sha256"], hashlib.sha256(self.body.encode("utf-8")).hexdigest())
         control = json.loads((ROOT / "ops/editorial-release.json").read_text(encoding="utf-8"))
-        self.assertNotEqual(control["manifest"], "ops/editorial-manifests/solar-battery-inverter-2000w-20261120-v1.json")
+        # The immutable article may be STAGED as revision 26 tomorrow;
+        # source/physics tests must not incorrectly block a safe, gated
+        # post_create release. This never authorizes a PR-time WordPress POST.
+        if control["manifest"] == "ops/editorial-manifests/solar-battery-inverter-2000w-20261120-v1.json":
+            self.assertEqual(control.get("activation_revision"), 26)
+            self.assertEqual(control.get("mode"), "one_editorial_post")
+            self.assertIs(control.get("enabled"), True)
+            self.assertEqual(self.manifest["source_commit"],
+                             "fa784766d02c84f55d3690bf800a565780f6e3a3")
+            self.assertEqual(self.manifest["source_sha256"],
+                             "6a297327d8ffb1265211acafebcb9a1f757b6b7f3134d30339208d2d5b74f138")
 
 
 if __name__ == "__main__":
