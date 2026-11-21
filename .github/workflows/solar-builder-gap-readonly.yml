@@ -1,0 +1,46 @@
+name: Solar Builder revenue gap - live catalog, old vs dev JS, GET only
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/solar-builder-live-vs-dev-gap.mjs'
+      - '.github/workflows/solar-builder-gap-readonly.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/solar-builder-live-vs-dev-gap.mjs'
+      - '.github/workflows/solar-builder-gap-readonly.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  current-quote-gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Check exact source-only bounded diagnostic
+        run: |
+          node --check tools/solar-builder-live-vs-dev-gap.mjs
+          ! grep -Eq 'trackOffer\(|trackBundleDealOffer\(|fetch\(.*method.*POST' tools/solar-builder-live-vs-dev-gap.mjs
+      - name: Compare legacy and dev engine outputs using the SAME public runtime catalog
+        run: node tools/solar-builder-live-vs-dev-gap.mjs
+      - name: Enforce no production write and full tier accounting
+        run: |
+          jq -e '
+            .wordpress_writes == 0 and .affiliate_clicks == 0
+            and .analytics_post_attempts == 0 and .production_theme_deployed == false
+            and .live_rest_catalog_items == 24
+            and (.legacy.tier_status|length) == 3
+            and (.pinned_dev.tier_status|length) == 3
+          ' artifacts/solar-builder-live-vs-dev-gap.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-builder-live-vs-dev-gap-${{ github.run_id }}
+          path: artifacts/solar-builder-live-vs-dev-gap.json
+          retention-days: 10
+          if-no-files-found: warn
