@@ -52,6 +52,14 @@ jobs:
           set -euo pipefail
           gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-serp-boundary-live-check.yml/runs?event=push&per_page=10" |
             jq -r '.workflow_runs[:5][] | "SOLAR_DIAGNOSTIC_MAIN id=\(.id) sha=\(.head_sha) status=\(.status) conclusion=\(.conclusion)"'
+      - name: Identify exact in-place production title repair workflow run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-serp-title-repair.yml/runs?event=push&per_page=10" |
+            jq -r '.workflow_runs[:5][] | "SOLAR_TITLE_REPAIR_MAIN id=\(.id) sha=\(.head_sha) status=\(.status) conclusion=\(.conclusion)"'
       - name: Public title, meta description and canonical, zero writes
         shell: bash
         run: |
