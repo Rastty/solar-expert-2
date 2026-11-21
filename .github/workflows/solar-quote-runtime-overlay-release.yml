@@ -1,0 +1,76 @@
+name: Solar quote-only runtime catalog overlay (one-shot, no theme update)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_quote_runtime_overlay_release.py'
+      - 'tests/test_solar_quote_runtime_overlay_release.py'
+      - 'ops/solar-quote-runtime-overlay-release.json'
+      - '.github/workflows/solar-quote-runtime-overlay-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_quote_runtime_overlay_release.py'
+      - 'tests/test_solar_quote_runtime_overlay_release.py'
+      - 'ops/solar-quote-runtime-overlay-release.json'
+      - '.github/workflows/solar-quote-runtime-overlay-release.yml'
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Real PHP inline-hook, exact URL, 3-write REST model and overlays
+        run: |
+          python -m py_compile scripts/solar_quote_runtime_overlay_release.py
+          python -m unittest discover -s tests -p 'test_solar_quote_runtime_overlay_release.py' -v
+          node --test tests/catalog-price-overlay-preflight.test.mjs
+  one-shot-publish:
+    needs: contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Only a separate reviewed exact activation file diff may write
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          changed="$(git diff --name-only "$BEFORE" "$AFTER" -- ops/solar-quote-runtime-overlay-release.json)"
+          [[ "$changed" == 'ops/solar-quote-runtime-overlay-release.json' ]] || exit 0
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"one_additive_48_quote_runtime_overlay"}' ops/solar-quote-runtime-overlay-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Generate exact source-pinned 24-product/48-eligible preview without merchant requests
+        if: steps.gate.outputs.armed == 'true'
+        run: node tools/catalog-price-overlay-preflight.mjs
+      - name: Guarded first-party WordPress media and runtime snippet release (no retries)
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_quote_runtime_overlay_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-quote-overlay-release-${{ github.run_id }}
+          path: artifacts/solar-quote-runtime-overlay-release.json
+          retention-days: 21
+          if-no-files-found: warn
