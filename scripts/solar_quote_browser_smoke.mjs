@@ -22,6 +22,8 @@ const pageDefinitions=[
   {name:'battery',path:'/vyber-baterii/?scenario=panel400&solar_browser_audit=20261121',
    root:'[x-data="solarExpertBatterySelector()"]'},
   {name:'builder',path:'/solarni-sestava-na-chatu/?solar_browser_audit=20261121',
+   root:'[x-data="solarExpertBuilder()"]'},
+  {name:'home',path:'/?solar_browser_audit=20261121',
    root:'[x-data="solarExpertBuilder()"]'}
 ];
 let deniedMethods=0,deniedExternal=0;
@@ -159,10 +161,13 @@ try{
       await recovery.waitFor({state:'attached',timeout:LIMIT_MS});
       assert.equal(await recovery.isVisible(),false,
         'Recovery warning should stay hidden before Builder calculation');
-      const button=page.getByRole('button',{name:/Ukázat vzorovou sestavu/});
-      assert.equal(await button.count(),1,'Builder first-use CTA not unique');
-      // Real user interaction on own tool only. All analytics POSTs
-      // and outbound links are blocked at browser-context routing.
+      const button=def.name==='home'
+        ? page.locator('[data-se-home-demo="builder-preview"]')
+        : page.getByRole('button',{name:/Ukázat vzorovou sestavu/});
+      assert.equal(await button.count(),1,
+        def.name+': first-use example CTA not unique');
+      // On homepage, exercise the real primary hero CTA, not an
+      // internal test-only shortcut. All analytics POSTs are blocked.
       await button.click({timeout:10000});
       await page.waitForFunction(root=>{
         const d=window.Alpine.$data(document.querySelector(root));
@@ -199,6 +204,7 @@ try{
       assert.ok(copy.includes('ne náhradní hotovou sestavu'),
         'Recovery must disclose that a partial battery example is not a complete system');
       result.empty_result_recovery_visible=true;
+      result.homepage_primary_cta_exercised=def.name==='home';
       result.safe_handoff_link='/vyber-baterii/?scenario=panel400';
       result.recovery_warning_discloses_incomplete_system=true;
       result.example_step=after.step;
