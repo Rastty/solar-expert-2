@@ -97,10 +97,10 @@ def rest(method,path,user,password,body=None):
         path in (before.first.SNIPPETS,before.first.PLUGINS) or
         (SNIPPET_ID is not None and
          path==f'/code-snippets/v1/snippets/{SNIPPET_ID}'))
-    put=method=='PUT' and SNIPPET_ID is not None and
+    put=(method=='PUT' and SNIPPET_ID is not None and
         path==f'/code-snippets/v1/snippets/{SNIPPET_ID}' and
         body=={'name':before.first.NAME,'code':CODE,'scope':'global',
-               'active':True,'desc':before.first.DESCRIPTION}
+               'active':True,'desc':before.first.DESCRIPTION})
     require(get or put,'Forbidden WordPress method/path/payload')
     require(bool(user and password),'Missing WP application credentials')
     auth=base64.b64encode((user+':'+password).encode()).decode()
