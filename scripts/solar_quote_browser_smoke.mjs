@@ -255,10 +255,18 @@ try{
         'Source-backed priced kit must have all four purchase destinations, not partial links');
       const quotes=await productAnchors.evaluateAll(nodes=>nodes.map(a=>{
         const url=new URL(a.href);
+        const destination=url.searchParams.get('desturl');
+        let destinationHost=null;
+        try {if(destination)destinationHost=new URL(destination).hostname;}catch {}
         return {id:a.dataset.seProductId||'',
           merchant:a.dataset.seMerchant||'',protocol:url.protocol,
           host:url.hostname,external:url.origin!==window.location.origin,
           rel:a.rel,
+          sponsored:a.rel.split(/\s+/).includes('sponsored'),
+          // Never expose whole tracking URLs or click on an affiliate link.
+          // The destination HOST alone establishes the network/shop route.
+          network_link:['ehub.cz','www.ehub.cz'].includes(url.hostname),
+          destination_host:destinationHost,
           placeholder:a.getAttribute('href')==='#'};
       }));
       assert.deepEqual(new Set(quotes.map(q=>q.id)),new Set([
@@ -278,8 +286,30 @@ try{
         buyerCopy.includes('nejde o instalační projekt')&&
         buyerCopy.includes('Battery.cz a Solar-Import.cz'),
         'Source-priced 24V model must keep seller-independence and incomplete-install disclaimers');
+      // True revenue readiness is a distinct, more demanding milestone
+      // than merely showing four valid merchant destinations. Check actual
+      // rendered link href and rel; never navigate to merchant/eHub.
+      const affiliateLinks=quotes.filter(q=>q.sponsored);
+      const networkLinks=quotes.filter(q=>q.network_link);
+      assert.equal(quotes.length,4);
+      assert.ok(quotes.every(q=> !q.sponsored || q.network_link),
+        'Affiliate-labeled link must route through the currently approved eHub network');
+      assert.ok(quotes.every(q=> !q.network_link || q.sponsored),
+        'Network link must carry sponsored disclosure');
+      assert.ok(quotes.every(q=> !q.network_link ||
+        ['battery.cz','www.battery.cz','solar-import.cz','www.solar-import.cz']
+          .includes(q.destination_host)),
+        'Network deep-link must have a matching approved seller destination');
       result.reviewed_24v_model_visible=true;
       result.reviewed_24v_model_seller_links=quotes.length;
+      result.reviewed_24v_sponsored_ctas=affiliateLinks.length;
+      result.reviewed_24v_ehub_ctas=networkLinks.length;
+      result.reviewed_24v_destination_hosts=quotes.map(q=>({
+        product_id:q.id,merchant_id:q.merchant,
+        href_host:q.host,dest_host:q.destination_host,
+        sponsored:q.sponsored
+      }));
+      result.reviewed_24v_revenue_route='observed_not_clicked';
       result.reviewed_24v_model_exact_price_czk=34109;
       result.reviewed_model_installation_claim=false;
       result.reviewed_model_synthetic_merchant_clicks=0;
@@ -326,6 +356,14 @@ try{
       ' compatible_bundles='+(x.complete_technical_bundles??'not_applicable')+
       ' safe_recovery_visible='+(x.empty_result_recovery_visible??'not_applicable')+
       ' reviewed_24v_links='+(x.reviewed_24v_model_seller_links??'not_applicable')+
-      ' model_price='+(x.reviewed_24v_model_exact_price_czk??'not_applicable'));
+      ' model_price='+(x.reviewed_24v_model_exact_price_czk??'not_applicable')+
+      ' sponsored_model_ctas='+(x.reviewed_24v_sponsored_ctas??'not_applicable')+
+      ' ehub_network_ctas='+(x.reviewed_24v_ehub_ctas??'not_applicable'));
+    if (x.reviewed_24v_destination_hosts) {
+      console.log('SOLAR_24V_REVENUE_ROUTE tool='+x.tool+
+        ' sponsored='+x.reviewed_24v_sponsored_ctas+'/4'+
+        ' href_hosts='+JSON.stringify(x.reviewed_24v_destination_hosts)+
+        ' merchant_clicks=0');
+    }
   }
 }
