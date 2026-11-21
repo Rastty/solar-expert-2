@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-camera-builder-bridge-20261120-v1.json",
-  "activation_revision": 22,
-  "notice": "Single guarded contextual full-kit Builder link for existing cottage Wi-Fi camera + router 24/7 guide WordPress #1626. Authenticated GET-only fingerprint run #44802800648 pinned raw SHA and modified GMT; exactly one source-locked append, encrypted prewrite and one WordPress POST max. Contains 24/7 uptime, winter autonomy and DC/PoE caveats. No new WordPress post, catalog/theme/product sync. UPS new-post guide remains held for later release revision 23 and the global 24h new-post cooldown."
+  "manifest": "ops/editorial-manifests/solar-mppt400-fullkit-bridge-20261121-v1.json",
+  "activation_revision": 23,
+  "notice": "Single guarded append to published MPPT 400Wp buyer guide WP #1612. Source-pinned exact authenticated 2026-11-21 07:09 UTC GET-only SHA and modified time from run #44878863806, one Builder link with Voc/Isc and off-grid-only caveats, encrypted original snapshot, one POST max and independent readback. Preserve prior published battery selector link. No new WordPress post, theme or catalog release. Circulation-pump UPS new post remains held for revision 24 after the 24h post cooldown and fresh absence check."
 }
