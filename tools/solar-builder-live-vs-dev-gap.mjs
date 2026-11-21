@@ -53,6 +53,8 @@ function sandboxVersion(rev,products,bundleDeals){
     fetch(){throw new Error('No runtime or merchant fetch permitted in offline diagnostic')},
     setTimeout(){throw new Error('No timers in static model diagnostic')}
   };
+  if(typeof sandbox.URL!=='function'||sandbox.URL!==globalThis.URL)
+    throw new Error('Sandbox MUST expose the real WHATWG URL constructor for merchant source evidence');
   vm.createContext(sandbox);
   // Dev Builder requires the real offer adapter for complete-purchase-link
   // evidence and voltage fallback. Omitting it would falsely report a
@@ -101,6 +103,11 @@ function sandboxVersion(rev,products,bundleDeals){
         priced:!!row.priceComplete,missing:row.missing||[],
         battery:row.battery?.id||null,inverter:row.inverter?.id||null,
         mppt:row.mppt?.id||null,pvIscVerified:row.pvIscVerified??null,
+        panel_id:row.panel?.product?.id||null,
+        panel_count:row.panel?.count||0,
+        panel_topology:row.panel?.topology||null,
+        total_price_czk:row.priceComplete&&Number.isFinite(Number(row.totalPrice))?Number(row.totalPrice):null,
+        pending_physical_checks:Array.isArray(row.checksPending)?row.checksPending:[],
         // Source-backed quote readiness per real selected component.
         // Exposes only publicly visible effective price or null, no
         // merchant tracking URL, token or fabricated checkout route.
@@ -115,7 +122,7 @@ function sandboxVersion(rev,products,bundleDeals){
             public_quote_rows:offers.map(o=>({
               merchant:o.merchant||null,availability:o.availability||null,
               verified_at:o.verified_at||null,price_czk:Number(o.price_czk)||null,
-              host:(()=>{try{return new URL(o.source_url).hostname}catch{return 'invalid'}})(),
+              host:(()=>{try{return new globalThis.URL(o.source_url).hostname}catch{return 'invalid'}})(),
               seller_source_accepted:typeof window.SolarExpertProductMatcher.hasSellerSource==='function'
                 ?window.SolarExpertProductMatcher.hasSellerSource(o):null,
               freshness:typeof window.SolarExpertProductMatcher.verificationState==='function'
