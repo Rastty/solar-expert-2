@@ -1,0 +1,41 @@
+name: Solar E.ON buyer lead affiliate readiness (public GET only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_eon_lead_path_readonly.py'
+      - 'tests/test_solar_eon_lead_path_readonly.py'
+      - '.github/workflows/solar-eon-affiliate-path-readonly.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_eon_lead_path_readonly.py'
+      - 'tests/test_solar_eon_lead_path_readonly.py'
+      - '.github/workflows/solar-eon-affiliate-path-readonly.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-eon-path:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prove outbound URL validator, public config parser and zero external visits
+        run: |
+          python -m py_compile scripts/solar_eon_lead_path_readonly.py
+          python -m unittest discover -s tests -p 'test_solar_eon_lead_path_readonly.py' -v
+      - name: Inspect EXACT Solar public page without following E.ON or eHub links
+        run: python -m scripts.solar_eon_lead_path_readonly
+      - name: Fail if audit ever claims sales or makes WordPress writes
+        run: |
+          jq -e '.method=="GET" and .external_link_visits==0 and .wordpress_writes==0 and .wpvibe_calls==0 and .proven_commission==false and .proven_browser_navigation==false' artifacts/solar-eon-lead-path-readonly.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-eon-public-affiliate-path-${{ github.run_id }}
+          path: artifacts/solar-eon-lead-path-readonly.json
+          retention-days: 14
+          if-no-files-found: warn
