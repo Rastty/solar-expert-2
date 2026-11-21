@@ -44,6 +44,41 @@ delete bad.integrated_mppt.pv_input_operating_a_per_tracker;
 assert.equal(B.controllerLimits(bad,{voltage:48},true),null,
   'Unknown physical PV input must not count as verified electrical screening');
 
+// The next probes are deliberately synthetic, NOT newly verified Growatt
+// specifications. Even a mistaken catalog "verified" switch must not enable
+// a dual-tracker purchase without source, scope, exact model and date.
+const forged={...grow6000,integrated_mppt:{
+  ...grow6000.integrated_mppt,
+  pv_isc_absolute_status:'verified',
+  pv_isc_absolute_limit_a:32
+}};
+const marked=extra=>B.controllerLimits({...forged,integrated_mppt:{
+  ...forged.integrated_mppt,...extra}}, {voltage:48}, true).pvIscVerified;
+assert.equal(marked({}),false,'Verified flag and fabricated ampere number alone are insufficient');
+const syntheticSource={
+  pv_isc_absolute_source_url:'https://en.growatt.com/__synthetic-fixture-not-manufacturer-proof__',
+  pv_isc_absolute_source_model_id:grow6000.id,
+  pv_isc_absolute_checked_on:'2026-11-07',
+  pv_isc_absolute_scope:'per_tracker'
+};
+assert.equal(marked({...syntheticSource,pv_isc_absolute_scope:'two_trackers_combined'}),false,
+  'A 32A two-tracker total must never stand in for a per-tracker PV Isc ceiling');
+assert.equal(marked({...syntheticSource,pv_isc_absolute_source_model_id:grow3500.id}),false,
+  'An absolute PV Isc source must match the exact inverter catalog ID');
+assert.equal(marked({...syntheticSource,pv_isc_absolute_source_url:'https://growatt.com.evil.test/spec'}),false,
+  'Lookalike seller or untrusted hosts are not source evidence');
+assert.equal(marked({...syntheticSource,pv_isc_absolute_source_url:'http://en.growatt.com/spec'}),false,
+  'A non-HTTPS manufacturer document cannot unlock a purchase');
+assert.equal(marked({...syntheticSource,pv_isc_absolute_checked_on:'2099-01-01'}),false,
+  'Future-dated technical verification must not pass');
+assert.equal(marked({...syntheticSource,pv_isc_absolute_checked_on:'2026-02-30'}),false,
+  'An impossible evidence date must not pass');
+const invalidSourceLimit=B.controllerLimits({...forged,integrated_mppt:{
+  ...forged.integrated_mppt,...syntheticSource,pv_isc_absolute_source_url:'https://growatt.com.evil.test/spec'
+}}, {voltage:48}, true);
+assert.equal(invalidSourceLimit.maxIsc,null,'Unproven Isc must not become a numeric limit');
+assert.equal(invalidSourceLimit.pvIscVerified,false);
+
 const p3500=B.findPanelPlan([panel],{voltage:48,panelWp:1000},grow3500,true,'best');
 assert(p3500&&p3500.topology==='6S1P','Single tracker needs sufficiently high Vmp and one PV string');
 assert.deepEqual(p3500.trackerStringCounts,[1]);
