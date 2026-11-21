@@ -112,13 +112,17 @@ BUYER_SOURCE=r"""  function sourceOnlyOffer(product,affiliate) {
       rows.push({item,product,offer:selected,
         subtotal:offer?offer.price*item.qty:null});
     }
-    if (!fullyPriced)return {
-      mode:'unpriced',
-      // No mixed-mode price values anywhere in the rendered candidate.
-      // Even one independently fresh quote may not create a partial subtotal.
-      rows:rows.map(r=>({...r,subtotal:null,offer:{...r.offer,price:null}})),
-      total:null
-    };
+    if (!fullyPriced) {
+      // A partially fresh seller must NOT make an unaudited direct-store URL
+      // sneak into the no-price buyer checklist. All four links must be
+      // independent, source-exact eHub routes or suppress the entire card.
+      const sourced=rows.map(r=>{
+        const checked=sourceOnlyOffer(r.product,affiliate);
+        return checked?{...r,subtotal:null,offer:{...checked,price:null}}:null;
+      });
+      if (sourced.some(r=>!r))return null;
+      return {mode:'unpriced',rows:sourced,total:null};
+    }
     const total=rows.reduce((a,row)=>a+row.subtotal,0);
     if (!Number.isSafeInteger(total) || total<=0 || total>=250000)return null;
     return {mode:'priced',rows,total};
