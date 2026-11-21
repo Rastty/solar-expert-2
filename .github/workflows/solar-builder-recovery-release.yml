@@ -1,0 +1,72 @@
+name: Solar Builder safe empty-result recovery (one Code Snippet, no theme deployment)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_builder_recovery_release.py'
+      - 'tests/test_solar_builder_recovery_release.py'
+      - 'ops/solar-builder-recovery-release.json'
+      - '.github/workflows/solar-builder-recovery-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_builder_recovery_release.py'
+      - 'tests/test_solar_builder_recovery_release.py'
+      - 'ops/solar-builder-recovery-release.json'
+      - '.github/workflows/solar-builder-recovery-release.yml'
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python source and real PHP isolated one-page release tests
+        run: |
+          python -m py_compile scripts/solar_builder_recovery_release.py
+          python -m unittest discover -s tests -p 'test_solar_builder_recovery_release.py' -v
+  one-shot-wordpress:
+    needs: contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only a separately reviewed exact false-to-true control-only commit may write
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-builder-recovery-release.json' ]] || exit 0
+          git show "$BEFORE:ops/solar-builder-recovery-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,"mode":"one_builder_empty_result_safe_handoff"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"one_builder_empty_result_safe_handoff"}' ops/solar-builder-recovery-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: WordPress one exact inactive snippet create, readback, activate, public source verification
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_builder_recovery_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-builder-recovery-receipt-${{ github.run_id }}
+          path: artifacts/solar-builder-recovery-release.json
+          retention-days: 14
+          if-no-files-found: warn
