@@ -34,9 +34,16 @@ function sourceKey(o){
 function rowMap(row){
   const offers=Array.isArray(row.offers)&&row.offers.length?row.offers:[row];
   const map=new Map();
+  const distinctDestinations=new Set();
   for(const offer of offers){
     const key=sourceKey(offer);
+    const destination=key.slice(key.indexOf('|')+1);
     guard(!map.has(key),'Duplicated seller source identity');
+    // A second merchant using the identical checkout URL is not an
+    // independent seller quote and cannot be refreshed as such.
+    guard(!distinctDestinations.has(destination),
+          'Duplicated seller source identity across merchant rows');
+    distinctDestinations.add(destination);
     map.set(key,offer);
   }
   return map;
