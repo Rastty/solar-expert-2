@@ -91,7 +91,26 @@ window.SolarExpertBundleComposer = {
           !(operatingA>0) || !(perTrackerWp>0) ||
           !i.pv_operating_current_source_url) return null;
       const verifiedAbsoluteIsc=Number(i.pv_isc_absolute_limit_a || 0);
-      const pvIscVerified=i.pv_isc_absolute_status === 'verified' && verifiedAbsoluteIsc>0;
+      // An editorial "verified" flag or a combined two-tracker ampere value
+      // is insufficient to unlock buyer links. Require source provenance for
+      // this exact inverter model and an explicitly PER-TRACKER Isc limit.
+      let manufacturerSource=false;
+      try {
+        const url=new URL(String(i.pv_isc_absolute_source_url || ''));
+        const host=url.hostname.toLowerCase();
+        manufacturerSource=url.protocol==='https:' && !url.username && !url.password &&
+          ['growatt.com','growatt.tech'].some(domain=>host===domain || host.endsWith('.'+domain));
+      } catch (_) { /* Missing or malformed source: fail closed. */ }
+      const checkedOn=String(i.pv_isc_absolute_checked_on || '');
+      const dateValid=/^\\d{4}-\\d{2}-\\d{2}$/.test(checkedOn) &&
+        Number.isFinite(Date.parse(checkedOn+'T00:00:00Z')) &&
+        new Date(checkedOn+'T00:00:00Z').toISOString().slice(0,10)===checkedOn &&
+        Date.parse(checkedOn+'T00:00:00Z')<=Date.now();
+      const pvIscVerified=i.pv_isc_absolute_status==='verified' &&
+        Number.isFinite(verifiedAbsoluteIsc) && verifiedAbsoluteIsc>0 &&
+        i.pv_isc_absolute_scope==='per_tracker' &&
+        i.pv_isc_absolute_source_model_id===controller.id &&
+        manufacturerSource && dateValid;
       return {
         maxWp: Number(i.pv_w_max),
         maxVoc: Number(i.pv_voc_max),
