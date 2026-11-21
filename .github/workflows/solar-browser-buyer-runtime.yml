@@ -1,0 +1,54 @@
+name: Solar live buyer runtime in real Chromium (zero external clicks, zero analytics writes)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_quote_browser_smoke.mjs'
+      - '.github/workflows/solar-browser-buyer-runtime.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_quote_browser_smoke.mjs'
+      - '.github/workflows/solar-browser-buyer-runtime.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: solar-browser-readonly-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  live-buyer-no-write:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Source syntax and no outbound merchant events
+        run: |
+          node --check scripts/solar_quote_browser_smoke.mjs
+          ! grep -q "trackOffer(" scripts/solar_quote_browser_smoke.mjs
+          ! grep -q "trackBundleDealOffer(" scripts/solar_quote_browser_smoke.mjs
+      - name: Install pinned Chromium test runner
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser-executed source-pinned catalog and real visible buyer journey
+        run: node scripts/solar_quote_browser_smoke.mjs
+      - name: Check browser proof receipt never generated synthetic attribution
+        if: success()
+        run: |
+          jq -e '.browser_execution_verified == true
+            and .status == "browser_verified"
+            and .word_press_writes == 0
+            and .analytics_events_sent == 0
+            and .merchant_requests == 0
+            and .affiliate_navigation_attempts == 0
+            and .tools | length == 2' artifacts/solar-browser-buyer-runtime.json > /dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-browser-buyer-runtime-${{ github.run_id }}
+          path: artifacts/solar-browser-buyer-runtime.json
+          retention-days: 14
+          if-no-files-found: warn
