@@ -1,0 +1,31 @@
+name: Solar heat-pump SERP live readback (GET only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-serp-boundary-live-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-serp-boundary-live-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-public-head:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify exact public title, meta description and canonical without WordPress credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from scripts.solar_serp_boundary_release import public_head, verify_target
+          h = public_head()
+          verify_target(h, True)
+          print('SOLAR_SERP_BOUNDARY_LIVE status=title_meta_verified canonical=exact noindex=false writes=0 wpvibe=0')
+          PY
