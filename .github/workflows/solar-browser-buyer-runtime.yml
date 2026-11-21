@@ -31,6 +31,7 @@ jobs:
           ! grep -q "trackBundleDealOffer(" scripts/solar_quote_browser_smoke.mjs
       - name: Install pinned Chromium test runner
         run: |
+          test -f package.json || npm init -y > /dev/null
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
       - name: Browser-executed source-pinned catalog and real visible buyer journey
@@ -44,7 +45,8 @@ jobs:
             and .analytics_events_sent == 0
             and .merchant_requests == 0
             and .affiliate_navigation_attempts == 0
-            and .tools | length == 2' artifacts/solar-browser-buyer-runtime.json > /dev/null
+            and (.tools | length) == 2
+            and ([.tools[].tool] | sort) == ["battery","builder"]' artifacts/solar-browser-buyer-runtime.json > /dev/null
       - uses: actions/upload-artifact@v4
         if: always()
         with:
