@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_existing_24v_snippet_unpriced_expired_quote_fallback"
+}
