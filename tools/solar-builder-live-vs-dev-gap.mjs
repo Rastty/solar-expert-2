@@ -109,6 +109,15 @@ function sandboxVersion(rev,products,bundleDeals){
           const valid=Number.isFinite(n)&&n>0&&n<Number.MAX_SAFE_INTEGER;
           const offers=Array.isArray(p.offers)?p.offers:[];
           return {kind,id:p.id,price_czk:valid?n:null,
+            public_quote_rows:offers.map(o=>({
+              merchant:o.merchant||null,availability:o.availability||null,
+              verified_at:o.verified_at||null,price_czk:Number(o.price_czk)||null,
+              host:(()=>{try{return new URL(o.source_url).hostname}catch{return 'invalid'}})(),
+              seller_source_accepted:typeof window.SolarExpertProductMatcher.hasSellerSource==='function'
+                ?window.SolarExpertProductMatcher.hasSellerSource(o):null,
+              freshness:typeof window.SolarExpertProductMatcher.verificationState==='function'
+                ?window.SolarExpertProductMatcher.verificationState(o.verified_at):'legacy'
+            })),
             dated_in_stock_source_offers:offers.filter(o=>
               typeof window.SolarExpertProductMatcher.hasSellerSource==='function' &&
               window.SolarExpertProductMatcher.hasSellerSource(o)&&
