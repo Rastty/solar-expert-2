@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {capture,parseProductJsonLd,qualifySchema,TARGETS,REST} from '../tools/solar-24v-seller-evidence.mjs';
+import {capture,parseProductJsonLd,qualifySchema,daysUntilQuoteExpiry,TARGETS,REST} from '../tools/solar-24v-seller-evidence.mjs';
 
 function productSchema(sku,price='14690',availability='InStock',currency='CZK'){
   return '<!doctype html><html><head><script type="application/ld+json">'+
@@ -9,6 +9,16 @@ function productSchema(sku,price='14690',availability='InStock',currency='CZK'){
       priceCurrency:currency,availability:'https://schema.org/'+availability}})+
     '</script></head><body>Source</body></html>';
 }
+test('frontend 30-day quote window countdown never silently refreshes evidence',()=>{
+  const now=new Date('2026-11-21T11:55:00Z');
+  assert.equal(daysUntilQuoteExpiry('2026-11-07',now),16);
+  assert.equal(daysUntilQuoteExpiry('2026-11-07',new Date('2026-12-07T12:00:00Z')),0);
+  assert.equal(daysUntilQuoteExpiry('2026-11-07',new Date('2026-12-08T00:00:00Z')),-1);
+  assert.equal(daysUntilQuoteExpiry('2026-11-22',now),null);
+  assert.equal(daysUntilQuoteExpiry('2026-02-31',now),null);
+  assert.equal(daysUntilQuoteExpiry('bad',now),null);
+});
+
 test('exact same SKU CZK price and stock accepted from Product JSON-LD',()=>{
   assert.deepEqual(qualifySchema(productSchema('E8286'),'E8286'),{
     status:'verified_source_quote',price_czk:14690,availability:'in_stock'});
@@ -71,6 +81,9 @@ test('four exact source GETs, no eHub, no date overwrite and distinct changed qu
   assert.equal(report.observed_verified,4);
   assert.equal(report.observed_changed,1);
   assert.equal(report.observed_unknown,0);
+  assert.equal(report.earliest_catalog_quote_days_remaining,16);
+  assert.equal(report.quotes_expiring_within_7_days,0);
+  assert.ok(report.rows.every(x=>x.days_until_30day_quote_expiry===16));
   assert.deepEqual(report.rows.map(x=>x.observation_status),
     ['same_quote','same_quote','quote_changed','same_quote']);
   assert.ok(report.rows.every(x=>x.observed_at_utc==='2026-11-21T11:55:00.000Z'));
