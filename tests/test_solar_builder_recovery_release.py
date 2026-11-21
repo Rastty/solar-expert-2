@@ -28,7 +28,7 @@ class BuilderRecoveryTests(unittest.TestCase):
         self.assertIn("state.step === 4 && !!state.catalogReady",src)
         self.assertIn("note.hidden = !show",src)
         self.assertIn("Number(result?.voltage) !== 12",src)
-        self.assertIn("href=\\"/vyber-baterii/?scenario=panel400\\"",src)
+        self.assertIn('href="/vyber-baterii/?scenario=panel400"',src)
         for forbidden in ('wp_insert_post(', 'wp_update_post(', 'wp_delete_post(',
                           'update_option(', 'update_post_meta(', 'eval(',
                           'wp_remote_post(', 'trackOffer(', 'SolarExpertConfig.catalogUrl'):
