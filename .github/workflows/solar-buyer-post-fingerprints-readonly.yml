@@ -28,7 +28,7 @@ jobs:
           persist-credentials: false
       - name: Confirm GET-only contract with synthetic WordPress data
         run: python -m unittest discover -s tests -p 'test_solar_target_fingerprints_readonly.py' -v
-      - name: Get exact current buyer article body hashes without logging contents
+      - name: Get current buyer post fingerprints and first-party conversion-route counts (GET only)
         env:
           SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
           SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
@@ -45,6 +45,9 @@ jobs:
             echo ''
             jq -r '.posts[] | "- WordPress #\(.post_id): **\(.status)**; modified GMT `\(.modified_gmt // "unverified")`; SHA256 `\(.current_source_sha256 // "unverified")`"' \
               artifacts/solar-editorial-target-fingerprints-readonly.json
+            echo ''
+            echo 'First-party routes (counts, not click/conversion evidence):'
+            jq -r '.posts[] | "- WP #\(.post_id): Builder \(.buyer_route_counts.complete_kit_builder // "unverified"), Quote \(.buyer_route_counts.offgrid_quote_checker // "unverified")"' artifacts/solar-editorial-target-fingerprints-readonly.json
             echo ''
             echo 'No WordPress POST; every future edit needs a separate source-locked manifest and fresh CAS check.'
           } >> "$GITHUB_STEP_SUMMARY"
