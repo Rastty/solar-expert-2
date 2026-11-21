@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import json
 import re
+from html.parser import HTMLParser
+from urllib.parse import urlsplit
 from datetime import datetime, timezone
 
 from scripts import editorial_release as publisher
@@ -26,13 +28,50 @@ TARGETS = (
 )
 OUTPUT = publisher.ROOT / "artifacts/solar-editorial-target-fingerprints-readonly.json"
 
+# Only canonical first-party routes, never raw hrefs or personally identifying URLs.
+BUYER_ROUTES = {
+    "complete_kit_builder": "/solarni-sestava-na-chatu/",
+    "offgrid_quote_checker": "/quote-checker/",
+}
+
+
+class BuyerRouteCounter(HTMLParser):
+    """Count only genuine first-party anchor destinations in raw WordPress HTML."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.counts = {key: 0 for key in BUYER_ROUTES}
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() != "a":
+            return
+        href = next((v for k, v in attrs if k.lower() == "href"), None)
+        if not isinstance(href, str):
+            return
+        uri = urlsplit(href)
+        allowed = (href.startswith("/") and not href.startswith("//") and
+                   not uri.netloc and not uri.scheme) or (
+                   uri.scheme == "https" and uri.hostname == "solar-expert.cz" and
+                   not uri.username and uri.port is None
+                   )
+        if not allowed:
+            return
+        for key, route in BUYER_ROUTES.items():
+            if uri.path == route:
+                self.counts[key] += 1
+
+
+def buyer_route_counts(raw_html: str) -> dict:
+    parser = BuyerRouteCounter()
+    parser.feed(raw_html)
+    return parser.counts
+
 
 def inspect() -> dict:
     snapshot = {
         "schema_version": 1,
         "observed_at_utc": datetime.now(timezone.utc).isoformat(),
         "site": "solar-expert.cz",
-        "purpose": "eight_existing_buyer_post_cas_fingerprints_get_only",
+        "purpose": "eight_existing_buyer_post_cas_and_first_party_route_counts_get_only",
         "publish_authorized": False,
         "theme_deploy_authorized": False,
         "writes": 0,
@@ -50,6 +89,7 @@ def inspect() -> dict:
             "status": "unknown_or_unavailable",
             "current_source_sha256": None,
             "modified_gmt": None,
+            "buyer_route_counts": None,
         }
         if category is None:
             snapshot["posts"].append(row)
@@ -76,6 +116,7 @@ def inspect() -> dict:
             publisher.require(bool(raw_html.strip()), "Empty WordPress body")
             row["current_source_sha256"] = publisher.sha(raw_html)
             row["modified_gmt"] = modified
+            row["buyer_route_counts"] = buyer_route_counts(raw_html)
             row["status"] = "verified_current_published_post"
         except (publisher.Blocked, OSError, ValueError, TypeError, KeyError):
             # Public-safe status only. Fail closed and hide authenticated errors.
@@ -94,6 +135,7 @@ def main() -> int:
               " status=" + row["status"] +
               " sha256=" + (row["current_source_sha256"] or "unverified") +
               " modified_gmt=" + (row["modified_gmt"] or "unverified") +
+              " buyer_routes=" + json.dumps(row["buyer_route_counts"], sort_keys=True, separators=(",", ":")) +
               " writes=0")
     return 0
 
