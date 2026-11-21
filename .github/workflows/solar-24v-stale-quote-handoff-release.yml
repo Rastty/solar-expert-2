@@ -1,0 +1,75 @@
+name: Solar 24V price-expiry buyer-safe fallback (existing active snippet, one PUT)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_24v_expired_quote_recovery_release.py'
+      - 'tests/test_solar_24v_expired_quote_recovery_release.py'
+      - 'ops/solar-24v-stale-quote-handoff-release.json'
+      - '.github/workflows/solar-24v-stale-quote-handoff-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_24v_expired_quote_recovery_release.py'
+      - 'tests/test_solar_24v_expired_quote_recovery_release.py'
+      - 'ops/solar-24v-stale-quote-handoff-release.json'
+      - '.github/workflows/solar-24v-stale-quote-handoff-release.yml'
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  source-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Reconstruct exact current public 48-source quote fixture, GET only
+        run: node tools/catalog-price-overlay-preflight.mjs
+      - name: Real PHP and Node future-date 4-SKU source-locked seller/safety proof
+        run: |
+          python -m py_compile scripts/solar_24v_expired_quote_recovery_release.py
+          python -m unittest discover -s tests -p 'test_solar_24v_expired_quote_recovery_release.py' -v
+  one-existing-snippet-put:
+    needs: source-proof
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Allow only separately reviewed exact control-only false-to-true commit
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-24v-stale-quote-handoff-release.json' ]] || exit 0
+          git show "$BEFORE:ops/solar-24v-stale-quote-handoff-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,"mode":"one_existing_24v_snippet_unpriced_expired_quote_fallback"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"one_existing_24v_snippet_unpriced_expired_quote_fallback"}' ops/solar-24v-stale-quote-handoff-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exactly one CAS-guarded PUT of same existing reviewed 24V card source
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_24v_expired_quote_recovery_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-24v-stale-quote-handoff-receipt-${{ github.run_id }}
+          path: artifacts/solar-24v-stale-quote-handoff-release.json
+          retention-days: 21
+          if-no-files-found: warn
