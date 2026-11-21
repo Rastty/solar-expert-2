@@ -110,8 +110,10 @@ function sandboxVersion(rev,products,bundleDeals){
           const offers=Array.isArray(p.offers)?p.offers:[];
           return {kind,id:p.id,price_czk:valid?n:null,
             dated_in_stock_source_offers:offers.filter(o=>
+              typeof window.SolarExpertProductMatcher.hasSellerSource==='function' &&
               window.SolarExpertProductMatcher.hasSellerSource(o)&&
               o.availability==='in_stock'&&
+              typeof window.SolarExpertProductMatcher.verificationState==='function' &&
               window.SolarExpertProductMatcher.verificationState(o.verified_at)==='fresh'
             ).length};
         })
