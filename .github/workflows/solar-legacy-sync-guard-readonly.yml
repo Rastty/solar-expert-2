@@ -13,6 +13,21 @@ permissions:
   contents: read
   actions: read
 jobs:
+  discover-production-run:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Show one-shot production writer status (GitHub REST GET only)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-legacy-sync-guard-release.yml/runs?event=push&per_page=30" |
+            jq -r '.workflow_runs[:20][] | select(.head_sha == "4d02e3baa612ee926bb327f39193484c51f24705") | "SOLAR_OLD_SYNC_WRITER id=\(.id) status=\(.status) conclusion=\(.conclusion)"'
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-legacy-sync-guard-readonly.yml/runs?event=push&per_page=20" |
+            jq -r '.workflow_runs[:10][] | "SOLAR_OLD_SYNC_PROOF id=\(.id) status=\(.status) conclusion=\(.conclusion)"'
   live-guard-readback:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
