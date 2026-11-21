@@ -1,0 +1,70 @@
+name: Solar GSC Code Snippets one-time bootstrap (GitHub direct REST, no WPVibe)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/solar_gsc_code_snippets_bootstrap.py"
+      - "tests/test_solar_gsc_code_snippets_bootstrap.py"
+      - "ops/gsc-snippet-bootstrap.json"
+      - ".github/workflows/solar-gsc-snippet-bootstrap.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/solar_gsc_code_snippets_bootstrap.py"
+      - "tests/test_solar_gsc_code_snippets_bootstrap.py"
+      - "ops/gsc-snippet-bootstrap.json"
+      - ".github/workflows/solar-gsc-snippet-bootstrap.yml"
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Test exact single plugin install contract (synthetic, no network)
+        run: |
+          python -m py_compile scripts/solar_gsc_code_snippets_bootstrap.py tests/test_solar_gsc_code_snippets_bootstrap.py
+          python -m unittest discover -s tests -p 'test_solar_gsc_code_snippets_bootstrap.py' -v
+  one-plugin-install:
+    needs: contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Require newly changed, explicitly armed one-time install control
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          if [[ ! "$BEFORE" =~ ^[0-9a-f]{40}$ || ! "$AFTER" =~ ^[0-9a-f]{40}$ ]]; then exit 0; fi
+          changed="$(git diff --name-only "$BEFORE" "$AFTER" -- ops/gsc-snippet-bootstrap.json)"
+          if [[ "$changed" != 'ops/gsc-snippet-bootstrap.json' ]]; then exit 0; fi
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"once_install_code_snippets_for_gsc"}' ops/gsc-snippet-bootstrap.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: ONE WordPress.org plugin installation and independent active-status readback
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_gsc_code_snippets_bootstrap
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-gsc-code-snippets-bootstrap-${{ github.run_id }}
+          path: artifacts/solar-gsc-snippet-bootstrap-receipt.json
+          retention-days: 14
+          if-no-files-found: warn
