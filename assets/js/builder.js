@@ -492,15 +492,21 @@ window.solarExpertBuilder=function(){return{
     // BMS discharge is DC-side. Keep inverterW as AC output for inverter
     // fit, display and analytics; the battery bank needs the higher DC draw.
     const batteryDcW=Math.ceil(inverterW/this.inverterEfficiency);
+    // Without manufacturer-proven transient BMS discharge data, require the
+    // battery's CONTINUOUS discharge rating to cover the modeled AC startup
+    // peak after inverter losses. This is deliberately conservative: a
+    // suitable inverter surge rating alone cannot prove battery-start safety.
+    const batteryPeakDcW=Math.ceil(peak/this.inverterEfficiency);
     const mpptA=this.suggestedMpptA(panelWp,voltage);
     const riskFlags=[];
+    if(peak>inverterW)riskFlags.push('Rozběhový odběr musí zvládnout také BMS baterie. Bez ověřeného krátkodobého limitu používáme konzervativně trvalý povolený vybíjecí proud; ověřte dokumentaci konkrétní baterie a měniče.');
     if(this.season==='year')riskFlags.push('Celoroční ostrovní provoz vyžaduje lokalitní PV výpočet a obvykle větší zimní rezervu.');
     if(peak>inverterW*1.8)riskFlags.push('Výrazná rozběhová špička: ověřte surge dobu konkrétního měniče a spotřebiče.');
     if(this.selectedAppliances.some(a=>a.id==='pump'||a.id==='pondpump'))riskFlags.push('U čerpadla ověřte skutečný rozběhový proud podle konkrétního modelu.');
     if(this.selectedAppliances.some(a=>a.id==='pondpump'))riskFlags.push('Model jezírkové filtrace předpokládá čerpadlo 230 V s měničem. Pro 12/24 V DC čerpadlo je nutný samostatný návrh zapojení a ochranných prvků. Elektrická zařízení u vody musí posoudit kvalifikovaný odborník.');
     // mpptA is a +25% planning suggestion, not a verified manufacturer PV
     // input limit or an explicit minimum battery charging current.
-    this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,nominalVoltage:voltage,batteryKwh,batteryDcW,inverterW,mpptA,mpptAIsAdvisory:true,psh,riskFlags};
+    this.result={energyWh,energyKwh:Math.round(energyWh/10)/100,runningWatts,peak,panelWp,voltage,nominalVoltage:voltage,batteryKwh,batteryDcW,batteryPeakDcW,inverterW,mpptA,mpptAIsAdvisory:true,psh,riskFlags};
     this.refreshBundles();
     this.step=4;
     this.previewMode=Boolean(previewOnly);
