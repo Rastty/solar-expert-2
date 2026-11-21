@@ -1,0 +1,53 @@
+name: Solar legacy sync guard - independent live GET-only verification
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-legacy-sync-guard-readonly.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-legacy-sync-guard-readonly.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  live-guard-readback:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Read one-shot main writer run identity and conclusion (GitHub API GET)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-legacy-sync-guard-release.yml/runs?event=push&per_page=20" |
+            jq -r '.workflow_runs[] | select(.head_sha == "4d02e3baa612ee926bb327f39193484c51f24705") | "SOLAR_OLD_SYNC_WRITER id=\(.id) status=\(.status) conclusion=\(.conclusion)"'
+      - name: Independent authenticated GET of four old lifecycle callbacks
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from scripts import solar_legacy_sync_guard_release as guard
+          user=os.environ['SOLAR_WP_USER'].strip()
+          password=os.environ['SOLAR_WP_APP_PASSWORD'].strip()
+          guard.live_baseline()
+          guard.guard_status(user,password)
+          guard.live_baseline()
+          if guard.POSTS != 0 or guard.SNIPPET_ID is not None:
+              raise SystemExit('Unexpected mutation identity in read-only job')
+          print('SOLAR_OLD_SYNC_GUARD_LIVE status=four_hooks_absent_on_authenticated_rest'
+                ' live_build=0.12.27 managed_content=current'
+                ' anonymous_after_switch_theme=not_proved'
+                ' release_authorized=false writes=0 wpvibe=0')
+          PY
