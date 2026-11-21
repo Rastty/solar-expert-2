@@ -20,6 +20,7 @@ RECEIPT=ROOT/"artifacts/solar-gsc-snippet-bootstrap-receipt.json"
 PLUGIN="code-snippets"
 PLUGIN_API=SITE+"/wp-json/wp/v2/plugins"
 MAX_BYTES=250000
+POST_ATTEMPTED=False
 
 class Blocked(RuntimeError): pass
 
@@ -39,6 +40,9 @@ def transport(method,url,user,password,payload=None):
         headers={"Authorization":"Basic "+auth,"Accept":"application/json",
                  "Content-Type":"application/json","User-Agent":"SolarGSC-Direct-Plugin-Bootstrap/1.0"})
     opener=request.build_opener(NoRedirect())
+    global POST_ATTEMPTED
+    if method=="POST":
+        POST_ATTEMPTED=True
     try:
         with opener.open(req,timeout=35) as response:
             raw=response.read(MAX_BYTES+1)
@@ -103,7 +107,8 @@ def main():
     try: execute(os.getenv("SOLAR_WP_USER","").strip(),
                  os.getenv("SOLAR_WP_APP_PASSWORD","").strip())
     except (Blocked,OSError,ValueError,TypeError,KeyError) as exc:
-        receipt("blocked_uncertain_no_retry",writes=0,
+        receipt("blocked_uncertain_no_retry",writes=None if POST_ATTEMPTED else 0,
+                post_attempted=POST_ATTEMPTED,
                 reason=str(exc)[:180])
         sys.exit(2)
 
