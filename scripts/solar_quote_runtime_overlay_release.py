@@ -179,13 +179,11 @@ def inspect_scripts(html,url):
     # JavaScript/browser-run or a claimed affiliate click.
     source=html.decode('utf-8','replace')
     marker='window.SolarExpertConfig.catalogUrl = '
-    hits=list(re.finditer(re.escape(marker)+r'\s*("(?:\\\\.|[^"\\\\])*")\s*;',source))
-    require(len(hits)==1,'Public page lacks one unique first-party catalog override')
-    try:
-        configured=json.loads(hits[0].group(1))
-    except ValueError:
-        raise Blocked('Public inline catalog override invalid JSON') from None
-    require(configured==url,'Public page quote catalog URL mismatches approved media')
+    # WordPress wp_json_encode typically escapes forward slashes as \\/.
+    allowed=(json.dumps(url),json.dumps(url).replace('/','\\/'))
+    require(source.count(marker)==1 and any(
+            marker+literal+';' in source for literal in allowed),
+            'Public page quote catalog URL mismatch or duplicate override')
     require('affiliate-adapter.js' in source and 'product-matcher.js' in source,
             'Required old theme runtime missing')
     return True
