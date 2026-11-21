@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-mppt400-fullkit-bridge-20261121-v1",
+  "post_id": 1612,
+  "slug": "jak-vybrat-mppt-regulator-pro-400w-panel",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Jak vybrat MPPT regulátor pro solární panel 400 Wp",
+  "excerpt": "Výběr MPPT regulátoru pro 400W panel a návaznost na kompletní ostrovní sestavu s baterií: Voc, Isc, napětí a bezpečné limity.",
+  "source_commit": "c12edacd88515ef336c115102dc8f5f2d049b1ef",
+  "source_file": "content/editorial-append/jak-vybrat-mppt-regulator-pro-400w-panel.html",
+  "source_sha256": "21888431983674cc2aa92d24238ed6f1e30e4fb6e42a4b6761691aff4038c96b",
+  "link_target": "/solarni-sestava-na-chatu/",
+  "expected_current_sha256": "49c73c1d0d6a7f8b6a8cfa2ba1620eb692a8eab0b7d90908952a881e40bd30bc",
+  "expected_modified_gmt": "2026-11-15T09:23:53"
+}
