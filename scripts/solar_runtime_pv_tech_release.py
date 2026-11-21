@@ -200,7 +200,7 @@ def receipt(status,**details):
 
 def execute(user,password):
     control=json.loads(CONTROL.read_text(encoding='utf-8'))
-    require(control=={'schema_version':1,'enabled':True,'revision':1,'mode':MODE},
+    require(control=={'schema_version':1,'enabled':True,'revision':2,'mode':MODE},
             'PV tech evidence one-PUT control not armed')
     old_catalog,new_catalog,old_code,new_code=expected_sources()
     preflight(user,password,old_catalog,old_code)
