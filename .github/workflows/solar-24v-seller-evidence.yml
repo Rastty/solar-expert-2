@@ -1,0 +1,58 @@
+name: Solar 24V 4-product retailer quote evidence - GET only, zero affiliate traffic
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/solar-24v-seller-evidence.mjs'
+      - 'tests/solar-24v-seller-evidence.test.mjs'
+      - '.github/workflows/solar-24v-seller-evidence.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/solar-24v-seller-evidence.mjs'
+      - 'tests/solar-24v-seller-evidence.test.mjs'
+      - '.github/workflows/solar-24v-seller-evidence.yml'
+  schedule:
+    - cron: '16 6 * * 1,4'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: solar-24v-retailer-readonly-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  direct-source-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Strict source parser, SKU and no-click contract
+        run: |
+          node --check tools/solar-24v-seller-evidence.mjs
+          node --test tests/solar-24v-seller-evidence.test.mjs
+      - name: Four original merchant product GETs only (no eHub, no WP write)
+        run: node tools/solar-24v-seller-evidence.mjs
+      - name: Confirm no evidence has been promoted into prices or verified dates
+        if: success()
+        run: |
+          jq -e '
+            .schema_version == 1
+            and .mode == "exact_4_retailer_merchant_get_only"
+            and .protected_live_rest_products == 24
+            and .selected_source_product_count == 4
+            and .wordpress_writes == 0
+            and .merchant_clicks == 0
+            and .affiliate_network_gets == 0
+            and .automatic_catalog_date_refresh == false
+            and (.rows | length) == 4
+          ' artifacts/solar-24v-retailer-evidence.json >/dev/null
+      - name: Upload bounded source-identification and quote changes (no page HTML)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solar-24v-retailer-evidence-${{ github.run_id }}
+          path: artifacts/solar-24v-retailer-evidence.json
+          retention-days: 21
+          if-no-files-found: warn
