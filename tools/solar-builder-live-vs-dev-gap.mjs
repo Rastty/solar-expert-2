@@ -45,7 +45,10 @@ function sandboxVersion(rev,products,bundleDeals){
     dataLayer:[]
   };
   const sandbox={
-    window,console,URL,URLSearchParams,Date,Math,Number,Array,Set,Map,
+    // URL above is this script's first-party catalog URL STRING, not the
+    // WHATWG URL constructor! In a VM this would silently reject EVERY
+    // legitimate seller source and fabricate a zero-priced 24V bundle.
+    window,console,URL:globalThis.URL,URLSearchParams,Date,Math,Number,Array,Set,Map,
     CustomEvent:class{},
     fetch(){throw new Error('No runtime or merchant fetch permitted in offline diagnostic')},
     setTimeout(){throw new Error('No timers in static model diagnostic')}
