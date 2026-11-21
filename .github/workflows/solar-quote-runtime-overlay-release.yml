@@ -56,8 +56,9 @@ jobs:
           [[ "$AFTER" =~ ^[0-9a-f]{40}$ ]] || exit 0
           changed="$(git diff --name-only "$BEFORE" "$AFTER" -- ops/solar-quote-runtime-overlay-release.json)"
           [[ "$changed" == 'ops/solar-quote-runtime-overlay-release.json' ]] || exit 0
-          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"one_additive_48_quote_runtime_overlay"}' ops/solar-quote-runtime-overlay-release.json >/dev/null
-          echo 'armed=true' >> "$GITHUB_OUTPUT"
+          if jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"one_additive_48_quote_runtime_overlay"}' ops/solar-quote-runtime-overlay-release.json >/dev/null; then
+            echo 'armed=true' >> "$GITHUB_OUTPUT"
+          fi
       - name: Generate exact source-pinned 24-product/48-eligible preview without merchant requests
         if: steps.gate.outputs.armed == 'true'
         run: node tools/catalog-price-overlay-preflight.mjs
