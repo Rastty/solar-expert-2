@@ -16,6 +16,7 @@ from scripts.editorial_target_fingerprints_readonly import buyer_route_counts
 OUTPUT = wp.ROOT / "artifacts/solar-offgrid-buyer-route-gaps-readonly.json"
 PER_PAGE = 12
 MAX_PAGES = 6
+LAST_SAFE_PHASE = "init"
 # Specific off-grid/battery use cases; generic grid-connected residential FVE
 # is deliberately excluded instead of promoting the off-grid Builder there.
 TOPICS = (
@@ -28,6 +29,8 @@ EXCLUDE = ("fotovoltaika-pro-rodinny-dum", "on-grid", "dotace",
 
 
 def inspect() -> dict:
+    global LAST_SAFE_PHASE
+    LAST_SAFE_PHASE = "category_get"
     observed = datetime.now(timezone.utc).isoformat()
     snapshot = {
         "schema_version": 1, "observed_at_utc": observed,
@@ -41,12 +44,14 @@ def inspect() -> dict:
     category = wp.category_id()  # Authenticated GET, fail closed if unavailable
     seen = set()
     for page in range(1, MAX_PAGES + 1):
+        LAST_SAFE_PHASE = "page_" + str(page) + "_get"
         rows = wp.wp("GET", "/wp/v2/posts", query={
             "context": "edit", "status": "publish",
             "categories": category, "orderby": "modified", "order": "desc",
             "per_page": PER_PAGE, "page": page,
             "_fields": "id,slug,status,link,modified_gmt,content,categories",
         })
+        LAST_SAFE_PHASE = "page_" + str(page) + "_validate"
         wp.require(isinstance(rows, list), "Malformed WordPress listing")
         for row in rows:
             wp.require(isinstance(row, dict), "Invalid post row")
@@ -83,6 +88,7 @@ def inspect() -> dict:
                 })
         if len(rows) < PER_PAGE:
             break
+    LAST_SAFE_PHASE = "success"
     snapshot["status"] = "verified_get_only"
     # Do not copy title, body, excerpt, full href, credentials, author data.
     return snapshot
@@ -94,7 +100,7 @@ def main() -> int:
     except (wp.Blocked, OSError, ValueError, TypeError, KeyError):
         result = {
             "schema_version": 1, "site": "solar-expert.cz",
-            "status": "blocked_no_evidence", "writes": 0,
+            "status": "blocked_no_evidence", "failed_stage": LAST_SAFE_PHASE, "writes": 0,
             "publish_authorized": False, "theme_deploy_authorized": False,
             "candidates": [],
         }
@@ -103,6 +109,7 @@ def main() -> int:
     print("SOLAR_OFFGRID_GAP status=" + result["status"] +
           " examined=" + str(result.get("posts_examined", "unverified")) +
           " potential=" + str(result.get("missing_both", "unverified")) +
+          " safe_phase=" + result.get("failed_stage", "success") +
           " writes=0")
     for row in result["candidates"][:20]:
         print("SOLAR_OFFGRID_GAP_CANDIDATE id=" + str(row["post_id"]) +
