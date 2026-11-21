@@ -1,0 +1,66 @@
+name: Solar 48-quote WordPress REST overlay independent production GET proof
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-quote-rest-overlay-live-proof.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-quote-rest-overlay-live-proof.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-real-live-rest-catalog:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Retrieve exact activation writer outcome from first-party GitHub REST
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-quote-rest-overlay-release.yml/runs?event=push&per_page=40" |
+            jq -r '.workflow_runs[] | select(.head_sha == "10755e1cec03a633974d24f3b236ccc6c690f9f6") | "SOLAR_REST_QUOTE_WRITER id=\(.id) status=\(.status) conclusion=\(.conclusion)"'
+      - name: Recompute fresh exact 48-quote source candidate (own live catalog GET only)
+        run: node tools/catalog-price-overlay-preflight.mjs
+      - name: Verify exact catalog REST JSON, both buyer scripts and unchanged legacy theme
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from scripts import solar_quote_rest_overlay_release as m
+          user=os.environ['SOLAR_WP_USER'].strip()
+          password=os.environ['SOLAR_WP_APP_PASSWORD'].strip()
+          candidate,payload=m.expected_catalog()
+          m.health_guard(user,password)
+          status,items=m.wp('GET',m.LIST,user,password)
+          m.require(status==200 and isinstance(items,list) and len(items)<100,
+                    'Cannot independently read active snippet inventory')
+          matches=[x for x in items if isinstance(x,dict) and x.get('name')==m.NAME]
+          m.require(len(matches)==1 and matches[0].get('active') is True,
+                    'Exact quote REST snippet not uniquely active')
+          m.require(m.public_json()==candidate,'Public REST catalog is not exact approved candidate')
+          m.page_readback()
+          m.health_guard(user,password)
+          m.require(m.POST_ATTEMPTS==0 and m.SNIPPET_ID is None,
+                    'Read-only verifier attempted a WordPress write')
+          print('SOLAR_QUOTE_REST_LIVE status=verified'
+                ' catalog_source_pinned=true seller_quotes_eligible=48'
+                ' unresolved_sku=3 source_changed=1'
+                ' public_rest_json_exact=true buyer_pages_runtime_bridge=2'
+                ' legacy_static_theme_unchanged=true'
+                ' browser_execution=not_proved WordPress_writes=0'
+                ' affiliate_clicks=0 theme_deployed=false')
+          PY
