@@ -48,7 +48,16 @@ b.advanceToUsage();
 assert.equal(b.step,3);
 b.autonomy=.5;
 b.calc();
-assert(b.primaryShoppingList?.total>0,'A genuine user adjustment restores a valid priced quote');
+assert.equal(b.primaryShoppingList,null,
+  'Reducing energy reserve alone cannot remove the AC pump BMS start-current constraint');
+assert.equal(b.batteryCapacityGap,null,
+  'The capacity deficit may disappear even when an independent BMS surge limit remains unsafe');
+assert(b.result.riskFlags.some(msg=>msg.includes('BMS')),
+  'Buyer must understand why a smaller battery does not unlock the shopping list');
+b.toggle('pump'); // A genuinely changed load removes the high startup demand.
+b.calc();
+assert(b.primaryShoppingList?.total>0,
+  'Removing the modeled high-surge AC pump restores a supported quoted configuration');
 assert.equal(b.batteryCapacityGap,null,'Do not show a shortage beside a complete recommendation');
 
 const usual=builder();
