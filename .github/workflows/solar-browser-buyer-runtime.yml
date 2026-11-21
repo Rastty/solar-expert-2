@@ -31,7 +31,7 @@ jobs:
           ! grep -q "trackBundleDealOffer(" scripts/solar_quote_browser_smoke.mjs
       - name: Prove exact previously armed single-PUT home scope writer finished successfully
         env:
-          ${{ github.token }}: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
