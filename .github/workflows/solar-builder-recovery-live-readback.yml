@@ -1,0 +1,62 @@
+name: Solar Builder recovery independent live GET-only proof
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-builder-recovery-live-readback.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-builder-recovery-live-readback.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-live-readback:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify one-shot production writer run identity and status (GitHub API GET)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-builder-recovery-release.yml/runs?event=push&per_page=50" |
+            jq -r '[.workflow_runs[] | select(.head_sha == "84358d692b5d0b5c2b6e22a1dfabc5f0e8e6f7b8") | select(.status == "completed" and .conclusion == "success") | .id] | first // empty')"
+          test -n "$result"
+          echo "SOLAR_BUILDER_RECOVERY_WRITER run_id=$result conclusion=success exact_main_sha=true"
+      - name: Independent WordPress authenticated source and public GET-only scope
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from scripts import solar_builder_recovery_release as m
+          u=os.environ['SOLAR_WP_USER'].strip()
+          p=os.environ['SOLAR_WP_APP_PASSWORD'].strip()
+          m.baseline(u,p)
+          code,items=m.request_rest('GET',m.SNIPPETS,u,p)
+          m.require(code==200 and isinstance(items,list) and len(items)<100,
+                    'Cannot independently read Code Snippets inventory')
+          matches=[x for x in items if isinstance(x,dict) and x.get('name')==m.NAME]
+          m.require(len(matches)==1 and matches[0].get('active') is True,
+                    'Scoped Builder recovery snippet is not uniquely active')
+          m.require(str(matches[0].get('code','')).strip()==m.PHP_CODE.strip(),
+                    'Live snippet PHP source differs from reviewed exact source')
+          m.public_readback()
+          m.baseline(u,p)
+          m.require(m.POST_ATTEMPTS==0,'Unexpected WordPress writer from GET-only proof')
+          print('SOLAR_BUILDER_RECOVERY_LIVE status=verified'
+                ' exact_snippet_code_active=true builder_html_scoped=true'
+                ' battery_page_untouched=true theme_0_12_27=true'
+                ' managed_content_current=true wordpress_writes=0'
+                ' affiliate_clicks=0 theme_deployed=false')
+          PY
