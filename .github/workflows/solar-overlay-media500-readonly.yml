@@ -1,0 +1,81 @@
+name: Solar quote overlay HTTP 500 ambiguous write - GET-only reconciliation
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-overlay-media500-readonly.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-overlay-media500-readonly.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  reconcile-wordpress-rest-get-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Recompute exact preview filename only (no writes)
+        run: node tools/catalog-price-overlay-preflight.mjs
+      - name: GET-only media list, snippet identity, uploaded bytes and public script status
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          from scripts import solar_quote_runtime_overlay_release as m
+          candidate=m.load_candidate()
+          hash_value=hashlib.sha256(candidate).hexdigest()
+          filename='solar-price-overlay-'+hash_value[:12]+'.txt'
+          slug=filename[:-4]
+          user=os.environ['SOLAR_WP_USER'].strip()
+          password=os.environ['SOLAR_WP_APP_PASSWORD'].strip()
+          code,media=m.wp('GET',f'/wp/v2/media?slug={slug}&per_page=10',user,password)
+          if code!=200 or not isinstance(media,list):
+              raise SystemExit('Authenticated media list unavailable; write result remains ambiguous')
+          exact=[x for x in media if isinstance(x,dict) and
+                 isinstance(x.get('source_url'),str) and
+                 x['source_url'].split('/')[-1]==filename]
+          code,items=m.wp('GET',m.LIST,user,password)
+          if code!=200 or not isinstance(items,list) or len(items)>=100:
+              raise SystemExit('Authenticated snippet list unavailable; cannot rule out duplicate')
+          matches=[x for x in items if isinstance(x,dict) and x.get('name')==m.NAME]
+          active=sum(x.get('active') is True for x in matches)
+          asset='unknown'
+          if len(exact)==0:
+              asset='absent_in_exact_media_list'
+          elif len(exact)==1:
+              try:
+                  asset='sha_exact' if hashlib.sha256(m.fetch_public(
+                      exact[0]['source_url'],500000)).hexdigest()==hash_value else 'sha_mismatch'
+              except m.Blocked:
+                  asset='public_read_unavailable'
+          scripts=[]
+          for page in m.PAGE_URLS:
+              try:
+                  html=m.fetch_public(page).decode('utf-8','replace')
+                  scripts.append(html.count('window.SolarExpertConfig.catalogUrl = '))
+              except m.Blocked:
+                  scripts.append(-1)
+          print('SOLAR_OVERLAY_MEDIA500_RECONCILE'
+                ' http_media=200 media_exact_count='+str(len(exact))
+                +' snippets_same_name='+str(len(matches))
+                +' snippets_active='+str(active)
+                +' media_asset='+asset
+                +' script_marker_counts='+','.join(map(str,scripts))
+                +' wordpress_writes=0 affiliate_clicks=0')
+          if m.WRITE_ATTEMPTS!=0:
+              raise SystemExit('Unexpected WordPress write attempt from diagnostic')
+          if len(exact)>1 or len(matches)>1:
+              raise SystemExit('Duplicate identity ambiguous; no safe replay')
+          PY
