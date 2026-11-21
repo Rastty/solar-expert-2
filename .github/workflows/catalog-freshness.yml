@@ -251,6 +251,73 @@ jobs:
             }
           ' > artifacts/solar-live-vs-dev-catalog.json
           test -s artifacts/solar-live-vs-dev-catalog.json
+          # This records public WordPress sync PRECONDITIONS, never the full
+          # database, media, private affiliate map, backup bytes or credentials.
+          # A matching old manifest fingerprint is necessary for a safer
+          # first-transition theme, but cannot authorize a production update.
+          jq -n --slurpfile health artifacts/solar-production-health-readonly.json \
+            --slurpfile provenance artifacts/solar-live-theme-history-candidate.json \
+            --arg checked_at_utc "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" '
+            ($health[0]) as $h | ($provenance[0]) as $g |
+            (($h.status == "ok") and
+              ($h.content_sync_status | type == "string") and
+              ($h.content_sync_required | type == "boolean") and
+              ($h.content_sync_errors | type == "number") and
+              ($h.managed_content_items | type == "number") and
+              ($h.managed_indexability_errors | type == "number") and
+              ($h.managed_taxonomy_errors | type == "number")) as $well_formed |
+            {
+              schema_version:1,
+              observed_at_utc:$checked_at_utc,
+              measurement:"public_health_only_first_transition_sync_preconditions_not_restore",
+              candidate_public_four_asset_git_source:($g.candidate_commit // null),
+              candidate_public_asset_match:(($g.candidate_full_four_file_match // false) == true),
+              health_verified_schema:$well_formed,
+              managed_content_items:(if $well_formed then $h.managed_content_items else null end),
+              sync_status:(if $well_formed then $h.content_sync_status else "unverified" end),
+              sync_required:(if $well_formed then $h.content_sync_required else null end),
+              sync_errors:(if $well_formed then $h.content_sync_errors else null end),
+              indexability_errors:(if $well_formed then $h.managed_indexability_errors else null end),
+              taxonomy_errors:(if $well_formed then $h.managed_taxonomy_errors else null end),
+              content_sync_preconditions_at_snapshot:(
+                $well_formed and
+                $h.managed_content_items == 60 and
+                $h.content_sync_status == "current" and
+                $h.content_sync_required == false and
+                $h.content_sync_errors == 0 and
+                $h.managed_indexability_errors == 0 and
+                $h.managed_taxonomy_errors == 0 and
+                ($g.candidate_full_four_file_match // false) == true
+              ),
+              prior_php_update_hook_proved_inert:false,
+              database_restore_proven:false,
+              uploads_restore_proven:false,
+              staging_restore_proven:false,
+              full_live_theme_identity_proven:false,
+              release_authorized:false,
+              wordpress_writes:0
+            }
+          ' > artifacts/solar-first-transition-sync-preconditions-readonly.json
+          jq -e '
+            .schema_version == 1 and .wordpress_writes == 0 and
+            .release_authorized == false and
+            .prior_php_update_hook_proved_inert == false and
+            .database_restore_proven == false and
+            .uploads_restore_proven == false and
+            .staging_restore_proven == false and
+            .full_live_theme_identity_proven == false and
+            (.content_sync_preconditions_at_snapshot | type == "boolean")
+          ' artifacts/solar-first-transition-sync-preconditions-readonly.json >/dev/null
+          {
+            echo '## Live legacy WordPress content sync preconditions (read-only)'
+            echo ''
+            jq -r '"Current health schema verified: **\(.health_verified_schema)**", "Managed post/page manifest items: **\(.managed_content_items // "unverified")**", "Content sync status: **\(.sync_status)**", "Content sync required: **\(.sync_required // "unverified")**", "Content/indexability/taxonomy errors: **\(.sync_errors // "unverified") / \(.indexability_errors // "unverified") / \(.taxonomy_errors // "unverified")**", "Necessary source + content-sync preconditions: **\(.content_sync_preconditions_at_snapshot)**"' artifacts/solar-first-transition-sync-preconditions-readonly.json
+            echo ''
+            echo 'Even TRUE does not prove the OLD PHP upgrader hook is inert, entire live theme parity, database/uploads restore, or staging rehearsal. Release authorization remains FALSE; issue #148 stays open.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$(jq -r '.content_sync_preconditions_at_snapshot' artifacts/solar-first-transition-sync-preconditions-readonly.json)" != 'true' ]]; then
+            echo '::warning::Live legacy WordPress sync preconditions are incomplete; do not stage a mutating first-theme migration.'
+          fi
           rm -f artifacts/solar-production-health-readonly.json
           if [[ "$(jq -r '.catalog_age_parity' artifacts/solar-live-vs-dev-catalog.json)" != 'true' ]]; then
             echo '::warning::Live Solar Expert price-snapshot age differs from verified dev catalog. Theme/data deployment is NOT authorized here; investigate exact source and release gate.'
@@ -362,6 +429,7 @@ jobs:
             artifacts/catalog-freshness.json
             artifacts/catalog-offer-evidence.json
             artifacts/solar-live-vs-dev-catalog.json
+            artifacts/solar-first-transition-sync-preconditions-readonly.json
             artifacts/solar-live-vs-dev-theme-sources.json
             artifacts/solar-live-theme-history-candidate.json
             artifacts/solar-live-starlink-buyer-journey.json
