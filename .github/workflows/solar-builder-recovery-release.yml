@@ -31,6 +31,13 @@ jobs:
         run: |
           python -m py_compile scripts/solar_builder_recovery_release.py
           python -m unittest discover -s tests -p 'test_solar_builder_recovery_release.py' -v
+          python - <<'PY'
+          from pathlib import Path
+          from scripts.solar_builder_recovery_release import PHP_CODE
+          script=PHP_CODE.split("$js = <<<'SOLAR_SAFE_BUYER_RECOVERY'",1)[1].split('SOLAR_SAFE_BUYER_RECOVERY;',1)[0].strip()
+          Path('/tmp/solar-builder-recovery-inline.js').write_text(script,encoding='utf-8')
+          PY
+          node --check /tmp/solar-builder-recovery-inline.js
   one-shot-wordpress:
     needs: contract
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
