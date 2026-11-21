@@ -86,6 +86,8 @@ jobs:
         run: node tests/builder-catalog-voltage-alternative.test.js
       - name: Builder AC battery autonomy and DC BMS discharge safety parity
         run: node tests/builder-ac-battery-safety.test.js
+      - name: Builder battery BMS startup surge cannot be inferred from inverter surge
+        run: node tests/builder-bms-surge-safety.test.js
       - name: Builder all-items-one-shop checkout convenience with real seller quotes
         run: node tests/builder-single-shop-checkout.test.js
       - name: Builder capacity shortfall explanation and lossless result revision

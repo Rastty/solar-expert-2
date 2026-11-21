@@ -40,8 +40,15 @@ window.SolarExpertBundleComposer = {
         // Selector callers historically pass their DC requirement in
         // inverterW. Builder must preserve AC inverter selection separately
         // while screening the battery for DC draw after inverter losses.
-        const requiredBatteryDcW=Number(sizing.batteryDcW ?? sizing.inverterW);
-        if (!(requiredBatteryDcW>0) || dischargePowerW < requiredBatteryDcW) continue;
+        const continuousDcW=Number(sizing.batteryDcW ?? sizing.inverterW);
+        const peakDcW=Number(sizing.batteryPeakDcW ?? 0);
+        // BMS surge is not proven merely by an inverter's surge label. If
+        // no independent manufacturer BMS transient-current rating is in the
+        // catalog, only the documented continuous battery discharge ceiling
+        // can authorize the complete buyer bundle for modeled startup load.
+        const requiredBatteryDcW=Math.max(continuousDcW,peakDcW);
+        if (!(continuousDcW>0) || !Number.isFinite(requiredBatteryDcW) ||
+            peakDcW<0 || dischargePowerW<requiredBatteryDcW) continue;
 
         all.push({
           product,
@@ -349,6 +356,7 @@ window.SolarExpertBundleComposer = {
                 'kabeláž a jištění',
                 'přesný teplotní koeficient Voc pro lokalitu',
                 'BMS ↔ měnič komunikace',
+                 ...(Number(sizing.batteryPeakDcW||0)>Number(sizing.batteryDcW||0) ? ['Povolený vybíjecí proud BMS při rozběhu: dokud není výrobní špičková specifikace doložena, použit konzervativní trvalý limit baterie.'] : []),
                 ...(batteryBank.quantity > 1 ? ['paralelní bateriové propojení / sběrnice a jištění každé větve'] : []),
                 'aktuální dostupnost a affiliate URL',
                 ...(!panelPlan.pvIscVerified ? ['Absolutní PV Isc limit konkrétní revize integrovaného MPPT není doložen: nákup této sestavy je pozastaven.'] : [])
@@ -422,6 +430,7 @@ window.SolarExpertBundleComposer = {
                 'kabeláž a jištění',
                 'přesný teplotní koeficient Voc pro lokalitu',
                 'BMS ↔ měnič komunikace',
+                 ...(Number(sizing.batteryPeakDcW||0)>Number(sizing.batteryDcW||0) ? ['Povolený vybíjecí proud BMS při rozběhu: dokud není výrobní špičková specifikace doložena, použit konzervativní trvalý limit baterie.'] : []),
                 ...(batteryBank.quantity > 1 ? ['paralelní bateriové propojení / sběrnice a jištění každé větve'] : []),
                 'aktuální dostupnost a affiliate URL'
               ]
