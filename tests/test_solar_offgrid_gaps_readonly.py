@@ -55,11 +55,16 @@ class OffgridGapAuditTest(unittest.TestCase):
         self.assertFalse(r["publish_authorized"])
         self.assertFalse(r["theme_deploy_authorized"])
 
-    def test_canonical_mismatch_fail_closed(self):
+    def test_canonical_mismatch_is_explicitly_unverified_not_false_zero(self):
         self.bad = True
         with patch.object(publisher, "wp", side_effect=self.fake_wp):
-            with self.assertRaises(publisher.Blocked):
-                gap.inspect()
+            result = gap.inspect()
+        self.assertEqual(result["status"], "verified_partial_get_only")
+        self.assertEqual(result["unverified_rows"], 1)
+        self.assertEqual(result["posts_examined"], 3)
+        self.assertEqual(result["missing_both"], 1)
+        self.assertEqual([row["post_id"] for row in result["candidates"]], [4])
+        self.assertEqual(result["writes"], 0)
 
     def test_no_auth_never_returns_fake_zero_coverage(self):
         with tempfile.TemporaryDirectory() as tmp, \
