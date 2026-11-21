@@ -4,12 +4,16 @@ on:
     branches: [main]
     paths:
       - "scripts/solar_gsc_code_snippet_schema.py"
+      - "scripts/solar_gsc_code_snippet_release.py"
+      - "tests/test_solar_gsc_code_snippet_release.py"
       - "tests/test_solar_gsc_code_snippet_schema.py"
       - ".github/workflows/solar-gsc-code-snippet-schema.yml"
   push:
     branches: [main]
     paths:
       - "scripts/solar_gsc_code_snippet_schema.py"
+      - "scripts/solar_gsc_code_snippet_release.py"
+      - "tests/test_solar_gsc_code_snippet_release.py"
       - "tests/test_solar_gsc_code_snippet_schema.py"
       - ".github/workflows/solar-gsc-code-snippet-schema.yml"
 permissions:
@@ -29,6 +33,8 @@ jobs:
         run: |
           python -m py_compile scripts/solar_gsc_code_snippet_schema.py
           python -m unittest discover -s tests -p 'test_solar_gsc_code_snippet_schema.py' -v
+          python -m py_compile scripts/solar_gsc_code_snippet_release.py
+          python -m unittest discover -s tests -p 'test_solar_gsc_code_snippet_release.py' -v
   live:
     needs: contract
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
