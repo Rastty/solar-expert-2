@@ -1,0 +1,69 @@
+name: Solar PV Isc metadata - independent authenticated and public GET-only production proof
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-runtime-pv-tech-live-readback.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-runtime-pv-tech-live-readback.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-existing-snippet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Rebuild original 48-source-matched quote cohort, GET-only
+        run: node tools/catalog-price-overlay-preflight.mjs
+      - name: Independent GitHub API read of exact one-shot main release result
+        env:
+          ${{ github.token }}: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-runtime-tech-evidence-release.yml/runs?event=push&per_page=70" |
+            jq -r '[.workflow_runs[] | select(.head_sha=="3b72581c98fef56bcba237b861a3cabfe6a5d627") | select(.status=="completed" and .conclusion=="success") | .id] | first // empty')"
+          test -n "$id"
+          echo "SOLAR_PV_TECH_WRITER main_release_exact_sha=true status=success run_id=$id"
+      - name: Authenticated exact active PHP source and public REST JSON (no write)
+        env:
+          SOLAR_${{ secrets.SOLAR_WP_USER }}: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from scripts import solar_runtime_pv_tech_release as m
+          u=os.environ['SOLAR_${{ secrets.SOLAR_WP_USER }}'].strip()
+          p=os.environ['SOLAR_WP_APP_PASSWORD'].strip()
+          old_catalog,new_catalog,old_code,new_code=m.expected_sources()
+          status,items=m.wp('GET',m.old.LIST,u,p)
+          m.require(status==200 and isinstance(items,list) and len(items)<100,
+                    'Cannot read authenticated code snippet inventory')
+          rows=[x for x in items if isinstance(x,dict) and x.get('name')==m.old.NAME]
+          m.require(len(rows)==1 and type(rows[0].get('id')) is int and
+                    rows[0].get('active') is True and rows[0].get('scope')=='global',
+                    'Expected exactly one active original 48-quote REST snippet')
+          m.SNIPPET_ID=rows[0]['id']
+          m.item_row(u,p,new_code)
+          m.require(m.old.public_json()==new_catalog,
+                    'Public REST JSON differs from exact vetted seven-PV-field source')
+          m.old.page_readback()
+          m.old.health_guard(u,p)
+          m.require(m.PUT_ATTEMPTS==0,
+                    'Independent production verification must never write')
+          print('SOLAR_PV_TECH_LIVE status=verified exact_existing_snippet=true'
+            ' rest_json_exact=true manufacturer_pv_products=7'
+            ' quote_rows_preserved=48 affiliate_clicks=0'
+            ' wordpress_writes=0 static_theme_unchanged=true'
+            ' theme_deployed=false full_bundle_validated=false')
+          PY
