@@ -122,12 +122,12 @@ def wp(method,path,user,password,body=None):
         path in (old.LIST,old.PLUGINS) or
         (SNIPPET_ID is not None and
          path==f'/code-snippets/v1/snippets/{SNIPPET_ID}'))
-    allowed_put=method=='PUT' and SNIPPET_ID is not None and
+    allowed_put=(method=='PUT' and SNIPPET_ID is not None and
         path==f'/code-snippets/v1/snippets/{SNIPPET_ID}' and
         isinstance(body,dict) and
         set(body)=={'name','code','scope','active','desc'} and
         body.get('name')==old.NAME and body.get('scope')=='global' and
-        body.get('active') is True and body.get('desc')==old.DESCRIPTION
+        body.get('active') is True and body.get('desc')==old.DESCRIPTION)
     require(allowed_get or allowed_put,'Unapproved WordPress request')
     require(bool(user and password),'Missing WP application credentials')
     credentials=base64.b64encode((user+':'+password).encode()).decode()
