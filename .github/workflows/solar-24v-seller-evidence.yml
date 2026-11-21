@@ -5,12 +5,16 @@ on:
     paths:
       - 'tools/solar-24v-seller-evidence.mjs'
       - 'tests/solar-24v-seller-evidence.test.mjs'
+      - 'tools/solar_24v_authorized_feed_evidence.py'
+      - 'tests/test_solar_24v_authorized_feed_evidence.py'
       - '.github/workflows/solar-24v-seller-evidence.yml'
   push:
     branches: [main]
     paths:
       - 'tools/solar-24v-seller-evidence.mjs'
       - 'tests/solar-24v-seller-evidence.test.mjs'
+      - 'tools/solar_24v_authorized_feed_evidence.py'
+      - 'tests/test_solar_24v_authorized_feed_evidence.py'
       - '.github/workflows/solar-24v-seller-evidence.yml'
   schedule:
     - cron: '16 6 * * 1,4'
@@ -32,27 +36,36 @@ jobs:
         run: |
           node --check tools/solar-24v-seller-evidence.mjs
           node --test tests/solar-24v-seller-evidence.test.mjs
-      - name: Four original merchant product GETs only (no eHub, no WP write)
-        run: node tools/solar-24v-seller-evidence.mjs
-      - name: Confirm no evidence has been promoted into prices or verified dates
+          python -m unittest discover -s tests -p 'test_solar_24v_authorized_feed_evidence.py' -v
+      - name: Authorized existing XML product feeds (exact 4 SKU, no merchant page automation)
+        env:
+          BATTERY_CZ_FEED_URL: ${{ secrets.BATTERY_CZ_FEED_URL }}
+          SOLAR_IMPORT_FEED_URL: ${{ secrets.SOLAR_IMPORT_FEED_URL }}
+        run: python tools/solar_24v_authorized_feed_evidence.py
+      - name: Exact bounded authorized-feed evidence, zero WordPress or affiliate writes
         if: success()
         run: |
           jq -e '
             .schema_version == 1
-            and .mode == "exact_4_retailer_merchant_get_only"
-            and .protected_live_rest_products == 24
-            and .selected_source_product_count == 4
+            and .mode == "authorized_2_merchant_xml_feed_quote_evidence"
+            and .selected_sku_count == 4
             and .wordpress_writes == 0
-            and .merchant_clicks == 0
+            and .affiliate_clicks == 0
             and .affiliate_network_gets == 0
-            and .automatic_catalog_date_refresh == false
+            and .automatic_date_refresh == false
+            and .configured_secret_values_logged == false
             and (.rows | length) == 4
-          ' artifacts/solar-24v-retailer-evidence.json >/dev/null
+          ' artifacts/solar-24v-authorized-feed-evidence.json >/dev/null
+      - name: Optional blocked original HTML direct-source diagnostic (manual only)
+        if: github.event_name == 'workflow_dispatch'
+        run: node tools/solar-24v-seller-evidence.mjs
       - name: Upload bounded source-identification and quote changes (no page HTML)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: solar-24v-retailer-evidence-${{ github.run_id }}
-          path: artifacts/solar-24v-retailer-evidence.json
+          path: |
+            artifacts/solar-24v-authorized-feed-evidence.json
+            artifacts/solar-24v-retailer-evidence.json
           retention-days: 21
           if-no-files-found: warn
