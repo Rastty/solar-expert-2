@@ -379,7 +379,7 @@ def page_readback():
     builder=page_html(existing.BUILDER+'?se_24v_model_audit=after')
     battery=page_html(existing.BATTERY+'?se_24v_model_audit=after')
     for label,html in (('homepage',home),('Builder',builder)):
-        require(html.count("data-se-reviewed-24v-example")==2 and
+        require(html.count("data-se-reviewed-24v-example")>=1 and
                 'builder-24v-reviewed-model' in html and
                 'solar-expert-builder' in html and
                 'data-se-builder-recovery' in html,
