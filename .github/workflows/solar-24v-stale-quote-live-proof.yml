@@ -1,0 +1,93 @@
+name: Solar 24V no-price after expiry - independent real Chromium and WordPress GET proof
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_24v_stale_quote_browser_smoke.mjs'
+      - '.github/workflows/solar-24v-stale-quote-live-proof.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_24v_stale_quote_browser_smoke.mjs'
+      - '.github/workflows/solar-24v-stale-quote-live-proof.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  independent-buyer-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exact-main one-shot WordPress writer receipt from GitHub Actions GET
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          runs="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-24v-stale-quote-handoff-release.yml/runs?event=push&per_page=50")"
+          printf '%s' "$runs" | jq -r '[.workflow_runs[] | select(.head_sha=="149a0a686a521fe089ceefef41c7b79550821fec") | "SOLAR_STALE_24V_WRITER run=\(.id) status=\(.status) conclusion=\(.conclusion)"] | first // "SOLAR_STALE_24V_WRITER not yet indexed"'
+          # Final proof is the authenticated live PHP source + real browser;
+          # GitHub indexing latency must not create a false no-deploy claim.
+      - name: Independently authenticate exact existing active WordPress PHP and frontend scope (GET only)
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import os
+          from scripts import solar_24v_expired_quote_recovery_release as m
+          u=os.environ['SOLAR_WP_USER'].strip()
+          p=os.environ['SOLAR_WP_APP_PASSWORD'].strip()
+          m.old.existing.baseline(u,p)
+          status,items=m.api('GET',m.old.existing.SNIPPETS,u,p)
+          m.require(status==200 and isinstance(items,list) and len(items)<100,
+                    'Cannot independently GET current WordPress active source')
+          matches=[x for x in items if isinstance(x,dict) and x.get('name')==m.old.NAME]
+          m.require(len(matches)==1 and type(matches[0].get('id')) is int and
+                    matches[0].get('scope')=='global' and matches[0].get('active') is True,
+                    'Cannot prove exactly ONE prior active 24V snippet identity')
+          m.SNIPPET_ID=matches[0]['id']
+          m.row(u,p,m.CODE)
+          m.page(False)
+          m.old.existing.baseline(u,p)
+          m.require(m.PUT_ATTEMPTS==0,'Read-only source proof attempted a WordPress write')
+          print('SOLAR_STALE_24V_WP_LIVE status=exact_one_active_snippet'
+            ' homepage_builder_source_verified=true battery_page_untouched=true'
+            ' wordpress_writes=0 merchant_clicks=0 theme_deployed=false')
+          PY
+      - name: Syntax verify browser test (no tracking or direct merchant click)
+        run: |
+          node --check scripts/solar_24v_stale_quote_browser_smoke.mjs
+          ! grep -q 'trackOffer(' scripts/solar_24v_stale_quote_browser_smoke.mjs
+          ! grep -q 'trackBundleDealOffer(' scripts/solar_24v_stale_quote_browser_smoke.mjs
+      - name: Install pinned Chromium
+        run: |
+          test -f package.json || npm init -y >/dev/null
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Actual fresh and time-shifted 4-SKU buyer UI (no writes/clicks)
+        run: node scripts/solar_24v_stale_quote_browser_smoke.mjs
+      - name: Exact proof receipt, no false prices after 30 days
+        if: success()
+        run: |
+          jq -e '
+            .status=="verified"
+            and (.cases|length)==4
+            and ([.cases[]|select(.quote_mode=="priced")]|length)==2
+            and ([.cases[]|select(.quote_mode=="unpriced")]|length)==2
+            and ([.cases[]|.sponsored_source_exact_merchant_links]|all(.==4))
+            and ([.cases[]|select(.quote_mode=="unpriced")|.no_unverified_amounts]|all(.==true))
+            and .wordpress_writes==0
+            and .affiliate_clicks==0
+            and .theme_deployed==false
+          ' artifacts/solar-24v-expiry-browser-proof.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-24v-expiry-buyer-browser-${{ github.run_id }}
+          path: artifacts/solar-24v-expiry-browser-proof.json
+          retention-days: 21
+          if-no-files-found: warn
