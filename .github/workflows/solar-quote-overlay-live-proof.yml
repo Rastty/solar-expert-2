@@ -1,0 +1,77 @@
+name: Solar quote runtime overlay independent first-party GET proof
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-quote-overlay-live-proof.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-quote-overlay-live-proof.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  production-runtime-readonly:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Read exact main production writer run ID and result
+        env:
+          ${{ github.token }}: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/solar-quote-runtime-overlay-release.yml/runs?event=push&per_page=40" |
+            jq -r '.workflow_runs[] | select(.head_sha == "955c15f8f3fafe5d7461622c93fbcdd3b25ae913") | "SOLAR_QUOTE_OVERLAY_WRITER id=\(.id) status=\(.status) conclusion=\(.conclusion)"'
+      - name: Independently regenerate pinned candidate and inspect actual public script + JSON bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/catalog-price-overlay-preflight.mjs
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          from scripts.solar_quote_runtime_overlay_release import fetch_public, SITE, PAGE_URLS, PUBLIC_CATALOG
+          preview=json.loads(Path('artifacts/solar-catalog-quote-overlay-preview.json').read_text())
+          summary=preview['summary']; counts=summary['counts']
+          assert counts['eligible']==48 and counts['skipped_unresolved_sku']==3
+          assert counts['skipped_source_changed']==1 and counts['all_offer_rows']==52
+          expected=(json.dumps(preview['catalog'],ensure_ascii=False,separators=(',',':'))+'\n').encode()
+          expected_digest=hashlib.sha256(expected).hexdigest()
+          expected_name='solar-price-overlay-'+expected_digest[:12]+'.txt'
+          marker='window.SolarExpertConfig.catalogUrl = '
+          urls=[]
+          for page in PAGE_URLS:
+              html=fetch_public(page+'?solar_quote_proof='+expected_digest[:12]).decode('utf-8','replace')
+              if html.count(marker)!=1 or 'affiliate-adapter.js' not in html or 'product-matcher.js' not in html:
+                  raise SystemExit('Expected unique first-party runtime override not present')
+              literal=html.split(marker,1)[1].split(';',1)[0].strip()
+              try:
+                  url=json.loads(literal)
+              except ValueError:
+                  raise SystemExit('Invalid JSON inline catalog override')
+              p=urlsplit(url)
+              if p.scheme!='https' or p.hostname!='solar-expert.cz' or not p.path.startswith('/wp-content/uploads/') or not p.path.endswith('/'+expected_name) or p.query or p.fragment:
+                  raise SystemExit('Inline catalog override URL not exact expected same-site immutable asset')
+              urls.append(url)
+          if len(set(urls))!=1:
+              raise SystemExit('Different buyer tools resolved different catalog asset URLs')
+          public_data=fetch_public(urls[0],max_bytes=500000)
+          if public_data!=expected:
+              raise SystemExit('Public overlay JSON bytes differ from exact source-pinned candidate')
+          # Original theme static catalog must stay unchanged; no deployed PHP/theme version implied.
+          original=fetch_public(PUBLIC_CATALOG)
+          if hashlib.sha256(original).hexdigest()==expected_digest:
+              raise SystemExit('Static theme asset was unexpectedly overwritten')
+          print('SOLAR_QUOTE_OVERLAY_LIVE status=two_pages_exact_asset_and_inline_js_verified'
+                ' eligible=48 unresolved=3 source_changed=1'
+                ' static_theme_unchanged_as_candidate=true browser_execution=not_proved'
+                ' WP_writes=0 merchant_requests=0 affiliate_clicks=0')
+          PY
