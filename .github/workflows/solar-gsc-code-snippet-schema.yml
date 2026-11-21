@@ -1,0 +1,54 @@
+name: Solar Code Snippets supported REST schema (GET only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/solar_gsc_code_snippet_schema.py"
+      - "tests/test_solar_gsc_code_snippet_schema.py"
+      - ".github/workflows/solar-gsc-code-snippet-schema.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/solar_gsc_code_snippet_schema.py"
+      - "tests/test_solar_gsc_code_snippet_schema.py"
+      - ".github/workflows/solar-gsc-code-snippet-schema.yml"
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Offline schema and no-private-response tests
+        run: |
+          python -m py_compile scripts/solar_gsc_code_snippet_schema.py
+          python -m unittest discover -s tests -p 'test_solar_gsc_code_snippet_schema.py' -v
+  live:
+    needs: contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Read installed Code Snippets route schema via WordPress admin App Password
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_gsc_code_snippet_schema
+      - name: Assert GET-only metadata and no theme deployment
+        run: jq -e '.writes==0 and .wpvibe_calls==0 and .theme_deployed==false and .plugin_api_present==true' artifacts/solar-gsc-snippet-rest-schema.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-code-snippets-api-schema-${{ github.run_id }}
+          path: artifacts/solar-gsc-snippet-rest-schema.json
+          retention-days: 5
+          if-no-files-found: error
