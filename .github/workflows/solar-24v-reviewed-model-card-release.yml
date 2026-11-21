@@ -1,0 +1,72 @@
+name: Solar 24V buyer example - source-verified 2S2P four-offer model (no theme deploy)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_24v_model_shopping_release.py'
+      - 'tests/test_solar_24v_model_shopping_release.py'
+      - 'ops/solar-24v-reviewed-model-card-release.json'
+      - '.github/workflows/solar-24v-reviewed-model-card-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/solar_24v_model_shopping_release.py'
+      - 'tests/test_solar_24v_model_shopping_release.py'
+      - 'ops/solar-24v-reviewed-model-card-release.json'
+      - '.github/workflows/solar-24v-reviewed-model-card-release.yml'
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  source-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Real PHP and Node JS, 24V model physics, scoped two-write WP contract
+        run: |
+          python -m py_compile scripts/solar_24v_model_shopping_release.py
+          python -m unittest discover -s tests -p 'test_solar_24v_model_shopping_release.py' -v
+  one-reversible-model-snippet:
+    needs: source-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Require exact sole OFF→ON control change after reviewed source merge
+        id: release_gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "armed=false" >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[0-9a-f]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-24v-reviewed-model-card-release.json' ]] || exit 0
+          git show "$BEFORE:ops/solar-24v-reviewed-model-card-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,"mode":"one_reversible_source_checked_24v_example_card"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,"mode":"one_reversible_source_checked_24v_example_card"}' ops/solar-24v-reviewed-model-card-release.json >/dev/null
+          echo "armed=true" >> "$GITHUB_OUTPUT"
+      - name: Exactly one inactive Code Snippet create, readback, activate, public scope proof
+        if: steps.release_gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_24v_model_shopping_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-24v-example-model-receipt-${{ github.run_id }}
+          path: artifacts/solar-24v-reviewed-model-card-release.json
+          retention-days: 14
+          if-no-files-found: warn
