@@ -37,15 +37,15 @@ jobs:
         run: |
           set -euo pipefail
           jq -e '.status == "verified_get_only" and .writes == 0 and
-            .publish_authorized == false and .theme_deploy_authorized == false' \\
+            .publish_authorized == false and .theme_deploy_authorized == false' \
             artifacts/solar-offgrid-buyer-route-gaps-readonly.json >/dev/null
           {
             echo '## Off-grid article-to-purchase route coverage — authenticated GET only'
             echo ''
-            jq -r '"Examined: \(.posts_examined); off-grid-intent slug candidates: \(.buyer_intent_posts); already linked to Builder: \(.with_builder); missing both Builder and Quote Checker: \(.missing_both)"' \\
+            jq -r '"Examined: \(.posts_examined); off-grid-intent slug candidates: \(.buyer_intent_posts); already linked to Builder: \(.with_builder); missing both Builder and Quote Checker: \(.missing_both)"' \
               artifacts/solar-offgrid-buyer-route-gaps-readonly.json
             echo ''
-            jq -r '.candidates[:20][] | "- WP #\(.post_id) `\(.slug)` — requires editorial/technical scope review and a separate fresh CAS before any post append"' \\
+            jq -r '.candidates[:20][] | "- WP #\(.post_id) `\(.slug)` — requires editorial/technical scope review and a separate fresh CAS before any post append"' \
               artifacts/solar-offgrid-buyer-route-gaps-readonly.json
             echo ''
             echo 'No new posts, no WP writes, no GSC assertions, no theme deployment.'
