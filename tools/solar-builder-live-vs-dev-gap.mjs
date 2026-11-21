@@ -97,7 +97,24 @@ function sandboxVersion(rev,products,bundleDeals){
         tier:row.tier,complete:!!row.complete,
         priced:!!row.priceComplete,missing:row.missing||[],
         battery:row.battery?.id||null,inverter:row.inverter?.id||null,
-        mppt:row.mppt?.id||null,pvIscVerified:row.pvIscVerified??null
+        mppt:row.mppt?.id||null,pvIscVerified:row.pvIscVerified??null,
+        // Source-backed quote readiness per real selected component.
+        // Exposes only publicly visible effective price or null, no
+        // merchant tracking URL, token or fabricated checkout route.
+        parts:[
+          ['battery',row.battery],['inverter',row.inverter],
+          ['mppt',row.mppt],['panel',row.panel?.product]
+        ].filter(([,p])=>p).map(([kind,p])=>{
+          const n=window.SolarExpertProductMatcher.effectivePrice(p);
+          const valid=Number.isFinite(n)&&n>0&&n<Number.MAX_SAFE_INTEGER;
+          const offers=Array.isArray(p.offers)?p.offers:[];
+          return {kind,id:p.id,price_czk:valid?n:null,
+            dated_in_stock_source_offers:offers.filter(o=>
+              window.SolarExpertProductMatcher.hasSellerSource(o)&&
+              o.availability==='in_stock'&&
+              window.SolarExpertProductMatcher.verificationState(o.verified_at)==='fresh'
+            ).length};
+        })
       }))
     };
   });
@@ -176,6 +193,7 @@ const legacy24=old.voltage_probes.find(p=>p.voltage===24);
 console.log('SOLAR_PV_EVIDENCE_BUYER_24V manufacturer_pv_rows='+sourceValues.size+
   ' dev_technical_complete='+dev24.complete_tiers+
   ' dev_priced='+dev24.price_complete_tiers+
+  ' dev_best_quote_parts='+JSON.stringify(dev24.rows.find(r=>r.tier==='best')?.parts||[])+
   ' legacy_technical_complete='+legacy24.complete_tiers+
   ' verified_complete_system_purchase=false'+
   ' theme_deployed=false synthetic_affiliate_clicks=0');
