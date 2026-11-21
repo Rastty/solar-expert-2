@@ -62,8 +62,8 @@ class OffgridGapAuditTest(unittest.TestCase):
                 gap.inspect()
 
     def test_no_auth_never_returns_fake_zero_coverage(self):
-        with tempfile.TemporaryDirectory() as tmp, \\
-             patch.object(gap, "OUTPUT", Path(tmp) / "result.json"), \\
+        with tempfile.TemporaryDirectory() as tmp, \
+             patch.object(gap, "OUTPUT", Path(tmp) / "result.json"), \
              patch.object(publisher, "wp", side_effect=publisher.Blocked("SECRET")):
             self.assertEqual(gap.main(), 2)
             content = gap.OUTPUT.read_text(encoding="utf-8")
