@@ -1,11 +1,13 @@
 """Source-only 3000W LiFePO4 buyer guide: no release authorization or WP writes."""
 from pathlib import Path
+import hashlib
+import json
 import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from scripts.editorial_release import validate_html  # noqa: E402
+from scripts.editorial_release import validate_html, validate_manifest  # noqa: E402
 
 
 class SolarBatteryInverter3000WGuideTest(unittest.TestCase):
@@ -37,8 +39,17 @@ class SolarBatteryInverter3000WGuideTest(unittest.TestCase):
         self.assertIn("victronenergy.com/media/pg/Lithium_Battery_Smart/en/technical-data.html", self.body)
         self.assertIn("victronenergy.com/media/pg/Lithium_Battery_Smart/en/system-design-and-bms-selection-guide.html", self.body)
         self.assertIn("pouze", self.body.lower())
-        # Source-only in this PR: no editorial manifest or release activation.
-        self.assertFalse((ROOT / "ops/editorial-manifests/solar-battery-inverter-3000w-20261122-v1.json").exists())
+        # SOURCE+MANIFEST ONLY: no main editorial release activation, no WP POST.
+        manifest = json.loads((ROOT / "ops/editorial-manifests/solar-battery-inverter-3000w-20261122-v1.json").read_text(encoding="utf-8"))
+        validate_manifest(manifest)
+        self.assertEqual(manifest["source_file"], "content/rewrites/jakou-baterii-k-menici-3000w.html")
+        self.assertEqual(manifest["source_commit"], "6038be47d4a1c4d48b5a26c63b431b41f5a0bd4f")
+        self.assertEqual(manifest["source_sha256"], hashlib.sha256(self.body.encode("utf-8")).hexdigest())
+        self.assertEqual(manifest["kind"], "post_create")
+        self.assertTrue(manifest["expect_absent"])
+        release = json.loads((ROOT / "ops/editorial-release.json").read_text(encoding="utf-8"))
+        self.assertNotEqual(release["manifest"], "ops/editorial-manifests/solar-battery-inverter-3000w-20261122-v1.json")
+        self.assertEqual(release["activation_revision"], 26)
 
 
 if __name__ == "__main__":
