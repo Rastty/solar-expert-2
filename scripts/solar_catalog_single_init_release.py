@@ -113,7 +113,7 @@ def check_public(after):
        '/':'solarExpertBuilder()',
        '/solarni-sestava-na-chatu/':'solarExpertBuilder()',
        '/vyber-baterii/':'solarExpertBatterySelector()',
-       '/mppt-kalkulacka/':'solarExpertMPPTSelector()',
+       '/mppt-kalkulacka/':'solarExpertMpptSelector()',
        '/vyber-menice/':'solarExpertInverterSelector()'}
     pages={p:public(p) for p in targets}
     for path,factory in targets.items():
