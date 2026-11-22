@@ -1,0 +1,50 @@
+<p><strong>Jakou LiFePO₄ baterii k měniči 3000 W?</strong> Číslo na měniči neurčuje velikost baterie. Rozhodují dvě nezávislé otázky: zda baterie a její BMS bezpečně dodají požadovaný <strong>proud</strong> při trvalé zátěži a rozběhu, a kolik <strong>energie</strong> potřebujete na skutečnou dobu používání spotřebičů. Právě u 3000 W bývá omyl v záměně Ah, Wh a povoleného vybíjecího proudu drahý i nebezpečný.</p>
+<p>Tento návod používá označení 12/24/48 V pouze jako systémové třídy. Typické nominální LiFePO₄ napětí pro výpočty je 12,8 / 25,6 / 51,2 V. <strong>Nepředpokládáme, že měnič 3000 W neustále odebírá plný výkon.</strong> Modely se 90% účinností měniče a 80% využitím nominální energie slouží ke srovnání, nikoli jako garance výdrže či elektrický projekt. Pro konkrétní nákup vždy rozhoduje přesné označení modelu, datasheet a instalační příručka výrobce.</p>
+
+<h2>3000 W při 12 V, 24 V a 48 V: jaký proud musí zvládnout BMS?</h2>
+<p>Pokud měnič dodává <strong>skutečných 3000 W trvale na 230V výstupu</strong>, modelový proud na bateriové straně vypočteme jako <strong>I = 3000 W ÷ (nominální napětí baterie × 0,90)</strong>. Je důležité nepoužívat samotnou hodnotu 3000 ÷ 12: ztráty měniče a změny napětí při vybíjení zvyšují skutečný DC proud.</p>
+<table><thead><tr><th>Bateriový systém</th><th>Modelový DC proud při 3000 W AC</th><th>Rozhodující riziko</th></tr></thead><tbody>
+<tr><td>12,8 V (12V třída)</td><td>260 A</td><td>Velmi vysoký proud; BMS, vodiče, kontakty, jištění, úbytek napětí</td></tr>
+<tr><td>25,6 V (24V třída)</td><td>130 A</td><td>100A BMS nevyhoví trvalým 3000 W v tomto modelu</td></tr>
+<tr><td>51,2 V (48V třída)</td><td>65 A</td><td>Ověřte proud BMS i kompatibilní rozsah vstupu konkrétního měniče</td></tr>
+</tbody></table>
+<p>To jsou <em>zaokrouhlené nominální proudy</em>, nikoliv bezpečné minimální jmenovité hodnoty jističe, kabelu nebo BMS. Při nižším bateriovém napětí může proud citelně vzrůst a při rozběhu motoru může být krátkodobá zátěž ještě vyšší. Ověřte výrobcem povolený trvalý a krátkodobý vybíjecí proud, délku špičky, teplotní omezení a napěťové odpojení BMS. Odhad 65 A při 48 V tedy **neznamená**, že libovolná 48V baterie s BMS 65 A je vhodná.</p>
+
+<h2>Proč 12V baterie 200 Ah nemusí utáhnout 3000W měnič</h2>
+<p>LiFePO₄ s nominálními 12,8 V a 200 Ah má přibližně 2560 Wh. Její energetická kapacita ale nic nedokazuje o maximálním vybíjecím proudu. Pokud její BMS dovoluje například jen 200 A nepřetržitě, výše vypočtený modelový odběr okolo 260 A ji pro trvalou zátěž 3000 W <strong>vylučuje</strong>, přestože je baterie označena „200 Ah“. Stejný princip platí pro 24V baterii 100 Ah se 100A BMS vůči modelovým 130 A.</p>
+<p>Bez dokumentace výrobce není bezpečné sčítat proudové limity paralelních modulů ani doporučovat sériové spojení. Některé modely mají přísné podmínky pro paralelní provoz, párování, pojistky, komunikaci a nabíjecí nastavení. Pokud teprve kupujete kompletní sestavu s vyšším výkonem, prověřte možnost kompatibilního 48V banku, protože omezuje provozní proud oproti 12V třídě. Samotné vyšší napětí ale není záruka správného výběru.</p>
+
+<h2>Jak velkou baterii potřebujete na 15 minut, hodinu nebo dvě?</h2>
+<p>Jmenovitých 3000 W je strop trvalého výkonu měniče, nikoliv automatická denní spotřeba. Pro scénář, kdy na 230 V skutečně běží 3000W zátěž nepřetržitě, počítejme nominální bateriovou energii jako <strong>3000 W × počet hodin ÷ (0,90 × 0,80)</strong>:</p>
+<table><thead><tr><th>Doba plné 3000W zátěže</th><th>Energie pro spotřebiče</th><th>Modelová nominální baterie</th></tr></thead><tbody>
+<tr><td>15 minut</td><td>750 Wh</td><td>1042 Wh</td></tr>
+<tr><td>30 minut</td><td>1500 Wh</td><td>2083 Wh</td></tr>
+<tr><td>60 minut</td><td>3000 Wh</td><td>4167 Wh</td></tr>
+<tr><td>120 minut</td><td>6000 Wh</td><td>8333 Wh</td></tr>
+</tbody></table>
+<p>Příklad 48V třídy: baterie 51,2 V × 100 Ah má nominálně 5120 Wh, modelově asi 3686 Wh na 230V výstupu, tedy přibližně <strong>74 minut</strong> při plném odběru 3000 W. <strong>Pouze za předpokladu</strong>, že BMS, měnič, kabely a teplotní podmínky takový trvalý výkon opravdu umožňují. U reálné chladničky, routeru a světel potřebujete místo této tabulky jejich jednotlivé Wh/den, startovní špičky a vlastní odběr měniče naprázdno. Přesný scénář spočítáte v <a href="/solarni-sestava-na-chatu/">Solar Setup Builderu</a>.</p>
+
+<h2>48V 100Ah nebo 24V 200Ah: stejná energie, ale jiné proudy</h2>
+<p>51,2 V × 100 Ah je asi 5,12 kWh; 25,6 V × 200 Ah je také asi 5,12 kWh. Výdrž v čistě energetickém srovnání může vycházet podobně, ale proud na DC větvi při stejném AC výkonu je u 24V třídy zhruba dvojnásobný. Je nutné ověřit přípustnou systémovou třídu měniče, trvalý BMS proud, pokles napětí a instalační provedení. Nejde zaměnit měnič 24 V za 48 V bez změny kompatibilní baterie a nabíjecího systému.</p>
+<p>U již pořízeného měniče je jeho <strong>povolený rozsah DC vstupního napětí</strong> tvrdé omezení. Nevybírejte baterii jen podle výhodnějšího výsledku tabulky. V <a href="/vyber-baterii/">Battery Selectoru</a> zadejte skutečné systémové napětí, požadovanou energii a výkon; při výběru konkrétního modelu následně porovnejte datasheet, nikoliv pouze cenovku.</p>
+
+<h2>Má měnič 3000 W dostatečný rozběh pro čerpadlo, kompresor nebo nářadí?</h2>
+<p>Trvalých 3000 W a marketingový údaj „peak 6000 W“ nejsou zaměnitelné. Zjistěte rozběhový příkon konkrétního spotřebiče, dobu špičky, skutečnou špičkovou schopnost měniče a krátkodobý vybíjecí limit BMS. Rozběh nelze odvodit z tabulky jmenovitých příkonů ani z čísla 100 Ah. Pro běžné současně zapínané spotřebiče použijte <a href="/vyber-menice/">Inverter Selector</a>, ale finální kompatibilitu musí potvrdit výrobní dokumentace.</p>
+<p>Rozvody 230 V, přepínač sítí, ochrany proti úrazu elektrickým proudem a připojení k domu vyžadují odborný návrh a odpovídající provedení. Ostrovní měnič se nesmí bez vhodného přepínání a ochran zpětně připojovat do veřejné sítě.</p>
+
+<h2>Kdy přidat solární nabíjení a jak nepoškodit MPPT</h2>
+<p>Pokud baterii jen nabíjíte schválenou síťovou nabíječkou, MPPT nepotřebujete. Při připojení FV panelů však ověřte součet zimních napětí naprázdno <strong>Voc</strong>, skutečné startovní/MPPT pracovní okno a zkratový proud <strong>Isc</strong> podle přesného modelu a verze zařízení. Zaměňovat provozní PV vstupní proud za absolutní povolený Isc je nebezpečné; chybějící výrobní limit znamená bez nákupního doporučení pro danou kombinaci. U paralelních větví se příslušné proudy sčítají, u sériových panelů napětí. Použijte <a href="/mppt-kalkulacka/">MPPT kalkulačku</a> a ověřte celý panelový string, ne pouze výkon v Wp.</p>
+
+<h2>Praktický nákupní checklist</h2>
+<ol>
+<li>Ověřte přesný model měniče: DC napěťová třída, kontinuální výkon, rozběh a povolené rozsahy napětí.</li>
+<li>Spočítejte Wh/den spotřebičů včetně klidového odběru měniče, nikoliv z plných 3000 W na štítku.</li>
+<li>Ověřte BMS kontinuální a špičkový vybíjecí proud při reálném DC napětí, teplotě a době špičky.</li>
+<li>Ověřte kompatibilitu baterie, nabíječky, případného MPPT, ochranných prvků a komunikace BMS.</li>
+<li>Porovnejte datum ceny a dostupnost u prodejce; neberte orientační katalogovou cenu jako závaznou nabídku.</li>
+<li>Pro jištění, kabeláž, DC odpínače a síťové rozhraní zajistěte odborný projekt a revizi, pokud je vyžadována.</li>
+</ol>
+
+<h2>Primární zdroje a hranice výpočtu</h2>
+<p>Konkrétní schválené limity baterie a její BMS je nutné ověřit v originální dokumentaci: <a href="https://www.victronenergy.com/media/pg/Lithium_Battery_Smart/en/technical-data.html">Victron Energy – Lithium Battery Smart, technické parametry</a> a <a href="https://www.victronenergy.com/media/pg/Lithium_Battery_Smart/en/system-design-and-bms-selection-guide.html">Victron Energy – návrh bateriového systému a BMS</a>. Parametry Victron platí pro uvedené výrobky Victron; uvedené modelové výpočty nejsou potvrzením vhodnosti baterií jiných značek. U solárního nabíjení respektujte <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/technical-specifications.html">technické limity konkrétního SmartSolar MPPT</a>, nikoliv obecná čísla převzatá z jiného regulátoru.</p>
+<p><strong>Shrnutí:</strong> Pro 3000W měnič vybírejte nejdříve kompatibilní napětí a dostatečný výrobně ověřený trvalý i špičkový proud BMS. Teprve potom určete energii v kWh podle skutečné spotřeby a plánované výdrže. Hodnota 3000 W sama o sobě nedokazuje, že potřebujete baterii 3000 Wh, 100 Ah ani konkrétní solární panel.</p>
