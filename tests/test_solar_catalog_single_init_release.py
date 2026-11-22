@@ -21,7 +21,7 @@ class SingleInitReleaseContract(unittest.TestCase):
           '/':'solarExpertBuilder()',
           '/solarni-sestava-na-chatu/':'solarExpertBuilder()',
           '/vyber-baterii/':'solarExpertBatterySelector()',
-          '/mppt-kalkulacka/':'solarExpertMPPTSelector()',
+          '/mppt-kalkulacka/':'solarExpertMpptSelector()',
           '/vyber-menice/':'solarExpertInverterSelector()'}
         self.assertIn(path,targets)
         root=targets[path]
@@ -73,7 +73,7 @@ class SingleInitReleaseContract(unittest.TestCase):
                       'mppt-kalkulacka','vyber-menice'):
             self.assertIn("is_page('"+route+"')",m.PHP_CODE)
         for factory in ('solarExpertBuilder()','solarExpertBatterySelector()',
-                        'solarExpertMPPTSelector()','solarExpertInverterSelector()'):
+                        'solarExpertMpptSelector()','solarExpertInverterSelector()'):
             self.assertIn(factory,m.JS)
         self.assertIn("el.removeAttribute('x-init')",m.JS)
         self.assertNotIn('fetch(',m.JS)
