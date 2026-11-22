@@ -29,6 +29,15 @@ SITE = "https://solar-expert.cz"
 REPO = "Rastty/solar-expert-2"
 KINDS = {"post_create", "post_update", "post_append"}
 MAX_BODY = 90000
+SVJ_EON_URL = "https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/"
+SVJ_POST_ID = 377
+SVJ_SLUG = "navratnost-fotovoltaicke-elektrarny-v-bytovem-dome"
+SVJ_LEAD_ATTRS = {
+    "href": SVJ_EON_URL, "data-se-lead-id": "eon-svj",
+    "data-se-fallback": SVJ_EON_URL,
+    "data-se-placement": "svj_payback_body",
+    "rel": "sponsored nofollow noopener",
+}
 
 
 class Blocked(RuntimeError):
@@ -108,8 +117,16 @@ def validate_manifest(m: dict) -> None:
                 "Current post modification time is mandatory")
     if m["kind"] == "post_append":
         target = m.get("link_target")
-        require(isinstance(target, str) and re.fullmatch(r"/[a-z0-9-]{10,150}/", target) is not None,
-                "Append target must be a single canonical on-site article")
+        if target == SVJ_EON_URL:
+            # Narrow, reversible, sponsored business-lead exception. Existing
+            # general-purpose append continues to require FIRST-PARTY links.
+            require(m.get("post_id") == SVJ_POST_ID and m.get("slug") == SVJ_SLUG and
+                    m.get("lead_id") == "eon-svj", "E.ON SVJ append identity mismatch")
+        else:
+            require(isinstance(target, str) and
+                    re.fullmatch(r"/[a-z0-9-]{10,150}/", target) is not None and
+                    "lead_id" not in m,
+                    "Append target must be a single canonical on-site article")
 
 
 class HtmlGuard(HTMLParser):
@@ -183,10 +200,32 @@ def validate_append_snippet(snippet: str, m: dict) -> None:
             "Exactly one approved canonical destination required")
     guard = HtmlGuard()
     guard.feed(trimmed)
-    require(not guard.bad and guard.internal == 1 and guard.external == 0,
-            "Unsafe append link or embedded content")
-    require(not re.search(r"\s(?:class|id|style|on[a-z]+|target|src|data-[a-z-]+)=", trimmed.replace('<p class="se-note">', ''), re.I),
-            "Unreviewed append attributes")
+    if m.get("link_target") == SVJ_EON_URL:
+        class ExactTagAttrs(HTMLParser):
+            def __init__(self) -> None:
+                super().__init__(convert_charrefs=True)
+                self.tags: list[tuple[str, list[tuple[str, str | None]]]] = []
+            def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+                self.tags.append((tag, attrs))
+        tags = ExactTagAttrs()
+        tags.feed(trimmed)
+        require(len(tags.tags) >= 2 and
+                tags.tags[0] == ("p", [("class", "se-note")]) and
+                len([item for item in tags.tags if item[0] == "a"]) == 1 and
+                all(
+                    (tag == "p" and attrs == [("class", "se-note")]) or
+                    (tag == "a" and len(attrs) == len(SVJ_LEAD_ATTRS) and
+                     dict(attrs) == SVJ_LEAD_ATTRS) or
+                    (tag in {"strong", "em"} and not attrs)
+                    for tag, attrs in tags.tags
+                ), "Unreviewed E.ON SVJ tag or affiliate placement")
+        require(not guard.bad and guard.internal == 0 and guard.external == 1,
+                "Only one verified external E.ON SVJ lead destination is allowed")
+    else:
+        require(not guard.bad and guard.internal == 1 and guard.external == 0,
+                "Unsafe append link or embedded content")
+        require(not re.search(r"\s(?:class|id|style|on[a-z]+|target|src|data-[a-z-]+)=", trimmed.replace('<p class="se-note">', ''), re.I),
+                "Unreviewed append attributes")
     require("<script" not in trimmed.lower() and "<?php" not in trimmed.lower(),
             "Executable append is forbidden")
 
