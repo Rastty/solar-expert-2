@@ -90,6 +90,22 @@ def inspect() -> dict:
     except (publisher.Blocked, OSError, ValueError, TypeError, KeyError):
         category = None
 
+    # One known existing heat-pump article is NOT in 'solarni-panely'.
+    # Discover its exact WordPress taxonomy by allowed slug; never weaken
+    # identity/category checks of the nine solar buyer posts or the SVJ post.
+    heat_pump_category = None
+    try:
+        categories = publisher.wp("GET", "/wp/v2/categories", query={
+            "slug": "tepelna-cerpadla", "per_page": 10, "_fields": "id,slug",
+        })
+        if (isinstance(categories, list) and len(categories) == 1 and
+                isinstance(categories[0], dict) and
+                categories[0].get("slug") == "tepelna-cerpadla" and
+                type(categories[0].get("id")) is int and categories[0]["id"] > 0):
+            heat_pump_category = categories[0]["id"]
+    except (publisher.Blocked, OSError, ValueError, TypeError, KeyError):
+        pass
+
     targets = list(TARGETS)
     for slug in DISCOVERY_SLUGS:
         post_id = None
@@ -109,6 +125,8 @@ def inspect() -> dict:
         targets.append((post_id, slug))
 
     for post_id, slug in targets:
+        expected_category = (heat_pump_category if slug ==
+                             "jsou-vzduchova-tepelna-cerpadla-hlucna" else category)
         row = {
             "post_id": post_id,
             "slug": slug,
@@ -117,7 +135,7 @@ def inspect() -> dict:
             "modified_gmt": None,
             "buyer_route_counts": None,
         }
-        if category is None or type(post_id) is not int:
+        if expected_category is None or type(post_id) is not int:
             snapshot["posts"].append(row)
             continue
         try:
@@ -126,7 +144,8 @@ def inspect() -> dict:
             publisher.require(post.get("id") == post_id and post.get("slug") == slug,
                               "Post identity changed")
             publisher.require(post.get("status") == "publish", "Post not published")
-            publisher.require(category in post.get("categories", []), "Category changed")
+            publisher.require(expected_category in post.get("categories", []),
+                              "Category changed")
             publisher.require(post.get("link") == publisher.SITE + "/" + slug + "/",
                               "Canonical link changed")
             rows = publisher.slug_posts(slug)
