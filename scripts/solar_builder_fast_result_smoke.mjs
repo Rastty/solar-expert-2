@@ -59,11 +59,14 @@ try{
   await preset.click();
   await page.waitForFunction(()=>window.Alpine.$data(document.querySelector('#builder')).step===2);
   const fridgeHours=page.locator('#builder-hours-fridge');
-  assert.equal(await fridgeHours.isVisible(),true);
+  currentStage='fridge_field_visible';
+  await fridgeHours.waitFor({state:'visible',timeout:10000});
   currentStage='edit_fridge_hours';
   await fridgeHours.fill('8');
   await page.waitForFunction(()=>window.Alpine.$data(document.querySelector('#builder')).dailyWh===1308);
   currentStage='fast_button_enabled';
+  await page.waitForFunction(()=>!document.querySelector('#builder button[data-se-builder-custom-fast="v1"]')?.disabled,
+    null,{timeout:10000});
   assert.equal(await fast.isEnabled(),true);
   currentStage='fast_click_result';
   await fast.click();
