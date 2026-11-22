@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_existing_heatpump_intro_snippet14_put",
+  "old_source_blob_sha1": "c15f73fd1dabb14e3c43c37d13f4318015dfd19b",
+  "new_source_blob_sha1": "43fb1ab3a9e8491d5ff4d029444d966d8e68c843",
+  "snippet_id": 14,
+  "wp_post_id": 310,
+  "wp_modified_gmt": "2026-10-07T11:20:08"
+}
