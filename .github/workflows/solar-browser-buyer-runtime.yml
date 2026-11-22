@@ -11,6 +11,7 @@ on:
       - 'ops/solar-catalog-single-init-release.json'
       - 'scripts/solar_svj_browser_readonly.mjs'
       - 'scripts/solar_heatpump_airwater_intro_browser_readonly.mjs'
+      - 'scripts/solar_live_growatt_isc_readonly.mjs'
       - 'content/snippets/heatpump-airwater-intro-eon-v2.php'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   push:
@@ -24,6 +25,7 @@ on:
       - 'ops/solar-catalog-single-init-release.json'
       - 'scripts/solar_svj_browser_readonly.mjs'
       - 'scripts/solar_heatpump_airwater_intro_browser_readonly.mjs'
+      - 'scripts/solar_live_growatt_isc_readonly.mjs'
       - 'content/snippets/heatpump-airwater-intro-eon-v2.php'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   workflow_dispatch:
@@ -49,6 +51,7 @@ jobs:
           node --check scripts/solar_catalog_single_init_browser.mjs
           node --check scripts/solar_svj_browser_readonly.mjs
           node --check scripts/solar_heatpump_airwater_intro_browser_readonly.mjs
+          node --check scripts/solar_live_growatt_isc_readonly.mjs
           ! grep -q "trackOffer(" scripts/solar_quote_browser_smoke.mjs
           ! grep -q "trackBundleDealOffer(" scripts/solar_quote_browser_smoke.mjs
       - name: Prove exact previously armed single-PUT home scope writer finished successfully
@@ -154,6 +157,21 @@ jobs:
             ([.tested_pages[].js_exception_count] | all(. == 0)) and
             .affiliate_visits==0 and .wordpress_writes==0 and
             .analytics_posts==0 and .verified_revenue==false' artifacts/solar-catalog-single-init-browser.json > /dev/null
+      - name: Read-only actual production Growatt Isc topology and buyer complete flag
+        run: node scripts/solar_live_growatt_isc_readonly.mjs
+      - name: Validate exact real Growatt read-only status without manufactured PV limits
+        run: |
+          jq -e '.status=="read_only_live_evidence_collected"
+            and .mode=="real_production_get_only_no_injection"
+            and .live_html_ok==true and .live_catalog_products==24
+            and .live_composer_available==true
+            and (.required_inverter_ids_found|length)==2
+            and (.integrated_devices|length)==2
+            and .delivered_wp_writes==0
+            and .delivered_partner_visits==0
+            and .delivered_analytics_posts==0
+            and .partner_clicks==0
+            and .paid_commissions_verified==false' artifacts/solar-live-growatt-isc-readonly.json > /dev/null
       - name: Check browser proof receipt never generated synthetic attribution
         if: success()
         run: |
@@ -180,6 +198,7 @@ jobs:
             artifacts/solar-browser-buyer-runtime.json
             artifacts/solar-svj-browser-readonly.json
             artifacts/solar-heatpump-airwater-intro-browser.json
+            artifacts/solar-live-growatt-isc-readonly.json
             artifacts/solar-builder-fast-result-smoke.json
             artifacts/solar-catalog-single-init-browser.json
           retention-days: 14
