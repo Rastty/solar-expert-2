@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_legacy_growatt_pv_isc_purchase_gate",
+  "source_blob_sha1": "02378fceff9f608c215ec1abe099c5bb0af72a73"
+}

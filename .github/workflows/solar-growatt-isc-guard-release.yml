@@ -1,0 +1,100 @@
+name: Solar Growatt integrated PV Isc purchase safety guard - reversible WP snippet
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-growatt-isc-guard-release.yml'
+      - 'scripts/solar_growatt_isc_guard_release.py'
+      - 'tests/test_solar_growatt_isc_guard_release.py'
+      - 'assets/js/growatt-isc-purchase-guard-v1.js'
+      - 'ops/solar-growatt-pv-isc-guard-release.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-growatt-isc-guard-release.yml'
+      - 'scripts/solar_growatt_isc_guard_release.py'
+      - 'tests/test_solar_growatt_isc_guard_release.py'
+      - 'assets/js/growatt-isc-purchase-guard-v1.js'
+      - 'ops/solar-growatt-pv-isc-guard-release.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Growatt source-lock and WordPress synthetic no-retry contract
+        run: |
+          python -m py_compile scripts/solar_growatt_isc_guard_release.py
+          python -m unittest discover -s tests -p 'test_solar_growatt_isc_guard_release.py' -v
+          node --check assets/js/growatt-isc-purchase-guard-v1.js
+      - name: WordPress Code Snippets exact PHP source syntax
+        run: |
+          python - <<'PY'
+          from scripts.solar_growatt_isc_guard_release import PHP_CODE
+          from pathlib import Path
+          Path('/tmp/solar-growatt-isc-guard.php').write_text('<?php\n'+PHP_CODE)
+          PY
+          php -l /tmp/solar-growatt-isc-guard.php
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_reversible_legacy_growatt_pv_isc_purchase_gate"
+            and .source_blob_sha1=="02378fceff9f608c215ec1abe099c5bb0af72a73" ' ops/solar-growatt-pv-isc-guard-release.json >/dev/null
+
+  one-shot-activate:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only exactly one independent disarmed-to-armed control change authorizes WP writes
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-growatt-pv-isc-guard-release.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:assets/js/growatt-isc-purchase-guard-v1.js")" == '02378fceff9f608c215ec1abe099c5bb0af72a73' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:assets/js/growatt-isc-purchase-guard-v1.js")" == '02378fceff9f608c215ec1abe099c5bb0af72a73' ]] || exit 0
+          git show "$BEFORE:ops/solar-growatt-pv-isc-guard-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_reversible_legacy_growatt_pv_isc_purchase_gate",
+              "source_blob_sha1":"02378fceff9f608c215ec1abe099c5bb0af72a73"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_reversible_legacy_growatt_pv_isc_purchase_gate",
+            "source_blob_sha1":"02378fceff9f608c215ec1abe099c5bb0af72a73"}' ops/solar-growatt-pv-isc-guard-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_growatt_isc_guard_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-growatt-pv-isc-guard-receipt-${{ github.run_id }}
+          path: artifacts/solar-growatt-pv-isc-guard-release.json
+          retention-days: 14
+          if-no-files-found: warn
