@@ -47,13 +47,22 @@ try{
     const articleNode=candidate?.closest('article')||document.querySelector('article');
     const headers=articleNode?[...articleNode.querySelectorAll('h2')]:[];
     const bodyText=candidate?.textContent||'';
+    // The old lower CTA existed before this change and is independently
+    // inserted by a different WordPress render layer. Its live browser href
+    // may be a generic (still external) eHub campaign, not a guaranteed
+    // desturl with a recorded heat-pump landing. Preserve its actual CTA
+    // semantics and actionable external route; do NOT claim attribution.
     const original=[...document.querySelectorAll('a[href]')].filter(a=>{
       if(candidate?.contains(a))return false;
+      if(!(a.textContent||'').includes('Nezávazně poptat tepelné čerpadlo')&&
+         a.getAttribute('data-se-lead-id')!=='eon-heat-pump')return false;
       try{
         const u=new URL(a.href);
-        return (u.hostname==='www.eon.cz'&&u.pathname==='/domacnosti/usporne-technologie/tepelne-cerpadlo/')||
-        (u.hostname==='ehub.cz'&&u.pathname==='/system/scripts/click.php'&&
-          u.searchParams.get('desturl')===merchant);
+        return u.protocol==='https:'&&
+         ((u.hostname==='www.eon.cz'&&
+            u.pathname.startsWith('/domacnosti/usporne-technologie/'))||
+          (u.hostname==='ehub.cz'&&u.pathname==='/system/scripts/click.php'&&
+            !!u.searchParams.get('a_aid')&&!!u.searchParams.get('a_bid')));
       }catch(_){return false;}
     });
     let shape='missing';
