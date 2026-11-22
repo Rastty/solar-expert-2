@@ -41,6 +41,39 @@ class TestEonLeadReadonly(unittest.TestCase):
                           'https://ehub.cz/system/scripts/click.php?a_aid=x&a_bid='):
             self.assertFalse(m.valid_ehub(candidate))
 
+    def test_svj_public_html_route_without_false_affiliate_attribution(self):
+        html=(
+            '<html><head><script>var SolarExpertConfig = '
+            +json.dumps({'affiliateBases':{'eon-cz':E_HUB}})+'</script></head><body>'
+            '<a href="/kolik-stoji-fotovoltaika/">Srovnat nabídku domu</a>'
+            '<a href="https://solar-expert.cz/kolik-stoji-fotovoltaika/">Cena FVE</a>'
+            '<a href="https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/">Poptat SVJ</a>'
+            '<a href="https://www.eon.cz.evil.test/domacnosti/usporne-technologie/fotovoltaika-pro-svj/">Unsafe</a>'
+            '</body></html>'
+        )
+        d=m.svj_summarize(html)
+        self.assertEqual(d['grid_fve_links'],2)
+        self.assertEqual(d['exact_eon_svj_links'],1)
+        self.assertEqual(d['svj_lead_markup_count'],0)
+        self.assertTrue(d['eon_network_config_present'])
+        self.assertEqual(d['program_accepts_svj_lead'],'unknown')
+        self.assertEqual(d['attributed_affiliate_clicks'],'unknown')
+        self.assertEqual(d['paid_commissions'],'unknown')
+        self.assertEqual(d['external_link_visits'],0)
+        self.assertNotIn('sample',json.dumps(d))
+
+    def test_svj_never_conflates_seller_homepage_or_other_program_with_svj(self):
+        html=('<a href="/kolik-stoji-fotovoltaika/?utm_source=test">Query not canonical</a>'
+              '<a href="https://www.eon.cz/domacnosti/usporne-technologie/solar/">Residential</a>'
+              '<a href="https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/" '
+              'data-se-lead-id="eon-svj" '
+              'data-se-fallback="https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/">SVJ</a>')
+        d=m.svj_summarize(html)
+        self.assertEqual(d['grid_fve_links'],0)
+        self.assertEqual(d['exact_eon_svj_links'],1)
+        self.assertEqual(d['svj_lead_markup_count'],1)
+        self.assertFalse(d['eon_network_config_present'])
+
     def test_missing_runtime_flags_uncertainty(self):
         data=m.summarize('<html><script>var SolarExpertConfig = {};</script></html>')
         self.assertEqual(data['page']['target_eon_links'],0)
