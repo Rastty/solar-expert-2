@@ -55,6 +55,65 @@ assert.equal(A.resolveLead('eon-solar',direct).href,
   window.SolarExpertConfig.affiliateMap.leads['eon-solar'],
   'Preserve valid owner-approved exact E.ON affiliate mapping');
 
+
+// E.ON SVJ is a separate commercial buyer route, not any external URL that
+// a map happens to label affiliate. All assertions are offline only.
+const svj='https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/';
+const svjId='eon-svj';
+delete window.SolarExpertConfig.affiliateMap.leads[svjId];
+window.SolarExpertConfig.affiliateBases['eon-cz']=base;
+const svjGenerated=A.resolveLead(svjId,svj);
+assert.equal(svjGenerated.monetized,true,'An approved eHub base can track this exact SVJ destination');
+assert.equal(new URL(svjGenerated.href).searchParams.get('desturl'),svj,
+  'Merchant deep link must preserve the real apartment-building lead form');
+assert.equal(svjGenerated.leadId,svjId);
+assert.equal(svjGenerated.merchantId,'eon-cz');
+
+window.SolarExpertConfig.affiliateMap.leads[svjId]=base+'&desturl='+encodeURIComponent(
+  'https://www.eon.cz/domacnosti/usporne-technologie/tepelne-cerpadlo/');
+const svjExact=A.resolveLead(svjId,svj);
+assert.equal(svjExact.monetized,true);
+assert.equal(new URL(svjExact.href).searchParams.get('desturl'),svj,
+  'Stale exact E.ON lead override must not send the buyer to another product');
+
+delete window.SolarExpertConfig.affiliateBases['eon-cz'];
+for(const unsafe of [
+  '#','https://unrelated.example/click',
+  'https://ehub.cz.evil.example/system/scripts/click.php?a_aid=bad&a_bid=bad',
+  'https://ehub.cz/system/scripts/click.php?a_bid=missing-publisher',
+  'https://ehub.cz/system/scripts/click.php?a_aid=missing-campaign',
+  'http://ehub.cz/system/scripts/click.php?a_aid=a&a_bid=b',
+  'https://ehub.cz/system/scripts/click.php?a_aid=a&a_bid=b#untrusted',
+  'https://www.eon.cz/domacnosti/'
+]){
+  window.SolarExpertConfig.affiliateMap.leads[svjId]=unsafe;
+  const directSvj=A.resolveLead(svjId,svj);
+  assert.equal(directSvj.href,svj,'Invalid affiliate mapping must fall back to the exact E.ON SVJ page');
+  assert.equal(directSvj.monetized,false,'Invalid mapping may not count as partner-tracked');
+}
+window.SolarExpertConfig.affiliateMap.leads[svjId]=base;
+for(const badTarget of [
+  'https://www.eon.cz/domacnosti/usporne-technologie/tepelne-cerpadlo/',
+  'https://www.eon.cz.evil.example/domacnosti/usporne-technologie/fotovoltaika-pro-svj/',
+  'http://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/',
+  'javascript:alert(1)'
+]){
+  const blocked=A.resolveLead(svjId,badTarget);
+  assert.equal(blocked.href,'#','SVJ lead cannot redirect to an unrelated or insecure target');
+  assert.equal(blocked.monetized,false);
+  window.dataLayer.length=0;
+  A.trackLead(svjId,'svj_payback_body',badTarget);
+  assert.equal(events().length,0,'Invalid SVJ lead may not create an analytics click');
+}
+window.SolarExpertConfig.affiliateMap.leads[svjId]='https://not-ehub.invalid/outbound';
+window.dataLayer.length=0;
+A.trackLead(svjId,'svj_payback_body',svj);
+assert.equal(events().length,1,'Qualified external direct supplier intent is counted once');
+assert.equal(events()[0].placement,'svj_payback_body');
+assert.equal(events()[0].monetized,false,'Direct supplier click is NOT a paid affiliate lead');
+assert.equal(events()[0].hrefType,'source');
+console.log('PASS: E.ON SVJ exact merchant destination, eHub-only redirect, no phantom tracked lead');
+
 window.SolarExpertConfig.affiliateMap.leads={};
 window.SolarExpertConfig.affiliateBases={};
 function link(id,fallback,placement){
