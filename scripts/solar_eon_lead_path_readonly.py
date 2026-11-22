@@ -60,12 +60,44 @@ def valid_outbound(value):
         return False
 
 def valid_ehub(value):
+    """Only a real HTTPS eHub tracking endpoint with one complete campaign pair.
+
+    This proves URL shape, NOT that the eHub campaign accepts SVJ leads, nor
+    that a commission, click, redirect, or sale ever occurred.
+    """
     if not valid_outbound(value):
         return False
-    u=parse.urlsplit(value)
-    params=parse.parse_qs(u.query)
-    return u.hostname.lower()=='ehub.cz' and u.path=='/system/scripts/click.php' and (
-        bool(params.get('a_aid',[None])[0]) and bool(params.get('a_bid',[None])[0]))
+    try:
+        u=parse.urlsplit(value)
+        params=parse.parse_qs(u.query,keep_blank_values=True)
+        return (u.scheme=='https' and u.hostname.lower().rstrip('.')=='ehub.cz'
+                and u.port is None and not u.username and not u.password
+                and not u.fragment and u.path=='/system/scripts/click.php'
+                and all(len(params.get(key,[]))==1 and bool(params[key][0].strip())
+                        for key in ('a_aid','a_bid')))
+    except (ValueError,AttributeError,TypeError):
+        return False
+
+
+def svj_exact_ehub_destination(value):
+    """Do not confuse an eHub campaign link with the E.ON SVJ landing page."""
+    if not valid_ehub(value):
+        return False
+    try:
+        targets=parse.parse_qs(parse.urlsplit(value).query,keep_blank_values=True).get('desturl')
+        return targets==[SVJ_MERCHANT_URL]
+    except (ValueError,TypeError):
+        return False
+
+
+def svj_route_config_status(exact_mapping, generic_base):
+    """Read-only readiness classification; intentionally no inferred paid lead."""
+    if isinstance(exact_mapping,str) and exact_mapping:
+        return ('exact_svj_destination_candidate' if svj_exact_ehub_destination(exact_mapping)
+                else 'unsafe_or_unqualified_exact_override')
+    if valid_ehub(generic_base):
+        return 'generic_base_candidate_requires_runtime'
+    return 'no_qualified_svj_affiliate_config'
 
 def summarize(html):
     parser=LinkParser()
@@ -129,6 +161,10 @@ def svj_summarize(html):
        'page':'svj_payback', 'grid_fve_links':grid,
        'exact_eon_svj_links':exact, 'svj_lead_markup_count':tagged,
        'eon_network_config_present':valid_ehub(leads.get('eon-svj')) or valid_ehub(bases.get('eon-cz')),
+       'svj_affiliate_route_status':svj_route_config_status(leads.get('eon-svj'),bases.get('eon-cz')),
+       'exact_svj_destination_candidate':svj_exact_ehub_destination(leads.get('eon-svj')),
+       # Config shape is not JS/browser navigation, merchant acceptance or a paid lead.
+       'verified_affiliate_navigation':False,
        'program_accepts_svj_lead':'unknown',
        'attributed_affiliate_clicks':'unknown',
        'paid_commissions':'unknown',
@@ -172,6 +208,8 @@ def main():
           +' grid_fve_links='+str(data['svj']['grid_fve_links'])
           +' exact_eon_svj_links='+str(data['svj']['exact_eon_svj_links'])
           +' source_checked_affiliate_candidate='+str(data['svj']['eon_network_config_present']).lower()
+          +' route_status='+data['svj']['svj_affiliate_route_status']
+          +' exact_destination_candidate='+str(data['svj']['exact_svj_destination_candidate']).lower()
           +' external_visits=0 writes=0')
 if __name__=='__main__':
     main()
