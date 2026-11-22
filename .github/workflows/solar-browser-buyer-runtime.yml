@@ -6,6 +6,9 @@ on:
       - 'scripts/solar_quote_browser_smoke.mjs'
       - 'scripts/solar_builder_fast_result_smoke.mjs'
       - 'assets/js/builder-fast-result.js'
+      - 'assets/js/catalog-alpine-single-init.js'
+      - 'scripts/solar_catalog_single_init_browser.mjs'
+      - 'ops/solar-catalog-single-init-release.json'
       - 'scripts/solar_svj_browser_readonly.mjs'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   push:
@@ -14,6 +17,9 @@ on:
       - 'scripts/solar_quote_browser_smoke.mjs'
       - 'scripts/solar_builder_fast_result_smoke.mjs'
       - 'assets/js/builder-fast-result.js'
+      - 'assets/js/catalog-alpine-single-init.js'
+      - 'scripts/solar_catalog_single_init_browser.mjs'
+      - 'ops/solar-catalog-single-init-release.json'
       - 'scripts/solar_svj_browser_readonly.mjs'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   workflow_dispatch:
@@ -35,6 +41,8 @@ jobs:
           node --check scripts/solar_quote_browser_smoke.mjs
           node --check scripts/solar_builder_fast_result_smoke.mjs
           node --check assets/js/builder-fast-result.js
+          node --check assets/js/catalog-alpine-single-init.js
+          node --check scripts/solar_catalog_single_init_browser.mjs
           node --check scripts/solar_svj_browser_readonly.mjs
           ! grep -q "trackOffer(" scripts/solar_quote_browser_smoke.mjs
           ! grep -q "trackBundleDealOffer(" scripts/solar_quote_browser_smoke.mjs
@@ -103,6 +111,28 @@ jobs:
             and .affiliate_link_clicks==0
             and .analytics_events_sent==0
             and .real_revenue_verified==false' artifacts/solar-builder-fast-result-smoke.json > /dev/null
+      - name: Real native Alpine catalog boot: one source-backed GET, five buyer pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]] &&
+             jq -e '.enabled==true' ops/solar-catalog-single-init-release.json >/dev/null; then
+            SOLAR_CATALOG_SINGLE_INIT_PROOF=live node scripts/solar_catalog_single_init_browser.mjs
+          else
+            SOLAR_CATALOG_SINGLE_INIT_PROOF=preview node scripts/solar_catalog_single_init_browser.mjs
+          fi
+      - name: No duplicate catalog fetch / no merchant, analytics, or WP calls
+        run: |
+          jq -e '.status=="verified" and .method=="browser_get_only"
+            and (.tested_pages|length)==5 and
+            ([.tested_pages[].catalog_gets] | all(. == 1)) and
+            ([.tested_pages[].catalog_products] | all(. == 24)) and
+            ([.tested_pages[].native_init_marker] | all(. == true)) and
+            ([.tested_pages[].redundant_explicit_init_removed] | all(. == true)) and
+            ([.tested_pages[].catalog_error] | all(. == false)) and
+            ([.tested_pages[].js_exception_count] | all(. == 0)) and
+            .affiliate_visits==0 and .wordpress_writes==0 and
+            .analytics_posts==0 and .verified_revenue==false' artifacts/solar-catalog-single-init-browser.json > /dev/null
       - name: Check browser proof receipt never generated synthetic attribution
         if: success()
         run: |
@@ -129,5 +159,6 @@ jobs:
             artifacts/solar-browser-buyer-runtime.json
             artifacts/solar-svj-browser-readonly.json
             artifacts/solar-builder-fast-result-smoke.json
+            artifacts/solar-catalog-single-init-browser.json
           retention-days: 14
           if-no-files-found: warn
