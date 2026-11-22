@@ -38,6 +38,8 @@ jobs:
           jq empty content/manifest.json
       - name: Conditional frontend script loading
         run: php tests/conditional-assets.test.php
+      - name: Alpine native init must not duplicate REST catalog downloads
+        run: node tests/alpine-catalog-single-init.test.js
       - name: Per-tool outbound attribution
         run: php tests/funnel-attribution.test.php
       - name: Product offer exposure and click placement reporting
