@@ -42,7 +42,18 @@
       </div>
     </template>
     <div class="se-note se-note-error" x-show="inputError" x-cloak style="margin-top:12px" role="alert" aria-live="polite" x-text="inputError"></div>
-    <div class="se-actions"><button class="se-btn" @click="step=1">← Zpět</button><button class="se-btn se-btn-primary" :disabled="!selectedAppliances.length" @click="advanceToUsage()">Pokračovat →</button></div>
+    <div class="se-actions" data-se-builder-fast-result-actions="v1">
+      <button type="button" class="se-btn" @click="step=1">← Zpět</button>
+      <button type="button" class="se-btn se-btn-primary" :disabled="!selectedAppliances.length"
+              @click="calcFromAppliances(); $nextTick(() => { if(step===4) $refs.builderHeading.focus({preventScroll:true}); })"
+              data-se-builder-calc-from-appliances="v1">Spočítat vlastní sestavu →</button>
+    </div>
+    <p class="se-muted" style="margin-top:10px" data-se-builder-defaults-disclosed="v1">
+      Rychlý výpočet použije sezónu <strong>jaro–podzim</strong> a rezervu baterie <strong>1 den</strong>;
+      spotřebiče a jejich spotřebu ponechá tak, jak jste je zadali.
+      <button type="button" class="se-builder-advanced-link" @click="advanceToUsage()"
+              data-se-builder-advanced-choice="v1">Chci nastavit sezónu a rezervu sám →</button>
+    </p>
   </div>
 
   <div x-show="step===3" x-cloak>
