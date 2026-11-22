@@ -36,12 +36,12 @@ jobs:
       - name: Run source-lock and WordPress synthetic no-retry contract
         run: |
           python -m py_compile scripts/solar_catalog_single_init_release.py
-          python -m unittest discover -s tests -p 'test_solar_builder_fast_result_release.py' -v
+          python -m unittest discover -s tests -p 'test_solar_catalog_single_init_release.py' -v
           node --check assets/js/catalog-alpine-single-init.js
       - name: WordPress Code Snippets exact PHP source syntax
         run: |
           python - <<'PY'
-          from scripts.solar_builder_fast_result_release import PHP_CODE
+          from scripts.solar_catalog_single_init_release import PHP_CODE
           from pathlib import Path
           Path('/tmp/solar-catalog-single-init.php').write_text('<?php\n'+PHP_CODE)
           PY
@@ -90,11 +90,11 @@ jobs:
         env:
           SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
           SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
-        run: python -m scripts.solar_builder_fast_result_release
+        run: python -m scripts.solar_catalog_single_init_release
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: solar-builder-fast-result-receipt-${{ github.run_id }}
+          name: solar-catalog-single-init-receipt-${{ github.run_id }}
           path: artifacts/solar-catalog-single-init-release.json
           retention-days: 14
           if-no-files-found: warn
