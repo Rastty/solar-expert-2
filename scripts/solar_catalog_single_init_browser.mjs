@@ -16,7 +16,7 @@ const PAGES=[
   {kind:'builder',path:'/solarni-sestava-na-chatu/',root:'[x-data="solarExpertBuilder()"]'},
   {kind:'home',path:'/',root:'[x-data="solarExpertBuilder()"]'},
   {kind:'battery',path:'/vyber-baterii/',root:'[x-data="solarExpertBatterySelector()"]'},
-  {kind:'mppt',path:'/mppt-kalkulacka/',root:'[x-data="solarExpertMPPTSelector()"]'},
+  {kind:'mppt',path:'/mppt-kalkulacka/',root:'[x-data="solarExpertMpptSelector()"]'},
   {kind:'inverter',path:'/vyber-menice/',root:'[x-data="solarExpertInverterSelector()"]'}
 ];
 const result={
