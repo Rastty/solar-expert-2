@@ -15,17 +15,23 @@ from scripts.solar_serp_boundary_release import TARGET
 
 OUTPUT=Path('artifacts/solar-eon-lead-path-readonly.json')
 MARKER='eon-heat-pump'
+SVJ_URL='https://solar-expert.cz/navratnost-fotovoltaicke-elektrarny-v-bytovem-dome/'
+SVJ_MERCHANT_URL='https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/'
+GRID_FVE_PATH='/kolik-stoji-fotovoltaika/'
 SCRIPT_NAMES=('affiliate-adapter.js','lead-cta.js')
 
 class LinkParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.links=[]
+        self.anchors=[]
         self.script_src=[]
     def handle_starttag(self,tag,attrs):
         data=dict(attrs)
-        if tag=='a' and data.get('data-se-lead-id')==MARKER:
-            self.links.append(data)
+        if tag=='a':
+            self.anchors.append(data)
+            if data.get('data-se-lead-id')==MARKER:
+                self.links.append(data)
         elif tag=='script' and data.get('src'):
             self.script_src.append(data['src'])
 
@@ -96,13 +102,49 @@ def summarize(html):
        'proven_browser_navigation':False,
     }
 
-def public_html():
-    req=request.Request(TARGET,method='GET',headers={
+def _exact_first_party(href, path):
+    if not isinstance(href,str):
+        return False
+    u=parse.urlsplit(href)
+    return (u.path==path and not u.query and not u.fragment and
+            ((u.scheme=='' and u.netloc=='' and href.startswith('/') and not href.startswith('//'))
+             or (u.scheme=='https' and u.hostname=='solar-expert.cz' and
+                 not u.username and not u.password and u.port is None)))
+
+def svj_summarize(html):
+    """Exact SVJ landing evidence; do not request any affiliate or E.ON URL."""
+    parser=LinkParser()
+    parser.feed(html)
+    config=locate_config(html) or {}
+    amap=config.get('affiliateMap') if isinstance(config.get('affiliateMap'),dict) else {}
+    leads=amap.get('leads') if isinstance(amap.get('leads'),dict) else {}
+    bases=config.get('affiliateBases') if isinstance(config.get('affiliateBases'),dict) else {}
+    exact=sum(1 for a in parser.anchors if a.get('href')==SVJ_MERCHANT_URL)
+    # A fallback can remain a direct merchant link; this does not prove a
+    # qualified advertiser click or campaign eligibility for SVJ businesses.
+    tagged=sum(1 for a in parser.anchors if a.get('data-se-lead-id')=='eon-svj' and
+               a.get('data-se-fallback')==SVJ_MERCHANT_URL)
+    grid=sum(1 for a in parser.anchors if _exact_first_party(a.get('href'),GRID_FVE_PATH))
+    return {
+       'page':'svj_payback', 'grid_fve_links':grid,
+       'exact_eon_svj_links':exact, 'svj_lead_markup_count':tagged,
+       'eon_network_config_present':valid_ehub(leads.get('eon-svj')) or valid_ehub(bases.get('eon-cz')),
+       'program_accepts_svj_lead':'unknown',
+       'attributed_affiliate_clicks':'unknown',
+       'paid_commissions':'unknown',
+       'method':'GET','external_link_visits':0,'wordpress_writes':0
+    }
+
+
+def public_html(url=TARGET):
+    if url not in (TARGET,SVJ_URL):
+        raise ValueError('Only reviewed first-party target URLs are allowed')
+    req=request.Request(url,method='GET',headers={
         'Accept':'text/html','User-Agent':'SolarEon-PublicLinkAudit-GETOnly/1.0',
         'Cache-Control':'no-cache'})
     try:
         with request.build_opener(NoRedirect()).open(req,timeout=25) as res:
-            if res.status != 200 or res.url != TARGET or (
+            if res.status != 200 or res.url != url or (
                 'text/html' not in res.headers.get('Content-Type','').lower()):
                 raise RuntimeError('Unexpected target HTTP response')
             raw=res.read(1500001)
@@ -114,6 +156,7 @@ def public_html():
 
 def main():
     data=summarize(public_html())
+    data['svj']=svj_summarize(public_html(SVJ_URL))
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
     OUTPUT.write_text(json.dumps(data,sort_keys=True,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
     p=data['page'];a=data['affiliate_configuration']
@@ -124,6 +167,11 @@ def main():
           +' exact_network='+str(a['exact_ehub_link']).lower()
           +' base_network='+str(a['valid_ehub_base']).lower()
           +' trackable_route='+str(a['potential_trackable_route']).lower()
+          +' external_visits=0 writes=0')
+    print('SOLAR_EON_SVJ_PATH status=public_get'
+          +' grid_fve_links='+str(data['svj']['grid_fve_links'])
+          +' exact_eon_svj_links='+str(data['svj']['exact_eon_svj_links'])
+          +' source_checked_affiliate_candidate='+str(data['svj']['eon_network_config_present']).lower()
           +' external_visits=0 writes=0')
 if __name__=='__main__':
     main()
