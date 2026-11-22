@@ -57,7 +57,10 @@ class SvjPayback2026(unittest.TestCase):
         if not manifest_path.exists():
             self.skipTest("No staged activation manifest in source PR")
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        publisher.validate_manifest(manifest)
+        self.assertEqual(manifest["review_status"], "superseded_do_not_publish")
+        self.assertEqual(manifest["authorization"], "superseded_not_authorized")
+        with self.assertRaises(publisher.Blocked):
+            publisher.validate_manifest(manifest)
         self.assertEqual(manifest["kind"], "post_update")
         self.assertEqual(manifest["post_id"], 377)
         self.assertEqual(manifest["source_commit"], "0242a1e9931cbd7d80be3c85c3dec76bbe1602fc")
