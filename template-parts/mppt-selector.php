@@ -1,4 +1,4 @@
-<div class="se-panel" x-data="solarExpertMpptSelector()" x-init="init()">
+<div class="se-panel" x-data="solarExpertMpptSelector()">
   <div class="se-kicker">Výběr MPPT regulátoru</div><h2>Vyberte regulátor podle FV pole</h2>
   <div class="se-note" style="margin-bottom:14px"><strong>Upravte parametry svého pole.</strong> Hodnoty níže jsou jen výchozí příklad; výsledek se po každé změně přepočítá automaticky. Zadejte <strong>jmenovitý výkon jednoho panelu</strong>, počet panelů v sérii (S) a paralelních větví (P): celkový výkon pole spočítáme automaticky. Před výběrem potřebujete také <strong>Isc panelu</strong> z datasheetu.</div>
   <div class="se-note" x-show="articleExample" x-cloak role="status" data-se-article-example="mppt400" style="margin-bottom:14px">
