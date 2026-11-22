@@ -1,0 +1,31 @@
+name: Solar heatpump EON snippet 14 one-off read-only diagnosis
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/solar_heatpump_intro_diagnosis_readonly.py'
+      - '.github/workflows/solar-heatpump-intro-diagnosis-readonly.yml'
+permissions:
+  contents: read
+jobs:
+  read-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exact public and authorized WP GET only
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: |
+          python -m py_compile scripts/solar_heatpump_intro_diagnosis_readonly.py
+          python -m scripts.solar_heatpump_intro_diagnosis_readonly
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-heatpump-intro-readonly-diagnosis-${{ github.run_id }}
+          path: artifacts/solar-heatpump-intro-readonly-diagnosis.json
+          retention-days: 14
+          if-no-files-found: warn
