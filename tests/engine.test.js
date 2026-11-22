@@ -386,7 +386,7 @@ const bundle48Sizing = {
 };
 const bundles48 = B.compose(catalog.products, bundle48Sizing);
 const best48 = bundles48.find(b=>b.tier==='best');
-assert(best48 && best48.complete, '48V Growatt Best Value bundle should be complete');
+assert(best48 && !best48.complete, 'Growatt with unverified PV Isc must be a visible but INCOMPLETE draft');
 assert(best48.inverter.id==='inverter-growatt-48-3500', '48V Best Value should use Growatt 3500ES');
 assert(best48.integratedMppt, 'Growatt bundle should use integrated MPPT');
 assert(best48.panel.stringVmp >= best48.inverter.integrated_mppt.mppt_v_min, 'Growatt string Vmp must reach MPPT minimum');
@@ -396,7 +396,7 @@ assert(best48.panel.product.id!=='panel-dah-555','Discontinued DAH panel must ne
 const bundleDealSizing={voltage:48,batteryKwh:4.5,inverterW:4000,peak:7000,panelWp:1000,mpptA:30};
 const withoutDeal=B.compose(catalog.products,bundleDealSizing,[]).find(b=>b.tier==='best');
 const withDeal=B.compose(catalog.products,bundleDealSizing,catalog.bundle_deals).find(b=>b.tier==='best');
-assert(withoutDeal&&withDeal&&withoutDeal.complete&&withDeal.complete,'48V deal scenario should stay technically complete');
+assert(withoutDeal&&withDeal&&!withoutDeal.complete&&!withDeal.complete,'48V deal arithmetic must remain inspectable but never be marked purchase-ready without PV Isc proof');
 assert(withoutDeal.battery.id===withDeal.battery.id&&withoutDeal.inverter.id===withDeal.inverter.id,'Bundle deal must not change technical component selection');
 assert(withDeal.battery.id==='battery-seplos-pusung-48','Deal scenario should use verified PUSUNG battery');
 assert(withDeal.inverter.id==='inverter-growatt-48-6000','Deal scenario should use verified Growatt 6000 inverter');
@@ -445,7 +445,7 @@ window.dataLayer=[];
 const high48Sizing={voltage:48,batteryKwh:5,inverterW:5000,peak:9000,panelWp:2500,mpptA:70};
 const high48Bundles=B.compose(catalog.products,high48Sizing,catalog.bundle_deals);
 const high48Best=high48Bundles.find(b=>b.tier==='best');
-assert(high48Best&&high48Best.complete,'High-power 48V scenario should become complete with a verified parallel battery bank');
+assert(high48Best&&!high48Best.complete,'Growatt 48V high-power bank may satisfy battery math but must remain INCOMPLETE with missing PV Isc');
 assert(high48Best.battery.id==='battery-seplos-pusung-48','High-power Best Value bank should use verified PUSUNG-S modules');
 assert(high48Best.batteryQuantity===2,'High-power Best Value bank should use the minimum verified quantity of two PUSUNG-S modules');
 assert(high48Best.batteryBank.totalEnergyWh===10240,'Two PUSUNG-S modules should expose 10.24kWh nominal energy');
@@ -457,7 +457,7 @@ const high48WithoutDeal=B.compose(catalog.products,high48Sizing,[]).find(b=>b.ti
 assert(high48Best.totalPrice===high48WithoutDeal.totalPrice-1490,'Multi-battery set optimization must lower total only by the verified set saving');
 
 const high48Premium=high48Bundles.find(b=>b.tier==='premium');
-assert(high48Premium&&high48Premium.complete,'Premium high-power 48V scenario should also be complete');
+assert(high48Premium&&!high48Premium.complete,'Premium Growatt 48V scenario must remain INCOMPLETE without exact PV Isc evidence');
 assert(high48Premium.battery.id==='battery-pylontech-us5000','Premium high-power bank should use verified Pylontech US5000 modules');
 assert(high48Premium.batteryQuantity===2,'Premium high-power bank should use two Pylontech modules');
 assert(high48Premium.batteryBank.totalEnergyWh===9600,'Two Pylontech US5000 modules should expose 9.6kWh nominal energy');
@@ -472,11 +472,13 @@ const shoppingTester=window.solarExpertBuilder();
 // review so quantity-aware price math is still covered. Actual Growatt
 // models below remain purchase-blocked and do NOT receive this marker.
 const costMathOnly=(bundle)=>bundle?.integratedMppt
-  ? {...bundle,pvIscVerified:true}
+  // Test-only financial ledger fixture; must never masquerade as real PV approval.
+  ? {...bundle,pvIscVerified:true,complete:true}
   : bundle;
 for(const unsafe of [best48,withDeal,high48Best,high48Premium]){
-  assert(unsafe?.status==='pv_isc_limit_unverified'&&unsafe.pvIscVerified===false,
-    'Actual Growatt configuration must declare source-dependent PV Isc gap');
+  assert(unsafe?.status==='pv_isc_limit_unverified'&&unsafe.pvIscVerified===false&&
+         unsafe.complete===false,
+    'Actual Growatt configuration must be explicitly incomplete, not merely hidden from one shopping view');
   assert(shoppingTester.purchaseBreakdownFor(unsafe)===null,
     'Actual Growatt configuration must not provide a buyer shopping list');
 }
