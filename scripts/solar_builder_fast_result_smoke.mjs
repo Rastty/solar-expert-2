@@ -53,6 +53,7 @@ try{
   report.fast_button_count=1;
 
   // Genuine UI control click; never click an affiliate or send analytics.
+  currentStage='select_chata_preset';
   const preset=page.getByRole('button',{name:/Chata \/ zahradní domek/});
   assert.equal(await preset.count(),1);
   await preset.click();
