@@ -10,7 +10,7 @@ import {chromium} from 'playwright';
 import {mkdirSync,writeFileSync} from 'node:fs';
 
 const ORIGIN='https://solar-expert.cz';
-const URL=ORIGIN+'/solarni-sestava-na-chatu/?solar_growatt_isc_readonly=20261122';
+const TARGET=ORIGIN+'/solarni-sestava-na-chatu/?solar_growatt_isc_readonly=20261122';
 const OUTPUT='artifacts/solar-live-growatt-isc-readonly.json';
 const IDS=['inverter-growatt-48-3500','inverter-growatt-48-6000'];
 let browser;
@@ -44,7 +44,7 @@ try{
   });
   const page=await context.newPage();
   page.on('pageerror',()=>out.runtime_exceptions++);
-  const res=await page.goto(URL,{waitUntil:'domcontentloaded',timeout:45000});
+  const res=await page.goto(TARGET,{waitUntil:'domcontentloaded',timeout:45000});
   assert.equal(res?.status(),200);
   out.live_html_ok=true;
   await page.waitForFunction(()=>{
