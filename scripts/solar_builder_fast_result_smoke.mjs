@@ -6,6 +6,7 @@ const ORIGIN='https://solar-expert.cz';
 const TARGET=ORIGIN+'/solarni-sestava-na-chatu/';
 const OUTPUT='artifacts/solar-builder-fast-result-smoke.json';
 let browser;
+let currentStage='startup';
 const report={
   schema_version:1,mode:'live_chromium_blocked_outbound',
   page:'solarni-sestava-na-chatu',status:'not_verified',
@@ -32,6 +33,7 @@ try{
     }
     await route.abort();
   });
+  currentStage='navigate';
   const res=await page.goto(TARGET,{waitUntil:'domcontentloaded',timeout:45000});
   assert.equal(res?.status(),200);
   assert.equal(page.url(),TARGET);
@@ -39,6 +41,7 @@ try{
     typeof window.Alpine.$data(document.querySelector('#builder'))?.preset==='function',
     null,{timeout:35000});
   report.inspected_live_site=true;
+  currentStage='mount_fast_script';
   const fast=page.locator('#builder button[data-se-builder-custom-fast="v1"]');
   report.fast_path_present_before_source_injection=await fast.count()===1;
   if(!report.fast_path_present_before_source_injection){
@@ -56,9 +59,12 @@ try{
   await page.waitForFunction(()=>window.Alpine.$data(document.querySelector('#builder')).step===2);
   const fridgeHours=page.locator('#builder-hours-fridge');
   assert.equal(await fridgeHours.isVisible(),true);
+  currentStage='edit_fridge_hours';
   await fridgeHours.fill('8');
   await page.waitForFunction(()=>window.Alpine.$data(document.querySelector('#builder')).dailyWh===1308);
+  currentStage='fast_button_enabled';
   assert.equal(await fast.isEnabled(),true);
+  currentStage='fast_click_result';
   await fast.click();
   await page.waitForFunction(()=>{
     const b=window.Alpine.$data(document.querySelector('#builder'));
@@ -76,6 +82,7 @@ try{
   report.customized_energy_wh=result.energyWh;
   report.correct_default_parameters=true;
   report.custom_result_rendered=true;
+  currentStage='advanced_route';
 
   // No loss of advanced settings or original step 3 flow.
   await page.evaluate(()=>window.Alpine.$data(document.querySelector('#builder')).reset());
@@ -98,6 +105,8 @@ try{
   await context.close();
 }catch(e){
   report.status='browser_not_verified';
+  report.failure_stage=currentStage;
+  report.failure_message=String(e?.message||'unknown').replace(/https?:\\/\\/\\S+/g,'[url]').slice(0,160);
   report.failure_class=e?.name||'unknown';
 }finally{
   if(browser)await browser.close();
