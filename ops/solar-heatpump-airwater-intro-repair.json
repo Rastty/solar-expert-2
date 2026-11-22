@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_existing_heatpump_intro_snippet14_put",
   "old_source_blob_sha1": "c15f73fd1dabb14e3c43c37d13f4318015dfd19b",
