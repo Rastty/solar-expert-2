@@ -358,7 +358,11 @@ window.SolarExpertBundleComposer = {
             const candidate = {
               tier,
               label: labels[tier],
-              complete: true,
+              // A valid operating-current screen is NOT an absolute PV Isc
+              // certification. Keep an informative candidate for review,
+              // but never expose it as a complete, shoppable system to ANY
+              // current or future consumer of the shared composer.
+              complete: panelPlan.pvIscVerified === true,
               status: panelPlan.pvIscVerified ? 'preliminarily_compatible' : 'pv_isc_limit_unverified',
               pvIscVerified: panelPlan.pvIscVerified,
               battery,
