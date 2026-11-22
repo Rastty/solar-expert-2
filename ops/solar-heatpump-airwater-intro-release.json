@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_heatpump_airwater_intro_offer",
+  "source_blob_sha1": "c15f73fd1dabb14e3c43c37d13f4318015dfd19b"
+}
