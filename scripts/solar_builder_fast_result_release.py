@@ -112,8 +112,8 @@ def check_public(after):
         require('x-data="solarExpertBuilder()"' in html and
                 'advanceToUsage()' in html and 'solar-expert-builder' in html,
                 'Existing Builder expected markup missing')
-        seen=MARKER in html and 'se-builder-fast-defaults-v1' in html and
-             'state.calc(false)' in html
+        seen=(MARKER in html and 'se-builder-fast-defaults-v1' in html and
+              'state.calc(false)' in html)
         require(seen is after,'Unexpected overlay state on '+path)
     require(MARKER not in pages['/vyber-baterii/'],
             'Builder script appeared on Battery Selector')
