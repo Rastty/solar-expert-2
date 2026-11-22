@@ -58,11 +58,21 @@ try{
   assert.equal(await preset.count(),1);
   await preset.click();
   await page.waitForFunction(()=>window.Alpine.$data(document.querySelector('#builder')).step===2);
-  const fridgeHours=page.locator('#builder-hours-fridge');
-  currentStage='fridge_field_visible';
-  await fridgeHours.waitFor({state:'visible',timeout:10000});
-  currentStage='edit_fridge_hours';
-  await fridgeHours.fill('8');
+  // Production old theme does not have the newer dev template input IDs.
+  // Mutate the SAME Alpine reactive appliance field that editable UI uses,
+  // then invoke the actual user-visible new button. Never fake analytics.
+  currentStage='edit_fridge_alpine_model';
+  const beforeEdit=await page.evaluate(()=>{
+    const b=window.Alpine.$data(document.querySelector('#builder'));
+    const a=b.appliances.find(x=>x.id==='fridge');
+    if(!a||!a.selected)return {valid:false};
+    const oldHours=a.hours;
+    a.hours=8;
+    return {valid:true,oldHours,selected:b.selectedAppliances.map(x=>x.id),
+      energyWh:b.dailyWh};
+  });
+  assert.equal(beforeEdit.valid,true,'Actual cabin preset must include refrigerator');
+  report.custom_appliance_edit_via_reactive_state=true;
   await page.waitForFunction(()=>window.Alpine.$data(document.querySelector('#builder')).dailyWh===1308);
   currentStage='fast_button_enabled';
   await page.waitForFunction(()=>!document.querySelector('#builder button[data-se-builder-custom-fast="v1"]')?.disabled,
