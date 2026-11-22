@@ -92,6 +92,8 @@ jobs:
       - name: Validate real custom result and preserved advanced sizing without analytics writes
         run: |
           jq -e '.status=="browser_verified" and .inspected_live_site==true
+            and .fast_path_present_before_source_injection==true
+            and .injected_preview_source==false
             and .fast_button_count==1 and .customized_energy_wh==1308
             and .custom_result_rendered==true
             and .advanced_season_path_preserved==true
