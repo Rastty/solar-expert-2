@@ -10,6 +10,8 @@ on:
       - 'scripts/solar_catalog_single_init_browser.mjs'
       - 'ops/solar-catalog-single-init-release.json'
       - 'scripts/solar_svj_browser_readonly.mjs'
+      - 'scripts/solar_heatpump_airwater_intro_browser_readonly.mjs'
+      - 'content/snippets/heatpump-airwater-intro-eon-v2.php'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   push:
     branches: [main]
@@ -21,6 +23,8 @@ on:
       - 'scripts/solar_catalog_single_init_browser.mjs'
       - 'ops/solar-catalog-single-init-release.json'
       - 'scripts/solar_svj_browser_readonly.mjs'
+      - 'scripts/solar_heatpump_airwater_intro_browser_readonly.mjs'
+      - 'content/snippets/heatpump-airwater-intro-eon-v2.php'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   workflow_dispatch:
 permissions:
@@ -44,6 +48,7 @@ jobs:
           node --check assets/js/catalog-alpine-single-init.js
           node --check scripts/solar_catalog_single_init_browser.mjs
           node --check scripts/solar_svj_browser_readonly.mjs
+          node --check scripts/solar_heatpump_airwater_intro_browser_readonly.mjs
           ! grep -q "trackOffer(" scripts/solar_quote_browser_smoke.mjs
           ! grep -q "trackBundleDealOffer(" scripts/solar_quote_browser_smoke.mjs
       - name: Prove exact previously armed single-PUT home scope writer finished successfully
@@ -95,6 +100,22 @@ jobs:
             and .proven_conversion==false
             and .revenue_or_svj_campaign_approval=="unknown"
             and (.route_status|type)=="string"' artifacts/solar-svj-browser-readonly.json > /dev/null
+      - name: Live E.ON heatpump intro CTA source and link readiness with zero merchant visits
+        run: node scripts/solar_heatpump_airwater_intro_browser_readonly.mjs
+      - name: Check one rendered intro lead, preserved original offer and no cross-page leakage
+        run: |
+          jq -e '.status=="browser_verified" and .mode=="independent_live_no_injection"
+            and .page_http_200==true and .live_article_marker_count==1
+            and .lead_id_correct==true and .intro_before_first_section==true
+            and .working_intro_offer_only==true
+            and .partnership_disclosure_visible==true
+            and (.merchant_url_shape=="exact_direct_supplier" or
+                 .merchant_url_shape=="exact_ehub_partner_candidate")
+            and .samsung_control_unmodified==true
+            and .homepage_control_unmodified==true
+            and .affiliate_visits==0 and .wordpress_writes==0
+            and .analytics_post_delivered==0 and .affiliate_clicks==0
+            and .revenue_verified==false' artifacts/solar-heatpump-airwater-intro-browser.json >/dev/null
       - name: Custom-appliance one-click result in actual old-theme Chromium without outbound requests
         run: node scripts/solar_builder_fast_result_smoke.mjs
       - name: Validate real custom result and preserved advanced sizing without analytics writes
@@ -158,6 +179,7 @@ jobs:
           path: |
             artifacts/solar-browser-buyer-runtime.json
             artifacts/solar-svj-browser-readonly.json
+            artifacts/solar-heatpump-airwater-intro-browser.json
             artifacts/solar-builder-fast-result-smoke.json
             artifacts/solar-catalog-single-init-browser.json
           retention-days: 14
