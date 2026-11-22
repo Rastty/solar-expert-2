@@ -205,3 +205,15 @@ a{color:inherit;text-decoration:none}.se-wrap{width:min(1180px,calc(100% - 40px)
 .se-selector-examples .se-btn{font-size:14px;white-space:normal;text-align:center}
 .se-selector-examples p{margin:8px 0 0}
 @media(max-width:570px){.se-selector-examples .se-actions{flex-direction:column}.se-selector-examples .se-btn{width:100%}}
+
+
+/* Builder custom result: optional advanced controls stay secondary and keyboard usable. */
+#builder .se-builder-advanced-link{
+  display:inline;margin-left:5px;padding:3px 0;border:0;border-radius:3px;
+  background:transparent;color:var(--green2);font:inherit;font-weight:750;
+  text-decoration:underline;text-underline-offset:3px;cursor:pointer;
+}
+#builder .se-builder-advanced-link:hover{text-decoration-thickness:2px}
+#builder .se-builder-advanced-link:focus-visible{
+  outline:3px solid var(--solar);outline-offset:3px;
+}
