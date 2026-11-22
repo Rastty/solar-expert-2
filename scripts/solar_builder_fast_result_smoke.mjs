@@ -107,7 +107,7 @@ try{
 }catch(e){
   report.status='browser_not_verified';
   report.failure_stage=currentStage;
-  report.failure_message=String(e?.message||'unknown').replace(/https?:\\/\\/\\S+/g,'[url]').slice(0,160);
+  report.failure_message=String(e?.message||'unknown').split('\\n')[0].slice(0,140);
   report.failure_class=e?.name||'unknown';
 }finally{
   if(browser)await browser.close();
