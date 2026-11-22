@@ -27,6 +27,10 @@ TARGETS = (
     (1639, "solarni-panel-pro-zahradni-cerpadlo-a-jezirko"),
     (1641, "solarni-cerpadlo-do-studny-bez-elektriny"),
 )
+# GSC 2026-10-22..11-18: this legacy buyer-intent page had 125
+# impressions and no clicks. Discover its exact WordPress post ID first;
+# never guess an ID or write based on the public/cached page.
+DISCOVERY_SLUGS = ("navratnost-fotovoltaicke-elektrarny-v-bytovem-dome",)
 OUTPUT = publisher.ROOT / "artifacts/solar-editorial-target-fingerprints-readonly.json"
 
 # Only canonical first-party routes, never raw hrefs or personally identifying URLs.
@@ -72,7 +76,7 @@ def inspect() -> dict:
         "schema_version": 1,
         "observed_at_utc": datetime.now(timezone.utc).isoformat(),
         "site": "solar-expert.cz",
-        "purpose": "nine_existing_buyer_post_cas_and_first_party_route_counts_get_only",
+        "purpose": "existing_buyer_post_and_gsc_bytovy_dum_cas_get_only",
         "publish_authorized": False,
         "theme_deploy_authorized": False,
         "writes": 0,
@@ -83,7 +87,25 @@ def inspect() -> dict:
     except (publisher.Blocked, OSError, ValueError, TypeError, KeyError):
         category = None
 
-    for post_id, slug in TARGETS:
+    targets = list(TARGETS)
+    for slug in DISCOVERY_SLUGS:
+        post_id = None
+        if category is not None:
+            try:
+                rows = publisher.slug_posts(slug)
+                publisher.require(isinstance(rows, list) and len(rows) == 1,
+                                  "Ambiguous or missing GSC opportunity slug")
+                discovered = rows[0]
+                publisher.require(isinstance(discovered, dict) and
+                                  type(discovered.get("id")) is int and discovered["id"] > 0 and
+                                  discovered.get("slug") == slug,
+                                  "Discovered WordPress identity is invalid")
+                post_id = discovered["id"]
+            except (publisher.Blocked, OSError, ValueError, TypeError, KeyError):
+                pass
+        targets.append((post_id, slug))
+
+    for post_id, slug in targets:
         row = {
             "post_id": post_id,
             "slug": slug,
@@ -92,7 +114,7 @@ def inspect() -> dict:
             "modified_gmt": None,
             "buyer_route_counts": None,
         }
-        if category is None:
+        if category is None or type(post_id) is not int:
             snapshot["posts"].append(row)
             continue
         try:
