@@ -24,7 +24,8 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
             return [{"id": 3, "slug": "solarni-panely"}]
         if self.ambiguous_discovery and route == "/wp/v2/posts" and query and query.get("slug") in evidence.DISCOVERY_SLUGS:
             return [{"id": 1777, "slug": query["slug"]}, {"id": 1778, "slug": query["slug"]}]
-        for post_id, slug in (*evidence.TARGETS, (1777, evidence.DISCOVERY_SLUGS[0])):
+        for post_id, slug in (*evidence.TARGETS, (1777, evidence.DISCOVERY_SLUGS[0]),
+                              (1779, evidence.DISCOVERY_SLUGS[1])):
             item = {
                 "id": post_id if self.bad_id != post_id else 999,
                 "slug": slug,
@@ -40,10 +41,10 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
                 return [item]
         raise AssertionError("Unexpected REST route")
 
-    def test_ten_published_posts_get_fingerprints_no_writes_or_body_leak(self):
+    def test_eleven_published_posts_get_fingerprints_no_writes_or_body_leak(self):
         with patch.object(publisher, "wp", side_effect=self.wp):
             result = evidence.inspect()
-        self.assertEqual(len(result["posts"]), 10)
+        self.assertEqual(len(result["posts"]), 11)
         self.assertTrue(all(x["status"] == "verified_current_published_post"
                             for x in result["posts"]))
         self.assertTrue(all(x["current_source_sha256"] == publisher.sha(self.private_content)
@@ -52,7 +53,7 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
         self.assertFalse(result["publish_authorized"])
         self.assertFalse(result["theme_deploy_authorized"])
         self.assertNotIn(self.private_content, json.dumps(result))
-        self.assertEqual(len(self.requests), 22)
+        self.assertEqual(len(self.requests), 25)
         self.assertTrue(all(row["buyer_route_counts"] == {"complete_kit_builder": 0, "offgrid_quote_checker": 0} for row in result["posts"]))
 
     def test_count_real_anchors_only_and_never_store_body_or_urls(self):
@@ -83,17 +84,18 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
         self.assertIsNone(result["posts"][0]["buyer_route_counts"])
         self.assertEqual(result["posts"][1]["status"], "verified_current_published_post")
 
-    def test_ambiguous_gsc_slug_fails_closed_without_affecting_original_nine(self):
+    def test_ambiguous_gsc_slug_fails_closed_without_affecting_others(self):
         self.ambiguous_discovery = True
         with patch.object(publisher, "wp", side_effect=self.wp):
             result = evidence.inspect()
-        self.assertEqual(len(result["posts"]), 10)
-        self.assertTrue(all(row["status"] == "verified_current_published_post" for row in result["posts"][:-1]))
-        final = result["posts"][-1]
-        self.assertEqual(final["slug"], evidence.DISCOVERY_SLUGS[0])
-        self.assertIsNone(final["post_id"])
-        self.assertEqual(final["status"], "unknown_or_unavailable")
-        self.assertIsNone(final["current_source_sha256"])
+        self.assertEqual(len(result["posts"]), 11)
+        self.assertTrue(all(row["status"] == "verified_current_published_post"
+                            for row in result["posts"][:9]))
+        for row in result["posts"][9:]:
+            self.assertIn(row["slug"], evidence.DISCOVERY_SLUGS)
+            self.assertIsNone(row["post_id"])
+            self.assertEqual(row["status"], "unknown_or_unavailable")
+            self.assertIsNone(row["current_source_sha256"])
         self.assertEqual(result["writes"], 0)
 
     def test_auth_failure_never_archives_private_error_or_body(self):
