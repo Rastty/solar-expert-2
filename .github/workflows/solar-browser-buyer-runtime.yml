@@ -107,7 +107,7 @@ jobs:
           jq -e '.status=="browser_verified" and .mode=="independent_live_no_injection"
             and .page_http_200==true and .live_article_marker_count==1
             and .lead_id_correct==true and .intro_before_first_section==true
-            and .original_lower_offer_retained==true
+            and .working_intro_offer_only==true
             and .partnership_disclosure_visible==true
             and (.merchant_url_shape=="exact_direct_supplier" or
                  .merchant_url_shape=="exact_ehub_partner_candidate")
