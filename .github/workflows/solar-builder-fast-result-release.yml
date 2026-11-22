@@ -46,11 +46,11 @@ jobs:
           Path('/tmp/solar-builder-fast.php').write_text('<?php\n'+PHP_CODE)
           PY
           php -l /tmp/solar-builder-fast.php
-      - name: Explicitly review initial release as disarmed (no WP writes)
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
         if: github.event_name == 'pull_request'
         run: |
-          jq -e '.schema_version==1 and .enabled==false and .revision==1
-            and .mode=="one_reversible_custom_builder_fast_result"
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_reversible_custom_builder_fast_result"
             and .source_blob_sha1=="77c23cb4784f94d714bd3efb323ac5fc0e3c6b61" ' ops/solar-builder-fast-result-release.json >/dev/null
 
   one-shot-activate:
