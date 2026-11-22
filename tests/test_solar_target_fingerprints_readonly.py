@@ -14,6 +14,8 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
         self.requests = []
         self.bad_id = None
         self.ambiguous_discovery = False
+        self.heat_category_missing = False
+        self.heat_category_wrong = False
         self.private_content = "<p>private-at-runtime-only</p>"
 
     def wp(self, method, route, *, query=None, body=None):
@@ -21,6 +23,10 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
         self.assertIsNone(body)
         self.requests.append((route, query))
         if route == "/wp/v2/categories":
+            if query and query.get("slug") == "tepelna-cerpadla":
+                if self.heat_category_missing:
+                    return []
+                return [{"id": 7, "slug": "tepelna-cerpadla"}]
             return [{"id": 3, "slug": "solarni-panely"}]
         if self.ambiguous_discovery and route == "/wp/v2/posts" and query and query.get("slug") in evidence.DISCOVERY_SLUGS:
             return [{"id": 1777, "slug": query["slug"]}, {"id": 1778, "slug": query["slug"]}]
@@ -31,7 +37,8 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
                 "slug": slug,
                 "status": "publish",
                 "link": publisher.SITE + "/" + slug + "/",
-                "categories": [3],
+                "categories": ([3] if self.heat_category_wrong else [7])
+                              if slug == evidence.DISCOVERY_SLUGS[1] else [3],
                 "modified_gmt": "2026-11-15T08:12:14",
                 "content": {"raw": self.private_content},
             }
@@ -53,7 +60,7 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
         self.assertFalse(result["publish_authorized"])
         self.assertFalse(result["theme_deploy_authorized"])
         self.assertNotIn(self.private_content, json.dumps(result))
-        self.assertEqual(len(self.requests), 25)
+        self.assertEqual(len(self.requests), 26)
         self.assertTrue(all(row["buyer_route_counts"] == {"complete_kit_builder": 0, "offgrid_quote_checker": 0} for row in result["posts"]))
 
     def test_count_real_anchors_only_and_never_store_body_or_urls(self):
@@ -73,6 +80,26 @@ class FingerprintsReadOnlyContract(unittest.TestCase):
             })
         self.assertNotIn(self.private_content, json.dumps(result))
         self.assertNotIn("evil.example", json.dumps(result))
+        self.assertEqual(result["writes"], 0)
+
+    def test_heatpump_never_inherits_solar_category(self):
+        self.heat_category_wrong = True
+        with patch.object(publisher, "wp", side_effect=self.wp):
+            result = evidence.inspect()
+        self.assertEqual(len(result["posts"]), 11)
+        self.assertEqual(result["posts"][-1]["slug"], evidence.DISCOVERY_SLUGS[1])
+        self.assertEqual(result["posts"][-1]["status"], "unknown_or_unavailable")
+        self.assertTrue(all(row["status"] == "verified_current_published_post"
+                            for row in result["posts"][:-1]))
+        self.assertEqual(result["writes"], 0)
+
+    def test_unverified_heatpump_taxonomy_never_grants_authorization(self):
+        self.heat_category_missing = True
+        with patch.object(publisher, "wp", side_effect=self.wp):
+            result = evidence.inspect()
+        self.assertEqual(result["posts"][-1]["status"], "unknown_or_unavailable")
+        self.assertIsNone(result["posts"][-1]["current_source_sha256"])
+        self.assertFalse(result["publish_authorized"])
         self.assertEqual(result["writes"], 0)
 
     def test_identity_change_fails_only_affected_post(self):
