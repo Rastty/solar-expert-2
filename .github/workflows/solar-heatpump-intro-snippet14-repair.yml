@@ -1,0 +1,101 @@
+name: Solar heatpump EON intro snippet 14 single PUT source-locked repair
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-heatpump-intro-snippet14-repair.yml'
+      - 'scripts/solar_heatpump_airwater_intro_repair.py'
+      - 'tests/test_solar_heatpump_airwater_intro_repair.py'
+      - 'tests/solar-heatpump-intro-repair-context.test.php'
+      - 'content/snippets/heatpump-airwater-intro-eon-v2.php'
+      - 'ops/solar-heatpump-airwater-intro-repair.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-heatpump-intro-snippet14-repair.yml'
+      - 'scripts/solar_heatpump_airwater_intro_repair.py'
+      - 'tests/test_solar_heatpump_airwater_intro_repair.py'
+      - 'tests/solar-heatpump-intro-repair-context.test.php'
+      - 'content/snippets/heatpump-airwater-intro-eon-v2.php'
+      - 'ops/solar-heatpump-airwater-intro-repair.json'
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exact old and new immutable source with single-PUT fail-closed contract
+        run: |
+          python -m py_compile scripts/solar_heatpump_airwater_intro_repair.py
+          python -m unittest discover -s tests -p 'test_solar_heatpump_airwater_intro_repair.py' -v
+      - name: PHP syntax and independent article-only contextual offer test
+        run: |
+          php -l content/snippets/heatpump-airwater-intro-eon-v2.php
+          php tests/solar-heatpump-intro-repair-context.test.php
+      - name: Source-pinned control exact schema (no writes in PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean" and
+            .revision==1 and .mode=="one_existing_heatpump_intro_snippet14_put" and
+            .old_source_blob_sha1=="c15f73fd1dabb14e3c43c37d13f4318015dfd19b" and
+            .new_source_blob_sha1=="43fb1ab3a9e8491d5ff4d029444d966d8e68c843" and
+            .snippet_id==14 and .wp_post_id==310 and
+            .wp_modified_gmt=="2026-10-07T11:20:08"' ops/solar-heatpump-airwater-intro-repair.json >/dev/null
+
+  one-exact-put:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Sole disarmed-to-armed JSON transition and unchanged reviewed PHP sources
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-heatpump-airwater-intro-repair.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/heatpump-airwater-intro-eon-v1.php")" == 'c15f73fd1dabb14e3c43c37d13f4318015dfd19b' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/heatpump-airwater-intro-eon-v2.php")" == '43fb1ab3a9e8491d5ff4d029444d966d8e68c843' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/heatpump-airwater-intro-eon-v2.php")" == '43fb1ab3a9e8491d5ff4d029444d966d8e68c843' ]] || exit 0
+          git show "$BEFORE:ops/solar-heatpump-airwater-intro-repair.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_existing_heatpump_intro_snippet14_put",
+              "old_source_blob_sha1":"c15f73fd1dabb14e3c43c37d13f4318015dfd19b",
+              "new_source_blob_sha1":"43fb1ab3a9e8491d5ff4d029444d966d8e68c843",
+              "snippet_id":14,"wp_post_id":310,"wp_modified_gmt":"2026-10-07T11:20:08"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_existing_heatpump_intro_snippet14_put",
+            "old_source_blob_sha1":"c15f73fd1dabb14e3c43c37d13f4318015dfd19b",
+            "new_source_blob_sha1":"43fb1ab3a9e8491d5ff4d029444d966d8e68c843",
+            "snippet_id":14,"wp_post_id":310,"wp_modified_gmt":"2026-10-07T11:20:08"}' ops/solar-heatpump-airwater-intro-repair.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exactly one PUT to existing active snippet 14 with WP post and source CAS
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_heatpump_airwater_intro_repair
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-heatpump-intro-repair-receipt-${{ github.run_id }}
+          path: artifacts/solar-heatpump-airwater-intro-repair.json
+          retention-days: 14
+          if-no-files-found: warn
