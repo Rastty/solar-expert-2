@@ -65,7 +65,7 @@ class BuilderFastResultReleaseContract(unittest.TestCase):
         self.assertIn('state.validateSelections()',m.PHP_CODE)
         self.assertIn('state.season=',m.PHP_CODE)
         self.assertIn("state.autonomy=1",m.PHP_CODE)
-        self.assertNotIn('quickPreview()',m.JS)
+        self.assertNotIn('state.quickPreview(',m.JS)
         self.assertNotIn('affiliate_click',m.JS)
         self.assertNotIn('fetch(',m.JS)
         self.assertNotIn('navigator.sendBeacon',m.JS)
