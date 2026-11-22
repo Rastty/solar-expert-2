@@ -56,6 +56,8 @@ class TestEonLeadReadonly(unittest.TestCase):
         self.assertEqual(d['exact_eon_svj_links'],1)
         self.assertEqual(d['svj_lead_markup_count'],0)
         self.assertTrue(d['eon_network_config_present'])
+        self.assertEqual(d['svj_affiliate_route_status'],
+                         'generic_base_candidate_requires_runtime')
         self.assertEqual(d['program_accepts_svj_lead'],'unknown')
         self.assertEqual(d['attributed_affiliate_clicks'],'unknown')
         self.assertEqual(d['paid_commissions'],'unknown')
@@ -73,6 +75,56 @@ class TestEonLeadReadonly(unittest.TestCase):
         self.assertEqual(d['exact_eon_svj_links'],1)
         self.assertEqual(d['svj_lead_markup_count'],1)
         self.assertFalse(d['eon_network_config_present'])
+
+    def test_svj_exact_ehub_destination_requires_exact_seller_and_campaign(self):
+        exact=E_HUB+'&desturl='+__import__('urllib.parse',fromlist=['quote']).quote(
+            m.SVJ_MERCHANT_URL,safe='')
+        self.assertTrue(m.valid_ehub(E_HUB))
+        self.assertFalse(m.svj_exact_ehub_destination(E_HUB))
+        self.assertTrue(m.svj_exact_ehub_destination(exact))
+        self.assertEqual(m.svj_route_config_status(exact,None),
+                         'exact_svj_destination_candidate')
+        self.assertEqual(m.svj_route_config_status(None,E_HUB),
+                         'generic_base_candidate_requires_runtime')
+        self.assertEqual(m.svj_route_config_status(None,None),
+                         'no_qualified_svj_affiliate_config')
+        for invalid in (
+            E_HUB,
+            exact.replace('fotovoltaika-pro-svj','tepelne-cerpadlo'),
+            exact+'&desturl=https%3A%2F%2Fevil.example%2F',
+            exact.replace('https://ehub.cz/','http://ehub.cz/'),
+            exact.replace('ehub.cz/','ehub.cz.evil.example/'),
+            E_HUB+'&desturl='+m.SVJ_MERCHANT_URL+'&a_bid=duplicate',
+            'https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/',
+        ):
+            with self.subTest(invalid=invalid[:70]):
+                self.assertFalse(m.svj_exact_ehub_destination(invalid))
+                self.assertEqual(m.svj_route_config_status(invalid,E_HUB),
+                                 'unsafe_or_unqualified_exact_override')
+        self.assertFalse(m.valid_ehub(E_HUB.replace('https://','http://')))
+        self.assertFalse(m.valid_ehub(E_HUB+'&a_aid=second'))
+        self.assertFalse(m.valid_ehub(E_HUB+'#fragment'))
+
+    def test_svj_status_never_confuses_generic_ehub_base_with_true_svj_destination(self):
+        exact=E_HUB+'&desturl='+__import__('urllib.parse',fromlist=['quote']).quote(
+            m.SVJ_MERCHANT_URL,safe='')
+        generic='<script>var SolarExpertConfig = '+json.dumps(
+            {'affiliateBases':{'eon-cz':E_HUB}})+'</script>'
+        d=m.svj_summarize(generic)
+        self.assertEqual(d['svj_affiliate_route_status'],
+                         'generic_base_candidate_requires_runtime')
+        self.assertFalse(d['exact_svj_destination_candidate'])
+        self.assertFalse(d['verified_affiliate_navigation'])
+        exact_html='<script>var SolarExpertConfig = '+json.dumps(
+            {'affiliateMap':{'leads':{'eon-svj':exact}},'affiliateBases':{'eon-cz':E_HUB}})+'</script>'
+        e=m.svj_summarize(exact_html)
+        self.assertEqual(e['svj_affiliate_route_status'],'exact_svj_destination_candidate')
+        self.assertTrue(e['exact_svj_destination_candidate'])
+        self.assertFalse(e['verified_affiliate_navigation'])
+        self.assertEqual(e['program_accepts_svj_lead'],'unknown')
+        self.assertEqual(e['paid_commissions'],'unknown')
+        self.assertNotIn('sample',json.dumps(e))
+        self.assertNotIn('campaign',json.dumps(e))
 
     def test_missing_runtime_flags_uncertainty(self):
         data=m.summarize('<html><script>var SolarExpertConfig = {};</script></html>')
