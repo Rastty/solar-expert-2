@@ -60,6 +60,8 @@ jobs:
         run: node --test tests/merchant-candidate-vselektro.test.mjs
       - name: One-click Builder hero attribution
         run: node tests/builder-hero-demo.test.js
+      - name: Real custom Builder calculation without unnecessary season form
+        run: node tests/builder-manual-fast-result.test.js
       - name: Distinguish canonical tool self-links from genuine referrals
         run: node tests/tool-referral-selflink.test.js
       - name: Quote Checker result keyboard focus and invalid-input retention
