@@ -399,7 +399,7 @@ window.SolarExpertAffiliate = {
     if (targetUrl!==svjTarget || !this.isActionableMerchantHref(base)) return null;
     try {
       const u=new URL(base);
-      const host=u.hostname.toLowerCase().replace(/\\.$/, '');
+      const host=u.hostname.toLowerCase().replace(/\.$/, '');
       const valid=u.protocol==='https:' && host==='ehub.cz' &&
         u.pathname==='/system/scripts/click.php' &&
         Boolean(u.searchParams.get('a_aid')?.trim()) &&
