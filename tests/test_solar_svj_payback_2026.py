@@ -1,5 +1,6 @@
 """Evidence-based SVJ payback rewrite. Offline only; never create affiliate clicks."""
 import hashlib
+import json
 import re
 import unittest
 from pathlib import Path
@@ -50,6 +51,24 @@ class SvjPayback2026(unittest.TestCase):
                      "/kolik-panelu-je-potreba-na-jeden-string/"):
             self.assertIn(path, links)
         self.assertGreaterEqual(len(links), 4)
+
+    def test_staged_manifest_uses_exact_authenticated_wp_cas(self):
+        manifest_path = ROOT / "ops/editorial-manifests/solar-svj-payback-2026-20261122-v1.json"
+        if not manifest_path.exists():
+            self.skipTest("No staged activation manifest in source PR")
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        publisher.validate_manifest(manifest)
+        self.assertEqual(manifest["kind"], "post_update")
+        self.assertEqual(manifest["post_id"], 377)
+        self.assertEqual(manifest["source_commit"], "0242a1e9931cbd7d80be3c85c3dec76bbe1602fc")
+        self.assertEqual(manifest["source_file"],
+                         "content/rewrites/navratnost-fotovoltaicke-elektrarny-v-bytovem-dome.html")
+        self.assertEqual(manifest["source_sha256"],
+                         hashlib.sha256(self.body.encode("utf-8")).hexdigest())
+        self.assertEqual(manifest["expected_current_sha256"],
+                         "593d57385d028783072865af20ff32220d7c8341e4621c1ea02dae21556bce1f")
+        self.assertEqual(manifest["expected_modified_gmt"], "2026-10-07T11:20:08")
+        self.assertNotIn("expect_absent", manifest)
 
     def test_print_pinned_sha_for_separate_one_write_manifest(self):
         print("SOLAR_SVJ_SOURCE_SHA256=" + hashlib.sha256(self.body.encode("utf-8")).hexdigest())
