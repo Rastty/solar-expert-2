@@ -9,7 +9,7 @@
   var allowed={
     'solarExpertBuilder()':true,
     'solarExpertBatterySelector()':true,
-    'solarExpertMPPTSelector()':true,
+    'solarExpertMpptSelector()':true,
     'solarExpertInverterSelector()':true
   };
   document.addEventListener('alpine:init',function(){
