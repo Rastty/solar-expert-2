@@ -26,7 +26,7 @@ RECEIPT=ROOT/'artifacts/solar-catalog-single-init-release.json'
 NAME='Solar Expert native Alpine single catalog init v1'
 DESC='Scoped reversible removal of redundant x-init, original catalog and electrical engine untouched'
 MODE='single_reversible_catalog_alpine_auto_init'
-SOURCE_BLOB='05dd7923c64a08bfcb7750b9e927d0635a4e11dc'
+SOURCE_BLOB='6e67b7e386e27a5ecefd9e4eb19a6026caea8280'
 JS=(ROOT/'assets/js/catalog-alpine-single-init.js').read_text(encoding='utf-8')
 BYTES=JS.encode('utf-8')
 BLOB=hashlib.sha1(('blob '+str(len(BYTES))+'\0').encode()+BYTES).hexdigest()
