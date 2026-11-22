@@ -24,14 +24,20 @@ try{
   await page.route('**/*',async route=>{
     const req=route.request();let url;
     try{url=new URL(req.url());}catch(_){await route.abort();return;}
-    if(req.method()==='GET'&&url.origin===ORIGIN){await route.continue();return;}
+    const alpineCdn=(req.method()==='GET'&&url.protocol==='https:'&&
+      url.hostname==='cdn.jsdelivr.net'&&
+      url.pathname==='/npm/alpinejs@3.14.9/dist/cdn.min.js');
+    if(req.method()==='GET'&&(url.origin===ORIGIN||alpineCdn)){
+      await route.continue();return;
+    }
     await route.abort();
   });
   const res=await page.goto(TARGET,{waitUntil:'domcontentloaded',timeout:45000});
   assert.equal(res?.status(),200);
   assert.equal(page.url(),TARGET);
   await page.waitForFunction(()=>Boolean(window.Alpine?.$data)&&
-    typeof window.Alpine.$data(document.querySelector('#builder'))?.preset==='function',{timeout:16000});
+    typeof window.Alpine.$data(document.querySelector('#builder'))?.preset==='function',
+    null,{timeout:35000});
   report.inspected_live_site=true;
   const fast=page.locator('#builder button[data-se-builder-custom-fast="v1"]');
   report.fast_path_present_before_source_injection=await fast.count()===1;
