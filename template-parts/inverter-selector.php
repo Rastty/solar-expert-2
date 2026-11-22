@@ -1,4 +1,4 @@
-<div class="se-panel" x-data="solarExpertInverterSelector()" x-init="init()">
+<div class="se-panel" x-data="solarExpertInverterSelector()">
   <div class="se-kicker">Výběr měniče</div><h2>Vyberte měnič podle výkonu a napětí</h2>
   <div class="se-note" style="margin-bottom:14px"><strong>Upravte své požadavky.</strong> Hodnoty níže jsou jen výchozí příklad; doporučení se po každé změně přepočítá automaticky.</div>
   <div class="se-note se-selector-examples" data-se-selector-examples="inverter" style="margin-bottom:14px">
