@@ -116,7 +116,7 @@ q.result={voltage:48,batteryKwh:2,inverterW:3000,peak:5000,panelWp:1000,mpptA:30
 q.bundles=B.compose(a.products,q.result,a.bundle_deals);
 const candidate=q.bundles.find(x=>x.integratedMppt&&x.inverter?.id==='inverter-growatt-48-3500');
 assert(candidate&&candidate.status==='pv_isc_limit_unverified');
-assert.equal(candidate.complete,true,'Components may be technically sized for internal diagnostic bookkeeping');
+assert.equal(candidate.complete,false,'Missing absolute Growatt PV Isc must mark the shared bundle incomplete, not merely hide checkout');
 assert.equal(candidate.pvIscVerified,false);
 assert.equal(q.completeBundles.some(x=>x.inverter?.id===candidate.inverter.id),false,
   'Unverified integrated Growatt must not appear in buyer offer cards');
