@@ -31,7 +31,7 @@ jobs:
         run: python -m scripts.solar_eon_lead_path_readonly
       - name: Fail if audit ever claims sales or makes WordPress writes
         run: |
-          jq -e '.method=="GET" and .external_link_visits==0 and .wordpress_writes==0 and .wpvibe_calls==0 and .proven_commission==false and .proven_browser_navigation==false and .svj.method=="GET" and .svj.external_link_visits==0 and .svj.wordpress_writes==0 and .svj.paid_commissions=="unknown"' artifacts/solar-eon-lead-path-readonly.json >/dev/null
+          jq -e '.method=="GET" and .external_link_visits==0 and .wordpress_writes==0 and .wpvibe_calls==0 and .proven_commission==false and .proven_browser_navigation==false and .svj.method=="GET" and .svj.external_link_visits==0 and .svj.wordpress_writes==0 and .svj.paid_commissions=="unknown" and .svj.verified_affiliate_navigation==false and (.svj.svj_affiliate_route_status|type)=="string" and (.svj.exact_svj_destination_candidate|type)=="boolean"' artifacts/solar-eon-lead-path-readonly.json >/dev/null
       - uses: actions/upload-artifact@v4
         if: always()
         with:
