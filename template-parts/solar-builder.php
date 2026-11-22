@@ -1,4 +1,4 @@
-<div id="builder" class="se-panel" x-data="solarExpertBuilder()" x-init="init()"
+<div id="builder" class="se-panel" x-data="solarExpertBuilder()"
      @solar-expert-open-demo.window="$el.dispatchEvent(new CustomEvent('solar-expert-builder-activated')); quickPreview(); $nextTick(() => { $el.scrollIntoView({behavior:'smooth',block:'start'}); $refs.builderHeading.focus({preventScroll:true}); })">
   <div class="se-row">
     <div><div class="se-kicker">Návrh solární sestavy</div><h2 x-ref="builderHeading" tabindex="-1" aria-live="polite" aria-atomic="true" x-text="step===1?'Co chcete napájet?':step===2?'Vyberte spotřebiče':step===3?'Kdy a jak bude systém fungovat?':'Návrh sestavy'"></h2></div>
