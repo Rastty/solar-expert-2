@@ -390,11 +390,44 @@ window.SolarExpertAffiliate = {
     return offer ? this.trackBundleDealOffer(deal, offer, placement) : this.resolveBundleDeal(deal);
   },
 
+  // A qualified SVJ CTA must land on the REAL E.ON apartment-building offer.
+  // An eHub click without both identifiers is not monetizable, and an opaque
+  // generic merchant/campaign URL is not evidence of the exact buyer journey.
+  // Only the existing approved HTTPS eHub click endpoint may be deep-linked.
+  eHubSvjLeadDeepLink(base, targetUrl) {
+    const svjTarget='https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/';
+    if (targetUrl!==svjTarget || !this.isActionableMerchantHref(base)) return null;
+    try {
+      const u=new URL(base);
+      const host=u.hostname.toLowerCase().replace(/\\.$/, '');
+      const valid=u.protocol==='https:' && host==='ehub.cz' &&
+        u.pathname==='/system/scripts/click.php' &&
+        Boolean(u.searchParams.get('a_aid')?.trim()) &&
+        Boolean(u.searchParams.get('a_bid')?.trim()) &&
+        !u.username && !u.password && !u.hash;
+      if (!valid) return null;
+      // Replace any stale or unrelated tracking destination with the exact
+      // supplier-approved SVJ landing. Never send the user to E.ON's homepage.
+      u.searchParams.set('desturl',svjTarget);
+      return u.toString();
+    } catch (_) { return null; }
+  },
+
   resolveLead(id, fallback) {
     const map = this.map();
     const leads = map.leads || {};
     const mapped = leads[id] || null;
     const merchantId = id && id.startsWith('eon-') ? 'eon-cz' : null;
+    if (id==='eon-svj') {
+      const target='https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/';
+      const exact=fallback===target;
+      const link=this.selectMerchantLink([
+        {href:exact?this.eHubSvjLeadDeepLink(mapped,target):null,monetized:true},
+        {href:exact?this.eHubSvjLeadDeepLink(this.baseMap()['eon-cz'],target):null,monetized:true},
+        {href:exact?target:null,monetized:false}
+      ]);
+      return {...link,leadId:id,merchantId};
+    }
     const generated = merchantId ? this.merchantDeepLink(merchantId, fallback) : null;
     // A lead is an outbound buyer action, not an on-site navigation or
     // placeholder. A malformed affiliate override may never win over a
