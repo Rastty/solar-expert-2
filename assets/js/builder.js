@@ -314,6 +314,21 @@ window.solarExpertBuilder=function(){return{
     this.step=3;
     this.trackStep('step_3');
   },
+  calcFromAppliances(){
+    // A real user-initiated calculation, not the illustrative quickPreview.
+    // Users deliberately choose the labeled jaro–podzim / one-day default,
+    // preserving their custom appliance watts/hours/qty. Advanced seasonal
+    // and autonomy choices remain available through advanceToUsage().
+    this.inputError=this.validateSelections();
+    if(this.inputError)return false;
+    this.season='three';
+    this.autonomy=1;
+    // Never silently reuse a stale optional manual surge from a previous
+    // edit of step 3 when the user asks for the explicit default model.
+    this.manualPeak=null;
+    this.calc(false);
+    return this.step===4;
+  },
   selectPresetAppliances(type){
     this.appliances.forEach(a=>a.selected=false);
     const ids=type==='chata'?['fridge','lights','laptop','router']:type==='offgrid'?['fridge','lights','laptop','router','tv']:type==='pond'?['pondpump']:['fridge','lights','router'];
