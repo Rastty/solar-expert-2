@@ -30,7 +30,10 @@ TARGETS = (
 # GSC 2026-10-22..11-18: this legacy buyer-intent page had 125
 # impressions and no clicks. Discover its exact WordPress post ID first;
 # never guess an ID or write based on the public/cached page.
-DISCOVERY_SLUGS = ("navratnost-fotovoltaicke-elektrarny-v-bytovem-dome",)
+DISCOVERY_SLUGS = (
+    "navratnost-fotovoltaicke-elektrarny-v-bytovem-dome",
+    "jsou-vzduchova-tepelna-cerpadla-hlucna",
+)
 OUTPUT = publisher.ROOT / "artifacts/solar-editorial-target-fingerprints-readonly.json"
 
 # Only canonical first-party routes, never raw hrefs or personally identifying URLs.
@@ -76,7 +79,7 @@ def inspect() -> dict:
         "schema_version": 1,
         "observed_at_utc": datetime.now(timezone.utc).isoformat(),
         "site": "solar-expert.cz",
-        "purpose": "existing_buyer_post_and_gsc_bytovy_dum_cas_get_only",
+        "purpose": "existing_buyer_post_and_gsc_selected_legacy_opportunity_cas_get_only",
         "publish_authorized": False,
         "theme_deploy_authorized": False,
         "writes": 0,
