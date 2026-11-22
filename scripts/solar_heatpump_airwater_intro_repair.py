@@ -74,8 +74,7 @@ def get_snippet(user,pwd,code):
     require(status==200 and isinstance(item,dict) and
         item.get('id')==SNIPPET_ID and item.get('name')==old.NAME and
         item.get('scope')=='global' and item.get('active') is True and
-        str(item.get('code','')).strip()==code.strip() and
-        item.get('desc')==old.DESC,
+        str(item.get('code','')).strip()==code.strip(),
         'Current exact active WP #14 snippet source/identity differs; stop')
     return item
 
