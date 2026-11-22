@@ -4,11 +4,13 @@ on:
     branches: [main]
     paths:
       - 'scripts/solar_quote_browser_smoke.mjs'
+      - 'scripts/solar_svj_browser_readonly.mjs'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/solar_quote_browser_smoke.mjs'
+      - 'scripts/solar_svj_browser_readonly.mjs'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   workflow_dispatch:
 permissions:
@@ -27,6 +29,7 @@ jobs:
       - name: Source syntax and no outbound merchant events
         run: |
           node --check scripts/solar_quote_browser_smoke.mjs
+          node --check scripts/solar_svj_browser_readonly.mjs
           ! grep -q "trackOffer(" scripts/solar_quote_browser_smoke.mjs
           ! grep -q "trackBundleDealOffer(" scripts/solar_quote_browser_smoke.mjs
       - name: Prove exact previously armed single-PUT home scope writer finished successfully
@@ -63,6 +66,21 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser-executed source-pinned catalog and real visible buyer journey
         run: node scripts/solar_quote_browser_smoke.mjs
+      - name: Real browser E.ON SVJ lead resolver (no clicks, network POSTs or external visits)
+        run: node scripts/solar_svj_browser_readonly.mjs
+      - name: Check E.ON SVJ browser-only route evidence and no outbound visits
+        run: |
+          jq -e '.browser_execution_verified==true
+            and .public_page_http_200==true
+            and .svj_article_heading_present==true
+            and .method=="browser_get_only"
+            and .external_requests_delivered==0
+            and .wordpress_writes==0
+            and .affiliate_navigation_attempts==0
+            and .lead_click_events==0
+            and .proven_conversion==false
+            and .revenue_or_svj_campaign_approval=="unknown"
+            and (.route_status|type)=="string"' artifacts/solar-svj-browser-readonly.json > /dev/null
       - name: Check browser proof receipt never generated synthetic attribution
         if: success()
         run: |
@@ -85,6 +103,8 @@ jobs:
         if: always()
         with:
           name: solar-browser-buyer-runtime-${{ github.run_id }}
-          path: artifacts/solar-browser-buyer-runtime.json
+          path: |
+            artifacts/solar-browser-buyer-runtime.json
+            artifacts/solar-svj-browser-readonly.json
           retention-days: 14
           if-no-files-found: warn
