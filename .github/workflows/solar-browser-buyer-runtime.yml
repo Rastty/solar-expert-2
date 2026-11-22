@@ -4,12 +4,16 @@ on:
     branches: [main]
     paths:
       - 'scripts/solar_quote_browser_smoke.mjs'
+      - 'scripts/solar_builder_fast_result_smoke.mjs'
+      - 'assets/js/builder-fast-result.js'
       - 'scripts/solar_svj_browser_readonly.mjs'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/solar_quote_browser_smoke.mjs'
+      - 'scripts/solar_builder_fast_result_smoke.mjs'
+      - 'assets/js/builder-fast-result.js'
       - 'scripts/solar_svj_browser_readonly.mjs'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   workflow_dispatch:
@@ -29,6 +33,8 @@ jobs:
       - name: Source syntax and no outbound merchant events
         run: |
           node --check scripts/solar_quote_browser_smoke.mjs
+          node --check scripts/solar_builder_fast_result_smoke.mjs
+          node --check assets/js/builder-fast-result.js
           node --check scripts/solar_svj_browser_readonly.mjs
           ! grep -q "trackOffer(" scripts/solar_quote_browser_smoke.mjs
           ! grep -q "trackBundleDealOffer(" scripts/solar_quote_browser_smoke.mjs
@@ -81,6 +87,20 @@ jobs:
             and .proven_conversion==false
             and .revenue_or_svj_campaign_approval=="unknown"
             and (.route_status|type)=="string"' artifacts/solar-svj-browser-readonly.json > /dev/null
+      - name: Custom-appliance one-click result in actual old-theme Chromium without outbound requests
+        run: node scripts/solar_builder_fast_result_smoke.mjs
+      - name: Validate real custom result and preserved advanced sizing without analytics writes
+        run: |
+          jq -e '.status=="browser_verified" and .inspected_live_site==true
+            and .fast_button_count==1 and .customized_energy_wh==1308
+            and .custom_result_rendered==true
+            and .advanced_season_path_preserved==true
+            and .correct_default_parameters==true
+            and .network_writes_delivered==0
+            and .wordpress_writes==0
+            and .affiliate_link_clicks==0
+            and .analytics_events_sent==0
+            and .real_revenue_verified==false' artifacts/solar-builder-fast-result-smoke.json > /dev/null
       - name: Check browser proof receipt never generated synthetic attribution
         if: success()
         run: |
@@ -106,5 +126,6 @@ jobs:
           path: |
             artifacts/solar-browser-buyer-runtime.json
             artifacts/solar-svj-browser-readonly.json
+            artifacts/solar-builder-fast-result-smoke.json
           retention-days: 14
           if-no-files-found: warn
