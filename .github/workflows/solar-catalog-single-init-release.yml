@@ -51,7 +51,7 @@ jobs:
         run: |
           jq -e '.schema_version==1 and (.enabled|type)=="boolean"
             and .revision==1 and .mode=="single_reversible_catalog_alpine_auto_init"
-            and .source_blob_sha1=="05dd7923c64a08bfcb7750b9e927d0635a4e11dc" ' ops/solar-catalog-single-init-release.json >/dev/null
+            and .source_blob_sha1=="6e67b7e386e27a5ecefd9e4eb19a6026caea8280" ' ops/solar-catalog-single-init-release.json >/dev/null
 
   one-shot-activate:
     needs: offline-contract
@@ -75,15 +75,15 @@ jobs:
           [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-catalog-single-init-release.json' ]] || exit 0
-          [[ "$(git rev-parse "$BEFORE:assets/js/catalog-alpine-single-init.js")" == '05dd7923c64a08bfcb7750b9e927d0635a4e11dc' ]] || exit 0
-          [[ "$(git rev-parse "$AFTER:assets/js/catalog-alpine-single-init.js")" == '05dd7923c64a08bfcb7750b9e927d0635a4e11dc' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:assets/js/catalog-alpine-single-init.js")" == '6e67b7e386e27a5ecefd9e4eb19a6026caea8280' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:assets/js/catalog-alpine-single-init.js")" == '6e67b7e386e27a5ecefd9e4eb19a6026caea8280' ]] || exit 0
           git show "$BEFORE:ops/solar-catalog-single-init-release.json" |
             jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
               "mode":"single_reversible_catalog_alpine_auto_init",
-              "source_blob_sha1":"05dd7923c64a08bfcb7750b9e927d0635a4e11dc"}' >/dev/null
+              "source_blob_sha1":"6e67b7e386e27a5ecefd9e4eb19a6026caea8280"}' >/dev/null
           jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
             "mode":"single_reversible_catalog_alpine_auto_init",
-            "source_blob_sha1":"05dd7923c64a08bfcb7750b9e927d0635a4e11dc"}' ops/solar-catalog-single-init-release.json >/dev/null
+            "source_blob_sha1":"6e67b7e386e27a5ecefd9e4eb19a6026caea8280"}' ops/solar-catalog-single-init-release.json >/dev/null
           echo 'armed=true' >> "$GITHUB_OUTPUT"
       - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
         if: steps.gate.outputs.armed == 'true'
