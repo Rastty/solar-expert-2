@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_append",
+  "operation_id": "solar-svj-eon-qualified-lead-append-20261122-v1",
+  "post_id": 377,
+  "slug": "navratnost-fotovoltaicke-elektrarny-v-bytovem-dome",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Návratnost fotovoltaiky v bytovém domě: sdílení, EDC a ekonomika 2026",
+  "excerpt": "Návratnost FVE v bytovém domě v roce 2026: sdílení elektřiny, pravidla EDC, financování a srovnání nabídky pro SVJ a bytová družstva.",
+  "source_commit": "7b40877c621168be1b5956f4efd4738043fc3344",
+  "source_file": "content/editorial-append/navratnost-fotovoltaicke-elektrarny-v-bytovem-dome.html",
+  "source_sha256": "ef6ea33dfef679c87365f4a822d2ee4cfe82dc6b4a71001910848fdb7b1ae0cb",
+  "link_target": "https://www.eon.cz/domacnosti/usporne-technologie/fotovoltaika-pro-svj/",
+  "lead_id": "eon-svj",
+  "expected_current_sha256": "593d57385d028783072865af20ff32220d7c8341e4621c1ea02dae21556bce1f",
+  "expected_modified_gmt": "2026-10-07T11:20:08"
+}
