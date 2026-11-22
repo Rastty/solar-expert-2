@@ -36,6 +36,8 @@ $GLOBALS['post']=new WP_Post('tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-s
 $GLOBALS['is_admin']=true;eq(($GLOBALS['callback'])($body),$body,'No admin injection');
 $GLOBALS['is_admin']=false;$GLOBALS['in_loop']=false;eq(($GLOBALS['callback'])($body),$body,'No secondary loop');
 $GLOBALS['in_loop']=true;$GLOBALS['main_query']=false;eq(($GLOBALS['callback'])($body),$body,'No nonmain query');
-$GLOBALS['main_query']=true;eq(($GLOBALS['callback'])('<p>No offer</p>'),'<p>No offer</p>','Changed article fail closed');
+$GLOBALS['main_query']=true;$rawOnly=($GLOBALS['callback'])('<p>Technical article has no raw E.ON link.</p><h2>Výběr</h2>');
+eq(substr_count($rawOnly,'data-se-heatpump-intro-offer="v1"'),1,
+   'Raw WordPress content has no E.ON URL; independently rendered lower offer is checked by publisher');
 eq(($GLOBALS['callback'])('<h2>No introductory paragraph</h2><a href="'.$merchant.'">CTA</a>'),'<h2>No introductory paragraph</h2><a href="'.$merchant.'">CTA</a>','No qualifying paragraph fail closed');
 echo "PASS heatpump early offer context, truth-in-affiliate, old lead preserved, exact post only\n";
