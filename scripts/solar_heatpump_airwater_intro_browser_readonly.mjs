@@ -15,6 +15,7 @@ const report={
  site:SITE,target_slug:SLUG,status:'not_verified',
  page_http_200:false,live_article_marker_count:0,lead_id_correct:false,
  intro_before_first_section:false,original_lower_offer_retained:false,
+ lower_cta_text_candidates:0,lower_cta_external_hrefs:0,lower_cta_disabled:0,
  partnership_disclosure_visible:false,merchant_url_shape:'unknown',
  samsung_control_unmodified:false,homepage_control_unmodified:false,
  external_requests_delivered:0,affiliate_visits:0,analytics_post_delivered:0,
@@ -52,10 +53,12 @@ try{
     // may be a generic (still external) eHub campaign, not a guaranteed
     // desturl with a recorded heat-pump landing. Preserve its actual CTA
     // semantics and actionable external route; do NOT claim attribution.
-    const original=[...document.querySelectorAll('a[href]')].filter(a=>{
+    const oldCandidates=[...document.querySelectorAll('a,button')].filter(a=>{
       if(candidate?.contains(a))return false;
-      if(!(a.textContent||'').includes('Nezávazně poptat tepelné čerpadlo')&&
-         a.getAttribute('data-se-lead-id')!=='eon-heat-pump')return false;
+      return (a.textContent||'').includes('Nezávazně poptat tepelné čerpadlo')||
+        a.getAttribute('data-se-lead-id')==='eon-heat-pump';
+    });
+    const original=oldCandidates.filter(a=>{
       try{
         const u=new URL(a.href);
         return u.protocol==='https:'&&
@@ -77,7 +80,10 @@ try{
     }catch(_){}
     return {n:offers.length,leadCorrect:link?.getAttribute('data-se-placement')==='heatpump_airwater_intro',
       introBeforeHeading:!!candidate&&headers.some(h=>candidate.compareDocumentPosition(h)&Node.DOCUMENT_POSITION_FOLLOWING),
-      lowerOfferCount:original.length,disclosure:bodyText.includes('Partnerský odkaz může Solar Expertu přinést provizi'),
+      lowerOfferCount:original.length,lowerCandidates:oldCandidates.length,
+      lowerDisabled:oldCandidates.filter(a=>a.getAttribute('aria-disabled')==='true'||
+        a.hasAttribute('data-se-lead-unavailable')).length,
+      disclosure:bodyText.includes('Partnerský odkaz může Solar Expertu přinést provizi'),
       shape,analyticsLeadClicks:(Array.isArray(window.dataLayer)?window.dataLayer:[]).filter(x=>x?.event==='lead_click').length
     };
   },MERCHANT);
@@ -85,13 +91,17 @@ try{
   report.lead_id_correct=result.leadCorrect;
   report.intro_before_first_section=result.introBeforeHeading;
   report.original_lower_offer_retained=result.lowerOfferCount>0;
+  report.lower_cta_text_candidates=result.lowerCandidates;
+  report.lower_cta_external_hrefs=result.lowerOfferCount;
+  report.lower_cta_disabled=result.lowerDisabled;
   report.partnership_disclosure_visible=result.disclosure;
   report.merchant_url_shape=result.shape;
   assert.equal(result.n,1);
   assert.equal(result.leadCorrect,true);
   assert.equal(result.introBeforeHeading,true);
   assert.equal(result.disclosure,true);
-  assert.equal(result.lowerOfferCount>0,true);
+  // Collect both control-page proofs even when a previous legacy lower
+  // CTA is disabled: diagnose that separately; never invent an affiliate click.
   assert.notEqual(result.shape,'missing');
   assert.equal(result.analyticsLeadClicks,0);
   await article.close();
@@ -109,6 +119,8 @@ try{
     report[def[0]==='samsung'?'samsung_control_unmodified':'homepage_control_unmodified']=true;
     await page.close();
   }
+  assert.equal(report.original_lower_offer_retained,true,
+    'Original lower E.ON offer must remain actionable');
   report.status='browser_verified';
   await context.close();
 }catch(err){
