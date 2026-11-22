@@ -1,4 +1,4 @@
-<div class="se-panel" x-data="solarExpertBatterySelector()" x-init="init()">
+<div class="se-panel" x-data="solarExpertBatterySelector()">
   <div class="se-kicker">Výběr baterie</div><h2>Jakou LiFePO₄ baterii potřebujete?</h2>
   <div class="se-note" style="margin-bottom:14px"><strong>Upravte své hodnoty.</strong> Čísla níže jsou jen výchozí příklad; po změně kteréhokoli pole se doporučení přepočítá automaticky.</div>
   <div class="se-note se-selector-examples" data-se-selector-examples="battery" style="margin-bottom:14px">
