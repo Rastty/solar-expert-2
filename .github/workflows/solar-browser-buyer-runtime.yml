@@ -11,6 +11,9 @@ on:
       - 'ops/solar-catalog-single-init-release.json'
       - 'scripts/solar_svj_browser_readonly.mjs'
       - 'scripts/solar_heatpump_airwater_intro_browser_readonly.mjs'
+      - 'scripts/solar_growatt_live_purchase_gate_smoke.mjs'
+      - 'assets/js/growatt-isc-purchase-guard-v1.js'
+      - 'ops/solar-growatt-pv-isc-guard-release.json'
       - 'content/snippets/heatpump-airwater-intro-eon-v2.php'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   push:
@@ -24,6 +27,9 @@ on:
       - 'ops/solar-catalog-single-init-release.json'
       - 'scripts/solar_svj_browser_readonly.mjs'
       - 'scripts/solar_heatpump_airwater_intro_browser_readonly.mjs'
+      - 'scripts/solar_growatt_live_purchase_gate_smoke.mjs'
+      - 'assets/js/growatt-isc-purchase-guard-v1.js'
+      - 'ops/solar-growatt-pv-isc-guard-release.json'
       - 'content/snippets/heatpump-airwater-intro-eon-v2.php'
       - '.github/workflows/solar-browser-buyer-runtime.yml'
   workflow_dispatch:
@@ -49,6 +55,8 @@ jobs:
           node --check scripts/solar_catalog_single_init_browser.mjs
           node --check scripts/solar_svj_browser_readonly.mjs
           node --check scripts/solar_heatpump_airwater_intro_browser_readonly.mjs
+          node --check scripts/solar_growatt_live_purchase_gate_smoke.mjs
+          node --check assets/js/growatt-isc-purchase-guard-v1.js
           ! grep -q "trackOffer(" scripts/solar_quote_browser_smoke.mjs
           ! grep -q "trackBundleDealOffer(" scripts/solar_quote_browser_smoke.mjs
       - name: Prove exact previously armed single-PUT home scope writer finished successfully
@@ -154,6 +162,24 @@ jobs:
             ([.tested_pages[].js_exception_count] | all(. == 0)) and
             .affiliate_visits==0 and .wordpress_writes==0 and
             .analytics_posts==0 and .verified_revenue==false' artifacts/solar-catalog-single-init-browser.json > /dev/null
+      - name: Real legacy Growatt PV Isc buyer gate in Chromium, no merchant visits
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]] &&
+             jq -e '.enabled==true' ops/solar-growatt-pv-isc-guard-release.json >/dev/null; then
+            SOLAR_GROWATT_GUARD_PROOF=live node scripts/solar_growatt_live_purchase_gate_smoke.mjs
+          else
+            SOLAR_GROWATT_GUARD_PROOF=preview node scripts/solar_growatt_live_purchase_gate_smoke.mjs
+          fi
+      - name: Require both real Growatt candidates blocked and standalone unaffected
+        run: |
+          jq -e '.status=="browser_verified" and .actual_live_catalog==true
+            and (.tested_inverter_ids|length)==2
+            and (.guarded_bundle_states|length)>=2
+            and .unknown_integrated_bundles_blocked==true
+            and .standalone_unmodified==true
+            and .external_merchant_visits==0 and .affiliate_clicks==0
+            and .delivered_wordpress_writes==0 and .analytics_events_sent==0
+            and .verified_paid_commissions==false' artifacts/solar-growatt-purchase-gate-browser.json > /dev/null
       - name: Check browser proof receipt never generated synthetic attribution
         if: success()
         run: |
@@ -180,6 +206,7 @@ jobs:
             artifacts/solar-browser-buyer-runtime.json
             artifacts/solar-svj-browser-readonly.json
             artifacts/solar-heatpump-airwater-intro-browser.json
+            artifacts/solar-growatt-purchase-gate-browser.json
             artifacts/solar-builder-fast-result-smoke.json
             artifacts/solar-catalog-single-init-browser.json
           retention-days: 14
