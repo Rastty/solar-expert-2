@@ -19,3 +19,5 @@ jobs:
       - name: JSON validity
         run: |
           find assets/data data -name '*.json' -print0 | xargs -0 -n1 jq empty
+      - name: Validate 3000W LiFePO4 buyer guide safety (offline; no WordPress credentials)
+        run: python -m unittest discover -s tests -p 'test_solar_battery_inverter_3000w_guide.py' -v
