@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_update",
+  "operation_id": "solar-svj-bytovy-dum-payback-2026-20261122-v1",
+  "post_id": 377,
+  "slug": "navratnost-fotovoltaicke-elektrarny-v-bytovem-dome",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Návratnost fotovoltaické elektrárny v bytovém domě: SVJ a sdílení elektřiny 2026",
+  "excerpt": "Jak spočítat návratnost FVE na bytovém domě v roce 2026: model pro SVJ, sdílení elektřiny přes EDC, náklady, financování a bezpečné srovnání nabídek.",
+  "source_commit": "0242a1e9931cbd7d80be3c85c3dec76bbe1602fc",
+  "source_file": "content/rewrites/navratnost-fotovoltaicke-elektrarny-v-bytovem-dome.html",
+  "source_sha256": "ff31779d176df0737c049da6839acdbeca0112dbcfce0928fd7ce9cdd7fec653",
+  "expected_current_sha256": "593d57385d028783072865af20ff32220d7c8341e4621c1ea02dae21556bce1f",
+  "expected_modified_gmt": "2026-10-07T11:20:08"
+}
