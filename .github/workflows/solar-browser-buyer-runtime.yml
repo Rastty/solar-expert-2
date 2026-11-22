@@ -111,7 +111,7 @@ jobs:
             and .affiliate_link_clicks==0
             and .analytics_events_sent==0
             and .real_revenue_verified==false' artifacts/solar-builder-fast-result-smoke.json > /dev/null
-      - name: Real native Alpine catalog boot: one source-backed GET, five buyer pages
+      - name: 'Real native Alpine catalog boot — one source-backed GET on five buyer pages'
         shell: bash
         run: |
           set -euo pipefail
