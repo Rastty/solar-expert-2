@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_inverter_24v_candidate",
   "source_blob_sha1": "d5477c915e37d3243a1e6978898f723b2bb89aef"
