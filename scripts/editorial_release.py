@@ -83,6 +83,19 @@ def load_operation() -> tuple[dict, str] | None:
     return manifest, sha(canonical(manifest))
 
 
+HEATPUMP_NOISE_ID = 1011
+HEATPUMP_NOISE_SLUG = "jsou-vzduchova-tepelna-cerpadla-hlucna"
+HEATPUMP_NOISE_OLD_TITLE = "Jsou vzduchová tepelná čerpadla hlučná? (Skutečný příklad)"
+HEATPUMP_NOISE_NEW_TITLE = "Jsou vzduchová tepelná čerpadla hlučná? Limity a výběr 2026"
+HEATPUMP_NOISE_LEGAL_URL = "https://e-sbirka.gov.cz/sb/2011/272"
+
+
+def heatpump_noise_scope(m: dict) -> bool:
+    return (m.get("kind") == "post_update" and m.get("post_id") == HEATPUMP_NOISE_ID
+            and m.get("slug") == HEATPUMP_NOISE_SLUG
+            and m.get("category_slug") == "tepelna-cerpadla")
+
+
 def validate_manifest(m: dict) -> None:
     require(type(m) is dict and m.get("schema_version") == 1, "Invalid manifest schema")
     require(m.get("authorization") == "owner_standing_editorial", "Not authorized for routine editorial")
@@ -93,7 +106,16 @@ def validate_manifest(m: dict) -> None:
     require(isinstance(slug, str) and re.fullmatch(r"[a-z0-9-]{10,150}", slug) is not None,
             "Invalid canonical post slug")
     require(m.get("expected_status") == "publish", "Only published editorial posts")
-    require(m.get("category_slug") == "solarni-panely", "Explicit existing site taxonomy required")
+    # No general permission to publish heat-pump posts: only this reviewed
+    # existing article can use the separate category and title/body update.
+    if slug == HEATPUMP_NOISE_SLUG or m.get("post_id") == HEATPUMP_NOISE_ID or m.get("category_slug") == "tepelna-cerpadla":
+        require(heatpump_noise_scope(m), "Heat-pump update outside reviewed exact identity")
+        require(m.get("expected_current_title") == HEATPUMP_NOISE_OLD_TITLE
+                and m.get("title") == HEATPUMP_NOISE_NEW_TITLE,
+                "Heat-pump title outside reviewed scope")
+    else:
+        require(m.get("category_slug") == "solarni-panely", "Explicit existing site taxonomy required")
+        require("expected_current_title" not in m, "Title rewrite not authorized for other updates")
     require(isinstance(m.get("title"), str) and 28 <= len(m["title"]) <= 150, "Invalid post title")
     require(isinstance(m.get("excerpt"), str) and 60 <= len(m["excerpt"]) <= 440, "Invalid excerpt")
     require(re.fullmatch(r"[0-9a-f]{40}", str(m.get("source_commit", ""))) is not None,
@@ -179,8 +201,31 @@ def validate_html(body: str, slug: str) -> None:
     require(not html.bad, "Article source contains disallowed embedded content or unsafe URLs")
     require(html.h2 >= 3 and html.internal >= 3 and html.external >= 1,
             "Require multiple useful sections, real internal buyer paths and source citation")
-    require("Voc" in body and "Isc" in body,
-            "Electrical buyer claim requires actual voltage and current caveats")
+    if slug == HEATPUMP_NOISE_SLUG:
+        # Topic-specific evidence, not a bypass of the shared HTML safety gate.
+        require(all(term in body for term in (
+            "LwA", "LpA", "chráněné venkovní", "50 dB(A)", "40 dB(A)",
+            "Neexistuje univerzální pravidlo", "42 dB", "tepelnou ztrátu",
+            "Odkaz je partnerský", HEATPUMP_NOISE_LEGAL_URL,
+        )), "Heat-pump acoustic, legal or lead disclosure context missing")
+        allowed = {HEATPUMP_NOISE_LEGAL_URL,
+                   "/umisteni-tepelneho-cerpadla-od-hranice-pozemku-souseda/",
+                   "/tepelna-cerpadla/", "/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/",
+                   "/cerpadla/"}
+        class ScopedLinks(HTMLParser):
+            def __init__(self):
+                super().__init__(convert_charrefs=True)
+                self.links = []
+            def handle_starttag(self, tag, attrs):
+                if tag == "a":
+                    self.links.append(dict(attrs).get("href"))
+        links = ScopedLinks()
+        links.feed(body)
+        require(len(links.links) == len(allowed) and set(links.links) == allowed,
+                "Unreviewed or missing heat-pump link")
+    else:
+        require("Voc" in body and "Isc" in body,
+                "Electrical buyer claim requires actual voltage and current caveats")
     require("<script" not in body.lower() and "<?php" not in body.lower(),
             "Executable code is forbidden in editorial WordPress content")
 
@@ -319,7 +364,7 @@ def slug_posts(slug: str) -> list:
 def post(post_id: int) -> dict:
     out = wp("GET", "/wp/v2/posts/" + str(post_id), query={
         "context": "edit",
-        "_fields": "id,slug,status,modified_gmt,link,content,categories",
+        "_fields": "id,slug,status,modified_gmt,link,content,categories,title",
     })
     require(type(out) is dict and out.get("id") == post_id,
             "WordPress post identity mismatch")
@@ -333,7 +378,16 @@ def raw(p: dict) -> str:
     return content["raw"]
 
 
+def raw_title(p: dict) -> str:
+    title = p.get("title")
+    require(type(title) is dict and isinstance(title.get("raw"), str),
+            "WordPress authenticated raw title unavailable")
+    return title["raw"]
+
+
 def canonical_post(p: dict, m: dict, category_id: int) -> None:
+    if m["kind"] != "post_create":
+        require(p.get("id") == m["post_id"], "Existing post ID changed")
     require(p.get("slug") == m["slug"] and p.get("status") == "publish",
             "Unexpected published identity or status drift")
     parsed = parse.urlsplit(p.get("link", ""))
@@ -343,11 +397,12 @@ def canonical_post(p: dict, m: dict, category_id: int) -> None:
     require(category_id in (p.get("categories") or []), "Expected category is absent")
 
 
-def category_id() -> int:
+def category_id(slug: str = "solarni-panely") -> int:
+    require(slug in {"solarni-panely", "tepelna-cerpadla"}, "Unreviewed taxonomy")
     rows = wp("GET", "/wp/v2/categories", query={
-        "slug": "solarni-panely", "per_page": 10, "_fields": "id,slug",
+        "slug": slug, "per_page": 10, "_fields": "id,slug",
     })
-    require(type(rows) is list and len(rows) == 1 and rows[0].get("slug") == "solarni-panely",
+    require(type(rows) is list and len(rows) == 1 and rows[0].get("slug") == slug,
             "Site taxonomy not uniquely verified")
     result = rows[0]["id"]
     require(type(result) is int and result > 0, "Invalid WordPress category ID")
@@ -443,7 +498,11 @@ def check_existing(m: dict, source: str, cat: int, *, for_update: bool) -> tuple
         canonical_post(current, m, cat)
         current_body = raw(current)
         if current_body == source:
+            if heatpump_noise_scope(m):
+                require(raw_title(current) == m["title"], "Existing new body but wrong title; no replay")
             return "already_live_verified", current
+        if heatpump_noise_scope(m):
+            require(raw_title(current) == m["expected_current_title"], "Heat-pump original title drift")
         require(sha(current_body) == m["expected_current_sha256"] and
                 current.get("modified_gmt") == m["expected_modified_gmt"],
                 "Existing post changed since exact source evidence")
@@ -467,7 +526,7 @@ def check_existing(m: dict, source: str, cat: int, *, for_update: bool) -> tuple
 
 def prepare(m: dict, manifest_sha: str) -> None:
     immutable_source = github_source(m)
-    cat = category_id()
+    cat = category_id(m["category_slug"])
     if m["kind"] == "post_append":
         observed = post(m["post_id"])
         canonical_post(observed, m, cat)
@@ -490,6 +549,7 @@ def prepare(m: dict, manifest_sha: str) -> None:
         "original_modified_gmt": current.get("modified_gmt") if current else None,
         "original_sha256": sha(raw(current)) if current else None,
         "original_content": raw(current) if current else None,
+        "original_title": raw_title(current) if current and heatpump_noise_scope(m) else None,
     }
     BACKUP.parent.mkdir(parents=True, exist_ok=True)
     BACKUP.write_text(json.dumps(backup, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -502,7 +562,7 @@ def verify_after(m: dict, expected_sha: str, cat: int, post_id: int) -> tuple[bo
     for attempt in range(3):
         last = post(post_id)
         canonical_post(last, m, cat)
-        if sha(raw(last)) == expected_sha:
+        if sha(raw(last)) == expected_sha and (not heatpump_noise_scope(m) or raw_title(last) == m["title"]):
             rows = slug_posts(m["slug"])
             require(len(rows) == 1 and rows[0].get("id") == post_id,
                     "Postwrite slug uniqueness not established")
@@ -579,7 +639,7 @@ def apply(m: dict, manifest_sha: str) -> None:
     else:
         require(sha(source) == m["source_sha256"], "Immutable article source drift")
         validate_html(source, m["slug"])
-    cat = category_id()
+    cat = category_id(m["category_slug"])
     require(cat == b.get("category_id"), "WordPress taxonomy ID changed between phases")
     state, current = check_existing(m, source, cat, for_update=(m["kind"] != "post_create"))
     if state == "already_live_verified":
@@ -596,6 +656,10 @@ def apply(m: dict, manifest_sha: str) -> None:
                 "Content drift: do not overwrite concurrent editor")
         endpoint = "/wp/v2/posts/" + str(m["post_id"])
         post_body = {"content": source}
+        if heatpump_noise_scope(m):
+            require(raw_title(current) == b.get("original_title") == m["expected_current_title"],
+                    "Heat-pump title drift since snapshot")
+            post_body["title"] = m["title"]
     else:
         require(current is None and b.get("post_id") is None,
                 "New post appeared after preflight; no duplicate")
