@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_string_large_array",
+  "source_blob_sha1": "a83e37d4871d941df1791b20d6b166391e2068e0"
+}
