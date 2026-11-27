@@ -40,7 +40,7 @@ class Contract(unittest.TestCase):
     def execute(self,enabled):
         with tempfile.TemporaryDirectory() as d:
             control=Path(d)/'control.json'
-            control.write_text(json.dumps({**{"schema_version":1,"enabled":False,"revision":1,"mode":"one_reversible_mppt_live_topology","source_blob_sha1":"eee45c6f4105d35a79fc542870ac9bc9c16b82a5"},'enabled':enabled}))
+            control.write_text(json.dumps({**{"schema_version":1,"enabled":False,"revision":1,"mode":"one_reversible_mppt_live_topology","source_blob_sha1":"482562059602cc8b937ab57528ef84f5ad9dfcb4"},'enabled':enabled}))
             with patch.object(m,'CONTROL',control),patch.object(m,'RECEIPT',Path(d)/'receipt.json'),patch.object(m,'public',side_effect=self.public),patch.object(m,'wp',side_effect=self.rest):
                 m.execute('u','p')
                 return json.loads(m.RECEIPT.read_text())
