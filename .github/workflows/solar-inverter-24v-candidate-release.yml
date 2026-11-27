@@ -1,0 +1,120 @@
+name: Solar 24V high power inverter candidate - source-locked reversible WP Code Snippet
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-inverter-24v-candidate-release.yml'
+      - 'scripts/solar_inverter_24v_candidate_release.py'
+      - 'tests/test_solar_inverter_24v_candidate_release.py'
+      - 'assets/js/inverter-24v-candidate.js'
+      - 'scripts/solar_inverter_24v_candidate_browser.mjs'
+      - 'ops/solar-inverter-24v-candidate-release.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-inverter-24v-candidate-release.yml'
+      - 'scripts/solar_inverter_24v_candidate_release.py'
+      - 'tests/test_solar_inverter_24v_candidate_release.py'
+      - 'assets/js/inverter-24v-candidate.js'
+      - 'scripts/solar_inverter_24v_candidate_browser.mjs'
+      - 'ops/solar-inverter-24v-candidate-release.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run source-lock and WordPress synthetic no-retry contract
+        run: |
+          python -m py_compile scripts/solar_inverter_24v_candidate_release.py
+          python -m unittest discover -s tests -p 'test_solar_inverter_24v_candidate_release.py' -v
+          node --check assets/js/inverter-24v-candidate.js
+      - name: WordPress Code Snippets exact PHP source syntax
+        run: |
+          python - <<'PY'
+          from scripts.solar_inverter_24v_candidate_release import PHP_CODE
+          from pathlib import Path
+          Path('/tmp/solar-inverter-24v-candidate.php').write_text('<?php\n'+PHP_CODE)
+          PY
+          php -l /tmp/solar-inverter-24v-candidate.php
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_reversible_inverter_24v_candidate"
+            and .source_blob_sha1=="d5477c915e37d3243a1e6978898f723b2bb89aef" ' ops/solar-inverter-24v-candidate-release.json >/dev/null
+
+      - name: Real mobile Chromium preview of no-match candidate gate, no outbound visits
+        if: github.event_name == 'pull_request'
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node scripts/solar_inverter_24v_candidate_browser.mjs
+  one-shot-activate:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only exactly one independent disarmed-to-armed control change authorizes WP writes
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-inverter-24v-candidate-release.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:assets/js/inverter-24v-candidate.js")" == 'd5477c915e37d3243a1e6978898f723b2bb89aef' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:assets/js/inverter-24v-candidate.js")" == 'd5477c915e37d3243a1e6978898f723b2bb89aef' ]] || exit 0
+          git show "$BEFORE:ops/solar-inverter-24v-candidate-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_reversible_inverter_24v_candidate",
+              "source_blob_sha1":"d5477c915e37d3243a1e6978898f723b2bb89aef"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_reversible_inverter_24v_candidate",
+            "source_blob_sha1":"d5477c915e37d3243a1e6978898f723b2bb89aef"}' ops/solar-inverter-24v-candidate-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_inverter_24v_candidate_release
+      - name: Independent live mobile Chromium proof, no source injection
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_INVERTER_24V_CANDIDATE_PROOF: live
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node scripts/solar_inverter_24v_candidate_browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-inverter-24v-candidate-receipt-${{ github.run_id }}
+          path: |
+            artifacts/solar-inverter-24v-candidate-release.json
+            artifacts/solar-inverter-24v-candidate-browser.json
+          retention-days: 14
+          if-no-files-found: warn
