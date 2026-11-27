@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_samsung_annual_cost",
   "source_blob_sha1": "4336dadb5fe18314160f08724ee98553b95ea26e"
