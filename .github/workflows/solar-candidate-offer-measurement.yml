@@ -1,0 +1,120 @@
+name: Solar candidate measurement - one existing snippet PUT
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-candidate-offer-measurement.yml'
+      - 'scripts/solar_candidate_offer_measurement.py'
+      - 'tests/test_solar_candidate_offer_measurement.py'
+      - 'assets/js/battery-24v-high-current-measured.js'
+      - 'scripts/solar_candidate_offer_measurement_browser.mjs'
+      - 'ops/solar-candidate-offer-measurement.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-candidate-offer-measurement.yml'
+      - 'scripts/solar_candidate_offer_measurement.py'
+      - 'tests/test_solar_candidate_offer_measurement.py'
+      - 'assets/js/battery-24v-high-current-measured.js'
+      - 'scripts/solar_candidate_offer_measurement_browser.mjs'
+      - 'ops/solar-candidate-offer-measurement.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run source-lock and WordPress synthetic no-retry contract
+        run: |
+          python -m py_compile scripts/solar_candidate_offer_measurement.py
+          python -m unittest discover -s tests -p 'test_solar_candidate_offer_measurement.py' -v
+          node --check assets/js/battery-24v-high-current-measured.js
+      - name: WordPress Code Snippets exact PHP source syntax
+        run: |
+          python - <<'PY'
+          from scripts.solar_candidate_offer_measurement import CODE
+          from pathlib import Path
+          Path('/tmp/solar-candidate-offer-measurement.php').write_text('<?php\n'+CODE)
+          PY
+          php -l /tmp/solar-candidate-offer-measurement.php
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_existing_candidate_measurement_put"
+            and .source_blob_sha1=="c48a205553d33e80423424def9c75a2e2fc27b00" ' ops/solar-candidate-offer-measurement.json >/dev/null
+
+      - name: Real mobile Chromium preview of no-match candidate gate, no outbound visits
+        if: github.event_name == 'pull_request'
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node scripts/solar_candidate_offer_measurement_browser.mjs
+  one-shot-activate:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only exactly one independent disarmed-to-armed control change authorizes WP writes
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-candidate-offer-measurement.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:assets/js/battery-24v-high-current-measured.js")" == 'c48a205553d33e80423424def9c75a2e2fc27b00' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:assets/js/battery-24v-high-current-measured.js")" == 'c48a205553d33e80423424def9c75a2e2fc27b00' ]] || exit 0
+          git show "$BEFORE:ops/solar-candidate-offer-measurement.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_existing_candidate_measurement_put",
+              "source_blob_sha1":"c48a205553d33e80423424def9c75a2e2fc27b00"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_existing_candidate_measurement_put",
+            "source_blob_sha1":"c48a205553d33e80423424def9c75a2e2fc27b00"}' ops/solar-candidate-offer-measurement.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exact existing snippet PUT, source CAS, never retry
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_candidate_offer_measurement
+      - name: Independent live mobile Chromium proof, no source injection
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_CANDIDATE_PROOF: live
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node scripts/solar_candidate_offer_measurement_browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-candidate-offer-measurement-receipt-${{ github.run_id }}
+          path: |
+            artifacts/solar-candidate-offer-measurement.json
+            artifacts/solar-candidate-offer-measurement-browser.json
+          retention-days: 14
+          if-no-files-found: warn
