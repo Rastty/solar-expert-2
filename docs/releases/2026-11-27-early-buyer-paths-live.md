@@ -32,5 +32,15 @@ Original exact match anchor: `<h2>Nejdůležitější vztah</h2>`. Added one buy
 - E.ON HTTPS destination and `eon-solar` lead identity reused from existing live price guide; no commission eligibility, real lead, click uplift or revenue asserted.
 - Measurement: compare genuine Core event counts for `fve_price_guide_intro` and `electroboiler_intro`, actual 28d GSC and approved commission evidence later; never create synthetic clicks.
 
+
+## ČEZ price/funding freshness — same live WP #1592
+Additional narrow authenticated one-match edits to the **already existing** price guide after source verification (not changes to affiliate E.ON destination):
+- Replace all **two** raw `7. 10. 2026` date mentions with `27. 11. 2026` (server reports `replaced: 2`).
+- Replace FAQ text `Veřejný benchmark ČEZ z října 2026` → `Veřejný benchmark ČEZ ověřený 27. listopadu 2026` (one replacement).
+- Extend exact source disclaimer `Cena konkrétní instalace se může změnit podle střechy, elektroinstalace a rozsahu prací.` by: `ČEZ uvádí slevu 107 000 Kč na vybrané zařízení Queen od 16. 3. do 31. 12. 2026 nebo do vyprodání zásob; cenu a podmínky ověřte před objednávkou na odkázané stránce výrobce.` (one replacement).
+- **Public rendered HTML independently verified:** new date present, original old date absent, sale deadline and value present, canonical intact, early E.ON CTA and old lower E.ON CTA both retained.
+- Source checked directly 2026-11-27: official [ČEZ Battery Box Queen](https://www.cez.cz/cs/technologie/fotovoltaika/produkty/queen) continues to list **329 780 / 369 677 / 399 794 Kč** (5.4/7.2/9.5 kWp with 9.6 kWh battery, conditional 12% VAT, installed after discount); 107 000 CZK discount from 2026-03-16 to 2026-12-31 **or while stocks last**. Official [NZÚ bezúročný úvěr](https://novazelenausporam.cz/bezurocny-uver-rodinne-domy/) still lists 25 000 CZK/kWp and 15 000 CZK/kWh in RD program; do not imply automatically granted loan. **These time-sensitive offers require another refresh after the expiry.**
+- These are publisher-stated advertised amounts, not independent binding quotations or proof of merchant conversion. No paid commission evidence.
+
 ## Exact rollback
 After verifying no other WP editor changed the respective post, remove **only** the exact `<div class="se-note" data-se-growth="...">...</div>` block above using a one-match server content/edit replacement and separately check public HTML. Do not blanket-overwrite whole posts. Keep all existing lower CTAs, editorial text and third-party snippets intact. Do not replay these changes when reading this record.
