@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-battery-inverter-2000w-20261120-v1.json",
-  "activation_revision": 26,
-  "notice": "HELD for the global 24h NEW-post limit: prior UPS guide WordPress #1649 published 2026-11-21T18:48:41 UTC. NEVER merge before 2026-11-22T18:48:41 UTC / 19:48:41 CET AND independent fresh WordPress last-post/slug absence, immutable source SHA256 6a297327d8ffb1265211acafebcb9a1f757b6b7f3134d30339208d2d5b74f138 and publisher CI verified. One exact reviewed battery-to-2000W-inverter article, zero theme/catalog/affiliate changes, encryption before one WordPress POST, no automatic retry on uncertain write."
+  "manifest": "ops/editorial-manifests/solar-svj-eon-qualified-lead-append-20261122-v1.json",
+  "activation_revision": 27,
+  "notice": "REV27 single-writer activation, 2026-11-27: activate already reviewed #374 immutable E.ON SVJ append on existing WordPress #377 only after fresh authenticated raw SHA/modified-GMT/slug/category checks. Append only, never rewrite full SVJ article; exactly one sponsored direct E.ON URL and existing lead fallback. Previous rev26 WP #1650 independently verified 2026-11-22. No new post, theme, catalog or affiliate redirect mutation. Encrypted prewrite before one WP POST; on ambiguous outcome do not retry. Successful PR checks are not live publication."
 }
