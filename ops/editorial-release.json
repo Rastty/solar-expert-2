@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-heatpump-noise-20261127-v1.json",
-  "activation_revision": 29,
-  "notice": "REV29 exact existing WP #1011 acoustic guide revision 2026-11-27. Source reviewed #381; scoped publisher and tests #404 merged. Only title and content for exact existing heat-pump slug, category, old title, original body SHA and modified GMT; immutable new source; encrypted original title/body archived before ONE POST. No new post, theme, catalog, affiliate click or synthetic lead. Verify title and body via authenticated GET. Never replay ambiguous write."
+  "manifest": "ops/editorial-manifests/solar-battery800-topology-20261127-v1.json",
+  "activation_revision": 30,
+  "notice": "REV30 one existing WP #1632 content-only update, exact immutable source #424 and fresh authenticated CAS #425. Preserve original published identity and rev20 Quote Checker append. Encrypted prewrite, one POST, authenticated/public readback; never replay. No new post, theme, catalog or affiliate events."
 }
