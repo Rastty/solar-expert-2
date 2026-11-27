@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "one_editorial_post",
   "enabled": true,
-  "manifest": "ops/editorial-manifests/solar-battery-inverter-3000w-20261122-v1.json",
-  "activation_revision": 28,
-  "notice": "REV28 exact new article activation 2026-11-27: 3000W LiFePO4 sizing buyer guide source-only PR #400 and test gate PR #402 merged; rev27 E.ON SVJ append on WP #377 already authenticated wp_verified/public_content_seen at 14:30:01 UTC. Permit only one source-locked post_create if canonical slug AND pages absent, fresh authenticated WordPress 24h new-post gate passes, correct category, SHA source from immutable commit and encrypted PREWRITE archived before ONE POST. Never replay ambiguous write; no theme/catalog/merchant changes or invented priced offers. PR merge/green CI are not WP publication."
+  "manifest": "ops/editorial-manifests/solar-heatpump-noise-20261127-v1.json",
+  "activation_revision": 29,
+  "notice": "REV29 exact existing WP #1011 acoustic guide revision 2026-11-27. Source reviewed #381; scoped publisher and tests #404 merged. Only title and content for exact existing heat-pump slug, category, old title, original body SHA and modified GMT; immutable new source; encrypted original title/body archived before ONE POST. No new post, theme, catalog, affiliate click or synthetic lead. Verify title and body via authenticated GET. Never replay ambiguous write."
 }
