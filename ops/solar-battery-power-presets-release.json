@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_battery_power_presets",
+  "source_blob_sha1": "82fc2f9ee760fc37219a2f1e79927aca66a783fb"
+}
