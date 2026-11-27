@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_update",
+  "operation_id": "solar-heatpump-noise-20261127-v1",
+  "slug": "jsou-vzduchova-tepelna-cerpadla-hlucna",
+  "expected_status": "publish",
+  "category_slug": "tepelna-cerpadla",
+  "post_id": 1011,
+  "title": "Jsou vzduchová tepelná čerpadla hlučná? Limity a výběr 2026",
+  "excerpt": "Jak porovnat LwA a LpA, jak posoudit hlučnost tepelného čerpadla u souseda a co požadovat v nabídce a při odborném výběru.",
+  "source_commit": "860d9ee4ae59ee9e597f15b7789768371521055f",
+  "source_file": "content/rewrites/jsou-vzduchova-tepelna-cerpadla-hlucna.html",
+  "source_sha256": "cd3131477ef99c199052003c1f96d22ae0af612a758dc85017dd128a72c4db93",
+  "expected_current_sha256": "484784c7b222cb0d8830869649d8b736c26c51f361663835798abfda6f18c3ae",
+  "expected_modified_gmt": "2023-11-09T16:19:49",
+  "expected_current_title": "Jsou vzduchová tepelná čerpadla hlučná? (Skutečný příklad)"
+}
