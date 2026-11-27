@@ -31,6 +31,12 @@ try{
  const larger=await state();assert.ok(larger.ids.includes('mppt-victron-250-100'));report.parallel_change=larger;
  await p.locator('#se-mppt-panel-isc').fill('30');await p.waitForFunction(root=>{const s=window.Alpine.$data(document.querySelector(root));return s.arrayIsc===150&&s.matches.length===0;},root);assert.equal(await p.locator(root+' a[data-se-placement="mppt-selector"]').count(),0);report.overcurrent_blocked=true;
  await choose('8 × 400 Wp');await p.locator('#se-mppt-panel-voc').fill('150');await p.waitForFunction(root=>{const s=window.Alpine.$data(document.querySelector(root));return s.coldStringVoc>300&&s.matches.length===0;},root);report.overvoltage_blocked=true;
+ await choose('8 × 400 Wp');await p.locator('#se-mppt-panel-voc').fill('65.2');
+ await p.waitForFunction(root=>{const s=window.Alpine.$data(document.querySelector(root));return s.coldStringVoc>145&&s.coldStringVoc<147&&!s.matches.some(x=>x.product.id==='mppt-victron-150-70');},root);
+ report.operating_ceiling_blocked=true;
+ await choose('8 × 400 Wp');await p.locator('#se-mppt-panel-vmp').fill('30');
+ await p.waitForFunction(root=>{const s=window.Alpine.$data(document.querySelector(root));return s.stringVmp===60&&s.matches.length===0;},root);
+ report.model_start_voltage_blocked=true;
  await choose('8 × 400 Wp');await p.locator('#se-mppt-panel-isc').fill('');await p.waitForFunction(root=>{const s=window.Alpine.$data(document.querySelector(root));return !s.inputValid&&s.matches.length===0;},root);report.missing_isc_blocked=true;
  await choose('8 × 400 Wp');
  // Unknown or changed audited manufacturer limit must never pass.
