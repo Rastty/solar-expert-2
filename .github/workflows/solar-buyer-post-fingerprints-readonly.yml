@@ -7,6 +7,7 @@ on:
       - ".github/workflows/solar-buyer-post-fingerprints-readonly.yml"
       - "scripts/editorial_target_fingerprints_readonly.py"
       - "tests/test_solar_target_fingerprints_readonly.py"
+      - "content/rewrites/jakou-baterii-a-mppt-k-solarnim-panelum-800w.html"
   workflow_dispatch:
 
 permissions:
