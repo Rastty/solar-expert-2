@@ -1,0 +1,31 @@
+{
+  "observed_at": "2026-11-27",
+  "scope": "technical candidate outside native catalog, no current quote",
+  "power_queen": {
+    "source": "https://www.ipowerqueen.de/en/products/power-queen-24v-200ah-lifepo4-solar-battery-with-200a-bms",
+    "declared_nominal_wh": 5120,
+    "declared_bms_a": 200,
+    "declared_continuous_output_w": 5120,
+    "regional_shipping": "https://www.ipowerqueen.de/en/pages/shipping-policy",
+    "affiliate_approved": false,
+    "price_czk": null,
+    "availability": "unverified",
+    "exact_revision_and_low_voltage_current": "confirm with manufacturer"
+  },
+  "epever": {
+    "model": "LFP2.56KWH25.6V-P65L2EV50",
+    "manufacturer_manual": "https://www.epever.com/wp-content/uploads/2024/10/LFP2.56KWH25.6V-P65L2EV50-Manual-EN-V1.1.pdf",
+    "merchant_url": "https://www.vselektro.eu/lifepo4-baterie-24v-100ah-epever-lfp2-56kwh25-6v-p65l2ev50/",
+    "continuous_discharge_a": 50,
+    "maximum_30_min_a": 150,
+    "peak_2s_a": 180,
+    "minimum_voltage_v": 20.8,
+    "max_parallel": 4,
+    "nominal_wh": 2560,
+    "bank_model_2000w": 3,
+    "bank_model_3000w": 4,
+    "price_czk": null,
+    "availability": "unverified",
+    "qualification": "individual current sharing and installation review required"
+  }
+}
