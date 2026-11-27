@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_existing_candidate_measurement_put",
   "source_blob_sha1": "c48a205553d33e80423424def9c75a2e2fc27b00"
