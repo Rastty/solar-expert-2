@@ -48,9 +48,14 @@ class SolarBatteryInverter3000WGuideTest(unittest.TestCase):
         self.assertEqual(manifest["kind"], "post_create")
         self.assertTrue(manifest["expect_absent"])
         release = json.loads((ROOT / "ops/editorial-release.json").read_text(encoding="utf-8"))
-        self.assertNotEqual(release["manifest"], "ops/editorial-manifests/solar-battery-inverter-3000w-20261122-v1.json")
         self.assertIsInstance(release["activation_revision"], int)
-        self.assertGreaterEqual(release["activation_revision"], 25)  # rev27+ is valid while this manifest remains disarmed
+        self.assertGreaterEqual(release["activation_revision"], 25)
+        if release["manifest"] == "ops/editorial-manifests/solar-battery-inverter-3000w-20261122-v1.json":
+            # Future dedicated activation is allowed only as rev28+, with the
+            # same immutable manifest. A source PR itself never arms a POST.
+            self.assertGreaterEqual(release["activation_revision"], 28)
+            self.assertTrue(release["enabled"])
+            self.assertEqual(release["mode"], "one_editorial_post")
 
 
 if __name__ == "__main__":
