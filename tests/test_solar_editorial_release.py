@@ -535,5 +535,78 @@ class PublisherTests(unittest.TestCase):
         self.assertEqual(recovered_file.read_bytes(), original)
 
 
+
+class HeatpumpNoiseUpdateTests(unittest.TestCase):
+    def setUp(self):
+        root = Path(__file__).resolve().parents[1]
+        self.m = json.loads((root / "ops/editorial-manifests/solar-heatpump-noise-20261127-v1.json").read_text(encoding="utf-8"))
+        self.html = (root / "content/rewrites/jsou-vzduchova-tepelna-cerpadla-hlucna.html").read_text(encoding="utf-8")
+
+    def test_exact_category_title_and_immutable_body(self):
+        e.validate_manifest(self.m)
+        e.validate_html(self.html, self.m["slug"])
+        self.assertEqual(e.sha(self.html), self.m["source_sha256"])
+        for key, value in (("post_id", 1012), ("slug", "jiny-tepelny-clanek"),
+                           ("category_slug", "solarni-panely"), ("kind", "post_create"),
+                           ("kind", "post_append"), ("title", "Unreviewed replacement title"),
+                           ("expected_current_title", "Other title")):
+            with self.subTest(key=key, value=value), self.assertRaises(e.Blocked):
+                e.validate_manifest({**self.m, key: value})
+        for bad in (self.html.replace("LwA", "neznámé"),
+                    self.html.replace("https://e-sbirka.gov.cz/sb/2011/272", "https://example.org/rule"),
+                    self.html + '<a href="https://example.org/offer">other</a>',
+                    self.html + '<script>alert(1)</script>'):
+            with self.assertRaises(e.Blocked):
+                e.validate_html(bad, self.m["slug"])
+        with self.assertRaises(e.Blocked):
+            e.validate_html(self.html, SLUG)
+
+    def test_category_lookup_and_one_existing_title_body_update_with_no_replay(self):
+        old = "old live content"
+        m = {**self.m, "expected_current_sha256": e.sha(old)}
+        record = {"id": 1011, "slug": m["slug"], "status": "publish",
+                  "modified_gmt": m["expected_modified_gmt"],
+                  "link": e.SITE + "/" + m["slug"] + "/", "categories": [71],
+                  "content": {"raw": old}, "title": {"raw": m["expected_current_title"]}}
+        writes = []
+        def wp(method, route, *, query=None, body=None):
+            if method == "GET":
+                if route == "/wp/v2/categories":
+                    self.assertEqual(query["slug"], "tepelna-cerpadla")
+                    return [{"id": 71, "slug": "tepelna-cerpadla"}]
+                if route == "/wp/v2/posts":
+                    self.assertEqual(query["slug"], m["slug"])
+                    return [record.copy()]
+                self.assertEqual(route, "/wp/v2/posts/1011")
+                return record.copy()
+            self.assertEqual(route, "/wp/v2/posts/1011")
+            self.assertEqual(set(body), {"title", "content"})
+            writes.append(body)
+            record.update(content={"raw": body["content"]}, title={"raw": body["title"]},
+                          modified_gmt="2026-11-27T15:00:00")
+            return record.copy()
+        d = e.sha(e.canonical(m))
+        with tempfile.TemporaryDirectory() as temp, patch.object(e, "BACKUP", Path(temp)/"backup.json"), \
+             patch.object(e, "RECEIPT", Path(temp)/"receipt.json"), patch.object(e, "wp", new=wp), \
+             patch.object(e, "github_source", return_value=self.html), \
+             patch.object(e, "public_probe", return_value="public_content_seen"), \
+             patch.dict(os.environ, {"SOLAR_EDITORIAL_LIVE": "YES"}):
+            e.prepare(m, d)
+            self.assertEqual(writes, [])
+            self.assertEqual(json.loads(e.BACKUP.read_text())["original_title"], m["expected_current_title"])
+            record["title"] = {"raw": "Concurrent title edit"}
+            with self.assertRaises(e.Blocked):
+                e.apply(m, d)
+            self.assertEqual(writes, [])
+            record["title"] = {"raw": m["expected_current_title"]}
+            e.apply(m, d)
+            e.apply(m, d)
+            self.assertEqual(len(writes), 1)
+            self.assertEqual(record["title"]["raw"], m["title"])
+            self.assertEqual(record["content"]["raw"], self.html)
+            self.assertEqual(record["categories"], [71])
+            self.assertEqual(json.loads(e.RECEIPT.read_text())["status"], "already_live_verified")
+
+
 if __name__ == "__main__":
     unittest.main()
