@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_mppt_live_topology",
+  "source_blob_sha1": "eee45c6f4105d35a79fc542870ac9bc9c16b82a5"
+}
