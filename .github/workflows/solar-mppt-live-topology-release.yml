@@ -53,7 +53,7 @@ jobs:
         run: |
           jq -e '.schema_version==1 and (.enabled|type)=="boolean"
             and .revision==1 and .mode=="one_reversible_mppt_live_topology"
-            and .source_blob_sha1=="eee45c6f4105d35a79fc542870ac9bc9c16b82a5" ' ops/solar-mppt-live-topology-release.json >/dev/null
+            and .source_blob_sha1=="482562059602cc8b937ab57528ef84f5ad9dfcb4" ' ops/solar-mppt-live-topology-release.json >/dev/null
 
       - name: Real mobile Chromium preview of topology, Isc gates and retained merchant routes, no outbound visits
         if: github.event_name == 'pull_request'
@@ -84,15 +84,15 @@ jobs:
           [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-mppt-live-topology-release.json' ]] || exit 0
-          [[ "$(git rev-parse "$BEFORE:assets/js/mppt-live-topology.js")" == 'eee45c6f4105d35a79fc542870ac9bc9c16b82a5' ]] || exit 0
-          [[ "$(git rev-parse "$AFTER:assets/js/mppt-live-topology.js")" == 'eee45c6f4105d35a79fc542870ac9bc9c16b82a5' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:assets/js/mppt-live-topology.js")" == '482562059602cc8b937ab57528ef84f5ad9dfcb4' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:assets/js/mppt-live-topology.js")" == '482562059602cc8b937ab57528ef84f5ad9dfcb4' ]] || exit 0
           git show "$BEFORE:ops/solar-mppt-live-topology-release.json" |
             jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
               "mode":"one_reversible_mppt_live_topology",
-              "source_blob_sha1":"eee45c6f4105d35a79fc542870ac9bc9c16b82a5"}' >/dev/null
+              "source_blob_sha1":"482562059602cc8b937ab57528ef84f5ad9dfcb4"}' >/dev/null
           jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
             "mode":"one_reversible_mppt_live_topology",
-            "source_blob_sha1":"eee45c6f4105d35a79fc542870ac9bc9c16b82a5"}' ops/solar-mppt-live-topology-release.json >/dev/null
+            "source_blob_sha1":"482562059602cc8b937ab57528ef84f5ad9dfcb4"}' ops/solar-mppt-live-topology-release.json >/dev/null
           echo 'armed=true' >> "$GITHUB_OUTPUT"
       - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
         if: steps.gate.outputs.armed == 'true'
