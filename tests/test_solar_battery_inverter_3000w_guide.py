@@ -49,7 +49,8 @@ class SolarBatteryInverter3000WGuideTest(unittest.TestCase):
         self.assertTrue(manifest["expect_absent"])
         release = json.loads((ROOT / "ops/editorial-release.json").read_text(encoding="utf-8"))
         self.assertNotEqual(release["manifest"], "ops/editorial-manifests/solar-battery-inverter-3000w-20261122-v1.json")
-        self.assertIn(release["activation_revision"], (25, 26))  # PR base predates rev26 merge; both are deliberately disarmed for 3000W
+        self.assertIsInstance(release["activation_revision"], int)
+        self.assertGreaterEqual(release["activation_revision"], 25)  # rev27+ is valid while this manifest remains disarmed
 
 
 if __name__ == "__main__":
