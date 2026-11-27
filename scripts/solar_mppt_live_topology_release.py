@@ -21,7 +21,7 @@ RECEIPT=ROOT/'artifacts/solar-mppt-live-topology-release.json'
 NAME='Solar Expert live MPPT topology safety v1'
 DESC='Port of reviewed MPPT topology/absolute Isc checks and two new editable examples; legacy production only'
 MODE='one_reversible_mppt_live_topology'
-SOURCE_BLOB='eee45c6f4105d35a79fc542870ac9bc9c16b82a5'
+SOURCE_BLOB='482562059602cc8b937ab57528ef84f5ad9dfcb4'
 JS=(ROOT/'assets/js/mppt-live-topology.js').read_text(encoding='utf-8')
 BYTES=JS.encode('utf-8')
 BLOB=hashlib.sha1(('blob '+str(len(BYTES))+'\0').encode()+BYTES).hexdigest()
