@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_boundary_distance_example",
+  "source_blob_sha1": "50d53eeebbd589ca129f34d6ac74ba30442ab97d"
+}
