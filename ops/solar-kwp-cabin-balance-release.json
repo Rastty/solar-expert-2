@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_kwp_cabin_balance",
+  "source_blob_sha1": "8841aed7e9d6a19ac4354521eb8c17f408746621"
+}
