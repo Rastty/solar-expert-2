@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_complete_kit_offers",
   "source_blob_sha1": "e93e5467efa7945af2ad8820f782762acec4082e"
