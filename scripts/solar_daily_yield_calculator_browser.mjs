@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {chromium} from 'playwright';
+import {mkdirSync,writeFileSync} from 'node:fs';
+const SITE='https://solar-expert.cz',root='[data-se-daily-yield-calc-v2]';
+mkdirSync('artifacts',{recursive:true});
+const report={status:'not_verified',analytics_posts_delivered:0,external_visits:0};
+let browser;
+try{
+ browser=await chromium.launch();
+ const ctx=await browser.newContext({viewport:{width:375,height:812},serviceWorkers:'block'});
+ await ctx.route('**/*',async r=>{const q=r.request(),u=new URL(q.url());if(q.method()==='GET'&&(u.origin===SITE||(u.hostname==='cdn.jsdelivr.net'&&u.pathname==='/npm/alpinejs@3.14.9/dist/cdn.min.js')))return r.continue();return r.abort('blockedbyclient');});
+ const p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+ assert.equal((await p.goto(SITE+'/kolik-vyrobi-fotovoltaika-za-den/',{waitUntil:'domcontentloaded'})).status(),200);
+ const w=p.locator(root);await w.waitFor();
+ const val=()=>w.locator('[data-dyc-value]').textContent();
+ const prod=()=>w.locator('[data-dyc-production]').textContent();
+ assert.equal(await val(),'85 Kč');assert.equal(await prod(),'24 kWh');
+ await w.locator('[data-dyc-sun="1"]').click();
+ assert.equal(await prod(),'8 kWh');
+ assert.ok(await w.locator('[data-dyc-error]').isVisible());
+ assert.equal(await w.locator('[data-dyc-results]').isVisible(),false);
+ await w.locator('#se-dyc-direct').fill('4');await w.locator('#se-dyc-charge').fill('2');
+ assert.equal(await val(),'31 Kč');
+ await w.locator('[data-dyc-reset]').click();assert.equal(await val(),'85 Kč');assert.equal(await prod(),'24 kWh');
+ const layout=()=>p.evaluate(root=>{const r=document.querySelector(root);return {rootOverflow:r.scrollWidth>r.clientWidth+2,pageOverflow:document.documentElement.scrollWidth>innerWidth+2,controls:[...r.querySelectorAll('input,button')].every(e=>e.getBoundingClientRect().height>=44)};},root);
+ report.mobile=await layout();assert.ok(!report.mobile.rootOverflow&&report.mobile.controls,JSON.stringify(report.mobile));
+ await w.screenshot({path:'artifacts/daily-yield-calculator.png'});
+ await p.setViewportSize({width:1280,height:900});report.desktop=await layout();assert.ok(!report.desktop.rootOverflow&&report.desktop.controls,JSON.stringify(report.desktop));
+ assert.equal(errors.length,0,errors.join('; '));report.status='browser_verified';console.log('SOLAR_DAILY_YIELD_CALCULATOR_BROWSER '+JSON.stringify(report));
+}finally{writeFileSync('artifacts/solar-daily-yield-calculator-browser.json',JSON.stringify(report,null,2));if(browser)await browser.close();}
