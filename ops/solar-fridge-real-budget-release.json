@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_fridge_real_budget",
+  "source_blob_sha1": "1f21ca3099a6e41f583f42baedfc646142cec9f5"
+}
