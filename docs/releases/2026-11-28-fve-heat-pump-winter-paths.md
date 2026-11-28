@@ -1,6 +1,6 @@
 # 2026-11-28: FVE + heat pump and winter yield
 
-Status: exact prewrite patch record; publication not yet verified. No replay. Native owner-authorized single-writer content/edit, not Core Tier1. Preserve all old links, canonical and titles. Rollback by replacing exact new fragment with old fragment once after fresh readback.
+Status: LIVE; authenticated content/edit and public rendered verification complete. No replay. Native owner-authorized single-writer content/edit, not Core Tier1. Preserve all old links, canonical and titles. Rollback by replacing exact new fragment with old fragment once after fresh readback.
 
 ## WP 1193
 Old:
@@ -28,3 +28,6 @@ New:
 ```
 
 Source: European Commission JRC PVGIS monthly production tool linked in article. Model inputs are hypothetical; no real revenue, leads, winter predictions or prices asserted. Existing E.ON identity and destination reused from WP 1193. No new post or catalog changes.
+
+## Verified receipt
+- WP #1193 and #1169: both content/edit `edited`, `replaced: 1`. REST readback confirms both marker fragments; rendered public article confirms new and previous lead placement on #1193, and winter table/PVGIS/internal links on #1169. Original older CTA retained. No synthetic traffic, new posts, catalog writes or measured commercial uplift.
