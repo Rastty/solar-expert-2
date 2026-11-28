@@ -1,0 +1,39 @@
+/** 2000W purchase path: current-limit comparison, exact offers and revision caution. */
+function solar_expert_battery2000_buying_v1($content) {
+    if(is_admin() || !is_singular('post') || !in_the_loop() || !is_main_query() || !is_string($content) || strlen($content)>600000) return $content;
+    $post=get_queried_object();
+    if(!($post instanceof WP_Post) || $post->post_name!=='jakou-baterii-k-menici-2000w' || strpos($content,'data-se-battery2000-buying-v1')!==false) return $content;
+    $pattern='~<h2(?:\s[^>]*)?>\s*Chcete přidat solární panely\? Kontrolujte MPPT zvlášť\s*</h2>~u';
+    if(preg_match_all($pattern,$content,$m,PREG_OFFSET_CAPTURE)!==1) return $content;
+    $bases=get_option('solar_expert_affiliate_bases',array());
+    $base=is_array($bases)&&isset($bases['vselektro-eu'])&&is_string($bases['vselektro-eu'])?$bases['vselektro-eu']:'';
+    $u=wp_parse_url($base); $query=array();
+    if(is_array($u)&&isset($u['query'])) parse_str($u['query'],$query);
+    $approved=is_array($u)&&($u['scheme']??'')==='https'&&($u['host']??'')==='ehub.cz'&&($u['path']??'')==='/system/scripts/click.php'&&!isset($u['user'])&&!isset($u['pass'])&&!isset($u['port'])&&is_string($query['a_aid']??null)&&is_string($query['a_bid']??null)&&preg_match('/^[a-zA-Z0-9_-]+$/D',$query['a_aid'])&&preg_match('/^[a-zA-Z0-9_-]+$/D',$query['a_bid']);
+
+
+    $rows=array(
+      array('epever-24v-100ah','24 V · 3 × EPEVER 100 Ah','041039621','lifepo4-baterie-24v-100ah-epever-lfp2-56kwh25-6v-p65l2ev50/','7,68 kWh · 2,76 h při 2 kW','P65L2EV50: při modelové dolní mezi 20,8 V a účinnosti 90 % je odběr 106,8 A, ideálně 35,6 A na modul. Dva moduly by překročily trvalých 50 A na modul.','52 605 Kč','3 × 17 535 Kč'),
+      array('epever-51v-100ah','48 V · 2 × EPEVER 100 Ah','041039692','lifepo4-pack-51-2v-100ah-epever-lfp5-12kwh51-2v/','10,24 kWh · 3,69 h při 2 kW','P20R3: při 41,6 V a 90 % účinnosti vychází 53,4 A, ideálně 26,7 A na modul. Jeden modul by překročil trvalý limit 50 A.','59 180 Kč','2 × 29 590 Kč'),
+      array('inverter-carspa-p2000u-24','Carspa P2000U-24','8595118839052','menic-napeti-carspa-p2000-24v-230v-2000w-sinus-usb/','24 V · čistý sinus · 2000 W','Samostatný měnič, výrobce uvádí špičku 4000 W. Ověřte její trvání, celý DC rozsah a podporu konkrétní baterie; nejde o UPS ani schválenou kombinaci.','','')
+    );
+    $fresh=current_time('Y-m-d')<='2026-12-05';
+    $block='<section data-se-battery2000-buying-v1="1" aria-labelledby="se-battery2000-buying-title" style="margin:22px 0;padding:clamp(16px,4vw,24px);background:#eff8f5;color:#142e2b;border:1px solid #c9ddd9;border-radius:16px;line-height:1.6"><p style="margin:0;color:#205d53;font-weight:700;font-size:.85em;text-transform:uppercase">Nákupní průvodce · skutečných 2000 W</p><h2 id="se-battery2000-buying-title" style="margin:8px 0;color:#142e2b">Jakou konkrétní baterii a měnič 2000 W prověřit?</h2><p><strong>Pro plný trvalý výkon 2 kW nelze u níže uvedených modulů s limitem 50 A vybrat bank pouze podle Ah.</strong> Porovnejte systémové napětí, trvalý proud při nízkém napětí, rozběh a celkovou cenu. Varianty jsou výpočtové kandidáty pro odborný návrh, nikoli schválené sestavy.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px">';
+    foreach($rows as $r) {
+        $target='https://www.vselektro.eu/'.$r[3]; $href=$target;
+        if($approved) $href='https://ehub.cz/system/scripts/click.php?'.http_build_query(array('a_aid'=>$query['a_aid'],'a_bid'=>$query['a_bid'],'desturl'=>$target),'','&',PHP_QUERY_RFC3986);
+        $block.='<div style="background:#fff;border:1px solid #c9ddd9;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px"><strong>'.esc_html($r[1]).'</strong><span style="font-weight:600;color:#205d53">'.esc_html($r[4]).'</span><p style="margin:0">'.esc_html($r[5]).'</p>';
+        if($fresh && $r[6]!=='') $block.='<strong style="font-size:1.25rem;color:#205d53">'.esc_html($r[6]).'</strong><small>'.esc_html($r[7]).' s DPH · modelový součet modulů, veřejný výpis 28. 11. 2026</small>';
+        else $block.='<strong>Cenu a dostupnost ověřte u prodejce</strong>';
+        $block.='<small>Identifikace '.esc_html($r[2]).'</small><a class="se-btn se-btn-primary se-offer" style="margin-top:auto" href="'.esc_url($href).'" data-se-product-id="'.esc_attr($r[0]).'" data-se-merchant="vselektro-eu" data-se-placement="battery2000_editorial_buying" data-se-monetized="'.($approved?'true':'false').'" rel="sponsored nofollow noopener">Zobrazit jednotlivý produkt →</a></div>';
+    }
+    $block.='</div><p style="font-size:.9em">Cenové příklady vycházejí z veřejného výpisu prodejce, nikoli živé nabídky celé sestavy. Nezahrnují měnič, montáž, ochrany ani dopravu; počet kusů skladem neověřen. U měniče nezobrazujeme starou akční cenu. Odkazy mohou být partnerské; nákup za podmínek programu může přinést provizi.</p><h3 style="color:#142e2b">Proč ne jedna velká baterie?</h3><p>U EPEVER LFP5.12KWH25.6V-P65L2GF40 se liší specifikace: manuál V1.0 uvádí 200 Ah a trvale 200 A, zatímco V1.1 uvádí 205 Ah a trvale 100 A (200 A jen 30 minut). Při 20,8 V by 2 kW vyžadovaly přibližně 106,8 A. Bez potvrzení konkrétní revize nelze tuto baterii bezpečně označit za kandidáta pro trvalých 2000 W v celém modelovaném rozsahu. <a href="https://solarv.de/Datenblatt/2024/10/EPEVER/4924/LFP5.12KWH25.6V-P65L2GF40-Manual-EN-V1.0.pdf" rel="noopener">Manuál V1.0</a> · <a href="https://c.cdnmp.net/648634256/content/LFP5.12KWH25.6V-P65L2GF40-Manual-EN-V1.1.pdf" rel="noopener">Manuál V1.1</a>.</p><h3 style="color:#142e2b">Výkon, výdrž a rozběh kontrolujte zvlášť</h3><p>Modely výdrže počítají s 80 % dostupné energie a účinností 90 %: 7,68 × 0,8 × 0,9 / 2 = 2,76 h a 10,24 × 0,8 × 0,9 / 2 = 3,69 h. Skutečná výdrž závisí na zatížení, teplotě, stárnutí a ochranách. Při ilustrativních 4000 W na 24V systému a 20,8 V jde asi o 214 A; i se třemi moduly by ideální podíl činil 71,2 A. Takovou špičku nelze povolit jen na základě součtu trvalých proudů: ověřte přesný krátkodobý limit, délku špičky a koordinaci ochran. Odpojení jednoho modulu může zbývající přetížit. Nevytvářejte bank bez výrobcem povoleného uspořádání a odborného návrhu.</p><p><strong>2000 VA není automaticky 2000 W:</strong> porovnejte trvalý činný výkon ve W při očekávané teplotě, nikoli pouze VA nebo špičku. Primární zdroje: <a href="https://carspa.cc/p2000-2000-watts-pure-sine-wave-power-inverter-with-usb-port/" rel="noopener">Carspa P2000U</a> · <a href="https://www.epever.com/wp-content/uploads/2024/10/LFP2.56KWH25.6V-P65L2EV50-Manual-EN-V1.1.pdf" rel="noopener">EPEVER 24 V</a> · <a href="https://www.epever.com/wp-content/uploads/2023/09/LFP5.12KWH51.2V-P20R3-EN.pdf" rel="noopener">EPEVER 51,2 V</a>.</p><p style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0"><a class="se-btn" href="/vyber-baterii/">Přepočítat baterii →</a><a class="se-btn" href="/vyber-menice/">Porovnat měniče →</a><a class="se-btn" href="/zalozni-zdroj-pro-obehove-cerpadlo/#se-heating-ups-offer-title">Pokud řešíte zálohu topení →</a></p></section>';
+    $offset=$m[0][0][1];
+    return substr($content,0,$offset).$block.substr($content,$offset);
+}
+add_filter('the_content','solar_expert_battery2000_buying_v1',20);
+add_action('wp_footer',function(){
+    $post=get_queried_object();
+    if(!is_singular('post')||!($post instanceof WP_Post)||$post->post_name!=='jakou-baterii-k-menici-2000w') return;
+    echo '<script id="se-battery2000-buying-click-v1">document.addEventListener("click",function(e){if(!e.isTrusted)return;var a=e.target.closest&&e.target.closest("[data-se-battery2000-buying-v1] a[data-se-product-id]");if(!a||!window.SolarExpertAnalytics)return;window.SolarExpertAnalytics.track("affiliate_click",{productId:a.dataset.seProductId,merchant:a.dataset.seMerchant,placement:a.dataset.sePlacement,monetized:a.dataset.seMonetized==="true"});});</script>';
+},99);
