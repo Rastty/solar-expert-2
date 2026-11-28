@@ -3,7 +3,7 @@ function solar_expert_mppt_editorial_offers_v1($content) {
     if(is_admin() || !is_singular('post') || !in_the_loop() || !is_main_query() || !is_string($content)) return $content;
     $post=get_queried_object();
     if(!($post instanceof WP_Post) || $post->post_name!=='jak-vybrat-mppt-regulator-pro-400w-panel' || strpos($content,'data-se-mppt-editorial-offers-v1')!==false) return $content;
-    $old='Pozor: současná veřejná kalkulačka zatím automaticky neověřuje Isc panelů ani počet paralelních stringů. Isc z datasheetu panelu a maximální vstupní Isc regulátoru ověřte samostatně před nákupem.';
+    $old='<strong>Pozor: současná veřejná kalkulačka zatím automaticky neověřuje Isc panelů ani počet paralelních stringů.</strong> Isc z datasheetu panelu a maximální vstupní Isc regulátoru ověřte samostatně před nákupem.';
     $pattern='~<h2(?:\s[^>]*)?>\s*Tři typické situace při výběru\s*</h2>~u';
     if(substr_count($content,$old)!==1 || preg_match_all($pattern,$content,$m,PREG_OFFSET_CAPTURE)!==1) return $content;
     $bases=get_option('solar_expert_affiliate_bases',array());
