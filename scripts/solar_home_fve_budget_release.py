@@ -110,6 +110,9 @@ def check_public(after):
         require(html.count(marker)==1 and all(x not in html for x in old) and all(x in html for x in ('od 250 000 Kč','od 310 000 Kč','od 340 000 Kč','325 000 Kč','14,1 roku','25,8 roku','data-se-lead-id="eon-solar"','data-se-placement="home_fve_budget_legacy_intro"','rel="sponsored nofollow noopener"','/kolik-se-usetri-s-fotovoltaikou/','grid-template-columns:repeat(auto-fit')),
                 'Public home FVE budget guide missing')
     else:
+        print('PUBLIC EXACT DIAGNOSTIC', [html.count(x) for x in old])
+        for token in ('Průměrná cena fotovoltaického','Fotovoltaický systém na rodinném domě','Po této době začne','Některé odhady','Co je fotovoltaika'):
+            print('PUBLIC CONTEXT',token,[html[max(0,m.start()-120):m.start()+340] for m in re.finditer(re.escape(token),html)][:3])
         require(marker not in html and all(html.count(x)==1 for x in old) and len(re.findall(r'<h2(?:\s[^>]*)?>\s*Co je fotovoltaika\?\s*</h2>',html,re.I))==1,
                 'Existing exact article anchor or stale statements changed or duplicate')
     require(marker not in home and marker not in builder,'Public article content leaked outside reviewed scope')
