@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_grid_battery_calculator_paths",
+  "source_blob_sha1": "620f1ab371cbe01afd99d5c90922b9d633928645"
+}
