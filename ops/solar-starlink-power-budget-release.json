@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_starlink_power_budget",
+  "source_blob_sha1": "e3a3c2f63d83d003098d0b707a1c1c3ddfdb247f"
+}
