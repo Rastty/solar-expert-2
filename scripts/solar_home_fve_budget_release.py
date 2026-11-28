@@ -22,7 +22,7 @@ RECEIPT=ROOT/'artifacts/solar-home-fve-budget-release.json'
 NAME='Solar Expert home FVE budget v1'
 DESC='Dated EON price benchmark and qualified legacy home FVE lead'
 MODE='one_reversible_home_fve_budget'
-SOURCE_BLOB='79c7b43fb4bd08d953744bf5293aed97b98c92bc'
+SOURCE_BLOB='886cfca18cd99bff2ee3ce73ea199b3b3b35237d'
 SOURCE_PATH=ROOT/'content/snippets/home-fve-budget-v1.php'
 PHP_CODE=SOURCE_PATH.read_text(encoding='utf-8')
 BYTES=PHP_CODE.encode('utf-8')
@@ -101,18 +101,16 @@ def check_public(after):
             not any('noindex' in str(x).lower() for x in head['robots']),
             'Public article canonical/indexability changed')
     marker='data-se-home-fve-budget-v1="1"'
-    old=('Průměrná cena fotovoltaického systému pro rodinný dům se pohybuje v rozmezí 200 000 – 400 000 Kč.',
+    old=('Průměrná cena fotovoltaického systému pro rodinný dům se pohybuje v rozmezí 200 000 &#8211; 400 000 Kč.',
          'Fotovoltaický systém na rodinném domě může zkrátit návratnost investice na 6-10 let.',
          'Po této době začne fotovoltaika generovat „zadarmo“ elektřinu, kterou lze využít k pokrytí spotřeby v domácnosti.',
          'Některé odhady nákladů na fotovoltaický systém na rodinný dům v České republice se pohybují od 200 000 do 400 000 Kč, v závislosti na výše uvedených faktorech.')
     require('/poptavka' in html and '/kolik-stoji-fotovoltaika/' in html,'Public original buyer links missing')
     if after:
+        require('200 000 – 400 000 Kč' not in html,'Public obsolete price still present')
         require(html.count(marker)==1 and all(x not in html for x in old) and all(x in html for x in ('od 250 000 Kč','od 310 000 Kč','od 340 000 Kč','325 000 Kč','14,1 roku','25,8 roku','data-se-lead-id="eon-solar"','data-se-placement="home_fve_budget_legacy_intro"','rel="sponsored nofollow noopener"','/kolik-se-usetri-s-fotovoltaikou/','grid-template-columns:repeat(auto-fit')),
                 'Public home FVE budget guide missing')
     else:
-        print('PUBLIC EXACT DIAGNOSTIC', [html.count(x) for x in old])
-        for token in ('Průměrná cena fotovoltaického','Fotovoltaický systém na rodinném domě','Po této době začne','Některé odhady','Co je fotovoltaika'):
-            print('PUBLIC CONTEXT',token,[html[max(0,m.start()-120):m.start()+340] for m in re.finditer(re.escape(token),html)][:3])
         require(marker not in html and all(html.count(x)==1 for x in old) and len(re.findall(r'<h2(?:\s[^>]*)?>\s*Co je fotovoltaika\?\s*</h2>',html,re.I))==1,
                 'Existing exact article anchor or stale statements changed or duplicate')
     require(marker not in home and marker not in builder,'Public article content leaked outside reviewed scope')
