@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_battery_runtime_guide",
   "source_blob_sha1": "befe8801ac4e4ef6d350c63b083aa814337d6f7a"
