@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_heating_ups_runtime_calculator",
+  "source_blob_sha1": "04e00c824753157af6fc02c04b649fac13ba0358"
+}
