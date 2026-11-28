@@ -1,0 +1,57 @@
+name: Solar incremental battery calculator - reconcile existing activation (GET only)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-battery-incremental-calculator-readback.yml'
+permissions:
+  contents: read
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+jobs:
+  reconcile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Confirm existing snippet identity and rendered section without replay
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import os,re
+          from scripts import solar_battery_incremental_calculator_release as r
+          user=os.environ['SOLAR_WP_USER'].strip()
+          password=os.environ['SOLAR_WP_APP_PASSWORD'].strip()
+          status,rows=r.wp('GET',r.SNIPPETS,user,password)
+          matches=[x for x in rows if isinstance(x,dict) and x.get('name')==r.NAME] if isinstance(rows,list) else []
+          r.require(status==200 and len(matches)==1,'Existing snippet identity not unique')
+          r.SNIPPET_ID=matches[0]['id']
+          r.readback(user,password,True)
+          slug='/kdy-ma-smysl-fotovoltaika/'
+          html=r.public(slug)
+          marker='data-se-battery-incremental-calc-v1="1"'
+          section='<section '+marker
+          script=re.search(r'<script id="se-bic-script-v1">([\s\S]*?)</script>',html)
+          expected=re.search(r'<script id="se-bic-script-v1">([\s\S]*?)</script>',r.PHP_CODE)
+          checks={
+              'section_once':html.count(section)==1,
+              'selector_occurrences':html.count(marker),
+              'script_once':html.count('id="se-bic-script-v1"')==1,
+              'script_source_exact':bool(script and expected and script.group(1).strip()==expected.group(1).strip()),
+              'inputs_once':all(html.count('id="se-bic-'+x+'"')==1 for x in ('energy','eff','buy','sell','price','cost','years')),
+              'default_values':all(x in html for x in ('42 500 Kč','2 572 kWh','4 250 Kč','18,8 roku','data-bic-calculate','data-bic-reset','aria-live="polite"')),
+              'prior_guide':html.count('data-se-fve-investment-components-v1="1"')==1 and '/poptavka' in html and '/quote-checker/' in html,
+              'no_scope_leak':all(marker not in r.public(path) for path in ('/','/solarni-sestava-na-chatu/'))
+          }
+          h=re.search(r'<head(?:\s[^>]*)?>.*?</head\s*>',html,re.I|re.S)
+          head=r.inspect_head(h.group(0)) if h else {}
+          checks['canonical_indexable']=head.get('canonicals')==[r.SITE+slug] and len(head.get('titles',[]))==1 and not any('noindex' in str(x).lower() for x in head.get('robots',[]))
+          print('Read-only checks:',checks)
+          r.require(all(v for k,v in checks.items() if k!='selector_occurrences'),'Public calculator reconciliation failed')
+          print('SOLAR_BATTERY_INCREMENTAL_RECONCILED status=wp_verified posts=0 snippet_id='+str(r.SNIPPET_ID))
+          PY
