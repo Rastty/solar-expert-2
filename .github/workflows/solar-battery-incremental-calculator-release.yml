@@ -1,0 +1,123 @@
+name: Solar incremental battery calculator - source-locked reversible WP Snippet
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-battery-incremental-calculator-release.yml'
+      - 'scripts/solar_battery_incremental_calculator_release.py'
+      - 'content/snippets/battery-incremental-calculator-v1.php'
+      - 'ops/solar-battery-incremental-calculator-release.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-battery-incremental-calculator-release.yml'
+      - 'scripts/solar_battery_incremental_calculator_release.py'
+      - 'content/snippets/battery-incremental-calculator-v1.php'
+      - 'ops/solar-battery-incremental-calculator-release.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run source-lock and WordPress synthetic no-retry contract
+        run: |
+          python -m py_compile scripts/solar_battery_incremental_calculator_release.py
+          php -l content/snippets/battery-incremental-calculator-v1.php
+      - name: WordPress Code Snippets exact PHP source syntax
+        run: |
+          python - <<'PY'
+          from scripts.solar_battery_incremental_calculator_release import PHP_CODE
+          from pathlib import Path
+          Path('/tmp/solar-kit-buying-guide.php').write_text('<?php\n'+PHP_CODE)
+          PY
+          php -l /tmp/solar-kit-buying-guide.php
+      - name: Execute actual calculator arithmetic and invalid-input boundaries
+        run: |
+          node - <<'JS'
+          const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+          const php=fs.readFileSync('content/snippets/battery-incremental-calculator-v1.php','utf8');
+          const js=php.match(/<script id="se-bic-script-v1">([\s\S]*?)<\/script>/)[1];
+          new vm.Script(js);
+          const start=js.indexOf('function batteryEconomics(v){'),end=js.indexOf('const root=document.querySelector');
+          assert(start>=0&&end>start);
+          const calc=vm.runInNewContext(js.slice(start,end)+';batteryEconomics');
+          const v={energy:1500,eff:90,buy:5,sell:1,price:80000,cost:1000,years:10};
+          const x=calc(v);
+          assert.equal(x.net,4250);assert.equal(x.useful,1350);assert.equal(x.loss,150);assert.equal(x.foregone,1500);assert.equal(x.max,42500);assert.equal(x.required,2572);assert.equal(x.meets,false);
+          assert(Math.abs(x.payback-18.823529411764707)<1e-8);
+          assert.equal(calc({...v,price:42500}).meets,true);
+          assert.equal(calc({...v,sell:5}).payback,null);
+          assert.equal(calc({...v,sell:5}).required,null);
+          assert.equal(calc({...v,energy:0}).net,-1000);
+          assert.equal(calc({...v,eff:101}),null);
+          assert.equal(calc({...v,years:0}),null);
+          assert.equal(calc({...v,energy:NaN}),null);
+          console.log('actual inline calculator arithmetic and boundaries passed');
+          JS
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_reversible_battery_incremental_calculator"
+            and .source_blob_sha1=="628f3ebd22071d846fdf40413731b627df53b088" ' ops/solar-battery-incremental-calculator-release.json >/dev/null
+
+      - name: Current public article preflight and indexability (GET only)
+        if: github.event_name == 'pull_request'
+        run: python -c "from scripts.solar_battery_incremental_calculator_release import check_public; check_public(False)"
+  one-shot-activate:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only exactly one independent disarmed-to-armed control change authorizes WP writes
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-battery-incremental-calculator-release.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/battery-incremental-calculator-v1.php")" == '628f3ebd22071d846fdf40413731b627df53b088' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/battery-incremental-calculator-v1.php")" == '628f3ebd22071d846fdf40413731b627df53b088' ]] || exit 0
+          git show "$BEFORE:ops/solar-battery-incremental-calculator-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_reversible_battery_incremental_calculator",
+              "source_blob_sha1":"628f3ebd22071d846fdf40413731b627df53b088"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_reversible_battery_incremental_calculator",
+            "source_blob_sha1":"628f3ebd22071d846fdf40413731b627df53b088"}' ops/solar-battery-incremental-calculator-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_battery_incremental_calculator_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-battery-incremental-calculator-receipt-${{ github.run_id }}
+          path: artifacts/solar-battery-incremental-calculator-release.json
+          retention-days: 14
+          if-no-files-found: warn
