@@ -1,0 +1,100 @@
+name: Solar 3000W battery bank merchant cards - source-locked reversible WP Snippet
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-battery3000-offers-release.yml'
+      - 'scripts/solar_battery3000_offers_release.py'
+      - 'content/snippets/battery3000-offers-v1.php'
+      - 'ops/solar-battery3000-offers-release.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-battery3000-offers-release.yml'
+      - 'scripts/solar_battery3000_offers_release.py'
+      - 'content/snippets/battery3000-offers-v1.php'
+      - 'ops/solar-battery3000-offers-release.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run source-lock and WordPress synthetic no-retry contract
+        run: |
+          python -m py_compile scripts/solar_battery3000_offers_release.py
+          php -l content/snippets/battery3000-offers-v1.php
+      - name: WordPress Code Snippets exact PHP source syntax
+        run: |
+          python - <<'PY'
+          from scripts.solar_battery3000_offers_release import PHP_CODE
+          from pathlib import Path
+          Path('/tmp/solar-kit-buying-guide.php').write_text('<?php\n'+PHP_CODE)
+          PY
+          php -l /tmp/solar-kit-buying-guide.php
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_reversible_battery3000_offers"
+            and .source_blob_sha1=="586498ad11ccddde91cede4353e14ceca3cb0ab3" ' ops/solar-battery3000-offers-release.json >/dev/null
+
+      - name: Current public article preflight and indexability (GET only)
+        if: github.event_name == 'pull_request'
+        run: python -c "from scripts.solar_battery3000_offers_release import check_public; check_public(False)"
+  one-shot-activate:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only exactly one independent disarmed-to-armed control change authorizes WP writes
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-battery3000-offers-release.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/battery3000-offers-v1.php")" == '586498ad11ccddde91cede4353e14ceca3cb0ab3' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/battery3000-offers-v1.php")" == '586498ad11ccddde91cede4353e14ceca3cb0ab3' ]] || exit 0
+          git show "$BEFORE:ops/solar-battery3000-offers-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_reversible_battery3000_offers",
+              "source_blob_sha1":"586498ad11ccddde91cede4353e14ceca3cb0ab3"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_reversible_battery3000_offers",
+            "source_blob_sha1":"586498ad11ccddde91cede4353e14ceca3cb0ab3"}' ops/solar-battery3000-offers-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_battery3000_offers_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-battery3000-offers-receipt-${{ github.run_id }}
+          path: artifacts/solar-battery3000-offers-release.json
+          retention-days: 14
+          if-no-files-found: warn
