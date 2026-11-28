@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_battery_incremental_calculator",
+  "source_blob_sha1": "628f3ebd22071d846fdf40413731b627df53b088"
+}
