@@ -48,7 +48,7 @@ jobs:
         run: |
           jq -e '.schema_version==1 and (.enabled|type)=="boolean"
             and .revision==1 and .mode=="one_reversible_mppt_editorial_offers"
-            and .source_blob_sha1=="ebb8fa553aacd473d32942eb7f4aff2e7cf82dea" ' ops/solar-mppt-editorial-offers-release.json >/dev/null
+            and .source_blob_sha1=="b6bfe71cf9c45f47c05f90a8629c70c39558f2e6" ' ops/solar-mppt-editorial-offers-release.json >/dev/null
 
       - name: Current public article preflight and indexability (GET only)
         if: github.event_name == 'pull_request'
@@ -75,15 +75,15 @@ jobs:
           [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-mppt-editorial-offers-release.json' ]] || exit 0
-          [[ "$(git rev-parse "$BEFORE:content/snippets/mppt-editorial-offers-v1.php")" == 'ebb8fa553aacd473d32942eb7f4aff2e7cf82dea' ]] || exit 0
-          [[ "$(git rev-parse "$AFTER:content/snippets/mppt-editorial-offers-v1.php")" == 'ebb8fa553aacd473d32942eb7f4aff2e7cf82dea' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/mppt-editorial-offers-v1.php")" == 'b6bfe71cf9c45f47c05f90a8629c70c39558f2e6' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/mppt-editorial-offers-v1.php")" == 'b6bfe71cf9c45f47c05f90a8629c70c39558f2e6' ]] || exit 0
           git show "$BEFORE:ops/solar-mppt-editorial-offers-release.json" |
             jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
               "mode":"one_reversible_mppt_editorial_offers",
-              "source_blob_sha1":"ebb8fa553aacd473d32942eb7f4aff2e7cf82dea"}' >/dev/null
+              "source_blob_sha1":"b6bfe71cf9c45f47c05f90a8629c70c39558f2e6"}' >/dev/null
           jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
             "mode":"one_reversible_mppt_editorial_offers",
-            "source_blob_sha1":"ebb8fa553aacd473d32942eb7f4aff2e7cf82dea"}' ops/solar-mppt-editorial-offers-release.json >/dev/null
+            "source_blob_sha1":"b6bfe71cf9c45f47c05f90a8629c70c39558f2e6"}' ops/solar-mppt-editorial-offers-release.json >/dev/null
           echo 'armed=true' >> "$GITHUB_OUTPUT"
       - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
         if: steps.gate.outputs.armed == 'true'
