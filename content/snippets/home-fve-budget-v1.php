@@ -16,6 +16,10 @@ function solar_expert_home_fve_budget_v1($content) {
       'Orientační veřejné ceny jednoho dodavatele a model porovnání rozsahu najdete v aktualizovaném přehledu výše.'
     );
     // Exact text only; never alter link targets or native post content.
+    // WordPress typography may encode the en dash before this filter.
+    $encoded=str_replace('–','&#8211;',$old[0]);
+    if(substr_count($content,$old[0])+substr_count($content,$encoded)!==1) return $content;
+    if(strpos($content,$encoded)!==false) $old[0]=$encoded;
     foreach($old as $phrase) if(substr_count($content,$phrase)!==1) return $content;
     $pattern='~<h2(?:\s[^>]*)?>\s*Co je fotovoltaika\?\s*</h2>~u';
     if(preg_match_all($pattern,$content,$m,PREG_OFFSET_CAPTURE)!==1) return $content;
