@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_existing_daily_yield_calculator_put",
+  "source_blob_sha1": "eceb4e282f2a758ca5b920210841b815cc68ac2d"
+}
