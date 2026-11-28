@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_well_pump_hydraulic",
+  "source_blob_sha1": "3bfec9c0122d9a641fc4b5a689a45c186deb34c5"
+}
