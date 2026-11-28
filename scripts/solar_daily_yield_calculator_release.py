@@ -2,6 +2,7 @@
 import base64,hashlib,json,os,sys,re
 from urllib import request,error
 from scripts import solar_daily_yield_answer_release as old
+from scripts import solar_grid_battery_calculator_paths_release as targets
 from scripts.solar_gsc_direct_rest_preflight import NoRedirect
 ROOT=old.ROOT
 CONTROL=ROOT/'ops/solar-daily-yield-calculator-release.json'
@@ -55,7 +56,7 @@ def public(after):
     else:
         require('id="se-dyc-script-v2"' not in html,'Existing duplicate script')
     require(all(marker not in old.public(path) for path in ('/','/solarni-sestava-na-chatu/')),'Calculator leaked outside scope')
-    require(old.public('/kdy-ma-smysl-fotovoltaika/').count('id="se-bic-title"')==1 and old.public('/kolik-stoji-fotovoltaika/').count('id="kontrola-domovni-fve"')==1,'Destination anchor missing')
+    require(targets.public('/kdy-ma-smysl-fotovoltaika/').count('id="se-bic-title"')==1 and targets.public('/kolik-stoji-fotovoltaika/').count('id="kontrola-domovni-fve"')==1,'Destination anchor missing')
 
 def receipt(status,**kw):
     RECEIPT.parent.mkdir(parents=True,exist_ok=True)
@@ -79,7 +80,7 @@ def execute(user,password):
     receipt('wp_verified',public_source_verified=True,browser_proof_pending=True)
 def main():
     try:execute(os.getenv('SOLAR_WP_USER','').strip(),os.getenv('SOLAR_WP_APP_PASSWORD','').strip())
-    except (Blocked,old.Blocked,OSError,ValueError,TypeError,KeyError) as exc:
+    except (Blocked,old.Blocked,targets.Blocked,OSError,ValueError,TypeError,KeyError) as exc:
         receipt('blocked_no_retry',reason=str(exc)[:160])
         sys.exit(2)
 if __name__=='__main__':main()
