@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_kit_buying_guide",
   "source_blob_sha1": "84833fc669a1e7ddd07e0b01689b86eb7b789f7b"
