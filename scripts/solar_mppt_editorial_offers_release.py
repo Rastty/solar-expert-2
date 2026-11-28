@@ -133,6 +133,9 @@ def check_public(after):
                     'Public configured affiliate destination mismatch')
         print('Public three eHub destinations parsed without navigation or identifiers logged')
     else:
+        print('PUBLIC EXACT DIAGNOSTIC',html.count(old),[re.sub('<[^>]*>','',s) for s in re.findall(r'<h2[^>]*>.*?</h2>',html,re.S)][:15])
+        for token in ('současná veřejná kalkulačka','automaticky neověřuje Isc','Tři typické situace'):
+            print('PUBLIC CONTEXT',token,[html[max(0,m.start()-80):m.start()+300] for m in re.finditer(re.escape(token),html)][:2])
         require(marker not in html and html.count(old)==1 and len(re.findall(r'<h2(?:\s[^>]*)?>\s*Tři typické situace při výběru\s*</h2>',html,re.I))==1,
                 'Existing exact article anchor or stale statement changed or duplicate')
         require('affiliateBases' in html and 'vselektro-eu' in html,'Public affiliate runtime configuration missing')
