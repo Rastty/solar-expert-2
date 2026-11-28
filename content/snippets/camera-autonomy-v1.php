@@ -1,0 +1,39 @@
+/** Existing camera/router buyer guide: actual continuous vs event recording and autonomy. */
+function solar_expert_camera_autonomy_v1($content) {
+    if(is_admin() || !is_singular('post') || !in_the_loop() || !is_main_query() || !is_string($content) || strlen($content)>600000) return $content;
+    $post=get_queried_object();
+    if(!($post instanceof WP_Post) || (int)$post->ID!==1626 || $post->post_name!=='solarni-panel-pro-wifi-kameru-a-router-na-chate' || strpos($content,'data-se-camera-autonomy-v1')!==false) return $content;
+    $old='Současná veřejná kalkulačka pomáhá s výkonem, Voc a Vmp; <strong>PV Isc ani počet paralelních větví zatím automaticky neověřuje</strong>. Tyto hodnoty kontrolujte před nákupem odděleně podle dokumentace výrobce. Nové bezpečnostní kontroly se připravují, ale zde nejsou vydávány za již dostupné funkce.';
+    $pattern='~<h2(?:\s[^>]*)?>\s*Kolik Wh denně spotřebuje router a IP kamera\?\s*</h2>~u';
+    if(substr_count($content,$old)!==1 || preg_match_all($pattern,$content,$m,PREG_OFFSET_CAPTURE)!==1) return $content;
+    $block=<<<'SE_CAMERA'
+<section data-se-camera-autonomy-v1="1" aria-labelledby="se-camera-choice" style="margin:22px 0;line-height:1.6">
+<div style="padding:clamp(16px,4vw,26px);border:1px solid #c9ddd9;border-radius:16px;background:#eff8f5;color:#142e2b">
+<p style="margin:0;color:#205d53;font-weight:700;font-size:.85em;text-transform:uppercase;letter-spacing:.04em">Nákupní průvodce</p>
+<h2 id="se-camera-choice" style="margin:8px 0;color:#142e2b">Solární kamera na chatu: kterou variantu koupit?</h2>
+<p><strong>Pro upozornění na pohyb může stačit bateriová kamera s malým vlastním panelem. Pro nepřetržitě napájený router a kameru s průběžným záznamem je potřeba úplně jinak dimenzovaná sestava.</strong> Rozhodněte podle požadovaného režimu a dostupnosti internetu, nikoli podle reklamní výdrže baterie.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px">
+<div style="padding:14px;background:#fff;border:1px solid #c9ddd9;border-radius:12px"><strong>Wi-Fi a detekce událostí</strong><p>Například Tapo C425 KIT, pokud už máte funkční Wi-Fi. Výrobce výdrž 300 dnů odvozuje jen od 230 sekund používání denně. Nezaměňujte ji za nepřetržitý záznam.</p><a href="https://www.tp-link.com/cz/home-networking/cloud-camera/tapo-c425-kit/" rel="noopener">Parametry výrobce</a></div>
+<div style="padding:14px;background:#fff;border:1px solid #c9ddd9;border-radius:12px"><strong>Bez Wi-Fi, detekce událostí</strong><p>Například Tapo C615G KIT s 4G SIM. Deklarovaných 120 dnů vychází z 250 sekund používání denně. Ověřte LTE signál, tarif, podmínky nabíjení a přesný režim záznamu.</p><a href="https://www.tp-link.com/cz/home-networking/cloud-camera/tapo-c615g-kit/" rel="noopener">Parametry výrobce</a></div>
+<div style="padding:14px;background:#fff;border:2px solid #287b66;border-radius:12px"><strong>Průběžný záznam 24/7</strong><p>Trvale napájená kompatibilní kamera, síťové zařízení a případně úložiště. Navrhněte samostatnou FVE podle skutečného příkonu všech komponent.</p><a class="se-btn se-btn-primary" href="/solarni-sestava-na-chatu/">Navrhnout sestavu →</a></div>
+</div>
+<p style="font-size:.9em;margin:12px 0 0">Nejde o žebříček ani ověřenou cenu kamery. Výrobní údaje mají konkrétní podmínky; ověřte přesnou hardwarovou verzi a podporu požadovaného záznamu. Záznam událostí není totéž co nepřetržitý videozáznam.</p>
+</div>
+<h3>Kolik baterie koupit na tři až pět dní bez slunce?</h3>
+<p>Navazujeme na model článku: zaokrouhlených 461 Wh/den z baterie včetně přirážky na napájecí ztráty. Předpokládáme 80 % dostupné kapacity nové plně nabité baterie. Nepřičítáme ztráty podruhé.</p>
+<div role="region" aria-label="Kapacita baterie pro kameru a router" tabindex="0" style="overflow-x:auto;border:1px solid #d5dfdc;border-radius:10px"><table style="width:100%;min-width:450px;margin:0"><thead><tr style="background:#205d53;color:#fff"><th scope="col">Autonomie</th><th scope="col">Min. jmenovité kWh</th><th scope="col">Při 12,8 V</th><th scope="col">Při 25,6 V</th></tr></thead><tbody><tr><th scope="row">2 dny</th><td>1,153 kWh</td><td>90,1 Ah</td><td>45,1 Ah</td></tr><tr style="background:#eff8f5;color:#142e2b"><th scope="row">3 dny</th><td>1,729 kWh</td><td>135,1 Ah</td><td>67,6 Ah</td></tr><tr><th scope="row">5 dnů</th><td>2,882 kWh</td><td>225,1 Ah</td><td>112,6 Ah</td></tr></tbody></table></div>
+<p>Výpočet: 461 Wh × počet dnů ÷ 0,8; Ah = výsledné Wh ÷ jmenovité napětí. Zaokrouhlete nahoru a přidejte rezervu podle stárnutí, provozní teploty, počátečního nabití a BMS. Například 12,8 V/200 Ah nebo 25,6 V/100 Ah mají shodně 2,56 kWh nominálně a modelově 4,44 dne. Při 80 % původní kapacity by to bylo jen 3,55 dne. Napětí volte podle přesných požadavků systému; nepřipojujte zařízení přímo jen podle nominálního napětí.</p>
+<p><a class="se-btn se-btn-primary" href="/vyber-baterii/">Porovnat baterie pro vícedenní autonomii →</a></p>
+<h3>Jak rychle se po zatažených dnech obnoví rezerva?</h3>
+<p>Panel musí nejen uživit kameru, ale také doplnit vyčerpanou energii. Při ilustračním koeficientu 0,75 (předpokládáme zahrnuté solární a nabíjecí ztráty) vychází pro 400 Wp a dvě ekvivalentní hodiny slunce 600 Wh/den, pro 800 Wp 1 200 Wh/den. Po odečtení odběru 461 Wh zbývá 139 nebo 739 Wh/den. Doplnění 1 383 Wh po třech dnech bez výroby tak modelově trvá přibližně 10 nebo 1,9 dne. Při jediné ekvivalentní hodině 400Wp pole nestačí ani na denní odběr. Nejde o místní předpověď, použijte PVGIS a hodinový profil; při dlouhodobém deficitu systém vyžaduje jiné řešení.</p>
+<h3>Který MPPT prověřit pro 400 nebo 800 Wp?</h3>
+<div role="region" aria-label="Porovnání MPPT regulátorů" tabindex="0" style="overflow-x:auto;border:1px solid #d5dfdc;border-radius:10px"><table style="width:100%;min-width:440px;margin:0"><thead><tr><th scope="col">Model Victron</th><th scope="col">Nominální FV 12 V / 24 V</th><th scope="col">Max. PV Isc</th><th scope="col">Max. nabíjecí proud</th></tr></thead><tbody><tr><th scope="row">100/30</th><td>440 / 880 Wp</td><td>35 A</td><td>30 A</td></tr><tr><th scope="row">100/50</th><td>700 / 1 400 Wp</td><td>60 A</td><td>50 A</td></tr></tbody></table></div>
+<p>Oba mají mez Voc 100 V, která musí být dodržena i v mrazu. Model 100/30 lze předběžně prověřit pro 400 Wp na 12 V nebo 800 Wp na 24 V. Pro 800 Wp na 12 V ani 100/50 nominálním výkonem nestačí bez omezení výkonu; rozhoduje přesný datasheet, návrhový Isc, Voc, Vmp, baterie a projekt. Výrobce připouští omezení nad nominálním FV výkonem, nikoli překročení elektrických mezí. <a href="https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_100-30__100-50/en/technical-specifications.html" rel="noopener">Oficiální specifikace Victron</a>. <a href="/mppt-kalkulacka/">Ověřit parametry v MPPT kalkulačce →</a></p>
+<div style="padding:14px;border-left:4px solid #287b66;background:#eff8f5;color:#142e2b;border-radius:8px"><strong>Než koupíte:</strong> prověřte režim záznamu, spotřebu při nočním provozu, dostupnost sítě, kapacitu baterie i při nižší teplotě a výrobcem povolené nabíjení. Pro kritický dohled počítejte i s výpadkem internetu a bezpečným záložním zdrojem. <a href="/quote-checker/">Zkontrolovat nabídku sestavy →</a> Dodržujte soukromí ostatních a svěřte elektrický návrh odborníkovi.</div>
+</section>
+SE_CAMERA;
+    $offset=$m[0][0][1];
+    $content=substr($content,0,$offset).$block.substr($content,$offset);
+    return str_replace($old,'Aktuální kalkulačka pomáhá s výkonem, Voc, Vmp i součtem Isc paralelních větví u podporovaných modelů. Zadejte skutečné návrhové hodnoty a ověřte přesné limity, teplotní korekce, jištění a dokumentaci výrobce. Výsledek je předběžný filtr, ne schválený návrh instalace.',$content);
+}
+add_filter('the_content','solar_expert_camera_autonomy_v1',20);
