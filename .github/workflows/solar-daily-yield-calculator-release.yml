@@ -1,0 +1,138 @@
+name: Solar daily generation calculator - one exact existing snippet PUT
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-daily-yield-calculator-release.yml'
+      - 'scripts/solar_daily_yield_calculator_release.py'
+      - 'content/snippets/daily-yield-answer-v2-calculator.php'
+      - 'ops/solar-daily-yield-calculator-release.json'
+      - 'scripts/solar_daily_yield_calculator_browser.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-daily-yield-calculator-release.yml'
+      - 'scripts/solar_daily_yield_calculator_release.py'
+      - 'content/snippets/daily-yield-answer-v2-calculator.php'
+      - 'ops/solar-daily-yield-calculator-release.json'
+      - 'scripts/solar_daily_yield_calculator_browser.mjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run source-lock and WordPress synthetic no-retry contract
+        run: |
+          python -m py_compile scripts/solar_daily_yield_calculator_release.py
+          php -l content/snippets/daily-yield-answer-v2-calculator.php
+      - name: WordPress Code Snippets exact PHP source syntax
+        run: |
+          python - <<'PY'
+          from scripts.solar_daily_yield_calculator_release import CODE as PHP_CODE
+          from pathlib import Path
+          Path('/tmp/solar-kit-buying-guide.php').write_text('<?php\n'+PHP_CODE)
+          PY
+          php -l /tmp/solar-kit-buying-guide.php
+      - name: Validate actual inline enhancement JavaScript
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          from scripts.solar_daily_yield_calculator_release import CODE as PHP_CODE
+          js=re.search(r'<script id="se-dyc-script-v2">([\s\S]*?)</script>',PHP_CODE).group(1)
+          Path('/tmp/solar-daily-yield.js').write_text(js)
+          PY
+          node --check /tmp/solar-daily-yield.js
+
+      - name: Execute actual calculator arithmetic
+        run: |
+          node - <<'JS'
+          const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+          const js=fs.readFileSync('/tmp/solar-daily-yield.js','utf8');
+          const calc=vm.runInNewContext(js.slice(js.indexOf('function dailyValue(v){'),js.indexOf('const root=document.querySelector'))+';dailyValue');
+          const v={power:10,sun:3,factor:80,direct:10,charge:6,eff:90,buy:5,sell:1},x=calc(v);
+          assert.equal(x.production,24);assert.equal(x.recovered,5.4);assert.equal(x.export,8);assert.equal(x.value,85);assert.equal(x.saved,77);
+          assert.equal(calc({...v,sun:1}).error,'allocation');
+          assert.equal(calc({...v,sun:0,direct:0,charge:0}).value,0);
+          assert.equal(calc({...v,power:0}),null);
+          assert.equal(calc({...v,eff:101}).error,'values');
+          assert.equal(calc({...v,sell:0}).value,77);
+          console.log('actual calculator arithmetic passed');
+          JS
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_existing_daily_yield_calculator_put"
+            and .source_blob_sha1=="eceb4e282f2a758ca5b920210841b815cc68ac2d" ' ops/solar-daily-yield-calculator-release.json >/dev/null
+
+      - name: Current public article preflight and indexability (GET only)
+        if: github.event_name == 'pull_request'
+        run: python -c "from scripts.solar_daily_yield_calculator_release import public; public(False)"
+  one-shot-activate:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only exactly one independent disarmed-to-armed control change authorizes WP writes
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-daily-yield-calculator-release.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/daily-yield-answer-v2-calculator.php")" == 'eceb4e282f2a758ca5b920210841b815cc68ac2d' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/daily-yield-answer-v2-calculator.php")" == 'eceb4e282f2a758ca5b920210841b815cc68ac2d' ]] || exit 0
+          git show "$BEFORE:ops/solar-daily-yield-calculator-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_existing_daily_yield_calculator_put",
+              "source_blob_sha1":"eceb4e282f2a758ca5b920210841b815cc68ac2d"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_existing_daily_yield_calculator_put",
+            "source_blob_sha1":"eceb4e282f2a758ca5b920210841b815cc68ac2d"}' ops/solar-daily-yield-calculator-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exact existing daily-yield snippet PUT with source CAS, never retry
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_daily_yield_calculator_release
+      - name: Verify daily calculator interaction in mobile Chromium, no injection or outbound visits
+        if: steps.gate.outputs.armed == 'true'
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node scripts/solar_daily_yield_calculator_browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-daily-yield-calculator-receipt-${{ github.run_id }}
+          path: |
+            artifacts/solar-daily-yield-calculator-release.json
+            artifacts/solar-daily-yield-calculator-browser.json
+            artifacts/daily-yield-calculator.png
+          retention-days: 14
+          if-no-files-found: warn
