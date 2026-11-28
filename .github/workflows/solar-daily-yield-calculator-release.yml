@@ -51,7 +51,7 @@ jobs:
           import re
           from pathlib import Path
           from scripts.solar_daily_yield_calculator_release import CODE as PHP_CODE
-          js=re.search(r"<<<'SE_DYC_JS'\n([\s\S]*?)\nSE_DYC_JS;",PHP_CODE).group(1)
+          js=re.search(r'<script id="se-dyc-script-v2">([\s\S]*?)</script>',PHP_CODE).group(1)
           Path('/tmp/solar-daily-yield.js').write_text(js)
           PY
           node --check /tmp/solar-daily-yield.js
