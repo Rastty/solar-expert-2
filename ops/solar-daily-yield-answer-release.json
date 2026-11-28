@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_daily_yield_answer",
   "source_blob_sha1": "ff33a44c431a6d80682e3c86e6576e6a855dbbbf"
