@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_qualified_kit_entry",
   "source_blob_sha1": "4ce40fb242ce52a32e08a2d0fed76ce7321d0e94"
