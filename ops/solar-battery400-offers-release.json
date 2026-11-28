@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_battery400_offers",
   "source_blob_sha1": "72aa599097d6387f4fc370dd0a2d0e667971ae18"
