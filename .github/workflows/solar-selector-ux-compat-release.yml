@@ -1,0 +1,123 @@
+name: Solar selector UX compatibility - one exact existing snippet PUT
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-selector-ux-compat-release.yml'
+      - 'scripts/solar_selector_ux_compat_release.py'
+      - 'content/snippets/selector-ux-v1-compat.php'
+      - 'ops/solar-selector-ux-compat-release.json'
+      - 'scripts/solar_selector_ux_compat_browser.mjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-selector-ux-compat-release.yml'
+      - 'scripts/solar_selector_ux_compat_release.py'
+      - 'content/snippets/selector-ux-v1-compat.php'
+      - 'ops/solar-selector-ux-compat-release.json'
+      - 'scripts/solar_selector_ux_compat_browser.mjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run source-lock and WordPress synthetic no-retry contract
+        run: |
+          python -m py_compile scripts/solar_selector_ux_compat_release.py
+          php -l content/snippets/selector-ux-v1-compat.php
+      - name: WordPress Code Snippets exact PHP source syntax
+        run: |
+          python - <<'PY'
+          from scripts.solar_selector_ux_compat_release import CODE as PHP_CODE
+          from pathlib import Path
+          Path('/tmp/solar-kit-buying-guide.php').write_text('<?php\n'+PHP_CODE)
+          PY
+          php -l /tmp/solar-kit-buying-guide.php
+      - name: Validate actual inline enhancement JavaScript
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          from scripts.solar_selector_ux_compat_release import CODE as PHP_CODE
+          js=re.search(r"<<<'SE_SUX_JS'\n([\s\S]*?)\nSE_SUX_JS;",PHP_CODE).group(1)
+          Path('/tmp/solar-selector-ux.js').write_text(js)
+          PY
+          node --check /tmp/solar-selector-ux.js
+
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_existing_selector_ux_compat_put"
+            and .source_blob_sha1=="888903e2a63105f3d6162e8c24bc655c50359f12" ' ops/solar-selector-ux-compat-release.json >/dev/null
+
+      - name: Current public article preflight and indexability (GET only)
+        if: github.event_name == 'pull_request'
+        run: python -c "from scripts.solar_selector_ux_compat_release import public; public(False)"
+  one-shot-activate:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only exactly one independent disarmed-to-armed control change authorizes WP writes
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-selector-ux-compat-release.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/selector-ux-v1-compat.php")" == '888903e2a63105f3d6162e8c24bc655c50359f12' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/selector-ux-v1-compat.php")" == '888903e2a63105f3d6162e8c24bc655c50359f12' ]] || exit 0
+          git show "$BEFORE:ops/solar-selector-ux-compat-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_existing_selector_ux_compat_put",
+              "source_blob_sha1":"888903e2a63105f3d6162e8c24bc655c50359f12"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_existing_selector_ux_compat_put",
+            "source_blob_sha1":"888903e2a63105f3d6162e8c24bc655c50359f12"}' ops/solar-selector-ux-compat-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exact existing UX snippet PUT with source CAS, never retry
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_selector_ux_compat_release
+      - name: Verify three live selector layouts in mobile Chromium, no injection or outbound visits
+        if: steps.gate.outputs.armed == 'true'
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node scripts/solar_selector_ux_compat_browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-selector-ux-compat-receipt-${{ github.run_id }}
+          path: |
+            artifacts/solar-selector-ux-compat-release.json
+            artifacts/solar-selector-ux-browser.json
+            artifacts/selector-ux-*.png
+          retention-days: 14
+          if-no-files-found: warn
