@@ -1,0 +1,124 @@
+name: Solar heating UPS runtime calculator - source-locked reversible WP Snippet
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-heating-ups-runtime-calculator-release.yml'
+      - 'scripts/solar_heating_ups_runtime_calculator_release.py'
+      - 'content/snippets/heating-ups-runtime-calculator-v1.php'
+      - 'ops/solar-heating-ups-runtime-calculator-release.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-heating-ups-runtime-calculator-release.yml'
+      - 'scripts/solar_heating_ups_runtime_calculator_release.py'
+      - 'content/snippets/heating-ups-runtime-calculator-v1.php'
+      - 'ops/solar-heating-ups-runtime-calculator-release.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run source-lock and WordPress synthetic no-retry contract
+        run: |
+          python -m py_compile scripts/solar_heating_ups_runtime_calculator_release.py
+          php -l content/snippets/heating-ups-runtime-calculator-v1.php
+      - name: WordPress Code Snippets exact PHP source syntax
+        run: |
+          python - <<'PY'
+          from scripts.solar_heating_ups_runtime_calculator_release import PHP_CODE
+          from pathlib import Path
+          Path('/tmp/solar-kit-buying-guide.php').write_text('<?php\n'+PHP_CODE)
+          PY
+          php -l /tmp/solar-kit-buying-guide.php
+      - name: Execute actual calculator arithmetic and invalid-input boundaries
+        run: |
+          node - <<'JS'
+          const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+          const php=fs.readFileSync('content/snippets/heating-ups-runtime-calculator-v1.php','utf8');
+          const js=php.match(/<script id="se-urc-script-v1">([\s\S]*?)<\/script>/)[1];
+          new vm.Script(js);
+          const start=js.indexOf('function upsRuntime(v){'),end=js.indexOf('const root=document.querySelector');
+          assert(start>=0&&end>start);
+          const calc=vm.runInNewContext(js.slice(start,end)+';upsRuntime');
+          const v={load:40,hours:12,volts:12,ah:120,usable:50,health:100,eff:90,idle:15};
+          const x=calc(v);
+          assert.equal(x.required,119);assert.equal(x.energy,720);assert.equal(x.meets,true);
+          assert(Math.abs(x.runtime-12.11214953271028)<1e-8);
+          assert.equal(calc({...v,hours:8}).required,80);
+          assert.equal(calc({...v,health:80}).required,149);
+          assert.equal(calc({...v,health:80}).meets,false);
+          assert.equal(calc({...v,load:100,hours:8}).required,169);
+          assert.equal(calc({...v,ah:55}).meets,false);
+          assert.equal(calc({...v,eff:0}),null);
+          assert.equal(calc({...v,health:101}),null);
+          assert.equal(calc({...v,volts:NaN}),null);
+          console.log('actual UPS runtime arithmetic and boundaries passed');
+          JS
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_reversible_heating_ups_runtime_calculator"
+            and .source_blob_sha1=="04e00c824753157af6fc02c04b649fac13ba0358" ' ops/solar-heating-ups-runtime-calculator-release.json >/dev/null
+
+      - name: Current public article preflight and indexability (GET only)
+        if: github.event_name == 'pull_request'
+        run: python -c "from scripts.solar_heating_ups_runtime_calculator_release import check_public; check_public(False)"
+  one-shot-activate:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only exactly one independent disarmed-to-armed control change authorizes WP writes
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-heating-ups-runtime-calculator-release.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/heating-ups-runtime-calculator-v1.php")" == '04e00c824753157af6fc02c04b649fac13ba0358' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/heating-ups-runtime-calculator-v1.php")" == '04e00c824753157af6fc02c04b649fac13ba0358' ]] || exit 0
+          git show "$BEFORE:ops/solar-heating-ups-runtime-calculator-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_reversible_heating_ups_runtime_calculator",
+              "source_blob_sha1":"04e00c824753157af6fc02c04b649fac13ba0358"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_reversible_heating_ups_runtime_calculator",
+            "source_blob_sha1":"04e00c824753157af6fc02c04b649fac13ba0358"}' ops/solar-heating-ups-runtime-calculator-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_heating_ups_runtime_calculator_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-heating-ups-runtime-calculator-receipt-${{ github.run_id }}
+          path: artifacts/solar-heating-ups-runtime-calculator-release.json
+          retention-days: 14
+          if-no-files-found: warn
