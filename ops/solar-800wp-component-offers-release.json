@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_800wp_component_offers",
   "source_blob_sha1": "64e130616fec69075bfd75e2d39acb8488a38b14"
