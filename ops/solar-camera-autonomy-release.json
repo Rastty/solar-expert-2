@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_camera_autonomy",
+  "source_blob_sha1": "5ce27e53ac2985df7020348decc08cf9c76e2834"
+}
