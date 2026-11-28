@@ -24,7 +24,7 @@ RECEIPT=ROOT/'artifacts/solar-mppt-editorial-offers-release.json'
 NAME='Solar Expert MPPT editorial offers v1'
 DESC='Three dated merchant cards with approved eHub links'
 MODE='one_reversible_mppt_editorial_offers'
-SOURCE_BLOB='ebb8fa553aacd473d32942eb7f4aff2e7cf82dea'
+SOURCE_BLOB='b6bfe71cf9c45f47c05f90a8629c70c39558f2e6'
 SOURCE_PATH=ROOT/'content/snippets/mppt-editorial-offers-v1.php'
 PHP_CODE=SOURCE_PATH.read_text(encoding='utf-8')
 BYTES=PHP_CODE.encode('utf-8')
@@ -112,7 +112,7 @@ def check_public(after):
             not any('noindex' in str(x).lower() for x in head['robots']),
             'Public article canonical/indexability changed')
     marker='data-se-mppt-editorial-offers-v1="1"'
-    old='Pozor: současná veřejná kalkulačka zatím automaticky neověřuje Isc panelů ani počet paralelních stringů. Isc z datasheetu panelu a maximální vstupní Isc regulátoru ověřte samostatně před nákupem.'
+    old='<strong>Pozor: současná veřejná kalkulačka zatím automaticky neověřuje Isc panelů ani počet paralelních stringů.</strong> Isc z datasheetu panelu a maximální vstupní Isc regulátoru ověřte samostatně před nákupem.'
     require('/mppt-kalkulacka/' in html,'Public original buyer links missing')
     if after:
         require(html.count(marker)==1 and old not in html and all(x in html for x in ('2 404 Kč','3 444 Kč','4 946 Kč','8719076043027','8719076040170','8719076040194','součet Isc paralelních větví','se-mppt-editorial-offers-click-v1')),
@@ -133,9 +133,6 @@ def check_public(after):
                     'Public configured affiliate destination mismatch')
         print('Public three eHub destinations parsed without navigation or identifiers logged')
     else:
-        print('PUBLIC EXACT DIAGNOSTIC',html.count(old),[re.sub('<[^>]*>','',s) for s in re.findall(r'<h2[^>]*>.*?</h2>',html,re.S)][:15])
-        for token in ('současná veřejná kalkulačka','automaticky neověřuje Isc','Tři typické situace'):
-            print('PUBLIC CONTEXT',token,[html[max(0,m.start()-80):m.start()+300] for m in re.finditer(re.escape(token),html)][:2])
         require(marker not in html and html.count(old)==1 and len(re.findall(r'<h2(?:\s[^>]*)?>\s*Tři typické situace při výběru\s*</h2>',html,re.I))==1,
                 'Existing exact article anchor or stale statement changed or duplicate')
         require('affiliateBases' in html and 'vselektro-eu' in html,'Public affiliate runtime configuration missing')
