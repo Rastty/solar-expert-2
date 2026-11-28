@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_caravan_panel_decision",
   "source_blob_sha1": "16aff5b9f9ed3aa355766497b7ad3aa672663f64"
