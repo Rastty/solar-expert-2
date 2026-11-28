@@ -1,0 +1,40 @@
+/** Existing heat-pump consumption article: whole-home and DHW energy/cost scenarios. */
+function solar_expert_heatpump_consumption_budget_v1($content) {
+    if(is_admin() || !is_singular('post') || !in_the_loop() || !is_main_query() || !is_string($content) || strlen($content)>600000) return $content;
+    $post=get_queried_object();
+    if(!($post instanceof WP_Post) || $post->post_name!=='prumerna-spotreba-tepelneho-cerpadla' || strpos($content,'data-se-heatpump-consumption-budget-v1')!==false) return $content;
+    $pattern='~<h2(?:\s[^>]*)?>\s*Rychlý výpočet roční spotřeby\s*</h2>~u';
+    if(preg_match_all($pattern,$content,$m,PREG_OFFSET_CAPTURE)!==1) return $content;
+    $block=<<<'SE_HEATPUMP_BUDGET'
+<section data-se-heatpump-consumption-budget-v1="1" aria-labelledby="se-hp-budget-title" style="margin:22px 0;line-height:1.6">
+<div style="padding:clamp(16px,4vw,25px);background:#eff8f5;border:1px solid #c9ddd9;border-radius:16px;color:#142e2b">
+<p style="margin:0;color:#205d53;font-weight:700;font-size:.85em;text-transform:uppercase">Praktický model · vytápění a teplá voda</p>
+<h2 id="se-hp-budget-title" style="margin:8px 0;color:#142e2b">Kolik stojí provoz tepelného čerpadla za rok?</h2>
+<p><strong>Pro modelový dům s potřebou 12 000 kWh tepla na vytápění, sezónním faktorem celé topné soustavy 3,2 a čtyřčlennou domácností vychází přibližně 5 156 kWh elektřiny ročně včetně ohřevu vody.</strong> Při hypotetické proměnné ceně 5 Kč/kWh jde o 25 780 Kč ročně. Nejde o průměr českých domů, aktuální tarif ani garantovanou spotřebu.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:10px">
+<div style="background:white;border:1px solid #c9ddd9;border-radius:12px;padding:14px"><strong>Nižší potřeba tepla</strong><small style="display:block">8 MWh · SPF 3,8</small><p style="font-size:1.4rem;font-weight:700;color:#205d53;margin:4px 0">3 512 kWh</p><small>17 560 Kč/rok</small></div>
+<div style="background:white;border:1px solid #c9ddd9;border-radius:12px;padding:14px"><strong>Střední model</strong><small style="display:block">12 MWh · SPF 3,2</small><p style="font-size:1.4rem;font-weight:700;color:#205d53;margin:4px 0">5 156 kWh</p><small>25 780 Kč/rok</small></div>
+<div style="background:white;border:1px solid #c9ddd9;border-radius:12px;padding:14px"><strong>Vyšší potřeba tepla</strong><small style="display:block">18 MWh · SPF 2,7</small><p style="font-size:1.4rem;font-weight:700;color:#205d53;margin:4px 0">8 073 kWh</p><small>40 365 Kč/rok</small></div>
+</div>
+<p style="margin-bottom:0"><a class="se-btn se-btn-primary" href="/tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji/">Porovnat tepelná čerpadla a cenu →</a> <a class="se-btn" href="/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/">Prověřit kombinaci s FVE →</a></p>
+</div>
+<p><strong>Rychlá navigace:</strong> <a href="#se-hp-budget-water">teplá voda</a> · <a href="#se-hp-budget-winter">zimní den</a> · <a href="#se-hp-budget-compare">elektrokotel</a> · <a href="#se-hp-budget-quote">porovnání nabídek</a></p>
+<h3 id="se-hp-budget-water">Kolik elektřiny stojí teplá voda pro čtyři osoby?</h3>
+<p>Pro ohřev 160 litrů vody denně (4 × 40 l) z 10 na 55 °C uvažujeme měrnou tepelnou kapacitu vody přibližně 1,163 Wh/(l·K). Výpočet: 160 × 45 × 1,163 × 365 / 1 000 ≈ 3 056 kWh tepla za rok. Přidáme modelových 15 % na tepelné ztráty zásobníku a rozvodů, tedy celkem asi 3 514 kWh tepla. Při zvoleném sezónním faktoru ohřevu vody 2,5 odpovídá spotřeba přibližně 1 406 kWh elektřiny ročně. To je stejný příspěvek ve všech třech kartách výše. Skutečné ztráty a odběr vody změřte; nejde o doporučení měnit hygienické nastavení zásobníku.</p>
+<p>Pro vytápění používáme v kartách předpokládaný <strong>SPF celé soustavy</strong> včetně pomocné elektřiny a případného dohřevu při vytápění, nikoli samotný katalogový SCOP. Pro přípravu vody používáme oddělený sezónní faktor zahrnující příslušnou pomocnou elektřinu. Pokud odhad zahrnuje jen kompresor, připočítejte ostatní odběry jednou, ne dvakrát. Čísla jsou modelové, zaokrouhlené na celé kWh.</p>
+<h3 id="se-hp-budget-winter">Kolik kWh spotřebuje tepelné čerpadlo za zimní den?</h3>
+<p>Příklad domu s návrhovou tepelnou ztrátou 7 kW při −12 °C a vnitřní teplotě 21 °C: pro názornost předpokládáme lineární ztrátu podle rozdílu teplot, konstantní venkovní teplotu po 24 hodin a zanedbáváme solární a vnitřní zisky. Hodnoty denního topného faktoru jsou hypotetické, nikoli parametry konkrétního výrobku.</p>
+<div role="region" aria-label="Modelová spotřeba v různých venkovních teplotách" tabindex="0" style="overflow-x:auto;border:1px solid #c9ddd9;border-radius:10px"><table style="width:100%;min-width:430px;margin:0"><thead><tr style="background:#205d53;color:#fff"><th scope="col">Venku</th><th scope="col">Teplo za den</th><th scope="col">Modelový faktor</th><th scope="col">Elektřina za den</th><th scope="col">Při 5 Kč/kWh</th></tr></thead><tbody><tr><th scope="row">+10 °C</th><td>56,0 kWh</td><td>4,0</td><td>14,0 kWh</td><td>70 Kč</td></tr><tr><th scope="row">0 °C</th><td>106,9 kWh</td><td>3,0</td><td>35,6 kWh</td><td>178 Kč</td></tr><tr><th scope="row">−10 °C</th><td>157,8 kWh</td><td>2,5</td><td>63,1 kWh</td><td>316 Kč</td></tr></tbody></table></div>
+<p>Tabulka je pouze pro vytápění, bez přípravy vody. Pokud například v samostatném výpočtu čerpadlo již dodalo svůj díl tepla a další 6 kW elektrického dohřevu běží 2 hodiny, přibude 12 kWh elektřiny; nezapočítejte však stejné dodané teplo současně do obou zdrojů. Pokud dohřev zahrnuje použitý topný faktor, další přičtení by bylo chybné. Při vysoké spotřebě porovnejte několik podobně chladných dní, záznamy dohřevu a skutečně dodané teplo.</p>
+<h3 id="se-hp-budget-compare">Vyplatí se výměna elektrokotle?</h3>
+<p>Ve středním modelu potřebujeme celkem 15 514 kWh dodaného tepla za rok. Ideální referenční elektrický odporový zdroj s účinností 100 % na stejné hranici soustavy spotřebuje 15 514 kWh, tepelné čerpadlo modelově 5 156 kWh. Při stejné proměnné ceně 5 Kč/kWh jde o rozdíl <strong>51 790 Kč ročně</strong> před fixními platbami, servisem, náklady na investici a financováním. Při hypotetické dodatečné investici 250 000 Kč a dodatečných ročních nákladech 5 000 Kč vychází prostá návratnost asi 5,3 roku. V reálném projektu zohledněte rozdílné tarify, stav stávajícího zdroje, investici a skutečný provoz; u plynu tento výpočet neplatí.</p>
+<p>Pro kontrolu z faktury za plyn: pokud bylo 18 000 kWh plynu jen na vytápění a sezónní účinnost původního zdroje odhadnete na 85 %, odhad dodaného tepla činí 15 300 kWh. Při SPF 3,2 by vycházelo asi 4 781 kWh elektřiny na vytápění. Bez oddělení vaření, teplé vody a ověření účinnosti jde pouze o orientaci. Pro skutečný návrh výkonu je potřeba výpočet tepelné ztráty.</p>
+<h3 id="se-hp-budget-quote">Jak získat srovnatelné nabídky a odhad nákladů</h3>
+<p>Dodavateli připravte roční odběr, tepelnou ztrátu, druh otopné soustavy, požadovanou teplotu vody při mrazu, počet osob a případné měření dohřevu. Vyžádejte si odhad roční elektřiny pro vytápění a vodu odděleně, návrhový výkon a rozsah dodávky. U fotovoltaiky porovnejte měsíční a hodinové souběhy, nikoli jen roční součty. <a href="/kolik-vyrobi-fotovoltaika-v-zime/">Proč je zimní výroba důležitá</a>.</p>
+<p style="padding:14px;background:#eff8f5;border:1px solid #c9ddd9;border-radius:10px"><strong>Další krok:</strong> <a href="/tepelne-cerpadlo-vzduch-voda-jak-funguje-a-kolik-stoji/">průvodce výběrem tepelného čerpadla</a> a <a href="/kolik-stoji-fotovoltaika-s-tepelnym-cerpadlem/">porovnání rozpočtu FVE s tepelným čerpadlem</a>. Zdroje k vlivu provozních podmínek: <a href="https://www.daikin.cz/cs_cz/zakaznici/inspirace/articles/facts-about-heat-pump-power-consumption.html" rel="noopener">Daikin – spotřeba a účinnost</a>. Všechny uvedené ceny, potřeby tepla a sezónní faktory jsou naše transparentní modelové vstupy.</p>
+</section>
+SE_HEATPUMP_BUDGET;
+    $offset=$m[0][0][1];
+    return substr($content,0,$offset).$block.substr($content,$offset);
+}
+add_filter('the_content','solar_expert_heatpump_consumption_budget_v1',20);
