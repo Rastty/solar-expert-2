@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "authorization": "owner_standing_editorial",
+  "kind": "post_create",
+  "operation_id": "solar-household-battery-sizing-20261128-v1",
+  "slug": "jak-velkou-baterii-k-fotovoltaice",
+  "expected_status": "publish",
+  "category_slug": "solarni-panely",
+  "title": "Jak velkou baterii k fotovoltaice 5 nebo 10 kWp? Výpočet kapacity",
+  "excerpt": "Jak vypočítat velikost baterie k fotovoltaice podle večerní spotřeby a přebytků. Srovnání 5, 10 a 15 kWh, výkonu BYD HVS, zálohy i návratnosti rozšíření.",
+  "source_commit": "c7e009df3de1e04cdb3074777a0cef0efe389afb",
+  "source_file": "content/rewrites/jak-velkou-baterii-k-fotovoltaice.html",
+  "source_sha256": "4892a228fdc487e904204226aa82249a3b9f5b8b87357c35b2c26af61494e75c",
+  "expect_absent": true
+}
