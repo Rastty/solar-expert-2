@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_selector_ux",
   "source_blob_sha1": "7f53439b0ad508620878b48e9367830f7ed8d85e"
