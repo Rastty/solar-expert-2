@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_heatpump_consumption_budget",
   "source_blob_sha1": "3bc3cad0f35dd5e30b62355200442aebdb49a33d"
