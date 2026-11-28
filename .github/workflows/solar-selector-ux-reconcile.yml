@@ -1,0 +1,40 @@
+name: Solar selector UX live diagnostics (GET only)
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/solar-selector-ux-reconcile.yml']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: |
+          npm init -y >/dev/null
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install chromium
+      - name: Inspect public selector structure, state, and enhancement
+        run: |
+          node --input-type=module <<'JS'
+          import {chromium} from 'playwright';
+          const origin='https://solar-expert.cz';
+          const browser=await chromium.launch();
+          const ctx=await browser.newContext({viewport:{width:375,height:812},serviceWorkers:'block'});
+          await ctx.route('**/*',async r=>{const q=r.request(),u=new URL(q.url());if(q.method()==='GET'&&(u.origin===origin||(u.hostname==='cdn.jsdelivr.net'&&u.pathname==='/npm/alpinejs@3.14.9/dist/cdn.min.js')))return r.continue();return r.abort('blockedbyclient');});
+          for(const [kind,path,root] of [['battery','/vyber-baterii/','solarExpertBatterySelector()'],['inverter','/vyber-menice/','solarExpertInverterSelector()'],['mppt','/mppt-kalkulacka/','solarExpertMpptSelector()']]){
+            const p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(String(e.message).slice(0,200)));p.on('response',r=>{if(new URL(r.url()).pathname.includes('/catalog'))console.log('catalog response',kind,r.status())});
+            await p.goto(origin+path+'?seux_reconcile=1',{waitUntil:'domcontentloaded'});
+            await p.waitForTimeout(3000);
+            const out=await p.evaluate(root=>{
+              const r=document.querySelector('[x-data="'+root+'"]'),s=r&&window.Alpine?.$data?.(r),form=r?.querySelector('.se-formgrid'),bundles=r?.querySelector('.se-bundles');
+              return {root:!!r,mounted:r?.getAttribute('data-se-selector-ux-v1'),alpine:!!window.Alpine,state:s&&{catalog:s.catalog?.length,loading:s.catalogLoading,error:s.catalogError,valid:s.inputValid,matches:s.matches?.length,hasMetrics:Object.fromEntries(['requiredBatteryKwh','requiredDischargeA','continuousW','peakW','requiredDcA','panelWp','coldStringVoc','arrayIsc'].map(k=>[k,k in s]))},form:!!form,formParent:form?.parentElement===r,bundles:!!bundles,rows:[...r?.querySelectorAll('.se-row')||[]].map(n=>({text:n.querySelector('h3')?.textContent?.trim(),parent:n.parentElement===r})),headings:[...r?.querySelectorAll('h2,h3')||[]].map(n=>n.textContent.trim()).slice(0,12),inputs:[...form?.querySelectorAll('input,select')||[]].map(n=>n.id),scripts:[...document.scripts].filter(n=>n.textContent.includes('se-sux-summary')).length,summary:r?.querySelector('.se-sux-summary')?.dataset.state};
+            },root);
+            console.log('SEUX_DIAGNOSTIC',JSON.stringify({kind,...out,errors}));
+            await p.close();
+          }
+          await browser.close();
+          JS
