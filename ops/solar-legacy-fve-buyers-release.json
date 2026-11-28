@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_legacy_fve_buyers",
+  "source_blob_sha1": "45438692cf84cd140accbe2d524a6a51a855a70e"
+}
