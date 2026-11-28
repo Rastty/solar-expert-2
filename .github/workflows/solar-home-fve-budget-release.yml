@@ -48,7 +48,7 @@ jobs:
         run: |
           jq -e '.schema_version==1 and (.enabled|type)=="boolean"
             and .revision==1 and .mode=="one_reversible_home_fve_budget"
-            and .source_blob_sha1=="79c7b43fb4bd08d953744bf5293aed97b98c92bc" ' ops/solar-home-fve-budget-release.json >/dev/null
+            and .source_blob_sha1=="886cfca18cd99bff2ee3ce73ea199b3b3b35237d" ' ops/solar-home-fve-budget-release.json >/dev/null
 
       - name: Current public article preflight and indexability (GET only)
         if: github.event_name == 'pull_request'
@@ -75,15 +75,15 @@ jobs:
           [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-home-fve-budget-release.json' ]] || exit 0
-          [[ "$(git rev-parse "$BEFORE:content/snippets/home-fve-budget-v1.php")" == '79c7b43fb4bd08d953744bf5293aed97b98c92bc' ]] || exit 0
-          [[ "$(git rev-parse "$AFTER:content/snippets/home-fve-budget-v1.php")" == '79c7b43fb4bd08d953744bf5293aed97b98c92bc' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/home-fve-budget-v1.php")" == '886cfca18cd99bff2ee3ce73ea199b3b3b35237d' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/home-fve-budget-v1.php")" == '886cfca18cd99bff2ee3ce73ea199b3b3b35237d' ]] || exit 0
           git show "$BEFORE:ops/solar-home-fve-budget-release.json" |
             jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
               "mode":"one_reversible_home_fve_budget",
-              "source_blob_sha1":"79c7b43fb4bd08d953744bf5293aed97b98c92bc"}' >/dev/null
+              "source_blob_sha1":"886cfca18cd99bff2ee3ce73ea199b3b3b35237d"}' >/dev/null
           jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
             "mode":"one_reversible_home_fve_budget",
-            "source_blob_sha1":"79c7b43fb4bd08d953744bf5293aed97b98c92bc"}' ops/solar-home-fve-budget-release.json >/dev/null
+            "source_blob_sha1":"886cfca18cd99bff2ee3ce73ea199b3b3b35237d"}' ops/solar-home-fve-budget-release.json >/dev/null
           echo 'armed=true' >> "$GITHUB_OUTPUT"
       - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
         if: steps.gate.outputs.armed == 'true'
