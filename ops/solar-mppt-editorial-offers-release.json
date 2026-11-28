@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "revision": 1,
+  "mode": "one_reversible_mppt_editorial_offers",
+  "source_blob_sha1": "b6bfe71cf9c45f47c05f90a8629c70c39558f2e6"
+}
