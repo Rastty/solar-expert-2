@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_heating_ups_offers",
   "source_blob_sha1": "1539345b91bbad9981370fe7e84070948312e82e"
