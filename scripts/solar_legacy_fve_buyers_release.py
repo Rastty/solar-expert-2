@@ -94,7 +94,10 @@ def check_public(after):
     choice=public('/jak-spravne-vybrat-fotovoltaiku/')
     home=public('/')
     for slug,html in (('/kolik-se-usetri-s-fotovoltaikou/',savings),('/jak-spravne-vybrat-fotovoltaiku/',choice)):
-        head=inspect_head(html)
+        outer_head=re.search(r'<head(?:\s[^>]*)?>.*?</head\s*>',html,re.I|re.S)
+        require(outer_head is not None,'Public document head missing')
+        head=inspect_head(outer_head.group(0))
+        print('Public head '+slug+' titles='+str(len(head['titles']))+' canonicals='+str(head['canonicals'])+' robots='+str(head['robots']))
         require(head['canonicals']==[SITE+slug] and len(head['titles'])==1 and
                 not any('noindex' in str(x).lower() for x in head['robots']),
                 'Public article canonical/indexability changed')
