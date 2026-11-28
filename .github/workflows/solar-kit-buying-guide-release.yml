@@ -48,7 +48,7 @@ jobs:
         run: |
           jq -e '.schema_version==1 and (.enabled|type)=="boolean"
             and .revision==1 and .mode=="one_reversible_kit_buying_guide"
-            and .source_blob_sha1=="63f031b8851dd49755835e3b1c0a0b8a05b61ecc" ' ops/solar-kit-buying-guide-release.json >/dev/null
+            and .source_blob_sha1=="84833fc669a1e7ddd07e0b01689b86eb7b789f7b" ' ops/solar-kit-buying-guide-release.json >/dev/null
 
       - name: Current public article preflight and indexability (GET only)
         if: github.event_name == 'pull_request'
@@ -75,15 +75,15 @@ jobs:
           [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
           [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-kit-buying-guide-release.json' ]] || exit 0
-          [[ "$(git rev-parse "$BEFORE:content/snippets/solar-kit-buying-guide-v1.php")" == '63f031b8851dd49755835e3b1c0a0b8a05b61ecc' ]] || exit 0
-          [[ "$(git rev-parse "$AFTER:content/snippets/solar-kit-buying-guide-v1.php")" == '63f031b8851dd49755835e3b1c0a0b8a05b61ecc' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/solar-kit-buying-guide-v1.php")" == '84833fc669a1e7ddd07e0b01689b86eb7b789f7b' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/solar-kit-buying-guide-v1.php")" == '84833fc669a1e7ddd07e0b01689b86eb7b789f7b' ]] || exit 0
           git show "$BEFORE:ops/solar-kit-buying-guide-release.json" |
             jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
               "mode":"one_reversible_kit_buying_guide",
-              "source_blob_sha1":"63f031b8851dd49755835e3b1c0a0b8a05b61ecc"}' >/dev/null
+              "source_blob_sha1":"84833fc669a1e7ddd07e0b01689b86eb7b789f7b"}' >/dev/null
           jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
             "mode":"one_reversible_kit_buying_guide",
-            "source_blob_sha1":"63f031b8851dd49755835e3b1c0a0b8a05b61ecc"}' ops/solar-kit-buying-guide-release.json >/dev/null
+            "source_blob_sha1":"84833fc669a1e7ddd07e0b01689b86eb7b789f7b"}' ops/solar-kit-buying-guide-release.json >/dev/null
           echo 'armed=true' >> "$GITHUB_OUTPUT"
       - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
         if: steps.gate.outputs.armed == 'true'
