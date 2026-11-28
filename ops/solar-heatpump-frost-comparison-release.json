@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_heatpump_frost_comparison",
   "source_blob_sha1": "d18be00a4478e148e9947a2c6d5c143c20078e0b"
