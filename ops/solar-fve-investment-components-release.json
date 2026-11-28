@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "enabled": false,
+  "enabled": true,
   "revision": 1,
   "mode": "one_reversible_fve_investment_components",
   "source_blob_sha1": "d5f128997ecb4ef39f389ef420db18af540c5cca"
