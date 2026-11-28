@@ -22,7 +22,7 @@ RECEIPT=ROOT/'artifacts/solar-kit-buying-guide-release.json'
 NAME='Solar Expert complete kit buying guide v1'
 DESC='Complete-kit guide: worked consumption, energy, battery, inverter and quote comparison'
 MODE='one_reversible_kit_buying_guide'
-SOURCE_BLOB='63f031b8851dd49755835e3b1c0a0b8a05b61ecc'
+SOURCE_BLOB='84833fc669a1e7ddd07e0b01689b86eb7b789f7b'
 SOURCE_PATH=ROOT/'content/snippets/solar-kit-buying-guide-v1.php'
 PHP_CODE=SOURCE_PATH.read_text(encoding='utf-8')
 BYTES=PHP_CODE.encode('utf-8')
