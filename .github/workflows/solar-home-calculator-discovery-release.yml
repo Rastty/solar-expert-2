@@ -1,0 +1,120 @@
+name: Solar homepage calculator discovery - source-locked reversible WP Snippet
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-home-calculator-discovery-release.yml'
+      - 'scripts/solar_home_calculator_discovery_release.py'
+      - 'content/snippets/home-calculator-discovery-v1.php'
+      - 'ops/solar-home-calculator-discovery-release.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/solar-home-calculator-discovery-release.yml'
+      - 'scripts/solar_home_calculator_discovery_release.py'
+      - 'content/snippets/home-calculator-discovery-v1.php'
+      - 'ops/solar-home-calculator-discovery-release.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solar-editorial-wp-single-writer
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run source-lock and WordPress synthetic no-retry contract
+        run: |
+          python -m py_compile scripts/solar_home_calculator_discovery_release.py
+          php -l content/snippets/home-calculator-discovery-v1.php
+      - name: WordPress Code Snippets exact PHP source syntax
+        run: |
+          python - <<'PY'
+          from scripts.solar_home_calculator_discovery_release import PHP_CODE
+          from pathlib import Path
+          Path('/tmp/solar-kit-buying-guide.php').write_text('<?php\n'+PHP_CODE)
+          PY
+          php -l /tmp/solar-kit-buying-guide.php
+      - name: Verify actual scoped HTML transform and fail-closed behavior
+        run: |
+          php <<'PHP'
+          <?php
+          function add_action(...$args){}
+          eval(file_get_contents('content/snippets/home-calculator-discovery-v1.php'));
+          $anchor='<h2 class="se-title">Samostatné nástroje pro konkrétní rozhodnutí.</h2><div class="se-tools">';
+          $html='<html><body><main>'.$anchor.'<a class="se-tool" href="/vyber-baterii/">Původní</a></div></main></body></html>';
+          $out=solar_expert_home_calculator_discovery_v1_render($html);
+          $require=function($ok){if(!$ok){fwrite(STDERR,"Transform assertion failed\n");exit(1);}};
+          $require(substr_count($out,'data-se-home-calculator-discovery-v1=')===2);
+          $require(strpos($out,'href="/kdy-ma-smysl-fotovoltaika/#se-bic-title"')!==false);
+          $require(strpos($out,'href="/zalozni-zdroj-pro-obehove-cerpadlo/#se-urc-title"')!==false);
+          $require(strpos($out,'href="/vyber-baterii/"')!==false);
+          $require(solar_expert_home_calculator_discovery_v1_render($out)===$out);
+          $require(solar_expert_home_calculator_discovery_v1_render('<html><body>'.$anchor.$anchor.'</body></html>')==='<html><body>'.$anchor.$anchor.'</body></html>');
+          $require(solar_expert_home_calculator_discovery_v1_render($anchor,PHP_OUTPUT_HANDLER_FLUSH)===$anchor);
+          $require(solar_expert_home_calculator_discovery_v1_render($html)===$html);
+          echo "Actual PHP transform and partial-response safety passed\n";
+          PHP
+      - name: Review immutable source identity on draft and activation PRs (no WP writes on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          jq -e '.schema_version==1 and (.enabled|type)=="boolean"
+            and .revision==1 and .mode=="one_reversible_home_calculator_discovery"
+            and .source_blob_sha1=="496020ff98917e8d444e2c65790b844770e001ca" ' ops/solar-home-calculator-discovery-release.json >/dev/null
+
+      - name: Current public article preflight and indexability (GET only)
+        if: github.event_name == 'pull_request'
+        run: python -c "from scripts.solar_home_calculator_discovery_release import check_public; check_public(False)"
+  one-shot-activate:
+    needs: offline-contract
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Only exactly one independent disarmed-to-armed control change authorizes WP writes
+        id: gate
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'armed=false' >> "$GITHUB_OUTPUT"
+          [[ "$BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$AFTER" =~ ^[a-f0-9]{40}$ ]] || exit 0
+          [[ "$(git diff --name-only "$BEFORE" "$AFTER")" == 'ops/solar-home-calculator-discovery-release.json' ]] || exit 0
+          [[ "$(git rev-parse "$BEFORE:content/snippets/home-calculator-discovery-v1.php")" == '496020ff98917e8d444e2c65790b844770e001ca' ]] || exit 0
+          [[ "$(git rev-parse "$AFTER:content/snippets/home-calculator-discovery-v1.php")" == '496020ff98917e8d444e2c65790b844770e001ca' ]] || exit 0
+          git show "$BEFORE:ops/solar-home-calculator-discovery-release.json" |
+            jq -e '. == {"schema_version":1,"enabled":false,"revision":1,
+              "mode":"one_reversible_home_calculator_discovery",
+              "source_blob_sha1":"496020ff98917e8d444e2c65790b844770e001ca"}' >/dev/null
+          jq -e '. == {"schema_version":1,"enabled":true,"revision":1,
+            "mode":"one_reversible_home_calculator_discovery",
+            "source_blob_sha1":"496020ff98917e8d444e2c65790b844770e001ca"}' ops/solar-home-calculator-discovery-release.json >/dev/null
+          echo 'armed=true' >> "$GITHUB_OUTPUT"
+      - name: Exact reversible Code Snippets create + activation, with GET-only before/after, never retry
+        if: steps.gate.outputs.armed == 'true'
+        env:
+          SOLAR_WP_USER: ${{ secrets.SOLAR_WP_USER }}
+          SOLAR_WP_APP_PASSWORD: ${{ secrets.SOLAR_WP_APP_PASSWORD }}
+        run: python -m scripts.solar_home_calculator_discovery_release
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-home-calculator-discovery-receipt-${{ github.run_id }}
+          path: artifacts/solar-home-calculator-discovery-release.json
+          retention-days: 14
+          if-no-files-found: warn
